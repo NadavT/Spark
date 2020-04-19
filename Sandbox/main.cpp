@@ -16,5 +16,6 @@ public:
 
 Spark::Application* Spark::CreateApplication()
 {
+	SPARK_INFO("test {0}", 5);
 	return new Sandbox();
 }
