@@ -1,0 +1,6 @@
+# Build Dir
+build
+
+# Visual Studio
+.vs
+CMakeSettings.json
