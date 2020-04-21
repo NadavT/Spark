@@ -27,3 +27,5 @@
 #else
     #error "only windows is currently supported!""
 #endif // End of DLL support
+
+#define BIT(n) (1 << n)
