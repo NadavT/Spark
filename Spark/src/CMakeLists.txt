@@ -11,7 +11,8 @@ set(SPARK_SOURCE
     )
 
 set(SPARK_WINDOWS_SOURCE
-    "platform/Windows/windows_window.cpp"
+    "platform/Windows/window.cpp"
+    "platform/Windows/time.cpp"
     )
 
 add_library(spark SHARED ${SPARK_SOURCE} ${SPARK_WINDOWS_SOURCE})

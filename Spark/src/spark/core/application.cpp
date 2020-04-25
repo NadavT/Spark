@@ -3,6 +3,7 @@
 #include "spark/event/keyboard_event.h"
 #include "spark/event/mouse_event.h"
 #include "spark/core/log.h"
+#include "spark/core/time.h"
 
 namespace Spark
 {

@@ -1,4 +1,4 @@
-#include "windows_window.h"
+#include "window.h"
 
 #include "spark/core/log.h"
 #include "spark/event/application_event.h"

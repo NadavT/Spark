@@ -1,7 +1,7 @@
 #include "window.h"
 
 #ifdef SPARK_PLATFORM_WINDOWS
-#include "platform/Windows/windows_window.h"
+#include "platform/Windows/window.h"
 #endif
 
 namespace Spark
