@@ -2,6 +2,7 @@
 
 #include "spark/core/core.h"
 #include "spark/event/event.h"
+#include "spark/core/time.h"
 #include <functional>
 
 namespace Spark
@@ -9,8 +10,8 @@ namespace Spark
 	struct WindowProperties
 	{
 		std::string title;
-		unsigned int width;
-		unsigned int height;
+		unsigned int width = 0;
+		unsigned int height = 0;;
 
 		WindowProperties(const std::string& title = "Spark Engine app",
 			unsigned int width = 1280,
@@ -27,7 +28,7 @@ namespace Spark
 	public:
 		virtual ~Window() {}
 
-		virtual void OnUpdate() = 0;
+		virtual void OnUpdate(Time& diffTime) = 0;
 
 		virtual unsigned int GetWidth() const = 0;
 		virtual unsigned int GetHeight() const = 0;

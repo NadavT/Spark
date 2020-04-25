@@ -10,3 +10,6 @@
 
 //----------EVENTS----------
 #include "spark/event/event.h"
+
+//----------LAYERS----------
+#include "spark/core/layer.h"

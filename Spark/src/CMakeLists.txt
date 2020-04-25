@@ -8,6 +8,8 @@ set(SPARK_SOURCE
     "spark/core/application.cpp"
     "spark/core/log.cpp"
     "spark/core/window.cpp"
+    "spark/core/layer.cpp"
+    "spark/core/layer_stack.cpp"
     )
 
 set(SPARK_WINDOWS_SOURCE

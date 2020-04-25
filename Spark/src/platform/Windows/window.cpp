@@ -163,7 +163,7 @@ namespace Spark
 		}
 	}
 
-	void WindowsWindow::OnUpdate()
+	void WindowsWindow::OnUpdate(Time& diffTime)
 	{
 		glfwPollEvents();
 	}

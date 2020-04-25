@@ -10,7 +10,8 @@ namespace Spark
 	struct WindowData
 	{
 		std::string title;
-		unsigned int width, height;
+		unsigned int width = 0;
+		unsigned int height = 0;
 
 		EventCallbackFn eventCallback;
 	};
@@ -21,7 +22,7 @@ namespace Spark
 		WindowsWindow(const WindowProperties& properties);
 		virtual ~WindowsWindow();
 
-		void OnUpdate() override;
+		void OnUpdate(Time& diffTime) override;
 
 		unsigned int GetWidth() const override { return m_data.width; }
 		unsigned int GetHeight() const override { return m_data.height; }
