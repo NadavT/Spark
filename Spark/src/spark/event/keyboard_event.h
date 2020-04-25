@@ -36,7 +36,7 @@ namespace Spark {
 		std::string ToString() const override
 		{
 			std::stringstream stream;
-			stream << Event::ToString() << " (" << m_RepeatCount << " repeats)";
+			stream << Event::ToString() << ": keycode=" << m_KeyCode << " (" << m_RepeatCount << " repeats)";
 			return stream.str();
 		}
 
