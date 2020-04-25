@@ -4,23 +4,47 @@
 #include "spark/event/mouse_event.h"
 #include "spark/core/log.h"
 
-Spark::Application::Application()
+namespace Spark
 {
-	WindowResizeEvent resizeEvent(100, 200);
-	SPARK_CORE_INFO("Got event: {0}", ((Event&)resizeEvent).ToString());
-	MouseMovedEvent mouseMovedEvent(100, 200);
-	SPARK_CORE_INFO("Got event: {0}", ((Event&)mouseMovedEvent).ToString());
-
-}
-
-Spark::Application::~Application()
-{
-}
-
-void Spark::Application::Run()
-{
-	while (true)
+	Application::Application()
 	{
+		m_window = Window::Create();
+		m_window->SetEventCallback(SPARK_BIND_EVENT_FN(Application::OnEvent));
+	}
 
+	Application::~Application()
+	{
+	}
+
+	void Application::OnEvent(Event& e)
+	{
+		SPARK_CORE_TRACE("Got event: {0}", e.ToString());
+		EventDispatcher dispatcher(e);
+		dispatcher.Dispatch<WindowCloseEvent>(SPARK_BIND_EVENT_FN(Application::OnWindowClose));
+		dispatcher.Dispatch<WindowResizeEvent>(SPARK_BIND_EVENT_FN(Application::OnWindowResize));
+	}
+
+	void Application::Run()
+	{
+		while (!m_shouldClose)
+		{
+			m_window->OnUpdate();
+		}
+	}
+	bool Application::OnWindowClose(WindowCloseEvent& e)
+	{
+		m_shouldClose = true;
+		return true;
+	}
+	bool Application::OnWindowResize(WindowResizeEvent& e)
+	{
+		if (e.GetWidth() == 0 || e.GetHeight() == 0)
+		{
+			m_Minimized = true;
+			return false;
+		}
+		m_Minimized = false;
+
+		return false;
 	}
 }
