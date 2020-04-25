@@ -1,4 +1,5 @@
 #include <spark.h>
+#include <spark/core/entry_point.h>
 
 class SandboxLayer : public Spark::Layer
 {
@@ -26,7 +27,7 @@ public:
 
 	virtual void OnEvent(Spark::Event& e)
 	{
-
+		SPARK_TRACE("Got event: {0}", e.ToString());
 	}
 
 };

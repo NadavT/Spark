@@ -6,6 +6,6 @@ namespace Spark
 {
 	Time getCurrentTime()
 	{
-		return Time(glfwGetTime());
+		return Time((float)glfwGetTime());
 	}
 }
