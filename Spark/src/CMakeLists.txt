@@ -10,11 +10,13 @@ set(SPARK_SOURCE
     "spark/core/window.cpp"
     "spark/core/layer.cpp"
     "spark/core/layer_stack.cpp"
+    "spark/core/input.cpp"
     )
 
 set(SPARK_WINDOWS_SOURCE
     "platform/Windows/window.cpp"
     "platform/Windows/time.cpp"
+    "platform/Windows/input.cpp"
     )
 
 add_library(spark SHARED ${SPARK_SOURCE} ${SPARK_WINDOWS_SOURCE})

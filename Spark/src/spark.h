@@ -10,3 +10,6 @@
 
 //----------LAYERS----------
 #include "spark/core/layer.h"
+
+//----------INPUTS----------
+#include "spark/core/input.h"

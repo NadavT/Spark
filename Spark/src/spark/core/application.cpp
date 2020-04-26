@@ -4,13 +4,18 @@
 #include "spark/event/mouse_event.h"
 #include "spark/core/log.h"
 #include "spark/core/time.h"
+#include "spark/core/input.h"
 
 namespace Spark
 {
 	Application::Application()
 	{
+		loggerInit();
+
 		m_window = Window::Create();
 		m_window->SetEventCallback(SPARK_BIND_EVENT_FN(Application::OnEvent));
+		
+		Input::Init(*this);
 	}
 
 	Application::~Application()
@@ -71,6 +76,11 @@ namespace Spark
 
 			m_window->OnUpdate(timestep);
 		}
+	}
+
+	const Window& Application::GetWindow() const
+	{
+		return *m_window;
 	}
 	bool Application::OnWindowClose(WindowCloseEvent& e)
 	{

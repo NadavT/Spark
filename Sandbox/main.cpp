@@ -22,7 +22,7 @@ public:
 
 	virtual void OnUpdate(Spark::Time& diffTime)
 	{
-		
+
 	}
 
 	virtual void OnEvent(Spark::Event& e)

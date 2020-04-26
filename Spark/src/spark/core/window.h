@@ -7,13 +7,13 @@
 
 namespace Spark
 {
-	struct WindowProperties
+	struct SPARK_API WindowProperties
 	{
-		std::string title;
+		const char* title;
 		unsigned int width = 0;
 		unsigned int height = 0;;
 
-		WindowProperties(const std::string& title = "Spark Engine app",
+		WindowProperties(const char* title = "Spark Engine app",
 			unsigned int width = 1280,
 			unsigned int height = 720)
 			: title(title), width(width), height(height)
@@ -23,17 +23,17 @@ namespace Spark
 
 	using EventCallbackFn = std::function<void(Event&)>;
 
-	class SPARK_API Window
+	class Window
 	{
 	public:
 		virtual ~Window() {}
 
 		virtual void OnUpdate(Time& diffTime) = 0;
 
-		virtual unsigned int GetWidth() const = 0;
-		virtual unsigned int GetHeight() const = 0;
+		SPARK_API virtual unsigned int GetWidth() const = 0;
+		SPARK_API virtual unsigned int GetHeight() const = 0;
 
-		virtual void SetEventCallback(const EventCallbackFn& callback) = 0;
+		SPARK_API virtual void SetEventCallback(const EventCallbackFn& callback) = 0;
 
 		static std::unique_ptr<Window> Create(const WindowProperties& properties = WindowProperties());
 	};

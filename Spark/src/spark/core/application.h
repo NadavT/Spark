@@ -21,6 +21,8 @@ namespace Spark
 		SPARK_API void PopOverlay(Layer* layer);
 
 		SPARK_API void Run();
+
+		const Window& GetWindow() const;
 	private:
 		bool OnWindowClose(WindowCloseEvent& e);
 		bool OnWindowResize(WindowResizeEvent& e);

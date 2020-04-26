@@ -9,9 +9,8 @@ extern Spark::Application* Spark::CreateApplication();
 
 int main(int argc, char** argv)
 {
-	Spark::loggerInit();
-	SPARK_CORE_TRACE("Initializing app");
 	Spark::Application* app = Spark::CreateApplication();
+	SPARK_CORE_TRACE("Initialized app");
 	app->Run();
 	delete app;
 }
