@@ -11,31 +11,31 @@ namespace Spark
 	SPARK_API spdlog::logger* getClientLogger();
 
 	template<typename... Args>
-	SPARK_API void logTrace(spdlog::logger* logger, const Args&... args)
+	void logTrace(spdlog::logger* logger, const Args&... args)
 	{
 		logger->trace(args...);
 	}
 
 	template<typename... Args>
-	SPARK_API void logInfo(spdlog::logger* logger, const Args&... args)
+	void logInfo(spdlog::logger* logger, const Args&... args)
 	{
 		logger->info(args...);
 	}
 
 	template<typename... Args>
-	SPARK_API void logWarn(spdlog::logger* logger, const Args&... args)
+	void logWarn(spdlog::logger* logger, const Args&... args)
 	{
 		logger->warn(args...);
 	}
 
 	template<typename... Args>
-	SPARK_API void logError(spdlog::logger* logger, const Args&... args)
+	void logError(spdlog::logger* logger, const Args&... args)
 	{
 		logger->error(args...);
 	}
 
 	template<typename... Args>
-	SPARK_API void logCritical(spdlog::logger* logger, const Args&... args)
+	void logCritical(spdlog::logger* logger, const Args&... args)
 	{
 		logger->critical(args...);
 	}

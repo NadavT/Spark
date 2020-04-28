@@ -35,6 +35,8 @@ namespace Spark
 
 		SPARK_API virtual void SetEventCallback(const EventCallbackFn& callback) = 0;
 
+		virtual void* getPlatformWindow() const = 0;
+
 		static std::unique_ptr<Window> Create(const WindowProperties& properties = WindowProperties());
 	};
 }

@@ -15,6 +15,11 @@ namespace Spark
 		#endif
 	}
 
+	void Input::Destroy()
+	{
+		s_input.reset(nullptr);
+	}
+
 	bool Input::IsKeyPressed(KeyCode key)
 	{
 		return s_input->IsKeyPressedImpl(key);

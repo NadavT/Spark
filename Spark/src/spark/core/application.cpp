@@ -15,11 +15,16 @@ namespace Spark
 		m_window = Window::Create();
 		m_window->SetEventCallback(SPARK_BIND_EVENT_FN(Application::OnEvent));
 		
+		m_renderer = Renderer::Create(GetWindow());
+
 		Input::Init(*this);
 	}
 
 	Application::~Application()
 	{
+		Input::Destroy();
+		m_renderer.reset(nullptr);
+		m_window.reset(nullptr);
 	}
 
 	void Application::OnEvent(Event& e)

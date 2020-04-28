@@ -24,6 +24,7 @@ namespace Spark
 		SPARK_API static float GetMouseY();
 
 		static void Init(const Application& app);
+		static void Destroy();
 	protected:
 		virtual bool IsKeyPressedImpl(KeyCode key) = 0;
 

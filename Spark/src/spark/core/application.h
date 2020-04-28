@@ -4,6 +4,7 @@
 #include "spark/core/window.h"
 #include "spark/event/application_event.h"
 #include "spark/core/layer_stack.h"
+#include "spark/renderer/renderer.h"
 
 namespace Spark
 {
@@ -28,6 +29,7 @@ namespace Spark
 		bool OnWindowResize(WindowResizeEvent& e);
 	private:
 		std::unique_ptr<Window> m_window;
+		std::unique_ptr<Renderer> m_renderer;
 		bool m_shouldClose = false;
 		bool m_minimized = false;
 		LayerStack m_layerStack;

@@ -30,6 +30,8 @@ namespace Spark
 		// Window attributes
 		void SetEventCallback(const EventCallbackFn& callback) override { m_data.eventCallback = callback; }
 
+		virtual void* getPlatformWindow() const override;
+
 		virtual void* GetNativeWindow() const { return m_window; }
 	private:
 		virtual void Init(const WindowProperties& properties);
