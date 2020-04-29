@@ -1,6 +1,7 @@
 #pragma once
 
 #include "spark/core/layer.h"
+#include "spark/renderer/renderer.h"
 
 namespace Spark
 {
@@ -14,5 +15,7 @@ namespace Spark
 		{
 
 		};
+	public:
+		static std::unique_ptr<Overlay> Create(Renderer& renderer);
 	};
 }

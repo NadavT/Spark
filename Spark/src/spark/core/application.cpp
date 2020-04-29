@@ -18,10 +18,15 @@ namespace Spark
 		m_renderer = Renderer::Create(GetWindow());
 
 		Input::Init(*this);
+
+		m_overlay = Overlay::Create(*m_renderer);
+		m_overlay->OnAttach();
 	}
 
 	Application::~Application()
 	{
+		m_overlay->OnDetach();
+		m_overlay.reset(nullptr);
 		Input::Destroy();
 		m_renderer.reset(nullptr);
 		m_window.reset(nullptr);
@@ -33,11 +38,15 @@ namespace Spark
 		dispatcher.Dispatch<WindowCloseEvent>(SPARK_BIND_EVENT_FN(Application::OnWindowClose));
 		dispatcher.Dispatch<WindowResizeEvent>(SPARK_BIND_EVENT_FN(Application::OnWindowResize));
 
-		for (auto it = m_layerStack.rbegin(); it != m_layerStack.rend(); ++it)
+		m_overlay->OnEvent(e);
+		if (!e.handled)
 		{
-			(*it)->OnEvent(e);
-			if (e.handled)
-				break;
+			for (auto it = m_layerStack.rbegin(); it != m_layerStack.rend(); ++it)
+			{
+				(*it)->OnEvent(e);
+				if (e.handled)
+					break;
+			}
 		}
 	}
 
@@ -77,9 +86,15 @@ namespace Spark
 			{
 				for (Layer* layer : m_layerStack)
 					layer->OnUpdate(timestep);
+				m_overlay->OnUpdate(timestep);
 			}
-
+			
+			m_renderer->finalize();
 			m_window->OnUpdate(timestep);
+
+			timestep = getCurrentTime() - m_lastFrameTime;
+			if (timestep.GetSeconds() < 1.0 / 120)
+				sleep(Time(1.0f / 120) - timestep);
 		}
 	}
 

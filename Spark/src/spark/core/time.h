@@ -23,10 +23,13 @@ namespace Spark
 		float GetMilliSeconds() const { return m_time * 1000.0f; }
 
 		Time operator+(Time const& other) { return Time(m_time + other.m_time); }
-		Time operator-(Time const& other) { return Time(m_time - other.m_time); }
+		Time operator-(Time const& other) {
+			return Time(m_time - other.m_time);
+		}
 	private:
 		float m_time;
 	};
 
 	Time getCurrentTime();
+	void sleep(const Time& time);
 }

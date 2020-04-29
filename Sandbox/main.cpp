@@ -27,7 +27,8 @@ public:
 
 	virtual void OnEvent(Spark::Event& e)
 	{
-		SPARK_TRACE("Got event: {0}", e.ToString());
+		if (e.GetEventType() != Spark::EventType::MouseMoved)
+			SPARK_TRACE("Got event: {0}", e.ToString());
 	}
 
 };

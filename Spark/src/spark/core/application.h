@@ -5,6 +5,7 @@
 #include "spark/event/application_event.h"
 #include "spark/core/layer_stack.h"
 #include "spark/renderer/renderer.h"
+#include "spark/overlay/overlay.h"
 
 namespace Spark
 {
@@ -34,6 +35,8 @@ namespace Spark
 		bool m_minimized = false;
 		LayerStack m_layerStack;
 		Time m_lastFrameTime;
+
+		std::unique_ptr<Overlay> m_overlay;
 	};
 
 	Application* CreateApplication();
