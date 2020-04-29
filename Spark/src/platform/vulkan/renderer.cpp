@@ -8,7 +8,7 @@ namespace Spark
 
 	}
 
-	void VulkanRenderer::finalize()
+	void VulkanRenderer::end()
 	{
 		vkDeviceWaitIdle(m_context.m_device);
 	}

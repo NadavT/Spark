@@ -16,6 +16,7 @@ namespace Spark
 		SPARK_API virtual void OnDetach() {}
 		SPARK_API virtual void OnUpdate(Time& diffTime) {}
 		SPARK_API virtual void OnEvent(Event& e) {}
+		SPARK_API virtual void OnRender() {}
 
 		SPARK_API const char* getName() const;
 	protected:

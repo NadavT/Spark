@@ -136,14 +136,30 @@ namespace Spark
 
     void VulkanOverlay::OnUpdate(Time& diffTime)
     {
-        VkResult err = VK_SUCCESS;
         ImGuiIO& io = ImGui::GetIO();
 
         io.DeltaTime = diffTime.GetSeconds();
         io.DisplaySize = ImVec2((float)m_renderer.m_context.m_swapChainExtent.width, (float)m_renderer.m_context.m_swapChainExtent.height);
         io.DisplayFramebufferScale = ImVec2(1, 1);
-        const ImVec2 mouse_pos_backup = io.MousePos;
         io.MousePos = ImVec2(Input::GetMouseX(), Input::GetMouseY());
+    }
+
+    void VulkanOverlay::OnEvent(Event& e)
+    {
+        EventDispatcher dispatcher(e);
+        dispatcher.Dispatch<MouseButtonPressedEvent>(SPARK_BIND_EVENT_FN(VulkanOverlay::onMouseButtonPressed));
+        dispatcher.Dispatch<MouseButtonReleasedEvent>(SPARK_BIND_EVENT_FN(VulkanOverlay::onMouseButtonReleased));
+        dispatcher.Dispatch<MouseMovedEvent>(SPARK_BIND_EVENT_FN(VulkanOverlay::onMouseMoved));
+        dispatcher.Dispatch<MouseScrolledEvent>(SPARK_BIND_EVENT_FN(VulkanOverlay::onMouseScroll));
+        dispatcher.Dispatch<KeyPressedEvent>(SPARK_BIND_EVENT_FN(VulkanOverlay::onKeyPressed));
+        dispatcher.Dispatch<KeyReleasedEvent>(SPARK_BIND_EVENT_FN(VulkanOverlay::onKeyReleased));
+        dispatcher.Dispatch<KeyTypedEvent>(SPARK_BIND_EVENT_FN(VulkanOverlay::onKeyTyped));
+    }
+
+    void VulkanOverlay::OnRender()
+    {
+        VkResult err = VK_SUCCESS;
+        ImGuiIO& io = ImGui::GetIO();
 
         // Start the Dear ImGui frame
         ImGui_ImplVulkan_NewFrame();
@@ -159,7 +175,7 @@ namespace Spark
             static int counter = 0;
 
             ImGui::SetNextWindowPos(ImVec2(0, 0), ImGuiCond_Always);
-            ImGui::Begin("Hello, world!", NULL, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoBackground);                          // Create a window called "Hello, world!" and append into it.
+            ImGui::Begin("Hello, world!", NULL, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoBackground); // Create a window called "Hello, world!" and append into it.
 
             ImGui::Text("This is some useful text.");               // Display some text (you can use a format strings too)
             ImGui::Text("Current mouse position: %f, %f", io.MousePos.x, io.MousePos.y);               // Display some text (you can use a format strings too)
@@ -194,18 +210,6 @@ namespace Spark
         framePresent();
 
         check_vk_result(err);
-    }
-
-    void VulkanOverlay::OnEvent(Event& e)
-    {
-        EventDispatcher dispatcher(e);
-        dispatcher.Dispatch<MouseButtonPressedEvent>(SPARK_BIND_EVENT_FN(VulkanOverlay::onMouseButtonPressed));
-        dispatcher.Dispatch<MouseButtonReleasedEvent>(SPARK_BIND_EVENT_FN(VulkanOverlay::onMouseButtonReleased));
-        dispatcher.Dispatch<MouseMovedEvent>(SPARK_BIND_EVENT_FN(VulkanOverlay::onMouseMoved));
-        dispatcher.Dispatch<MouseScrolledEvent>(SPARK_BIND_EVENT_FN(VulkanOverlay::onMouseScroll));
-        dispatcher.Dispatch<KeyPressedEvent>(SPARK_BIND_EVENT_FN(VulkanOverlay::onKeyPressed));
-        dispatcher.Dispatch<KeyReleasedEvent>(SPARK_BIND_EVENT_FN(VulkanOverlay::onKeyReleased));
-        dispatcher.Dispatch<KeyTypedEvent>(SPARK_BIND_EVENT_FN(VulkanOverlay::onKeyTyped));
     }
 
     void VulkanOverlay::frameRender()

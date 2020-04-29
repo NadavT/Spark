@@ -82,15 +82,12 @@ namespace Spark
 			Time timestep = currTime - m_lastFrameTime;
 			m_lastFrameTime = currTime;
 
-			if (!m_minimized)
-			{
-				for (Layer* layer : m_layerStack)
-					layer->OnUpdate(timestep);
-				m_overlay->OnUpdate(timestep);
-			}
-			
-			m_renderer->finalize();
+			for (auto it = m_layerStack.rbegin(); it != m_layerStack.rend(); ++it)
+				(*it)->OnUpdate(timestep);
+			m_overlay->OnUpdate(timestep);
 			m_window->OnUpdate(timestep);
+
+			Render();
 
 			timestep = getCurrentTime() - m_lastFrameTime;
 			if (timestep.GetSeconds() < 1.0 / 120)
@@ -102,6 +99,19 @@ namespace Spark
 	{
 		return *m_window;
 	}
+
+	void Application::Render()
+	{
+		if (!m_minimized)
+		{
+			m_renderer->begin();
+			for (Layer* layer : m_layerStack)
+				layer->OnRender();
+			m_overlay->OnRender();
+			m_renderer->end();
+		}
+	}
+
 	bool Application::OnWindowClose(WindowCloseEvent& e)
 	{
 		m_shouldClose = true;

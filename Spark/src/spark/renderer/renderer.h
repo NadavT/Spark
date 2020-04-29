@@ -10,7 +10,8 @@ namespace Spark
 	public:
 		virtual ~Renderer() = default;
 
-		virtual void finalize() = 0;
+		virtual void begin() {};
+		virtual void end() {};
 	protected:
 		Renderer() {};
 

@@ -21,6 +21,7 @@ namespace Spark
 		virtual void OnDetach();
 		virtual void OnUpdate(Time& diffTime);
 		virtual void OnEvent(Event& e);
+		virtual void OnRender();
 
 	private:
 		void frameRender();

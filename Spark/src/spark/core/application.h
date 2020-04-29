@@ -26,6 +26,7 @@ namespace Spark
 
 		const Window& GetWindow() const;
 	private:
+		void Render();
 		bool OnWindowClose(WindowCloseEvent& e);
 		bool OnWindowResize(WindowResizeEvent& e);
 	private:
