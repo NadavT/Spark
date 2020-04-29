@@ -32,7 +32,7 @@ namespace Spark
 
 		virtual void* getPlatformWindow() const override;
 
-		virtual void* GetNativeWindow() const { return m_window; }
+		virtual GLFWwindow* GetNativeWindow() const { return m_window; }
 	private:
 		virtual void Init(const WindowProperties& properties);
 		virtual void Shutdown();

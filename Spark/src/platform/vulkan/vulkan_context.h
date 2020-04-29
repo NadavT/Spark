@@ -33,6 +33,19 @@ namespace Spark
 		VulkanContext& operator=(const VulkanContext& other) = delete;
 		VulkanContext& operator=(VulkanContext&& other) = delete;
 
+		VkFence createFence();
+		void destroyFence(VkFence fence);
+		VkSemaphore createSemaphore();
+		void destroySemaphore(VkSemaphore semaphor);
+		VkCommandBuffer createCommandBuffer();
+		void destroyCommandBuffer(VkCommandBuffer commandBuffer);
+
+		VkImageView createImageView(VkImage image, VkFormat format, VkImageAspectFlags aspectFlags, uint32_t mipLevels);
+		void createImage(uint32_t width, uint32_t height, uint32_t mipLevels, VkSampleCountFlagBits numSamples,
+			VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags properties,
+			VkImage& image, VkDeviceMemory& imageMemory);
+		uint32_t findMemoryType(VkPhysicalDevice physicalDevice, uint32_t typeFilter, VkMemoryPropertyFlags properties);
+
 	private:
 		void createInstance();
 		void setupDebugMessenger();
@@ -41,11 +54,11 @@ namespace Spark
 		void createLogicalDevice();
 		void createSwapChain(const Window& window);
 		void createImageViews();
-		void createRenderPass();
+		void createDescriptorPool();
+		void createCommandPool();
 
 		VkFormat findSupportedFormat(const std::vector<VkFormat>& candidates, VkImageTiling tiling, VkFormatFeatureFlags features);
 		VkFormat findDepthFormat();
-		VkImageView createImageView(VkImage image, VkFormat format, VkImageAspectFlags aspectFlags, uint32_t mipLevels);
 		VkSurfaceFormatKHR chooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& availableFormats);
 		VkPresentModeKHR chooseSwapPresentMode(const std::vector<VkPresentModeKHR>& availablePresentModes);
 		VkExtent2D chooseSwapExtent(const Window& window, const VkSurfaceCapabilitiesKHR& capabilities);
@@ -58,7 +71,7 @@ namespace Spark
 		static bool checkValidationLayerSupport();
 		VkSampleCountFlagBits getMaxUsableSampleCount();
 
-	private:
+	public:
 		VkInstance m_instance;
 		VkDebugUtilsMessengerEXT m_debugMessenger;
 		VkSurfaceKHR m_surface;
@@ -68,6 +81,7 @@ namespace Spark
 		VkDevice m_device;
 		int maxDescriptorSetArrayLength;
 
+		QueueFamilyIndices m_queueFamilyIndices;
 		VkQueue m_graphicsQueue;
 		VkQueue m_presentQueue;
 
@@ -77,8 +91,8 @@ namespace Spark
 		VkExtent2D m_swapChainExtent;
 		std::vector<VkImageView> m_swapChainImageViews;
 
-		VkRenderPass m_renderPass;
-
 		VkCommandPool m_commandPool;
+
+		VkDescriptorPool m_descriptorPool;
 	};
 }

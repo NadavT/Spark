@@ -18,17 +18,29 @@ set(SPARK_WINDOWS_SOURCE
 set(SPARK_VULKAN_SOURCE
     "platform/Vulkan/renderer.cpp"
     "platform/Vulkan/vulkan_context.cpp"
+    "platform/vulkan/framebuffer/framebuffer.cpp"
+    "platform/vulkan/framebuffer/framebuffer2D.cpp"
     "platform/Vulkan/overlay/overlay.cpp"
     )
 
+set(SPARK_IMGUI_SOURCE
+    ${PROJECT_SOURCE_DIR}/vendor/imgui/imgui.cpp
+    ${PROJECT_SOURCE_DIR}/vendor/imgui/imgui_demo.cpp
+    ${PROJECT_SOURCE_DIR}/vendor/imgui/imgui_draw.cpp
+    ${PROJECT_SOURCE_DIR}/vendor/imgui/imgui_widgets.cpp
+    ${PROJECT_SOURCE_DIR}/vendor/imgui/examples/imgui_impl_vulkan.cpp
+    ${PROJECT_SOURCE_DIR}/vendor/imgui/examples/imgui_impl_glfw.cpp
+    )
+
+
 find_package(Vulkan REQUIRED)
 
-add_library(spark SHARED ${SPARK_SOURCE} ${SPARK_WINDOWS_SOURCE} ${SPARK_VULKAN_SOURCE})
+add_library(spark SHARED ${SPARK_SOURCE} ${SPARK_WINDOWS_SOURCE} ${SPARK_VULKAN_SOURCE} ${SPARK_IMGUI_SOURCE})
 
 set_property(TARGET spark PROPERTY CXX_STANDARD 17)
 
 target_include_directories(spark PUBLIC ${PROJECT_SOURCE_DIR}/src ${PROJECT_SOURCE_DIR}/vendor/spdlog/include)
-target_include_directories(spark PRIVATE ${PROJECT_SOURCE_DIR}/vendor/glfw/include Vulkan::Vulkan ${PROJECT_SOURCE_DIR}/src ${PROJECT_SOURCE_DIR}/vendor/imgui)
+target_include_directories(spark PRIVATE ${PROJECT_SOURCE_DIR}/vendor/glfw/include Vulkan::Vulkan ${PROJECT_SOURCE_DIR}/vendor/imgui ${PROJECT_SOURCE_DIR}/src)
 
 target_link_libraries(spark PRIVATE glfw Vulkan::Vulkan)
 

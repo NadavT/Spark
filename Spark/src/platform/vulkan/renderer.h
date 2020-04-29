@@ -13,7 +13,7 @@ namespace Spark
 		VulkanRenderer(const Window& window);
 		virtual ~VulkanRenderer() = default;
 
-	private:
+	public:
 		VulkanContext m_context;
 	};
 }
