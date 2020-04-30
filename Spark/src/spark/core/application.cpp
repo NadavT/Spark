@@ -38,6 +38,7 @@ namespace Spark
 		dispatcher.Dispatch<WindowCloseEvent>(SPARK_BIND_EVENT_FN(Application::OnWindowClose));
 		dispatcher.Dispatch<WindowResizeEvent>(SPARK_BIND_EVENT_FN(Application::OnWindowResize));
 
+		m_renderer->OnEvent(e);
 		m_overlay->OnEvent(e);
 		if (!e.handled)
 		{

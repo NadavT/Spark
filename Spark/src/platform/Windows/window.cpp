@@ -145,6 +145,7 @@ namespace Spark
 
 		glfwSetWindowSizeCallback(m_window, windowSizeCallback);
 		glfwSetWindowCloseCallback(m_window, windowCloseCallback);
+		glfwSetFramebufferSizeCallback(m_window, windowSizeCallback);
 		glfwSetKeyCallback(m_window, keyCallback);
 		glfwSetCharCallback(m_window, charCallback);
 		glfwSetMouseButtonCallback(m_window, mouseButtonCallback);

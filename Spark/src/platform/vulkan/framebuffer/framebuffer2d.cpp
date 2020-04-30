@@ -6,6 +6,7 @@ namespace Spark
 {
 	VulkanFramebuffer2D::VulkanFramebuffer2D(VulkanContext& context, bool firstLayer)
 		: VulkanFramebuffer(context)
+		, m_firstLayer(firstLayer)
 	{
 		createRenderPass(firstLayer);
 		createColorResources();
@@ -17,6 +18,22 @@ namespace Spark
 		vkDestroyImageView(m_context.m_device, m_colorImageView, nullptr);
 		vkDestroyImage(m_context.m_device, m_colorImage, nullptr);
 		vkFreeMemory(m_context.m_device, m_colorImageMemory, nullptr);
+	}
+
+	void VulkanFramebuffer2D::cleanup()
+	{
+		vkDestroyImageView(m_context.m_device, m_colorImageView, nullptr);
+		vkDestroyImage(m_context.m_device, m_colorImage, nullptr);
+		vkFreeMemory(m_context.m_device, m_colorImageMemory, nullptr);
+		VulkanFramebuffer::cleanup();
+	}
+
+	void VulkanFramebuffer2D::recreate()
+	{
+		VulkanFramebuffer::recreate();
+;		createRenderPass(m_firstLayer);
+		createColorResources();
+		createSwapchainFramebuffers();
 	}
 
 	void VulkanFramebuffer2D::createRenderPass(bool firstLayer)

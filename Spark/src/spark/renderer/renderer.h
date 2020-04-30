@@ -12,6 +12,7 @@ namespace Spark
 
 		virtual void begin() {};
 		virtual void end() {};
+		virtual void OnEvent(Event& e) {};
 	protected:
 		Renderer() {};
 

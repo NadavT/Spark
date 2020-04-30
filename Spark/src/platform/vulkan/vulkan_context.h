@@ -40,6 +40,9 @@ namespace Spark
 		VkCommandBuffer createCommandBuffer();
 		void destroyCommandBuffer(VkCommandBuffer commandBuffer);
 
+		void cleanupSwapchain();
+		void recreateSwapchain(int width, int height);
+
 		VkImageView createImageView(VkImage image, VkFormat format, VkImageAspectFlags aspectFlags, uint32_t mipLevels);
 		void createImage(uint32_t width, uint32_t height, uint32_t mipLevels, VkSampleCountFlagBits numSamples,
 			VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags properties,
@@ -52,7 +55,7 @@ namespace Spark
 		void createSurface(const Window& window);
 		void pickPhysicalDevice();
 		void createLogicalDevice();
-		void createSwapChain(const Window& window);
+		void createSwapChain(int width, int height);
 		void createImageViews();
 		void createDescriptorPool();
 		void createCommandPool();
@@ -61,7 +64,7 @@ namespace Spark
 		VkFormat findDepthFormat();
 		VkSurfaceFormatKHR chooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& availableFormats);
 		VkPresentModeKHR chooseSwapPresentMode(const std::vector<VkPresentModeKHR>& availablePresentModes);
-		VkExtent2D chooseSwapExtent(const Window& window, const VkSurfaceCapabilitiesKHR& capabilities);
+		VkExtent2D chooseSwapExtent(int width, int height, const VkSurfaceCapabilitiesKHR& capabilities);
 		SwapChainSupportDetails querySwapChainSupport(VkPhysicalDevice device);
 		bool isDeviceSuitable(VkPhysicalDevice device);
 		static void populateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT& createInfo);

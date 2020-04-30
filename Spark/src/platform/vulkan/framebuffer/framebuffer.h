@@ -4,14 +4,21 @@
 
 namespace Spark
 {
+	enum class VulkanFramebufferType
+	{
+		Type2D,
+		Type3D
+	};
+
 	class VulkanFramebuffer
 	{
 	public:
 		virtual ~VulkanFramebuffer();
 		VulkanFramebuffer(const VulkanFramebuffer& other) = delete;
-		VulkanFramebuffer(VulkanFramebuffer&& other) = delete;
 		VulkanFramebuffer& operator=(const VulkanFramebuffer& other) = delete;
-		VulkanFramebuffer& operator=(VulkanFramebuffer&& other) = delete;
+
+		virtual void cleanup();
+		virtual void recreate();
 
 		VkRenderPass getRenderPass() const;
 		const std::vector<VkFramebuffer> getswapChainFramebuffers() const;

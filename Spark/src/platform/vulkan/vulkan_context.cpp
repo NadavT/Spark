@@ -57,7 +57,7 @@ namespace Spark
 		createSurface(window);
 		pickPhysicalDevice();
 		createLogicalDevice();
-		createSwapChain(window);
+		createSwapChain(window.GetWidth(), window.GetHeight());
 		createImageViews();
 		createDescriptorPool();
 		createCommandPool();
@@ -142,6 +142,21 @@ namespace Spark
 	void VulkanContext::destroyCommandBuffer(VkCommandBuffer commandBuffer)
 	{
 		vkFreeCommandBuffers(m_device, m_commandPool, 1, &commandBuffer);
+	}
+
+	void VulkanContext::cleanupSwapchain()
+	{
+		for (size_t i = 0; i < m_swapChainImageViews.size(); i++) {
+			vkDestroyImageView(m_device, m_swapChainImageViews[i], nullptr);
+		}
+
+		vkDestroySwapchainKHR(m_device, m_swapChain, nullptr);
+	}
+
+	void VulkanContext::recreateSwapchain(int width, int height)
+	{
+		createSwapChain(width, height);
+		createImageViews();
 	}
 
 	void VulkanContext::createInstance()
@@ -287,12 +302,12 @@ namespace Spark
 		vkGetDeviceQueue(m_device, m_queueFamilyIndices.presentFamily.value(), 0, &m_presentQueue);
 	}
 
-	void VulkanContext::createSwapChain(const Window& window) {
+	void VulkanContext::createSwapChain(int width, int height) {
 		SwapChainSupportDetails swapChainSupport = querySwapChainSupport(m_physicalDevice);
 
 		VkSurfaceFormatKHR surfaceFormat = chooseSwapSurfaceFormat(swapChainSupport.formats);
 		VkPresentModeKHR presentMode = chooseSwapPresentMode(swapChainSupport.presentModes);
-		VkExtent2D extent = chooseSwapExtent(window, swapChainSupport.capabilities);
+		VkExtent2D extent = chooseSwapExtent(width, height, swapChainSupport.capabilities);
 
 		uint32_t imageCount = swapChainSupport.capabilities.minImageCount + 1;
 		if (swapChainSupport.capabilities.maxImageCount > 0 && imageCount > swapChainSupport.capabilities.maxImageCount) {
@@ -434,14 +449,11 @@ namespace Spark
 		return VK_PRESENT_MODE_FIFO_KHR;
 	}
 
-	VkExtent2D VulkanContext::chooseSwapExtent(const Window& window, const VkSurfaceCapabilitiesKHR& capabilities) {
+	VkExtent2D VulkanContext::chooseSwapExtent(int width, int height, const VkSurfaceCapabilitiesKHR& capabilities) {
 		if (capabilities.currentExtent.width != UINT32_MAX) {
 			return capabilities.currentExtent;
 		}
 		else {
-			int width = window.GetWidth();
-			int height = window.GetHeight();
-
 			VkExtent2D actualExtent = {
 				static_cast<uint32_t>(width),
 				static_cast<uint32_t>(height)

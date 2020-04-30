@@ -5,7 +5,7 @@
 #include "spark/event/keyboard_event.h"
 #include "platform/Windows/window.h"
 #include "platform/vulkan/renderer.h"
-#include "platform/vulkan/framebuffer/framebuffer2D.h"
+#include "platform/vulkan/framebuffer/framebuffer.h"
 
 #include <vector>
 
@@ -24,7 +24,7 @@ namespace Spark
 		virtual void OnRender();
 
 	private:
-		void frameRender();
+		bool frameRender();
 		void framePresent();
 
 		bool onMouseButtonPressed(MouseButtonPressedEvent& e);
@@ -37,7 +37,7 @@ namespace Spark
 
 	private:
 		VulkanRenderer& m_renderer;
-		VulkanFramebuffer2D m_framebuffer;
+		VulkanFramebuffer* m_framebuffer;
 
 		std::vector<VkSemaphore> m_imageAvailableSemaphores;
 		std::vector<VkSemaphore> m_renderFinishedSemaphores;

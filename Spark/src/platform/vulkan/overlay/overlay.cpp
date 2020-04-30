@@ -11,20 +11,18 @@ namespace Spark
 {
     static void check_vk_result(VkResult err)
     {
-        if (err == 0) return;
-        SPARK_CORE_ERROR("Imgui vkResult: {}", err);
-        if (err < 0)
-            abort();
+        SPARK_CORE_ASSERT(err == VK_SUCCESS, "Vulkan failed in imgui");
     }
 
     VulkanOverlay::VulkanOverlay(VulkanRenderer& renderer)
         : Overlay()
         , m_renderer(renderer)
-        , m_framebuffer(renderer.m_context)
+        , m_framebuffer(nullptr)
         , m_currentFrame(0)
         , m_showDemoWindow(true)
         , m_showAnotherWindow(false)
     {
+        m_framebuffer = renderer.createFramebuffer(VulkanFramebufferType::Type2D);
         m_imageAvailableSemaphores.resize(renderer.m_context.m_swapChainImages.size());
         m_renderFinishedSemaphores.resize(renderer.m_context.m_swapChainImages.size());
         m_inFlightFences.resize(renderer.m_context.m_swapChainImages.size());
@@ -45,6 +43,8 @@ namespace Spark
             m_renderer.m_context.destroyFence(m_inFlightFences[i]);
         }
         m_renderer.m_context.destroyCommandBuffer(m_commandBuffer);
+        m_renderer.destroyFramebuffer(m_framebuffer);
+        m_framebuffer = nullptr;
     }
 
     void VulkanOverlay::OnAttach()
@@ -98,7 +98,7 @@ namespace Spark
         init_info.ImageCount = static_cast<uint32_t>(m_renderer.m_context.m_swapChainImages.size());
         init_info.MSAASamples = m_renderer.m_context.m_msaaSamples;
         init_info.CheckVkResultFn = check_vk_result;
-        ImGui_ImplVulkan_Init(&init_info, m_framebuffer.getRenderPass());
+        ImGui_ImplVulkan_Init(&init_info, m_framebuffer->getRenderPass());
 
         VkResult err = VK_SUCCESS;
 
@@ -109,8 +109,7 @@ namespace Spark
             VkCommandBufferBeginInfo begin_info = {};
             begin_info.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
             begin_info.flags |= VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
-            err = vkBeginCommandBuffer(command_buffer, &begin_info);
-            check_vk_result(err);
+            m_renderer.beginCommandBuffer(command_buffer, &begin_info);
 
             ImGui_ImplVulkan_CreateFontsTexture(command_buffer);
 
@@ -118,13 +117,10 @@ namespace Spark
             end_info.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
             end_info.commandBufferCount = 1;
             end_info.pCommandBuffers = &command_buffer;
-            err = vkEndCommandBuffer(command_buffer);
-            check_vk_result(err);
-            err = vkQueueSubmit(m_renderer.m_context.m_graphicsQueue, 1, &end_info, VK_NULL_HANDLE);
-            check_vk_result(err);
+            m_renderer.endCommandBuffer(command_buffer);
+            m_renderer.queueSubmit(&end_info, VK_NULL_HANDLE);
 
-            err = vkDeviceWaitIdle(m_renderer.m_context.m_device);
-            check_vk_result(err);
+            m_renderer.waitForIdle();
             ImGui_ImplVulkan_DestroyFontUploadObjects();
         }
     }
@@ -154,12 +150,18 @@ namespace Spark
         dispatcher.Dispatch<KeyPressedEvent>(SPARK_BIND_EVENT_FN(VulkanOverlay::onKeyPressed));
         dispatcher.Dispatch<KeyReleasedEvent>(SPARK_BIND_EVENT_FN(VulkanOverlay::onKeyReleased));
         dispatcher.Dispatch<KeyTypedEvent>(SPARK_BIND_EVENT_FN(VulkanOverlay::onKeyTyped));
+
+        if (e.GetEventType() == EventType::WindowResize)
+        {
+            m_currentFrame = 0;
+        }
     }
 
     void VulkanOverlay::OnRender()
     {
         VkResult err = VK_SUCCESS;
         ImGuiIO& io = ImGui::GetIO();
+
 
         // Start the Dear ImGui frame
         ImGui_ImplVulkan_NewFrame();
@@ -203,46 +205,32 @@ namespace Spark
             ImGui::End();
         }
 
+
         // Rendering
         ImGui::Render();
-        frameRender();
-
-        framePresent();
-
-        check_vk_result(err);
+        if (frameRender())
+            framePresent();
     }
 
-    void VulkanOverlay::frameRender()
+    bool VulkanOverlay::frameRender()
     {
-        VkResult err;
+        m_renderer.waitForFence(&m_inFlightFences[m_currentFrame]);
 
-        err = vkAcquireNextImageKHR(m_renderer.m_context.m_device, m_renderer.m_context.m_swapChain, UINT64_MAX, m_imageAvailableSemaphores[m_currentFrame], VK_NULL_HANDLE, &m_currentFrame);
-        check_vk_result(err);
-
+        if (!m_renderer.accuireNextImage(m_imageAvailableSemaphores[m_currentFrame], VK_NULL_HANDLE, &m_currentFrame))
         {
-            err = vkWaitForFences(m_renderer.m_context.m_device, 1, &m_inFlightFences[m_currentFrame], VK_TRUE, UINT64_MAX);    // wait indefinitely instead of periodically checking
-            check_vk_result(err);
-
-            err = vkResetFences(m_renderer.m_context.m_device, 1, &m_inFlightFences[m_currentFrame]);
-            check_vk_result(err);
+            return false;
         }
+
+        m_renderer.waitForFence(&m_inFlightFences[m_currentFrame]);
+        m_renderer.resetFence(&m_inFlightFences[m_currentFrame]);
+        
         {
-            vkResetCommandBuffer(m_commandBuffer, 0);
+            m_renderer.resetCommandBuffer(m_commandBuffer);
             VkCommandBufferBeginInfo info = {};
             info.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
             info.flags |= VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
-            err = vkBeginCommandBuffer(m_commandBuffer, &info);
-            check_vk_result(err);
-        }
-        {
-            VkRenderPassBeginInfo info = {};
-            info.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
-            info.renderPass = m_framebuffer.getRenderPass();
-            info.framebuffer = m_framebuffer.getswapChainFramebuffers()[m_currentFrame];
-            info.renderArea.extent.width = m_renderer.m_context.m_swapChainExtent.width;
-            info.renderArea.extent.height = m_renderer.m_context.m_swapChainExtent.height;
-            info.clearValueCount = 0;
-            vkCmdBeginRenderPass(m_commandBuffer, &info, VK_SUBPASS_CONTENTS_INLINE);
+            m_renderer.beginCommandBuffer(m_commandBuffer, &info);
+            m_renderer.beginRenderPass(m_commandBuffer, m_framebuffer->getRenderPass(), m_framebuffer->getswapChainFramebuffers()[m_currentFrame], 0);
         }
 
         // Record Imgui Draw Data and draw funcs into command buffer
@@ -250,6 +238,7 @@ namespace Spark
 
         // Submit command buffer
         vkCmdEndRenderPass(m_commandBuffer);
+        m_renderer.endCommandBuffer(m_commandBuffer);
         {
             VkPipelineStageFlags wait_stage = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
             VkSubmitInfo info = {};
@@ -262,12 +251,12 @@ namespace Spark
             info.signalSemaphoreCount = 1;
             info.pSignalSemaphores = &m_renderFinishedSemaphores[m_currentFrame];
 
-            err = vkEndCommandBuffer(m_commandBuffer);
-            check_vk_result(err);
-            err = vkQueueSubmit(m_renderer.m_context.m_graphicsQueue, 1, &info, m_inFlightFences[m_currentFrame]);
-            check_vk_result(err);
+            m_renderer.resetFence(&m_inFlightFences[m_currentFrame]);
+
+            m_renderer.queueSubmit(&info, m_inFlightFences[m_currentFrame]);
         }
 
+        return true;
     }
 
     void VulkanOverlay::framePresent()
@@ -279,8 +268,7 @@ namespace Spark
         info.swapchainCount = 1;
         info.pSwapchains = &m_renderer.m_context.m_swapChain;
         info.pImageIndices = &m_currentFrame;
-        VkResult err = vkQueuePresentKHR(m_renderer.m_context.m_graphicsQueue, &info);
-        check_vk_result(err);
+        m_renderer.queuePresent(&info);
         m_currentFrame = (m_currentFrame + 1) % m_renderer.m_context.m_swapChainImages.size(); // Now we can use the next set of semaphores
     }
 
