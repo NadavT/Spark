@@ -1,7 +1,7 @@
 #include "spark/core/time.h"
 
-#include <GLFW/glfw3.h>
 #include <Windows.h>
+#include <GLFW/glfw3.h>
 
 namespace Spark
 {

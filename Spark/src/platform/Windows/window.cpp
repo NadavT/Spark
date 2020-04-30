@@ -5,9 +5,6 @@
 #include "spark/event/keyboard_event.h"
 #include "spark/event/mouse_event.h"
 
-#define GLFW_EXPOSE_NATIVE_WIN32
-#include <GLFW/glfw3native.h>
-
 namespace Spark
 {
 	static uint8_t s_GLFWWindowCount = 0;

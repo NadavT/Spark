@@ -49,7 +49,7 @@ target_compile_definitions(spark PRIVATE SPARK_BUILD_DLL SPARK_PLATFORM_VULKAN V
 if(CMAKE_BUILD_TYPE STREQUAL "Debug")
     target_compile_definitions(spark PRIVATE SPARK_DEBUG)
 endif()
-
+target_compile_options(spark PRIVATE /W3)
 
 add_custom_command(TARGET spark POST_BUILD
                    COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:spark> ${APP_EXECUTABLE_PATH}

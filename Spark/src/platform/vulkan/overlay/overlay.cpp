@@ -94,8 +94,8 @@ namespace Spark
         init_info.PipelineCache = VK_NULL_HANDLE;
         init_info.DescriptorPool = m_renderer.m_context.m_descriptorPool;
         init_info.Allocator = VK_NULL_HANDLE;
-        init_info.MinImageCount = m_renderer.m_context.m_swapChainImages.size();
-        init_info.ImageCount = m_renderer.m_context.m_swapChainImages.size();
+        init_info.MinImageCount = static_cast<uint32_t>(m_renderer.m_context.m_swapChainImages.size());
+        init_info.ImageCount = static_cast<uint32_t>(m_renderer.m_context.m_swapChainImages.size());
         init_info.MSAASamples = m_renderer.m_context.m_msaaSamples;
         init_info.CheckVkResultFn = check_vk_result;
         ImGui_ImplVulkan_Init(&init_info, m_framebuffer.getRenderPass());
