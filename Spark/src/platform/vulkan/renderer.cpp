@@ -9,13 +9,67 @@ namespace Spark
 		: m_context(window)
 		, m_width(window.GetWidth())
 		, m_height(window.GetHeight())
+		, m_semaphores()
+		, m_inFlightFences()
+		, m_currentFrame(0)
+		, m_currentImageIndex(0)
+		, m_framebufferResized(false)
 	{
-		
+		m_inFlightFences[0] = m_context.createFence();
+		m_inFlightFences[1] = m_context.createFence();
+	}
+
+	VulkanRenderer::~VulkanRenderer()
+	{
+		m_context.destroyFence(m_inFlightFences[0]);
+		m_context.destroyFence(m_inFlightFences[1]);
+	}
+
+	bool VulkanRenderer::begin()
+	{
+		VkResult result = VK_SUCCESS;
+		waitForFence(&m_inFlightFences[m_currentFrame]);
+
+		result = vkAcquireNextImageKHR(m_context.m_device, m_context.m_swapChain,
+			UINT64_MAX, *(m_semaphores[m_currentFrame].end()), VK_NULL_HANDLE, &m_currentImageIndex);
+		if (result == VK_ERROR_OUT_OF_DATE_KHR)
+		{
+			recreateSwapchain();
+			return false;
+		}
+		else if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR)
+		{
+			throw std::runtime_error("failed to acquire swap chain image!");
+		}
+
+		resetFence(&m_inFlightFences[m_currentFrame]);
 	}
 
 	void VulkanRenderer::end()
 	{
-		waitForIdle();
+		VkResult result = VK_SUCCESS;
+
+		VkSwapchainKHR swapChains[] = { m_context.m_swapChain };
+
+		VkPresentInfoKHR presentInfo = {};
+		presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
+		presentInfo.waitSemaphoreCount = 1;
+		presentInfo.pWaitSemaphores = &(*(m_semaphores[m_currentFrame].end()));
+		presentInfo.swapchainCount = 1;
+		presentInfo.pSwapchains = swapChains;
+		presentInfo.pImageIndices = &m_currentImageIndex;
+		result = vkQueuePresentKHR(m_context.m_presentQueue, &presentInfo);
+
+		if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR || m_framebufferResized)
+		{
+			m_framebufferResized = false;
+			recreateSwapchain();
+		}
+		else if (result != VK_SUCCESS) {
+			throw std::runtime_error("failed to present swap chain image!");
+		}
+
+		m_currentFrame = (m_currentFrame + 1) % m_inFlightFences.size();
 	}
 
 	void VulkanRenderer::OnEvent(Event& e)
@@ -55,7 +109,7 @@ namespace Spark
 	{
 		m_width = e.GetWidth();
 		m_height = e.GetHeight();
-		recreateSwapchain();
+		m_framebufferResized = true;
 		return true;
 	}
 

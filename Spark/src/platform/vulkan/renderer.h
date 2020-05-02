@@ -8,6 +8,7 @@
 #include "platform/vulkan/framebuffer/framebuffer.h"
 
 #include <vector>
+#include <array>
 
 namespace Spark
 {
@@ -15,7 +16,9 @@ namespace Spark
 	{
 	public:
 		VulkanRenderer(const Window& window);
-		virtual ~VulkanRenderer() = default;
+		virtual ~VulkanRenderer();
+
+		virtual bool begin();
 
 		virtual void end();
 		virtual void OnEvent(Event& e);
@@ -44,5 +47,10 @@ namespace Spark
 		std::vector<std::unique_ptr<VulkanFramebuffer>> m_framebuffers;
 		int m_width;
 		int m_height;
+		std::vector<std::vector<VkSemaphore>> m_semaphores;
+		std::array<VkFence, 2> m_inFlightFences;
+		uint32_t m_currentFrame;
+		uint32_t m_currentImageIndex;
+		bool m_framebufferResized;
 	};
 }
