@@ -13,21 +13,21 @@ namespace Spark
 
 		}
 
-		Time(float time)
+		Time(double time)
 			: m_time(time)
 		{
 
 		}
 
-		float GetSeconds() const { return m_time; }
-		float GetMilliSeconds() const { return m_time * 1000.0f; }
+		inline double GetSeconds() const { return m_time; }
+		inline double GetMilliSeconds() const { return m_time * 1000.0f; }
 
 		Time operator+(Time const& other) { return Time(m_time + other.m_time); }
 		Time operator-(Time const& other) {
 			return Time(m_time - other.m_time);
 		}
 	private:
-		float m_time;
+		double m_time;
 	};
 
 	Time getCurrentTime();

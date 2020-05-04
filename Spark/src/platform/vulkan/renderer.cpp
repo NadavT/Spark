@@ -14,15 +14,30 @@ namespace Spark
 		, m_currentFrame(0)
 		, m_currentImageIndex(0)
 		, m_framebufferResized(false)
+		, m_lastCommandBuffer(nullptr)
+		, m_lastSemaphore(nullptr)
+		, m_currentCommandsDrawCount(0)
 	{
-		m_inFlightFences[0] = m_context.createFence();
-		m_inFlightFences[1] = m_context.createFence();
+		for (int i = 0; i < m_inFlightFences.size(); i++)
+		{
+			m_inFlightFences[i] = m_context.createFence();
+		}
 	}
 
 	VulkanRenderer::~VulkanRenderer()
 	{
-		m_context.destroyFence(m_inFlightFences[0]);
-		m_context.destroyFence(m_inFlightFences[1]);
+		for (int i = 0; i < m_semaphores.size(); i++)
+		{
+			for (int j = 0; j < m_semaphores[i].size(); j++)
+			{
+				m_context.destroySemaphore(m_semaphores[i][j]);
+			}
+		}
+
+		for (int i = 0; i < m_inFlightFences.size(); i++)
+		{
+			m_context.destroyFence(m_inFlightFences[i]);
+		}
 	}
 
 	bool VulkanRenderer::begin()
@@ -30,8 +45,13 @@ namespace Spark
 		VkResult result = VK_SUCCESS;
 		waitForFence(&m_inFlightFences[m_currentFrame]);
 
+		if (m_semaphores[m_currentFrame].size() == 0)
+		{
+			m_semaphores[m_currentFrame].push_back(m_context.createSemaphore());
+		}
 		result = vkAcquireNextImageKHR(m_context.m_device, m_context.m_swapChain,
-			UINT64_MAX, *(m_semaphores[m_currentFrame].end()), VK_NULL_HANDLE, &m_currentImageIndex);
+			UINT64_MAX, m_semaphores[m_currentFrame][0], VK_NULL_HANDLE, &m_currentImageIndex);
+		m_lastSemaphore = m_semaphores[m_currentFrame][0];
 		if (result == VK_ERROR_OUT_OF_DATE_KHR)
 		{
 			recreateSwapchain();
@@ -43,18 +63,36 @@ namespace Spark
 		}
 
 		resetFence(&m_inFlightFences[m_currentFrame]);
+
+		return true;
 	}
 
 	void VulkanRenderer::end()
 	{
 		VkResult result = VK_SUCCESS;
 
+		if (m_lastCommandBuffer != nullptr)
+		{
+			VkPipelineStageFlags wait_stage = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+			VkSubmitInfo info = {};
+			info.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+			info.waitSemaphoreCount = 1;
+			info.pWaitSemaphores = &m_lastSemaphore;
+			info.pWaitDstStageMask = &wait_stage;
+			info.commandBufferCount = 1;
+			info.pCommandBuffers = &m_lastCommandBuffer;
+			info.signalSemaphoreCount = 1;
+			info.pSignalSemaphores = &m_semaphores[m_currentFrame][m_currentCommandsDrawCount];
+
+			queueSubmit(&info, m_inFlightFences[m_currentFrame]);
+		}
+
 		VkSwapchainKHR swapChains[] = { m_context.m_swapChain };
 
 		VkPresentInfoKHR presentInfo = {};
 		presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
 		presentInfo.waitSemaphoreCount = 1;
-		presentInfo.pWaitSemaphores = &(*(m_semaphores[m_currentFrame].end()));
+		presentInfo.pWaitSemaphores = &m_semaphores[m_currentFrame][m_currentCommandsDrawCount];
 		presentInfo.swapchainCount = 1;
 		presentInfo.pSwapchains = swapChains;
 		presentInfo.pImageIndices = &m_currentImageIndex;
@@ -69,7 +107,48 @@ namespace Spark
 			throw std::runtime_error("failed to present swap chain image!");
 		}
 
+		m_lastCommandBuffer = nullptr;
+		m_lastSemaphore = nullptr;
+		m_currentCommandsDrawCount = 0;
 		m_currentFrame = (m_currentFrame + 1) % m_inFlightFences.size();
+	}
+
+	void VulkanRenderer::render(VkCommandBuffer commandBuffer)
+	{
+		m_currentCommandsDrawCount++;
+		if (m_currentCommandsDrawCount >= m_semaphores[m_currentFrame].size())
+		{
+			m_semaphores[m_currentFrame].push_back(m_context.createSemaphore());
+			m_lastSemaphore = m_semaphores[m_currentFrame][m_currentCommandsDrawCount - 1];
+		}
+		if (m_lastCommandBuffer != nullptr)
+		{
+			VkPipelineStageFlags wait_stage = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+			VkSubmitInfo info = {};
+			info.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+			info.waitSemaphoreCount = 1;
+			info.pWaitSemaphores = &m_lastSemaphore;
+			info.pWaitDstStageMask = &wait_stage;
+			info.commandBufferCount = 1;
+			info.pCommandBuffers = &m_lastCommandBuffer;
+			info.signalSemaphoreCount = 1;
+			info.pSignalSemaphores = &m_semaphores[m_currentFrame][m_currentCommandsDrawCount];
+
+			queueSubmit(&info, m_inFlightFences[m_currentFrame]);
+
+			m_lastSemaphore = m_semaphores[m_currentFrame][m_currentCommandsDrawCount];
+		}
+		m_lastCommandBuffer = commandBuffer;
+	}
+
+	uint32_t VulkanRenderer::getCurrentImageIndex() const
+	{
+		return m_currentImageIndex;
+	}
+
+	uint32_t VulkanRenderer::getImagesAmount() const
+	{
+		return m_context.m_swapChainImages.size();
 	}
 
 	void VulkanRenderer::OnEvent(Event& e)
@@ -78,11 +157,11 @@ namespace Spark
 		dispatcher.Dispatch<WindowResizeEvent>(SPARK_BIND_EVENT_FN(VulkanRenderer::onWindowResize));
 	}
 
-	VulkanFramebuffer* VulkanRenderer::createFramebuffer(VulkanFramebufferType type)
+	VulkanFramebuffer* VulkanRenderer::createFramebuffer(VulkanFramebufferType type, bool first_layer)
 	{
 		if (type == VulkanFramebufferType::Type2D)
 		{
-			m_framebuffers.push_back(std::make_unique<VulkanFramebuffer2D>(m_context));
+			m_framebuffers.push_back(std::make_unique<VulkanFramebuffer2D>(m_context, first_layer));
 			return m_framebuffers.back().get();
 		}
 		else
@@ -135,6 +214,8 @@ namespace Spark
 		{
 			framebuffer->recreate();
 		}
+
+		m_currentFrame = 0;
 	}
 
 	void VulkanRenderer::waitForIdle()

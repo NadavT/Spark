@@ -10,9 +10,11 @@ namespace Spark
 	public:
 		virtual ~Renderer() = default;
 
-		virtual bool begin() { return true };
+		virtual bool begin() { return true; }
 		virtual void end() {};
 		virtual void OnEvent(Event& e) {};
+
+		virtual void waitForIdle() {};
 	protected:
 		Renderer() {};
 

@@ -18,31 +18,23 @@ namespace Spark
         : Overlay()
         , m_renderer(renderer)
         , m_framebuffer(nullptr)
-        , m_currentFrame(0)
         , m_showDemoWindow(true)
         , m_showAnotherWindow(false)
     {
-        m_framebuffer = renderer.createFramebuffer(VulkanFramebufferType::Type2D);
-        m_imageAvailableSemaphores.resize(renderer.m_context.m_swapChainImages.size());
-        m_renderFinishedSemaphores.resize(renderer.m_context.m_swapChainImages.size());
-        m_inFlightFences.resize(renderer.m_context.m_swapChainImages.size());
-        m_commandBuffer = renderer.m_context.createCommandBuffer();
-
-        for (size_t i = 0; i < renderer.m_context.m_swapChainImages.size(); i++) {
-            m_imageAvailableSemaphores[i] = renderer.m_context.createSemaphore();
-            m_renderFinishedSemaphores[i] = renderer.m_context.createSemaphore();
-            m_inFlightFences[i] = renderer.m_context.createFence();
+        m_framebuffer = renderer.createFramebuffer(VulkanFramebufferType::Type2D, true);
+        m_commandBuffers.resize(renderer.getImagesAmount());
+        for (int i = 0; i < m_commandBuffers.size(); i++)
+        {
+            m_commandBuffers[i] = renderer.m_context.createCommandBuffer();
         }
     }
 
     VulkanOverlay::~VulkanOverlay()
     {
-        for (size_t i = 0; i < m_renderer.m_context.m_swapChainImages.size(); i++) {
-            m_renderer.m_context.destroySemaphore(m_imageAvailableSemaphores[i]);
-            m_renderer.m_context.destroySemaphore(m_renderFinishedSemaphores[i]);
-            m_renderer.m_context.destroyFence(m_inFlightFences[i]);
+        for (int i = 0; i < m_commandBuffers.size(); i++)
+        {
+            m_renderer.m_context.destroyCommandBuffer(m_commandBuffers[i]);
         }
-        m_renderer.m_context.destroyCommandBuffer(m_commandBuffer);
         m_renderer.destroyFramebuffer(m_framebuffer);
         m_framebuffer = nullptr;
     }
@@ -94,8 +86,8 @@ namespace Spark
         init_info.PipelineCache = VK_NULL_HANDLE;
         init_info.DescriptorPool = m_renderer.m_context.m_descriptorPool;
         init_info.Allocator = VK_NULL_HANDLE;
-        init_info.MinImageCount = static_cast<uint32_t>(m_renderer.m_context.m_swapChainImages.size());
-        init_info.ImageCount = static_cast<uint32_t>(m_renderer.m_context.m_swapChainImages.size());
+        init_info.MinImageCount = m_renderer.getImagesAmount();
+        init_info.ImageCount = m_renderer.getImagesAmount();
         init_info.MSAASamples = m_renderer.m_context.m_msaaSamples;
         init_info.CheckVkResultFn = check_vk_result;
         ImGui_ImplVulkan_Init(&init_info, m_framebuffer->getRenderPass());
@@ -104,7 +96,7 @@ namespace Spark
 
         // Upload Fonts
         {
-            VkCommandBuffer command_buffer = m_commandBuffer;
+            VkCommandBuffer command_buffer = m_commandBuffers[0];
 
             VkCommandBufferBeginInfo begin_info = {};
             begin_info.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
@@ -150,11 +142,6 @@ namespace Spark
         dispatcher.Dispatch<KeyPressedEvent>(SPARK_BIND_EVENT_FN(VulkanOverlay::onKeyPressed));
         dispatcher.Dispatch<KeyReleasedEvent>(SPARK_BIND_EVENT_FN(VulkanOverlay::onKeyReleased));
         dispatcher.Dispatch<KeyTypedEvent>(SPARK_BIND_EVENT_FN(VulkanOverlay::onKeyTyped));
-
-        if (e.GetEventType() == EventType::WindowResize)
-        {
-            m_currentFrame = 0;
-        }
     }
 
     void VulkanOverlay::OnRender()
@@ -167,7 +154,7 @@ namespace Spark
         ImGui_ImplVulkan_NewFrame();
         ImGui::NewFrame();
 
-        //// 1. Show the big demo window (Most of the sample code is in ImGui::ShowDemoWindow()! You can browse its code to learn more about Dear ImGui!).
+        // 1. Show the big demo window (Most of the sample code is in ImGui::ShowDemoWindow()! You can browse its code to learn more about Dear ImGui!).
         //if (m_showDemoWindow)
         //    ImGui::ShowDemoWindow(&m_showDemoWindow);
 
@@ -177,6 +164,7 @@ namespace Spark
             static int counter = 0;
 
             ImGui::SetNextWindowPos(ImVec2(0, 0), ImGuiCond_Always);
+            ImGui::SetNextWindowSize(ImVec2(350, 170), ImGuiCond_Always);
             ImGui::Begin("Hello, world!", NULL, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoBackground); // Create a window called "Hello, world!" and append into it.
 
             ImGui::Text("This is some useful text.");               // Display some text (you can use a format strings too)
@@ -208,68 +196,32 @@ namespace Spark
 
         // Rendering
         ImGui::Render();
-        if (frameRender())
-            framePresent();
+        frameRender();
     }
 
-    bool VulkanOverlay::frameRender()
-    {
-        m_renderer.waitForFence(&m_inFlightFences[m_currentFrame]);
-
-        if (!m_renderer.accuireNextImage(m_imageAvailableSemaphores[m_currentFrame], VK_NULL_HANDLE, &m_currentFrame))
+    void VulkanOverlay::frameRender()
+    {    
+        VkCommandBuffer commandBuffer = m_commandBuffers[m_renderer.getCurrentImageIndex()];
         {
-            return false;
-        }
-
-        m_renderer.waitForFence(&m_inFlightFences[m_currentFrame]);
-        m_renderer.resetFence(&m_inFlightFences[m_currentFrame]);
-        
-        {
-            m_renderer.resetCommandBuffer(m_commandBuffer);
             VkCommandBufferBeginInfo info = {};
             info.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
             info.flags |= VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
-            m_renderer.beginCommandBuffer(m_commandBuffer, &info);
-            m_renderer.beginRenderPass(m_commandBuffer, m_framebuffer->getRenderPass(), m_framebuffer->getswapChainFramebuffers()[m_currentFrame], 0);
+            m_renderer.beginCommandBuffer(commandBuffer, &info);
+            std::array<VkClearValue, 2> clearValues = {};
+            clearValues[0].color = { 0.1f, 0.1f, 0.1f, 1.0f };
+            clearValues[1].depthStencil = { 1.0f, 0 };
+            m_renderer.beginRenderPass(commandBuffer, m_framebuffer->getRenderPass(),
+                m_framebuffer->getswapChainFramebuffers()[m_renderer.getCurrentImageIndex()], 2, clearValues.data());
         }
 
         // Record Imgui Draw Data and draw funcs into command buffer
-        ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), m_commandBuffer);
+        ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), commandBuffer);
 
         // Submit command buffer
-        vkCmdEndRenderPass(m_commandBuffer);
-        m_renderer.endCommandBuffer(m_commandBuffer);
-        {
-            VkPipelineStageFlags wait_stage = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
-            VkSubmitInfo info = {};
-            info.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
-            info.waitSemaphoreCount = 1;
-            info.pWaitSemaphores = &m_imageAvailableSemaphores[m_currentFrame];
-            info.pWaitDstStageMask = &wait_stage;
-            info.commandBufferCount = 1;
-            info.pCommandBuffers = &m_commandBuffer;
-            info.signalSemaphoreCount = 1;
-            info.pSignalSemaphores = &m_renderFinishedSemaphores[m_currentFrame];
-
-            m_renderer.resetFence(&m_inFlightFences[m_currentFrame]);
-
-            m_renderer.queueSubmit(&info, m_inFlightFences[m_currentFrame]);
-        }
-
-        return true;
-    }
-
-    void VulkanOverlay::framePresent()
-    {
-        VkPresentInfoKHR info = {};
-        info.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
-        info.waitSemaphoreCount = 1;
-        info.pWaitSemaphores = &m_renderFinishedSemaphores[m_currentFrame];
-        info.swapchainCount = 1;
-        info.pSwapchains = &m_renderer.m_context.m_swapChain;
-        info.pImageIndices = &m_currentFrame;
-        m_renderer.queuePresent(&info);
-        m_currentFrame = (m_currentFrame + 1) % m_renderer.m_context.m_swapChainImages.size(); // Now we can use the next set of semaphores
+        vkCmdEndRenderPass(commandBuffer);
+        m_renderer.endCommandBuffer(commandBuffer);
+        
+        m_renderer.render(commandBuffer);
     }
 
     bool VulkanOverlay::onMouseButtonPressed(MouseButtonPressedEvent& e)

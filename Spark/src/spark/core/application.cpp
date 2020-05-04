@@ -90,10 +90,11 @@ namespace Spark
 
 			Render();
 
-			timestep = getCurrentTime() - m_lastFrameTime;
 			if (timestep.GetSeconds() < 1.0 / 120)
 				sleep(Time(1.0f / 120) - timestep);
 		}
+
+		m_renderer->waitForIdle();
 	}
 
 	const Window& Application::GetWindow() const
@@ -105,11 +106,13 @@ namespace Spark
 	{
 		if (!m_minimized)
 		{
-			m_renderer->begin();
-			for (Layer* layer : m_layerStack)
-				layer->OnRender();
-			m_overlay->OnRender();
-			m_renderer->end();
+			if (m_renderer->begin())
+			{
+				for (Layer* layer : m_layerStack)
+					layer->OnRender();
+				m_overlay->OnRender();
+				m_renderer->end();
+			}
 		}
 	}
 

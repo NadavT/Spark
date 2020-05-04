@@ -24,8 +24,7 @@ namespace Spark
 		virtual void OnRender();
 
 	private:
-		bool frameRender();
-		void framePresent();
+		void frameRender();
 
 		bool onMouseButtonPressed(MouseButtonPressedEvent& e);
 		bool onMouseButtonReleased(MouseButtonReleasedEvent& e);
@@ -39,11 +38,7 @@ namespace Spark
 		VulkanRenderer& m_renderer;
 		VulkanFramebuffer* m_framebuffer;
 
-		std::vector<VkSemaphore> m_imageAvailableSemaphores;
-		std::vector<VkSemaphore> m_renderFinishedSemaphores;
-		std::vector<VkFence> m_inFlightFences;
-		VkCommandBuffer m_commandBuffer;
-		uint32_t m_currentFrame = 0;
+		std::vector<VkCommandBuffer> m_commandBuffers;
 
 		bool m_showDemoWindow;
 		bool m_showAnotherWindow;
