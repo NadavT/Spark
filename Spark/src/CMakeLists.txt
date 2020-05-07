@@ -21,6 +21,8 @@ set(SPARK_VULKAN_SOURCE
     "platform/vulkan/framebuffer/framebuffer.cpp"
     "platform/vulkan/framebuffer/framebuffer2D.cpp"
     "platform/Vulkan/overlay/overlay.cpp"
+    "platform/Vulkan/pipeline/pipeline.cpp"
+    "platform/Vulkan/pipeline/pipeline2d.cpp"
     )
 
 set(SPARK_IMGUI_SOURCE
