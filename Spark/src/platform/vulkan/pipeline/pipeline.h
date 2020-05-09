@@ -26,5 +26,7 @@ namespace Spark
 	protected:
 		VulkanContext& m_context;
 		VulkanFramebuffer& m_framebuffer;
+		VkPipelineLayout m_pipelineLayout;
+		VkPipeline m_pipeline;
 	};
 }

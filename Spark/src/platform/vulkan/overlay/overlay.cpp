@@ -126,7 +126,7 @@ namespace Spark
     {
         ImGuiIO& io = ImGui::GetIO();
 
-        io.DeltaTime = diffTime.GetSeconds();
+        io.DeltaTime = static_cast<float>(diffTime.GetSeconds());
         io.DisplaySize = ImVec2((float)m_renderer.m_context.m_swapChainExtent.width, (float)m_renderer.m_context.m_swapChainExtent.height);
         io.DisplayFramebufferScale = ImVec2(1, 1);
         io.MousePos = ImVec2(Input::GetMouseX(), Input::GetMouseY());

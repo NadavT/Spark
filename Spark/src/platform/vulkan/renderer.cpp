@@ -148,7 +148,7 @@ namespace Spark
 
 	uint32_t VulkanRenderer::getImagesAmount() const
 	{
-		return m_context.m_swapChainImages.size();
+		return static_cast<uint32_t>(m_context.m_swapChainImages.size());
 	}
 
 	void VulkanRenderer::OnEvent(Event& e)
