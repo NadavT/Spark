@@ -1,7 +1,8 @@
 #include "renderer.h"
 
 #include "spark/core/log.h"
-#include "platform/vulkan/framebuffer/framebuffer2D.h"
+#include "platform/vulkan/framebuffer/framebuffer2d.h"
+#include "platform/vulkan/pipeline/pipeline2d.h"
 
 namespace Spark
 {
@@ -184,6 +185,33 @@ namespace Spark
 		}
 	}
 
+	VulkanPipeline* VulkanRenderer::createPipeline(VulkanPipelineType type, VulkanFramebuffer& framebuffer)
+	{
+		if (type == VulkanPipelineType::Type2D)
+		{
+			m_pipelines.push_back(std::make_unique<VulkanPipeline2D>(m_context, framebuffer));
+			return m_pipelines.back().get();
+		}
+		else
+		{
+			SPARK_CORE_ERROR("Not supporting VulkanPipelineType %d", static_cast<int>(type));
+			throw std::runtime_error("Not supporting pipeline given type!");
+		}
+	}
+
+	void VulkanRenderer::destroyPipeline(VulkanPipeline* pipeline)
+	{
+		auto found_it = std::find_if(m_pipelines.begin(), m_pipelines.end(), [&](std::unique_ptr<VulkanPipeline>& p) { return p.get() == pipeline; });
+		if (found_it != m_pipelines.end())
+		{
+			m_pipelines.erase(found_it);
+		}
+		else
+		{
+			SPARK_CORE_WARN("Tring to destroy a non existing framebuffer!");
+		}
+	}
+
 	bool VulkanRenderer::onWindowResize(WindowResizeEvent& e)
 	{
 		m_width = e.GetWidth();
@@ -200,6 +228,11 @@ namespace Spark
 
 		waitForIdle();
 
+		for (auto& pipeline : m_pipelines)
+		{
+			pipeline->cleanup();
+		}
+
 		for (auto& framebuffer : m_framebuffers)
 		{
 			framebuffer->cleanup();
@@ -213,6 +246,11 @@ namespace Spark
 		for (auto& framebuffer : m_framebuffers)
 		{
 			framebuffer->recreate();
+		}
+
+		for (auto& pipeline : m_pipelines)
+		{
+			pipeline->recreate();
 		}
 
 		m_currentFrame = 0;

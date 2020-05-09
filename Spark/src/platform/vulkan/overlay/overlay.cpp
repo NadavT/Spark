@@ -21,7 +21,7 @@ namespace Spark
         , m_showDemoWindow(true)
         , m_showAnotherWindow(false)
     {
-        m_framebuffer = renderer.createFramebuffer(VulkanFramebufferType::Type2D, true);
+        m_framebuffer = renderer.createFramebuffer(VulkanFramebufferType::Type2D, false);
         m_commandBuffers.resize(renderer.getImagesAmount());
         for (int i = 0; i < m_commandBuffers.size(); i++)
         {

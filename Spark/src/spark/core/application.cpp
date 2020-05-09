@@ -6,6 +6,8 @@
 #include "spark/core/time.h"
 #include "spark/core/input.h"
 
+#include "platform/vulkan/test/test_layer.h"
+
 namespace Spark
 {
 	Application::Application()
@@ -19,6 +21,9 @@ namespace Spark
 
 		Input::Init(*this);
 
+		m_testLayer = std::make_unique<VulkanTestLayer>(reinterpret_cast<VulkanRenderer&>(*m_renderer));
+		m_testLayer->OnAttach();
+
 		m_overlay = Overlay::Create(*m_renderer);
 		m_overlay->OnAttach();
 	}
@@ -27,6 +32,8 @@ namespace Spark
 	{
 		m_overlay->OnDetach();
 		m_overlay.reset(nullptr);
+		m_testLayer->OnDetach();
+		m_testLayer.reset(nullptr);
 		Input::Destroy();
 		m_renderer.reset(nullptr);
 		m_window.reset(nullptr);
@@ -110,6 +117,7 @@ namespace Spark
 			{
 				for (Layer* layer : m_layerStack)
 					layer->OnRender();
+				m_testLayer->OnRender();
 				m_overlay->OnRender();
 				m_renderer->end();
 			}

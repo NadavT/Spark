@@ -6,6 +6,7 @@
 
 #include "platform/vulkan/vulkan_context.h"
 #include "platform/vulkan/framebuffer/framebuffer.h"
+#include "platform/vulkan/pipeline/pipeline.h"
 
 #include <vector>
 #include <array>
@@ -28,6 +29,8 @@ namespace Spark
 		virtual void OnEvent(Event& e);
 		VulkanFramebuffer* createFramebuffer(VulkanFramebufferType type, bool first_layer=false);
 		void destroyFramebuffer(VulkanFramebuffer* framebuffer);
+		VulkanPipeline* createPipeline(VulkanPipelineType type, VulkanFramebuffer& framebuffer);
+		void destroyPipeline(VulkanPipeline* pipeline);
 		void recreateSwapchain();
 
 		virtual void waitForIdle();
@@ -49,6 +52,7 @@ namespace Spark
 	public:
 		VulkanContext m_context;
 		std::vector<std::unique_ptr<VulkanFramebuffer>> m_framebuffers;
+		std::vector<std::unique_ptr<VulkanPipeline>> m_pipelines;
 		int m_width;
 		int m_height;
 		std::array<std::vector<VkSemaphore>, 2> m_semaphores;

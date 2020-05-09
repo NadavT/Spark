@@ -24,7 +24,8 @@ namespace Spark
 
 	VulkanPipeline2D::~VulkanPipeline2D()
 	{
-
+		vkDestroyDescriptorSetLayout(m_context.m_device, m_MVPDescriptorSetLayout, nullptr);
+		vkDestroyDescriptorSetLayout(m_context.m_device, m_textureDescriptorSetLayout, nullptr);
 	}
 
 	void VulkanPipeline2D::cleanup()
@@ -39,6 +40,11 @@ namespace Spark
 		VulkanPipeline::recreate();
 		createDescriptorSetLayout();
 		createGraphicsPipeline();
+	}
+
+	void VulkanPipeline2D::bind(VkCommandBuffer commandBuffer)
+	{
+		vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_pipeline);
 	}
 
 	void VulkanPipeline2D::createDescriptorSetLayout()

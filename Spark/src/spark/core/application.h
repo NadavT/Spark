@@ -38,6 +38,7 @@ namespace Spark
 		Time m_lastFrameTime;
 
 		std::unique_ptr<Overlay> m_overlay;
+		std::unique_ptr<Layer> m_testLayer;
 	};
 
 	Application* CreateApplication();

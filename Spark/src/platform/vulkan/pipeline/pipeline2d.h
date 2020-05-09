@@ -6,11 +6,14 @@ namespace Spark
 {
 	class VulkanPipeline2D : public VulkanPipeline
 	{
+	public:
 		VulkanPipeline2D(VulkanContext& context, VulkanFramebuffer& framebuffer);
 		virtual ~VulkanPipeline2D();
 
 		virtual void cleanup();
 		virtual void recreate();
+
+		virtual void bind(VkCommandBuffer commandBuffer);
 
 	private:
 		void createDescriptorSetLayout();

@@ -24,7 +24,8 @@ set(SPARK_VULKAN_SOURCE
     "platform/vulkan/pipeline/pipeline.cpp"
     "platform/vulkan/pipeline/pipeline2d.cpp"
     "platform/vulkan/vertex/vertex2d.cpp"
-    "platform/vulkan/quad.cpp")
+    "platform/vulkan/test/quad.cpp"
+    "platform/vulkan/test/test_layer.cpp")
 
 set(SPARK_IMGUI_SOURCE
     ${PROJECT_SOURCE_DIR}/vendor/imgui/imgui.cpp
