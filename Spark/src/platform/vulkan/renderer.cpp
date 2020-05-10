@@ -339,4 +339,17 @@ namespace Spark
 		}
 		SPARK_CORE_ASSERT(result == VK_SUCCESS, "vkQueuePresentKHR failed!");
 	}
+
+	void VulkanRenderer::createUniformBuffers(VkDeviceSize size, std::vector<VkBuffer>& uniformBuffers, std::vector<VkDeviceMemory>& uniformBuffersMemory) {
+		VkDeviceSize bufferSize = size;
+
+		uniformBuffers.resize(vulkanContext->swapChainImages.size());
+		uniformBuffersMemory.resize(vulkanContext->swapChainImages.size());
+
+		for (size_t i = 0; i < vulkanContext->swapChainImages.size(); i++) {
+			createBuffer(*vulkanContext, bufferSize, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
+				VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
+				uniformBuffers[i], uniformBuffersMemory[i]);
+		}
+	}
 }

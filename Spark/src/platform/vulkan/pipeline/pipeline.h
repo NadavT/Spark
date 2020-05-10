@@ -20,6 +20,8 @@ namespace Spark
 
 		virtual void cleanup();
 		virtual void recreate();
+
+		virtual void bind(VkCommandBuffer commandBuffer) = 0;
 	protected:
 		VulkanPipeline(VulkanContext& context, VulkanFramebuffer& framebuffer);
 

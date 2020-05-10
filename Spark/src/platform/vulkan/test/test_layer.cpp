@@ -2,6 +2,10 @@
 
 namespace Spark
 {
+	struct MVP {
+		glm::mat3 model;
+	};
+
 	VulkanTestLayer::VulkanTestLayer(VulkanRenderer& renderer)
 		: Layer("test layer")
 		, m_renderer(renderer)
@@ -16,10 +20,16 @@ namespace Spark
 		{
 			m_commandBuffers[i] = renderer.m_context.createCommandBuffer();
 		}
+		renderer.createUniformBuffers(sizeof(MVP), m_uniformBuffers, m_uniformBuffersMemory);
 	}
 
 	VulkanTestLayer::~VulkanTestLayer()
 	{
+		for (size_t i = 0; i < m_renderer.m_context.m_swapChainImages.size(); i++) {
+			vkDestroyBuffer(m_renderer.m_context.m_device, m_uniformBuffers[i], nullptr);
+			vkFreeMemory(m_renderer.m_context.m_device, m_uniformBuffersMemory[i], nullptr);
+		}
+
 		for (int i = 0; i < m_commandBuffers.size(); i++)
 		{
 			m_renderer.m_context.destroyCommandBuffer(m_commandBuffers[i]);
@@ -48,7 +58,7 @@ namespace Spark
 			int mvpDescriptorSetOffset = 0;
 			const VkDescriptorSet descriptorSets[] = { MVPDescriptorSets[mvpDescriptorSetOffset][i], lightDescriptorSets[i], textureDescriptorSets[i] };
 			vkCmdBindDescriptorSets(commandBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, vulkanContext->pipelineLayout[0], 0, 3, descriptorSets, 0, nullptr);
-			vkCmdBindPipeline(commandBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, vulkanContext->graphicsPipelines[0]);
+			m_pipeline->bind(commandBuffer);
 
 			// Record Imgui Draw Data and draw funcs into command buffer
 			m_quad->fillCommandBuffer(commandBuffer);
@@ -70,5 +80,66 @@ namespace Spark
 	void VulkanTestLayer::OnRender()
 	{
 		m_renderer.render(m_commandBuffers[m_renderer.getCurrentImageIndex()]);
+	}
+
+	void VulkanTestLayer::createDescriptorSets()
+	{
+		VkDescriptorSetLayout MVPLayout;
+		VkDescriptorSetAllocateInfo allocInfo = {};
+		allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
+		allocInfo.descriptorPool = m_renderer.m_context.m_descriptorPool;
+		allocInfo.descriptorSetCount = 1;
+		allocInfo.pSetLayouts = &MVPLayout;
+
+		if (vkAllocateDescriptorSets(m_renderer.m_context.m_device, &allocInfo, &m_MVPDescriptorSet) != VK_SUCCESS) {
+			throw std::runtime_error("failed to allocate descriptor sets!");
+		}
+
+		VkDescriptorSetLayout textureLayout;
+		allocInfo = {};
+		allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
+		allocInfo.descriptorPool = m_renderer.m_context.m_descriptorPool;
+		allocInfo.descriptorSetCount = 1;
+		allocInfo.pSetLayouts = &textureLayout;
+
+		if (vkAllocateDescriptorSets(m_renderer.m_context.m_device, &allocInfo, &m_textureDescriptorSet) != VK_SUCCESS) {
+			throw std::runtime_error("failed to allocate descriptor sets!");
+		}
+
+		for (size_t i = 0; i < m_renderer.m_context.m_swapChainImages.size(); i++) {
+			VkDescriptorImageInfo imageInfo = {};
+			imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+			imageInfo.imageView = textureImageView;
+			imageInfo.sampler = textureSampler;
+
+			std::vector<VkWriteDescriptorSet> descriptorWrites = {};
+
+			VkWriteDescriptorSet writeDescripotrSet = {};
+			VkDescriptorBufferInfo bufferInfo;
+
+			bufferInfo.buffer = m_uniformBuffers[i];
+			bufferInfo.offset = 0;
+			bufferInfo.range = sizeof(MVP);
+			writeDescripotrSet.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+			writeDescripotrSet.dstSet = m_MVPDescriptorSet;
+			writeDescripotrSet.dstBinding = 0;
+			writeDescripotrSet.dstArrayElement = 0;
+			writeDescripotrSet.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+			writeDescripotrSet.descriptorCount = 1;
+			writeDescripotrSet.pBufferInfo = &bufferInfo[j];
+			descriptorWrites.push_back(writeDescripotrSet);
+
+			writeDescripotrSet.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+			writeDescripotrSet.dstSet = m_textureDescriptorSet;
+			writeDescripotrSet.dstBinding = 0;
+			writeDescripotrSet.dstArrayElement = 0;
+			writeDescripotrSet.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+			writeDescripotrSet.descriptorCount = 1;
+			writeDescripotrSet.pImageInfo = &imageInfo;
+			descriptorWrites.push_back(writeDescripotrSet);
+
+			vkUpdateDescriptorSets(m_renderer.m_context.m_device, static_cast<uint32_t>(descriptorWrites.size()),
+				descriptorWrites.data(), 0, nullptr);
+		}
 	}
 }

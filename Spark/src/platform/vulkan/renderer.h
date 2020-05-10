@@ -45,6 +45,7 @@ namespace Spark
 		void beginRenderPass(VkCommandBuffer commandBuffer, VkRenderPass renderPass, VkFramebuffer framebuffer, uint32_t clearValueCount, const VkClearValue* clearValues = VK_NULL_HANDLE);
 		void endRenderPass(VkCommandBuffer commandBuffer);
 		void queuePresent(const VkPresentInfoKHR* info);
+		void createUniformBuffers(VkDeviceSize size, std::vector<VkBuffer>& uniformBuffers, std::vector<VkDeviceMemory>& uniformBuffersMemory);
 
 	private:
 		bool onWindowResize(WindowResizeEvent& e);
