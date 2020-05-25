@@ -274,7 +274,7 @@ namespace Spark
 		for (const auto& device : devices) {
 			if (isDeviceSuitable(device)) {
 				m_physicalDevice = device;
-				m_msaaSamples = getMaxUsableSampleCount();
+				m_msaaSamples = VK_SAMPLE_COUNT_1_BIT;
 				break;
 			}
 		}

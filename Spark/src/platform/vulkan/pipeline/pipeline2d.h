@@ -15,6 +15,9 @@ namespace Spark
 
 		virtual void bind(VkCommandBuffer commandBuffer);
 
+		VkDescriptorSetLayout getMVPDescriptorSetLayout();
+		VkDescriptorSetLayout getTextureDescriptorSetLayout();
+
 	private:
 		void createDescriptorSetLayout();
 		void createGraphicsPipeline();

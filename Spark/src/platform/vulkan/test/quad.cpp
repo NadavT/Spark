@@ -68,9 +68,11 @@ namespace Spark
 		VkBuffer buff[] = { m_vertexBuffer };
 		VkDeviceSize offsets[] = { m_verticesOffset };
 
-		vkCmdBindVertexBuffers(commandBuffer, 0, 1, buff, offsets);
-		vkCmdBindIndexBuffer(commandBuffer, m_vertexBuffer, m_indicesOffset, VK_INDEX_TYPE_UINT32);
-		vkCmdDrawIndexed(commandBuffer, static_cast<uint32_t>(quad_indices.size()), 1, 0, 0, 0);
+		//vkCmdBindVertexBuffers(commandBuffer, 0, 1, buff, offsets);
+		//vkCmdBindIndexBuffer(commandBuffer, m_vertexBuffer, m_indicesOffset, VK_INDEX_TYPE_UINT32);
+//		vkCmdDrawIndexed(commandBuffer, static_cast<uint32_t>(quad_indices.size()), 1, 0, 0, 0);
+		vkCmdDraw(commandBuffer, 3, 1, 0, 0);
+
 	}
 
 	glm::mat3 Quad::getModelMatrix()

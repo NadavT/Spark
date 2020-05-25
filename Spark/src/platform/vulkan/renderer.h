@@ -27,7 +27,7 @@ namespace Spark
 		uint32_t getImagesAmount() const;
 
 		virtual void OnEvent(Event& e);
-		VulkanFramebuffer* createFramebuffer(VulkanFramebufferType type, bool first_layer=false);
+		VulkanFramebuffer* createFramebuffer(VulkanFramebufferType type, bool first_layer = false);
 		void destroyFramebuffer(VulkanFramebuffer* framebuffer);
 		VulkanPipeline* createPipeline(VulkanPipelineType type, VulkanFramebuffer& framebuffer);
 		void destroyPipeline(VulkanPipeline* pipeline);
@@ -37,7 +37,7 @@ namespace Spark
 
 		void beginCommandBuffer(VkCommandBuffer commandBuffer, VkCommandBufferBeginInfo* info);
 		void endCommandBuffer(VkCommandBuffer commandBuffer);
-		void queueSubmit(VkSubmitInfo* info, VkFence fence);
+		void queueSubmits(uint32_t amount, VkSubmitInfo* info, VkFence fence);
 		bool accuireNextImage(VkSemaphore semaphore, VkFence fence, uint32_t* imageIndex);
 		void waitForFence(const VkFence* fence);
 		void resetFence(const VkFence* fence);
@@ -58,11 +58,11 @@ namespace Spark
 		int m_height;
 		std::array<std::vector<VkSemaphore>, 2> m_semaphores;
 		std::array<VkFence, 2> m_inFlightFences;
+		std::vector<VkFence> m_imagesInFlight;
 		uint32_t m_currentFrame;
 		uint32_t m_currentImageIndex;
 		bool m_framebufferResized;
-		VkCommandBuffer m_lastCommandBuffer;
-		VkSemaphore m_lastSemaphore;
 		uint32_t m_currentCommandsDrawCount;
+		std::vector<VkCommandBuffer> m_commandBuffers;
 	};
 }

@@ -27,5 +27,7 @@ namespace Spark
 		VkDeviceMemory m_vertexBufferMemory;
 		VkDeviceSize m_verticesOffset;
 		VkDeviceSize m_indicesOffset;
+
+
 	};
 }

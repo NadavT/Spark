@@ -22,6 +22,8 @@ namespace Spark
 		virtual void recreate();
 
 		virtual void bind(VkCommandBuffer commandBuffer) = 0;
+
+		VkPipelineLayout getLayout();
 	protected:
 		VulkanPipeline(VulkanContext& context, VulkanFramebuffer& framebuffer);
 

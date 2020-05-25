@@ -6,6 +6,8 @@
 
 namespace Spark
 {
+	static VkPipelineStageFlags wait_stage = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+
 	VulkanRenderer::VulkanRenderer(const Window& window)
 		: m_context(window)
 		, m_width(window.GetWidth())
@@ -15,14 +17,15 @@ namespace Spark
 		, m_currentFrame(0)
 		, m_currentImageIndex(0)
 		, m_framebufferResized(false)
-		, m_lastCommandBuffer(nullptr)
-		, m_lastSemaphore(nullptr)
 		, m_currentCommandsDrawCount(0)
+		, m_commandBuffers()
 	{
 		for (int i = 0; i < m_inFlightFences.size(); i++)
 		{
 			m_inFlightFences[i] = m_context.createFence();
 		}
+
+		m_imagesInFlight.resize(m_context.m_swapChainImages.size(), VK_NULL_HANDLE);
 	}
 
 	VulkanRenderer::~VulkanRenderer()
@@ -43,6 +46,8 @@ namespace Spark
 
 	bool VulkanRenderer::begin()
 	{
+		m_commandBuffers.clear();
+
 		VkResult result = VK_SUCCESS;
 		waitForFence(&m_inFlightFences[m_currentFrame]);
 
@@ -52,7 +57,6 @@ namespace Spark
 		}
 		result = vkAcquireNextImageKHR(m_context.m_device, m_context.m_swapChain,
 			UINT64_MAX, m_semaphores[m_currentFrame][0], VK_NULL_HANDLE, &m_currentImageIndex);
-		m_lastSemaphore = m_semaphores[m_currentFrame][0];
 		if (result == VK_ERROR_OUT_OF_DATE_KHR)
 		{
 			recreateSwapchain();
@@ -63,7 +67,11 @@ namespace Spark
 			throw std::runtime_error("failed to acquire swap chain image!");
 		}
 
-		resetFence(&m_inFlightFences[m_currentFrame]);
+		if (m_imagesInFlight[m_currentImageIndex] != VK_NULL_HANDLE) {
+			waitForFence(&m_imagesInFlight[m_currentImageIndex]);
+		}
+
+		m_imagesInFlight[m_currentImageIndex] = m_inFlightFences[m_currentFrame];
 
 		return true;
 	}
@@ -72,44 +80,50 @@ namespace Spark
 	{
 		VkResult result = VK_SUCCESS;
 
-		if (m_lastCommandBuffer != nullptr)
+		if (m_commandBuffers.size() > 0)
 		{
-			VkPipelineStageFlags wait_stage = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
-			VkSubmitInfo info = {};
-			info.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
-			info.waitSemaphoreCount = 1;
-			info.pWaitSemaphores = &m_lastSemaphore;
-			info.pWaitDstStageMask = &wait_stage;
-			info.commandBufferCount = 1;
-			info.pCommandBuffers = &m_lastCommandBuffer;
-			info.signalSemaphoreCount = 1;
-			info.pSignalSemaphores = &m_semaphores[m_currentFrame][m_currentCommandsDrawCount];
+			std::vector<VkSubmitInfo> infos;
 
-			queueSubmit(&info, m_inFlightFences[m_currentFrame]);
+			for (int currentBuffer = 0; currentBuffer < m_commandBuffers.size(); currentBuffer++)
+			{
+				VkSubmitInfo info = {};
+				info.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+				info.waitSemaphoreCount = 1;
+				info.pWaitSemaphores = &m_semaphores[m_currentFrame][currentBuffer];
+				info.pWaitDstStageMask = &wait_stage;
+				info.commandBufferCount = 1;
+				info.pCommandBuffers = &m_commandBuffers[currentBuffer];
+				info.signalSemaphoreCount = 1;
+				info.pSignalSemaphores = &m_semaphores[m_currentFrame][currentBuffer + 1];
+
+				infos.push_back(info);
+			}
+
+			resetFence(&m_inFlightFences[m_currentFrame]);
+			queueSubmits(infos.size(), infos.data(), m_inFlightFences[m_currentFrame]);
+
+			VkSwapchainKHR swapChains[] = { m_context.m_swapChain };
+
+			VkPresentInfoKHR presentInfo = {};
+			presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
+			presentInfo.waitSemaphoreCount = 1;
+			presentInfo.pWaitSemaphores = &m_semaphores[m_currentFrame][m_currentCommandsDrawCount];
+			presentInfo.swapchainCount = 1;
+			presentInfo.pSwapchains = swapChains;
+			presentInfo.pImageIndices = &m_currentImageIndex;
+
+			result = vkQueuePresentKHR(m_context.m_presentQueue, &presentInfo);
+
+			if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR || m_framebufferResized)
+			{
+				m_framebufferResized = false;
+				recreateSwapchain();
+			}
+			else if (result != VK_SUCCESS) {
+				throw std::runtime_error("failed to present swap chain image!");
+			}
 		}
 
-		VkSwapchainKHR swapChains[] = { m_context.m_swapChain };
-
-		VkPresentInfoKHR presentInfo = {};
-		presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
-		presentInfo.waitSemaphoreCount = 1;
-		presentInfo.pWaitSemaphores = &m_semaphores[m_currentFrame][m_currentCommandsDrawCount];
-		presentInfo.swapchainCount = 1;
-		presentInfo.pSwapchains = swapChains;
-		presentInfo.pImageIndices = &m_currentImageIndex;
-		result = vkQueuePresentKHR(m_context.m_presentQueue, &presentInfo);
-
-		if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR || m_framebufferResized)
-		{
-			m_framebufferResized = false;
-			recreateSwapchain();
-		}
-		else if (result != VK_SUCCESS) {
-			throw std::runtime_error("failed to present swap chain image!");
-		}
-
-		m_lastCommandBuffer = nullptr;
-		m_lastSemaphore = nullptr;
 		m_currentCommandsDrawCount = 0;
 		m_currentFrame = (m_currentFrame + 1) % m_inFlightFences.size();
 	}
@@ -120,26 +134,9 @@ namespace Spark
 		if (m_currentCommandsDrawCount >= m_semaphores[m_currentFrame].size())
 		{
 			m_semaphores[m_currentFrame].push_back(m_context.createSemaphore());
-			m_lastSemaphore = m_semaphores[m_currentFrame][m_currentCommandsDrawCount - 1];
 		}
-		if (m_lastCommandBuffer != nullptr)
-		{
-			VkPipelineStageFlags wait_stage = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
-			VkSubmitInfo info = {};
-			info.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
-			info.waitSemaphoreCount = 1;
-			info.pWaitSemaphores = &m_lastSemaphore;
-			info.pWaitDstStageMask = &wait_stage;
-			info.commandBufferCount = 1;
-			info.pCommandBuffers = &m_lastCommandBuffer;
-			info.signalSemaphoreCount = 1;
-			info.pSignalSemaphores = &m_semaphores[m_currentFrame][m_currentCommandsDrawCount];
 
-			queueSubmit(&info, m_inFlightFences[m_currentFrame]);
-
-			m_lastSemaphore = m_semaphores[m_currentFrame][m_currentCommandsDrawCount];
-		}
-		m_lastCommandBuffer = commandBuffer;
+		m_commandBuffers.push_back(commandBuffer);
 	}
 
 	uint32_t VulkanRenderer::getCurrentImageIndex() const
@@ -274,9 +271,9 @@ namespace Spark
 		SPARK_CORE_ASSERT(result == VK_SUCCESS, "vkEndCommandBuffer failed!");
 	}
 
-	void VulkanRenderer::queueSubmit(VkSubmitInfo* info, VkFence fence)
+	void VulkanRenderer::queueSubmits(uint32_t amount, VkSubmitInfo* info, VkFence fence)
 	{
-		VkResult result = vkQueueSubmit(m_context.m_graphicsQueue, 1, info, fence);
+		VkResult result = vkQueueSubmit(m_context.m_graphicsQueue, amount, info, fence);
 		SPARK_CORE_ASSERT(result == VK_SUCCESS, "vkQueueSubmit failed!");
 	}
 
@@ -318,6 +315,7 @@ namespace Spark
 		info.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
 		info.renderPass = renderPass;
 		info.framebuffer = framebuffer;
+		info.renderArea.offset = { 0, 0 };
 		info.renderArea.extent.width = m_context.m_swapChainExtent.width;
 		info.renderArea.extent.height = m_context.m_swapChainExtent.height;
 		info.clearValueCount = clearValueCount;
@@ -343,11 +341,11 @@ namespace Spark
 	void VulkanRenderer::createUniformBuffers(VkDeviceSize size, std::vector<VkBuffer>& uniformBuffers, std::vector<VkDeviceMemory>& uniformBuffersMemory) {
 		VkDeviceSize bufferSize = size;
 
-		uniformBuffers.resize(vulkanContext->swapChainImages.size());
-		uniformBuffersMemory.resize(vulkanContext->swapChainImages.size());
+		uniformBuffers.resize(m_context.m_swapChainImages.size());
+		uniformBuffersMemory.resize(m_context.m_swapChainImages.size());
 
-		for (size_t i = 0; i < vulkanContext->swapChainImages.size(); i++) {
-			createBuffer(*vulkanContext, bufferSize, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
+		for (size_t i = 0; i < m_context.m_swapChainImages.size(); i++) {
+			m_context.createBuffer(bufferSize, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
 				VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
 				uniformBuffers[i], uniformBuffersMemory[i]);
 		}

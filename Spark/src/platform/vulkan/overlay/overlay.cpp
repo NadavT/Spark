@@ -110,7 +110,7 @@ namespace Spark
             end_info.commandBufferCount = 1;
             end_info.pCommandBuffers = &command_buffer;
             m_renderer.endCommandBuffer(command_buffer);
-            m_renderer.queueSubmit(&end_info, VK_NULL_HANDLE);
+            m_renderer.queueSubmits(1, &end_info, VK_NULL_HANDLE);
 
             m_renderer.waitForIdle();
             ImGui_ImplVulkan_DestroyFontUploadObjects();
@@ -211,7 +211,7 @@ namespace Spark
             clearValues[0].color = { 0.1f, 0.1f, 0.1f, 1.0f };
             clearValues[1].depthStencil = { 1.0f, 0 };
             m_renderer.beginRenderPass(commandBuffer, m_framebuffer->getRenderPass(),
-                m_framebuffer->getswapChainFramebuffers()[m_renderer.getCurrentImageIndex()], 2, clearValues.data());
+                m_framebuffer->getswapChainFramebuffers()[m_renderer.getCurrentImageIndex()], 0);
         }
 
         // Record Imgui Draw Data and draw funcs into command buffer

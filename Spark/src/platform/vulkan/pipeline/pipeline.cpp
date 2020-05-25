@@ -25,4 +25,9 @@ namespace Spark
 		m_pipelineLayout = VK_NULL_HANDLE;
 		m_pipeline = VK_NULL_HANDLE;
 	}
+
+	VkPipelineLayout VulkanPipeline::getLayout()
+	{
+		return m_pipelineLayout;
+	}
 }

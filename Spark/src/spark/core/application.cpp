@@ -111,16 +111,13 @@ namespace Spark
 
 	void Application::Render()
 	{
-		if (!m_minimized)
+		if (!m_minimized && m_renderer->begin())
 		{
-			if (m_renderer->begin())
-			{
-				for (Layer* layer : m_layerStack)
-					layer->OnRender();
-				m_testLayer->OnRender();
-				m_overlay->OnRender();
-				m_renderer->end();
-			}
+			for (Layer* layer : m_layerStack)
+				layer->OnRender();
+			m_testLayer->OnRender();
+			m_overlay->OnRender();
+			m_renderer->end();
 		}
 	}
 

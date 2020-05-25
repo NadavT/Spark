@@ -2,7 +2,7 @@
 
 #include "spark/core/layer.h"
 #include "platform/vulkan/renderer.h"
-#include "platform/vulkan/pipeline/pipeline.h"
+#include "platform/vulkan/pipeline/pipeline2d.h"
 #include "platform/vulkan/test/quad.h"
 
 namespace Spark
@@ -22,7 +22,7 @@ namespace Spark
 	private:
 		VulkanRenderer& m_renderer;
 		VulkanFramebuffer* m_framebuffer;
-		VulkanPipeline* m_pipeline;
+		VulkanPipeline2D* m_pipeline;
 
 		std::vector<VkCommandBuffer> m_commandBuffers;
 
@@ -35,8 +35,8 @@ namespace Spark
 		std::vector<VkBuffer> m_uniformBuffers;
 		std::vector<VkDeviceMemory> m_uniformBuffersMemory;
 
-		VkDescriptorSet m_MVPDescriptorSet;
-		VkDescriptorSet m_textureDescriptorSet;
+		std::vector<VkDescriptorSet> m_MVPDescriptorSets;
+		std::vector<VkDescriptorSet> m_textureDescriptorSets;
 
 		std::unique_ptr<Quad> m_quad;
 	};

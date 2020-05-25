@@ -1,5 +1,7 @@
 #include "test_layer.h"
 
+#include "platform/vulkan/pipeline/pipeline2d.h"
+
 namespace Spark
 {
 	struct MVP {
@@ -14,13 +16,14 @@ namespace Spark
 		, m_quad(nullptr)
 	{
 		m_framebuffer = renderer.createFramebuffer(VulkanFramebufferType::Type2D, true);
-		m_pipeline = renderer.createPipeline(VulkanPipelineType::Type2D, *m_framebuffer);
+		m_pipeline = reinterpret_cast<VulkanPipeline2D*>(renderer.createPipeline(VulkanPipelineType::Type2D, *m_framebuffer));
 		m_commandBuffers.resize(renderer.getImagesAmount());
 		for (int i = 0; i < m_commandBuffers.size(); i++)
 		{
 			m_commandBuffers[i] = renderer.m_context.createCommandBuffer();
 		}
 		renderer.createUniformBuffers(sizeof(MVP), m_uniformBuffers, m_uniformBuffersMemory);
+		createDescriptorSets();
 	}
 
 	VulkanTestLayer::~VulkanTestLayer()
@@ -44,28 +47,43 @@ namespace Spark
 	{
 		m_quad = std::make_unique<Quad>(m_renderer.m_context, glm::vec2(100.0f, 100.0f));
 
+		void* data;
+
+		MVP mvp = {};
+		mvp.model = m_quad->getModelMatrix();
+
+		int i = 0;
 		for (VkCommandBuffer commandBuffer : m_commandBuffers) {
-			VkCommandBufferBeginInfo info = {};
-			info.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-			info.flags |= VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
-			m_renderer.beginCommandBuffer(commandBuffer, &info);
+			VkCommandBufferBeginInfo beginInfo{};
+			beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+
+			if (vkBeginCommandBuffer(commandBuffer, &beginInfo) != VK_SUCCESS) {
+				throw std::runtime_error("failed to begin recording command buffer!");
+			}
+
 			std::array<VkClearValue, 2> clearValues = {};
 			clearValues[0].color = { 0.1f, 0.1f, 0.1f, 1.0f };
 			clearValues[1].depthStencil = { 1.0f, 0 };
 			m_renderer.beginRenderPass(commandBuffer, m_framebuffer->getRenderPass(),
-				m_framebuffer->getswapChainFramebuffers()[m_renderer.getCurrentImageIndex()], 2, clearValues.data());
+				m_framebuffer->getswapChainFramebuffers()[i], 2, clearValues.data());
 
-			int mvpDescriptorSetOffset = 0;
-			const VkDescriptorSet descriptorSets[] = { MVPDescriptorSets[mvpDescriptorSetOffset][i], lightDescriptorSets[i], textureDescriptorSets[i] };
-			vkCmdBindDescriptorSets(commandBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, vulkanContext->pipelineLayout[0], 0, 3, descriptorSets, 0, nullptr);
+			const VkDescriptorSet descriptorSets[] = { m_MVPDescriptorSets[m_renderer.getCurrentImageIndex()] };
+			//vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_pipeline->getLayout(), 0, 1, descriptorSets, 0, nullptr);
 			m_pipeline->bind(commandBuffer);
 
-			// Record Imgui Draw Data and draw funcs into command buffer
-			m_quad->fillCommandBuffer(commandBuffer);
+			vkCmdDraw(commandBuffer, 3, 1, 0, 0);
 
-			// Submit command buffer
 			vkCmdEndRenderPass(commandBuffer);
-			m_renderer.endCommandBuffer(commandBuffer);
+
+			if (vkEndCommandBuffer(commandBuffer) != VK_SUCCESS) {
+				throw std::runtime_error("failed to record command buffer!");
+			}
+
+			//vkMapMemory(m_renderer.m_context.m_device, m_uniformBuffersMemory[i], 0, sizeof(mvp), 0, &data);
+			//memcpy(data, &mvp, sizeof(mvp));
+			//vkUnmapMemory(m_renderer.m_context.m_device, m_uniformBuffersMemory[i]);
+
+			i++;
 		}
 	}
 
@@ -79,39 +97,26 @@ namespace Spark
 
 	void VulkanTestLayer::OnRender()
 	{
-		m_renderer.render(m_commandBuffers[m_renderer.getCurrentImageIndex()]);
+		VkCommandBuffer commandBuffer = m_commandBuffers[m_renderer.getCurrentImageIndex()];
+		m_renderer.render(commandBuffer);
 	}
 
 	void VulkanTestLayer::createDescriptorSets()
 	{
-		VkDescriptorSetLayout MVPLayout;
+		m_MVPDescriptorSets.resize(m_renderer.m_context.m_swapChainImages.size());
+
+		std::vector<VkDescriptorSetLayout> MVPLayouts(m_renderer.m_context.m_swapChainImages.size(), m_pipeline->getMVPDescriptorSetLayout());
 		VkDescriptorSetAllocateInfo allocInfo = {};
 		allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
 		allocInfo.descriptorPool = m_renderer.m_context.m_descriptorPool;
-		allocInfo.descriptorSetCount = 1;
-		allocInfo.pSetLayouts = &MVPLayout;
+		allocInfo.descriptorSetCount = m_MVPDescriptorSets.size();
+		allocInfo.pSetLayouts = MVPLayouts.data();
 
-		if (vkAllocateDescriptorSets(m_renderer.m_context.m_device, &allocInfo, &m_MVPDescriptorSet) != VK_SUCCESS) {
-			throw std::runtime_error("failed to allocate descriptor sets!");
-		}
-
-		VkDescriptorSetLayout textureLayout;
-		allocInfo = {};
-		allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
-		allocInfo.descriptorPool = m_renderer.m_context.m_descriptorPool;
-		allocInfo.descriptorSetCount = 1;
-		allocInfo.pSetLayouts = &textureLayout;
-
-		if (vkAllocateDescriptorSets(m_renderer.m_context.m_device, &allocInfo, &m_textureDescriptorSet) != VK_SUCCESS) {
+		if (vkAllocateDescriptorSets(m_renderer.m_context.m_device, &allocInfo, m_MVPDescriptorSets.data()) != VK_SUCCESS) {
 			throw std::runtime_error("failed to allocate descriptor sets!");
 		}
 
 		for (size_t i = 0; i < m_renderer.m_context.m_swapChainImages.size(); i++) {
-			VkDescriptorImageInfo imageInfo = {};
-			imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-			imageInfo.imageView = textureImageView;
-			imageInfo.sampler = textureSampler;
-
 			std::vector<VkWriteDescriptorSet> descriptorWrites = {};
 
 			VkWriteDescriptorSet writeDescripotrSet = {};
@@ -121,21 +126,12 @@ namespace Spark
 			bufferInfo.offset = 0;
 			bufferInfo.range = sizeof(MVP);
 			writeDescripotrSet.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-			writeDescripotrSet.dstSet = m_MVPDescriptorSet;
+			writeDescripotrSet.dstSet = m_MVPDescriptorSets[i];
 			writeDescripotrSet.dstBinding = 0;
 			writeDescripotrSet.dstArrayElement = 0;
 			writeDescripotrSet.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
 			writeDescripotrSet.descriptorCount = 1;
-			writeDescripotrSet.pBufferInfo = &bufferInfo[j];
-			descriptorWrites.push_back(writeDescripotrSet);
-
-			writeDescripotrSet.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-			writeDescripotrSet.dstSet = m_textureDescriptorSet;
-			writeDescripotrSet.dstBinding = 0;
-			writeDescripotrSet.dstArrayElement = 0;
-			writeDescripotrSet.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-			writeDescripotrSet.descriptorCount = 1;
-			writeDescripotrSet.pImageInfo = &imageInfo;
+			writeDescripotrSet.pBufferInfo = &bufferInfo;
 			descriptorWrites.push_back(writeDescripotrSet);
 
 			vkUpdateDescriptorSets(m_renderer.m_context.m_device, static_cast<uint32_t>(descriptorWrites.size()),
