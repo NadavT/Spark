@@ -19,6 +19,9 @@ namespace Spark
 		, m_framebufferResized(false)
 		, m_currentCommandsDrawCount(0)
 		, m_commandBuffers()
+		, m_multisampleImage(VK_NULL_HANDLE)
+		, m_multisampleImageMemory(VK_NULL_HANDLE)
+		, m_multisampleImageView(VK_NULL_HANDLE)
 	{
 		for (int i = 0; i < m_inFlightFences.size(); i++)
 		{
@@ -26,6 +29,11 @@ namespace Spark
 		}
 
 		m_imagesInFlight.resize(m_context.m_swapChainImages.size(), VK_NULL_HANDLE);
+
+		if (m_context.m_msaaSamples != VK_SAMPLE_COUNT_1_BIT)
+		{
+			createMultisamplesResources();
+		}
 	}
 
 	VulkanRenderer::~VulkanRenderer()
@@ -41,6 +49,21 @@ namespace Spark
 		for (int i = 0; i < m_inFlightFences.size(); i++)
 		{
 			m_context.destroyFence(m_inFlightFences[i]);
+		}
+
+		if (m_multisampleImageView != VK_NULL_HANDLE)
+		{
+			vkDestroyImageView(m_context.m_device, m_multisampleImageView, nullptr);
+		}
+
+		if (m_multisampleImage != VK_NULL_HANDLE)
+		{
+			vkDestroyImage(m_context.m_device, m_multisampleImage, nullptr);
+		}
+
+		if (m_multisampleImageMemory != VK_NULL_HANDLE)
+		{
+			vkFreeMemory(m_context.m_device, m_multisampleImageMemory, nullptr);
 		}
 	}
 
@@ -149,17 +172,22 @@ namespace Spark
 		return static_cast<uint32_t>(m_context.m_swapChainImages.size());
 	}
 
+	VkImageView VulkanRenderer::getMultisampleImageView() const
+	{
+		return m_multisampleImageView;
+	}
+
 	void VulkanRenderer::OnEvent(Event& e)
 	{
 		EventDispatcher dispatcher(e);
 		dispatcher.Dispatch<WindowResizeEvent>(SPARK_BIND_EVENT_FN(VulkanRenderer::onWindowResize));
 	}
 
-	VulkanFramebuffer* VulkanRenderer::createFramebuffer(VulkanFramebufferType type, bool first_layer)
+	VulkanFramebuffer* VulkanRenderer::createFramebuffer(VulkanFramebufferType type, bool first_layer, bool last_layer)
 	{
 		if (type == VulkanFramebufferType::Type2D)
 		{
-			m_framebuffers.push_back(std::make_unique<VulkanFramebuffer2D>(m_context, first_layer));
+			m_framebuffers.push_back(std::make_unique<VulkanFramebuffer2D>(m_context, first_layer, last_layer, m_multisampleImageView));
 			return m_framebuffers.back().get();
 		}
 		else
@@ -349,5 +377,16 @@ namespace Spark
 				VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
 				uniformBuffers[i], uniformBuffersMemory[i]);
 		}
+	}
+
+	void VulkanRenderer::createMultisamplesResources()
+	{
+		VkFormat colorFormat = m_context.m_swapChainImageFormat;
+
+		m_context.createImage(m_context.m_swapChainExtent.width, m_context.m_swapChainExtent.height,
+			1, m_context.m_msaaSamples, colorFormat, VK_IMAGE_TILING_OPTIMAL,
+			VK_IMAGE_USAGE_TRANSIENT_ATTACHMENT_BIT | VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT,
+			VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, m_multisampleImage, m_multisampleImageMemory);
+		m_multisampleImageView = m_context.createImageView(m_multisampleImage, colorFormat, VK_IMAGE_ASPECT_COLOR_BIT, 1);
 	}
 }

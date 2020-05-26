@@ -7,21 +7,14 @@ namespace Spark
 	class VulkanFramebuffer2D : public VulkanFramebuffer
 	{
 	public:
-		VulkanFramebuffer2D(VulkanContext& context, bool firstLayer = false);
+		VulkanFramebuffer2D(VulkanContext& context, bool firstLayer = false, bool lastLayer = false, VkImageView multisampleImageView = VK_NULL_HANDLE);
 		virtual ~VulkanFramebuffer2D();
 
 		virtual void cleanup();
 		virtual void recreate();
 
 	private:
-		void createRenderPass(bool firstLayer);
-		void createColorResources();
+		void createRenderPass(bool firstLayer, bool lastLayer);
 		void createSwapchainFramebuffers();
-
-	private:
-		bool m_firstLayer;
-		VkImage m_colorImage;
-		VkDeviceMemory m_colorImageMemory;
-		VkImageView m_colorImageView;
 	};
 }

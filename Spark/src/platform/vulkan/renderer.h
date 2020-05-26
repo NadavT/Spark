@@ -25,9 +25,10 @@ namespace Spark
 		void render(VkCommandBuffer commandBuffer);
 		uint32_t getCurrentImageIndex() const;
 		uint32_t getImagesAmount() const;
+		VkImageView getMultisampleImageView() const;
 
 		virtual void OnEvent(Event& e);
-		VulkanFramebuffer* createFramebuffer(VulkanFramebufferType type, bool first_layer = false);
+		VulkanFramebuffer* createFramebuffer(VulkanFramebufferType type, bool first_layer = false, bool last_layer = false);
 		void destroyFramebuffer(VulkanFramebuffer* framebuffer);
 		VulkanPipeline* createPipeline(VulkanPipelineType type, VulkanFramebuffer& framebuffer);
 		void destroyPipeline(VulkanPipeline* pipeline);
@@ -49,6 +50,7 @@ namespace Spark
 
 	private:
 		bool onWindowResize(WindowResizeEvent& e);
+		void createMultisamplesResources();
 
 	public:
 		VulkanContext m_context;
@@ -64,5 +66,8 @@ namespace Spark
 		bool m_framebufferResized;
 		uint32_t m_currentCommandsDrawCount;
 		std::vector<VkCommandBuffer> m_commandBuffers;
+		VkImage m_multisampleImage;
+		VkDeviceMemory m_multisampleImageMemory;
+		VkImageView m_multisampleImageView;
 	};
 }

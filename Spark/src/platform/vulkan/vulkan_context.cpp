@@ -19,6 +19,8 @@ const bool enableValidationLayers = true;
 const bool enableValidationLayers = false;
 #endif
 
+const bool enableMultisampling = true;
+
 namespace Spark
 {
 	static VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity, VkDebugUtilsMessageTypeFlagsEXT messageType, const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData, void* pUserData) {
@@ -274,7 +276,14 @@ namespace Spark
 		for (const auto& device : devices) {
 			if (isDeviceSuitable(device)) {
 				m_physicalDevice = device;
-				m_msaaSamples = VK_SAMPLE_COUNT_1_BIT;
+				if (enableMultisampling)
+				{
+					m_msaaSamples = getMaxUsableSampleCount();
+				}
+				else
+				{
+					m_msaaSamples = VK_SAMPLE_COUNT_1_BIT;
+				}
 				break;
 			}
 		}

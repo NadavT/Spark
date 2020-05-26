@@ -22,13 +22,18 @@ namespace Spark
 
 		VkRenderPass getRenderPass() const;
 		const std::vector<VkFramebuffer> getswapChainFramebuffers() const;
+
+		bool isFirstLayer() const;
+		bool isLastLayer() const;
 	protected:
-		VulkanFramebuffer(VulkanContext& context);
-		void createColorResources();
+		VulkanFramebuffer(VulkanContext& context, bool firstLayer = false, bool lastLayer = false, VkImageView multisampleImageView = VK_NULL_HANDLE);
 
 	protected:
+		bool m_firstLayer;
+		bool m_lastLayer;
 		VulkanContext& m_context;
 		VkRenderPass m_renderPass;
 		std::vector<VkFramebuffer> m_swapChainFramebuffers;
+		VkImageView m_multisampleImageView;
 	};
 }

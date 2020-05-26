@@ -21,7 +21,7 @@ namespace Spark
         , m_showDemoWindow(true)
         , m_showAnotherWindow(false)
     {
-        m_framebuffer = renderer.createFramebuffer(VulkanFramebufferType::Type2D, false);
+        m_framebuffer = renderer.createFramebuffer(VulkanFramebufferType::Type2D, false, true);
         m_commandBuffers.resize(renderer.getImagesAmount());
         for (int i = 0; i < m_commandBuffers.size(); i++)
         {
@@ -211,7 +211,7 @@ namespace Spark
             clearValues[0].color = { 0.1f, 0.1f, 0.1f, 1.0f };
             clearValues[1].depthStencil = { 1.0f, 0 };
             m_renderer.beginRenderPass(commandBuffer, m_framebuffer->getRenderPass(),
-                m_framebuffer->getswapChainFramebuffers()[m_renderer.getCurrentImageIndex()], 0);
+                m_framebuffer->getswapChainFramebuffers()[m_renderer.getCurrentImageIndex()], 2, clearValues.data());
         }
 
         // Record Imgui Draw Data and draw funcs into command buffer

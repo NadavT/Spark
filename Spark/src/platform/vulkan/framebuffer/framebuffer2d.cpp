@@ -4,39 +4,31 @@
 
 namespace Spark
 {
-	VulkanFramebuffer2D::VulkanFramebuffer2D(VulkanContext& context, bool firstLayer)
-		: VulkanFramebuffer(context)
-		, m_firstLayer(firstLayer)
+	VulkanFramebuffer2D::VulkanFramebuffer2D(VulkanContext& context, bool firstLayer, bool lastLayer, VkImageView multisampleImageView)
+		: VulkanFramebuffer(context, firstLayer, lastLayer, multisampleImageView)
 	{
-		createRenderPass(firstLayer);
-		createColorResources();
+		createRenderPass(firstLayer, lastLayer);
 		createSwapchainFramebuffers();
 	}
 
 	VulkanFramebuffer2D::~VulkanFramebuffer2D()
 	{
-		vkDestroyImageView(m_context.m_device, m_colorImageView, nullptr);
-		vkDestroyImage(m_context.m_device, m_colorImage, nullptr);
-		vkFreeMemory(m_context.m_device, m_colorImageMemory, nullptr);
+
 	}
 
 	void VulkanFramebuffer2D::cleanup()
 	{
-		vkDestroyImageView(m_context.m_device, m_colorImageView, nullptr);
-		vkDestroyImage(m_context.m_device, m_colorImage, nullptr);
-		vkFreeMemory(m_context.m_device, m_colorImageMemory, nullptr);
 		VulkanFramebuffer::cleanup();
 	}
 
 	void VulkanFramebuffer2D::recreate()
 	{
 		VulkanFramebuffer::recreate();
-;		createRenderPass(m_firstLayer);
-		createColorResources();
+;		createRenderPass(m_firstLayer, m_lastLayer);
 		createSwapchainFramebuffers();
 	}
 
-	void VulkanFramebuffer2D::createRenderPass(bool firstLayer)
+	void VulkanFramebuffer2D::createRenderPass(bool firstLayer, bool lastLayer)
 	{
 		VkAttachmentDescription colorAttachment = {};
 		colorAttachment.format = m_context.m_swapChainImageFormat;
@@ -45,16 +37,22 @@ namespace Spark
 		colorAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
 		colorAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
 		colorAttachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
-		colorAttachment.initialLayout = (firstLayer) ? VK_IMAGE_LAYOUT_UNDEFINED : VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
-		if (m_context.m_msaaSamples == VK_SAMPLE_COUNT_1_BIT)
-			colorAttachment.finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
-		else
+		if (m_context.m_msaaSamples != VK_SAMPLE_COUNT_1_BIT)
+		{
+			colorAttachment.initialLayout = (firstLayer) ? VK_IMAGE_LAYOUT_UNDEFINED : VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
 			colorAttachment.finalLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+		}
+		else
+		{
+			colorAttachment.initialLayout = (firstLayer) ? VK_IMAGE_LAYOUT_UNDEFINED : VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+			colorAttachment.finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+		}
+
 
 		VkAttachmentDescription colorAttachmentResolve = {};
 		colorAttachmentResolve.format = m_context.m_swapChainImageFormat;
 		colorAttachmentResolve.samples = VK_SAMPLE_COUNT_1_BIT;
-		colorAttachmentResolve.loadOp = VK_ATTACHMENT_LOAD_OP_LOAD;
+		colorAttachmentResolve.loadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
 		colorAttachmentResolve.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
 		colorAttachmentResolve.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
 		colorAttachmentResolve.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
@@ -73,31 +71,23 @@ namespace Spark
 		subpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
 		subpass.colorAttachmentCount = 1;
 		subpass.pColorAttachments = &colorAttachmentRef;
-		if (m_context.m_msaaSamples != VK_SAMPLE_COUNT_1_BIT)
+		if (m_lastLayer && m_context.m_msaaSamples != VK_SAMPLE_COUNT_1_BIT)
+		{
 			subpass.pResolveAttachments = &colorAttachmentResolveRef;
+		}
 
-		std::array<VkSubpassDependency, 2> dependencies;
-
-		dependencies[0].srcSubpass = VK_SUBPASS_EXTERNAL;
-		dependencies[0].dstSubpass = 0;
-		dependencies[0].srcStageMask = VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT;
-		dependencies[0].dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
-		dependencies[0].srcAccessMask = VK_ACCESS_MEMORY_READ_BIT;
-		dependencies[0].dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_READ_BIT | VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
-		dependencies[0].dependencyFlags = VK_DEPENDENCY_BY_REGION_BIT;
-
-		dependencies[1].srcSubpass = 0;
-		dependencies[1].dstSubpass = VK_SUBPASS_EXTERNAL;
-		dependencies[1].srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
-		dependencies[1].dstStageMask = VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT;
-		dependencies[1].srcAccessMask = VK_ACCESS_COLOR_ATTACHMENT_READ_BIT | VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
-		dependencies[1].dstAccessMask = VK_ACCESS_MEMORY_READ_BIT;
-		dependencies[1].dependencyFlags = VK_DEPENDENCY_BY_REGION_BIT;
+		VkSubpassDependency dependency{};
+		dependency.srcSubpass = VK_SUBPASS_EXTERNAL;
+		dependency.dstSubpass = 0;
+		dependency.srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+		dependency.srcAccessMask = 0;
+		dependency.dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+		dependency.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
 
 		std::array<VkAttachmentDescription, 2> attachments = { colorAttachment, colorAttachmentResolve };
 		VkRenderPassCreateInfo renderPassInfo = {};
 		renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
-		if (m_context.m_msaaSamples != VK_SAMPLE_COUNT_1_BIT)
+		if (m_lastLayer && m_context.m_msaaSamples != VK_SAMPLE_COUNT_1_BIT)
 		{
 			renderPassInfo.attachmentCount = static_cast<uint32_t>(attachments.size());
 			renderPassInfo.pAttachments = attachments.data();
@@ -109,22 +99,12 @@ namespace Spark
 		}
 		renderPassInfo.subpassCount = 1;
 		renderPassInfo.pSubpasses = &subpass;
-		renderPassInfo.dependencyCount = dependencies.size();
-		renderPassInfo.pDependencies = dependencies.data();
+		renderPassInfo.dependencyCount = 1;
+		renderPassInfo.pDependencies = &dependency;
 
 		if (vkCreateRenderPass(m_context.m_device, &renderPassInfo, nullptr, &m_renderPass) != VK_SUCCESS) {
 			throw std::runtime_error("failed to create render pass!");
 		}
-	}
-
-	void VulkanFramebuffer2D::createColorResources() {
-		VkFormat colorFormat = m_context.m_swapChainImageFormat;
-
-		m_context.createImage(m_context.m_swapChainExtent.width, m_context.m_swapChainExtent.height,
-			1, m_context.m_msaaSamples, colorFormat, VK_IMAGE_TILING_OPTIMAL,
-			VK_IMAGE_USAGE_TRANSIENT_ATTACHMENT_BIT | VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT,
-			VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, m_colorImage, m_colorImageMemory);
-		m_colorImageView = m_context.createImageView(m_colorImage, colorFormat, VK_IMAGE_ASPECT_COLOR_BIT, 1);
 	}
 
 	void VulkanFramebuffer2D::createSwapchainFramebuffers()
@@ -132,9 +112,19 @@ namespace Spark
 		m_swapChainFramebuffers.resize(m_context.m_swapChainImageViews.size());
 
 		for (size_t i = 0; i < m_context.m_swapChainImageViews.size(); i++) {
-			std::array<VkImageView, 1> attachments = {
-				m_context.m_swapChainImageViews[i],
-			};
+			std::vector<VkImageView> attachments;
+			if (m_context.m_msaaSamples != VK_SAMPLE_COUNT_1_BIT)
+			{
+				attachments.push_back(m_multisampleImageView);
+				if (m_lastLayer)
+				{
+					attachments.push_back(m_context.m_swapChainImageViews[i]);
+				}
+			}
+			else
+			{
+				attachments.push_back(m_context.m_swapChainImageViews[i]);
+			}
 
 			VkFramebufferCreateInfo framebufferInfo = {};
 			framebufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
