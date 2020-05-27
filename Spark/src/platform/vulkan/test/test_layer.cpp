@@ -15,7 +15,7 @@ namespace Spark
 		, m_pipeline(nullptr)
 		, m_quad(nullptr)
 	{
-		m_framebuffer = renderer.createFramebuffer(VulkanFramebufferType::Type2D, true, false);
+		m_framebuffer = renderer.createFramebuffer(VulkanFramebufferType::Type2D, true, true);
 		m_pipeline = reinterpret_cast<VulkanPipeline2D*>(renderer.createPipeline(VulkanPipelineType::Type2D, *m_framebuffer));
 		m_commandBuffers.resize(renderer.getImagesAmount());
 		for (int i = 0; i < m_commandBuffers.size(); i++)
@@ -46,45 +46,7 @@ namespace Spark
 	void VulkanTestLayer::OnAttach()
 	{
 		m_quad = std::make_unique<Quad>(m_renderer.m_context, glm::vec2(100.0f, 100.0f));
-
-		void* data;
-
-		MVP mvp = {};
-		mvp.model = m_quad->getModelMatrix();
-
-		int i = 0;
-		for (VkCommandBuffer commandBuffer : m_commandBuffers) {
-			VkCommandBufferBeginInfo beginInfo{};
-			beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-
-			if (vkBeginCommandBuffer(commandBuffer, &beginInfo) != VK_SUCCESS) {
-				throw std::runtime_error("failed to begin recording command buffer!");
-			}
-
-			std::array<VkClearValue, 2> clearValues = {};
-			clearValues[0].color = { 0.1f, 0.1f, 0.1f, 1.0f };
-			clearValues[1].depthStencil = { 1.0f, 0 };
-			m_renderer.beginRenderPass(commandBuffer, m_framebuffer->getRenderPass(),
-				m_framebuffer->getswapChainFramebuffers()[i], 2, clearValues.data());
-
-			const VkDescriptorSet descriptorSets[] = { m_MVPDescriptorSets[m_renderer.getCurrentImageIndex()] };
-			//vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_pipeline->getLayout(), 0, 1, descriptorSets, 0, nullptr);
-			m_pipeline->bind(commandBuffer);
-
-			vkCmdDraw(commandBuffer, 3, 1, 0, 0);
-
-			vkCmdEndRenderPass(commandBuffer);
-
-			if (vkEndCommandBuffer(commandBuffer) != VK_SUCCESS) {
-				throw std::runtime_error("failed to record command buffer!");
-			}
-
-			//vkMapMemory(m_renderer.m_context.m_device, m_uniformBuffersMemory[i], 0, sizeof(mvp), 0, &data);
-			//memcpy(data, &mvp, sizeof(mvp));
-			//vkUnmapMemory(m_renderer.m_context.m_device, m_uniformBuffersMemory[i]);
-
-			i++;
-		}
+		createCommandBuffers();
 	}
 
 	void VulkanTestLayer::OnDetach()
@@ -97,6 +59,14 @@ namespace Spark
 
 	void VulkanTestLayer::OnRender()
 	{
+		if (m_renderer.isRecreationNeeded())
+		{
+			for (VkCommandBuffer commandBuffer : m_commandBuffers) {
+				m_renderer.resetCommandBuffer(commandBuffer);
+			}
+			createCommandBuffers();
+		}
+
 		VkCommandBuffer commandBuffer = m_commandBuffers[m_renderer.getCurrentImageIndex()];
 		m_renderer.render(commandBuffer);
 	}
@@ -137,5 +107,48 @@ namespace Spark
 			vkUpdateDescriptorSets(m_renderer.m_context.m_device, static_cast<uint32_t>(descriptorWrites.size()),
 				descriptorWrites.data(), 0, nullptr);
 		}
+	}
+
+	void VulkanTestLayer::createCommandBuffers()
+	{
+		void* data;
+
+		MVP mvp = {};
+		mvp.model = m_quad->getModelMatrix();
+
+		int i = 0;
+		for (VkCommandBuffer commandBuffer : m_commandBuffers) {
+			VkCommandBufferBeginInfo beginInfo{};
+			beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+
+			if (vkBeginCommandBuffer(commandBuffer, &beginInfo) != VK_SUCCESS) {
+				throw std::runtime_error("failed to begin recording command buffer!");
+			}
+
+			std::array<VkClearValue, 2> clearValues = {};
+			clearValues[0].color = { 0.1f, 0.1f, 0.1f, 1.0f };
+			clearValues[1].depthStencil = { 1.0f, 0 };
+			m_renderer.beginRenderPass(commandBuffer, m_framebuffer->getRenderPass(),
+				m_framebuffer->getswapChainFramebuffers()[i], 2, clearValues.data());
+
+			const VkDescriptorSet descriptorSets[] = { m_MVPDescriptorSets[m_renderer.getCurrentImageIndex()] };
+			//vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_pipeline->getLayout(), 0, 1, descriptorSets, 0, nullptr);
+			m_pipeline->bind(commandBuffer);
+
+			vkCmdDraw(commandBuffer, 3, 1, 0, 0);
+
+			vkCmdEndRenderPass(commandBuffer);
+
+			if (vkEndCommandBuffer(commandBuffer) != VK_SUCCESS) {
+				throw std::runtime_error("failed to record command buffer!");
+			}
+
+			//vkMapMemory(m_renderer.m_context.m_device, m_uniformBuffersMemory[i], 0, sizeof(mvp), 0, &data);
+			//memcpy(data, &mvp, sizeof(mvp));
+			//vkUnmapMemory(m_renderer.m_context.m_device, m_uniformBuffersMemory[i]);
+
+			i++;
+		}
+
 	}
 }

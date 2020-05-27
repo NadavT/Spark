@@ -21,9 +21,9 @@ namespace Spark
 		VulkanFramebuffer::cleanup();
 	}
 
-	void VulkanFramebuffer2D::recreate()
+	void VulkanFramebuffer2D::recreate(VkImageView multisampleImageView)
 	{
-		VulkanFramebuffer::recreate();
+		VulkanFramebuffer::recreate(multisampleImageView);
 ;		createRenderPass(m_firstLayer, m_lastLayer);
 		createSwapchainFramebuffers();
 	}

@@ -11,7 +11,7 @@ namespace Spark
 		virtual ~VulkanFramebuffer2D();
 
 		virtual void cleanup();
-		virtual void recreate();
+		virtual void recreate(VkImageView multisampleImageView = VK_NULL_HANDLE);
 
 	private:
 		void createRenderPass(bool firstLayer, bool lastLayer);

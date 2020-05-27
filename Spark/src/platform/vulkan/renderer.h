@@ -26,6 +26,7 @@ namespace Spark
 		uint32_t getCurrentImageIndex() const;
 		uint32_t getImagesAmount() const;
 		VkImageView getMultisampleImageView() const;
+		bool isRecreationNeeded() const;
 
 		virtual void OnEvent(Event& e);
 		VulkanFramebuffer* createFramebuffer(VulkanFramebufferType type, bool first_layer = false, bool last_layer = false);
@@ -51,6 +52,7 @@ namespace Spark
 	private:
 		bool onWindowResize(WindowResizeEvent& e);
 		void createMultisamplesResources();
+		void cleanupMultisamplesResources();
 
 	public:
 		VulkanContext m_context;
@@ -69,5 +71,6 @@ namespace Spark
 		VkImage m_multisampleImage;
 		VkDeviceMemory m_multisampleImageMemory;
 		VkImageView m_multisampleImageView;
+		bool m_recreationNeeded;
 	};
 }

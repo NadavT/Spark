@@ -19,6 +19,7 @@ namespace Spark
 
 	private:
 		void createDescriptorSets();
+		void createCommandBuffers();
 	private:
 		VulkanRenderer& m_renderer;
 		VulkanFramebuffer* m_framebuffer;

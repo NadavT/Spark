@@ -27,8 +27,9 @@ namespace Spark
 		vkDestroyRenderPass(m_context.m_device, m_renderPass, nullptr);
 	}
 
-	void VulkanFramebuffer::recreate()
+	void VulkanFramebuffer::recreate(VkImageView multisampleImageView)
 	{
+		m_multisampleImageView = multisampleImageView;
 		m_renderPass = VK_NULL_HANDLE;
 		m_swapChainFramebuffers.resize(0);
 	}

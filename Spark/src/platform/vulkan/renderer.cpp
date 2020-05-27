@@ -22,6 +22,7 @@ namespace Spark
 		, m_multisampleImage(VK_NULL_HANDLE)
 		, m_multisampleImageMemory(VK_NULL_HANDLE)
 		, m_multisampleImageView(VK_NULL_HANDLE)
+		, m_recreationNeeded(false)
 	{
 		for (int i = 0; i < m_inFlightFences.size(); i++)
 		{
@@ -51,20 +52,7 @@ namespace Spark
 			m_context.destroyFence(m_inFlightFences[i]);
 		}
 
-		if (m_multisampleImageView != VK_NULL_HANDLE)
-		{
-			vkDestroyImageView(m_context.m_device, m_multisampleImageView, nullptr);
-		}
-
-		if (m_multisampleImage != VK_NULL_HANDLE)
-		{
-			vkDestroyImage(m_context.m_device, m_multisampleImage, nullptr);
-		}
-
-		if (m_multisampleImageMemory != VK_NULL_HANDLE)
-		{
-			vkFreeMemory(m_context.m_device, m_multisampleImageMemory, nullptr);
-		}
+		cleanupMultisamplesResources();
 	}
 
 	bool VulkanRenderer::begin()
@@ -145,6 +133,10 @@ namespace Spark
 			else if (result != VK_SUCCESS) {
 				throw std::runtime_error("failed to present swap chain image!");
 			}
+			else
+			{
+				m_recreationNeeded = false;
+			}
 		}
 
 		m_currentCommandsDrawCount = 0;
@@ -175,6 +167,11 @@ namespace Spark
 	VkImageView VulkanRenderer::getMultisampleImageView() const
 	{
 		return m_multisampleImageView;
+	}
+
+	bool VulkanRenderer::isRecreationNeeded() const
+	{
+		return m_recreationNeeded;
 	}
 
 	void VulkanRenderer::OnEvent(Event& e)
@@ -265,12 +262,17 @@ namespace Spark
 
 		vkResetCommandPool(m_context.m_device, m_context.m_commandPool, 0);
 
+		cleanupMultisamplesResources();
 		m_context.cleanupSwapchain();
 		m_context.recreateSwapchain(m_width, m_height);
+		if (m_context.m_msaaSamples != VK_SAMPLE_COUNT_1_BIT)
+		{
+			createMultisamplesResources();
+		}
 
 		for (auto& framebuffer : m_framebuffers)
 		{
-			framebuffer->recreate();
+			framebuffer->recreate(m_multisampleImageView);
 		}
 
 		for (auto& pipeline : m_pipelines)
@@ -278,7 +280,7 @@ namespace Spark
 			pipeline->recreate();
 		}
 
-		m_currentFrame = 0;
+		m_recreationNeeded = true;
 	}
 
 	void VulkanRenderer::waitForIdle()
@@ -388,5 +390,23 @@ namespace Spark
 			VK_IMAGE_USAGE_TRANSIENT_ATTACHMENT_BIT | VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT,
 			VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, m_multisampleImage, m_multisampleImageMemory);
 		m_multisampleImageView = m_context.createImageView(m_multisampleImage, colorFormat, VK_IMAGE_ASPECT_COLOR_BIT, 1);
+	}
+
+	void VulkanRenderer::cleanupMultisamplesResources()
+	{
+		if (m_multisampleImageView != VK_NULL_HANDLE)
+		{
+			vkDestroyImageView(m_context.m_device, m_multisampleImageView, nullptr);
+		}
+
+		if (m_multisampleImage != VK_NULL_HANDLE)
+		{
+			vkDestroyImage(m_context.m_device, m_multisampleImage, nullptr);
+		}
+
+		if (m_multisampleImageMemory != VK_NULL_HANDLE)
+		{
+			vkFreeMemory(m_context.m_device, m_multisampleImageMemory, nullptr);
+		}
 	}
 }

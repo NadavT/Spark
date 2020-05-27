@@ -18,7 +18,7 @@ namespace Spark
 		VulkanFramebuffer& operator=(const VulkanFramebuffer& other) = delete;
 
 		virtual void cleanup();
-		virtual void recreate();
+		virtual void recreate(VkImageView multisampleImageView = VK_NULL_HANDLE);
 
 		VkRenderPass getRenderPass() const;
 		const std::vector<VkFramebuffer> getswapChainFramebuffers() const;
