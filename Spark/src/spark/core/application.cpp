@@ -88,7 +88,23 @@ namespace Spark
 		{
 			Time currTime = getCurrentTime();
 			Time timestep = currTime - m_lastFrameTime;
+			if (timestep.GetSeconds() < 0)
+			{
+				timestep = Time(1.0f / 120);
+			}
+			if (timestep.GetSeconds() < 1.0f / 120)
+			{
+				sleep(Time(1.0f / 120) - timestep.GetSeconds() - Time(1.0f / 1000));
+			}
+			while (timestep.GetSeconds() < 1.0f / 120)
+			{
+				currTime = getCurrentTime();
+				timestep = currTime - m_lastFrameTime;
+
+			}
 			m_lastFrameTime = currTime;
+
+			//SPARK_CORE_TRACE("timestep: {0}ms", timestep.GetMilliSeconds());
 
 			for (auto it = m_layerStack.rbegin(); it != m_layerStack.rend(); ++it)
 				(*it)->OnUpdate(timestep);
@@ -97,8 +113,8 @@ namespace Spark
 
 			Render();
 
-			if (timestep.GetSeconds() < 1.0 / 120)
-				sleep(Time(1.0f / 120) - timestep);
+			Time frameTime = getCurrentTime() - m_lastFrameTime;
+			//SPARK_CORE_TRACE("frame time: {0}ms", (getCurrentTime() - currTime).GetMilliSeconds());
 		}
 
 		m_renderer->waitForIdle();
