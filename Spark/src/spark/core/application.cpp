@@ -92,9 +92,9 @@ namespace Spark
 			{
 				timestep = Time(1.0f / 120);
 			}
-			if (timestep.GetSeconds() < 1.0f / 120)
+			if (1.0f / 120 - timestep.GetSeconds() > 0.001)
 			{
-				sleep(Time(1.0f / 120) - timestep.GetSeconds() - Time(1.0f / 1000));
+				sleep(Time(1.0f / 120) - timestep.GetSeconds() - Time(0.001));
 			}
 			while (timestep.GetSeconds() < 1.0f / 120)
 			{
