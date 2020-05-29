@@ -29,7 +29,7 @@ namespace Spark
 		bool isRecreationNeeded() const;
 
 		virtual void OnEvent(Event& e);
-		VulkanFramebuffer* createFramebuffer(VulkanFramebufferType type, bool first_layer = false, bool last_layer = false);
+		VulkanFramebuffer* createFramebuffer(VulkanFramebufferType type, bool clear = false, bool resolve = false);
 		void destroyFramebuffer(VulkanFramebuffer* framebuffer);
 		VulkanPipeline* createPipeline(VulkanPipelineType type, VulkanFramebuffer& framebuffer);
 		void destroyPipeline(VulkanPipeline* pipeline);
@@ -44,7 +44,7 @@ namespace Spark
 		void waitForFence(const VkFence* fence);
 		void resetFence(const VkFence* fence);
 		void resetCommandBuffer(VkCommandBuffer commandBuffer);
-		void beginRenderPass(VkCommandBuffer commandBuffer, VkRenderPass renderPass, VkFramebuffer framebuffer, uint32_t clearValueCount, const VkClearValue* clearValues = VK_NULL_HANDLE);
+		void beginRenderPass(VkCommandBuffer commandBuffer, VkRenderPass renderPass, VkFramebuffer framebuffer, uint32_t clearValueCount = 0, const VkClearValue* clearValues = VK_NULL_HANDLE);
 		void endRenderPass(VkCommandBuffer commandBuffer);
 		void queuePresent(const VkPresentInfoKHR* info);
 		void createUniformBuffers(VkDeviceSize size, std::vector<VkBuffer>& uniformBuffers, std::vector<VkDeviceMemory>& uniformBuffersMemory);
@@ -53,6 +53,10 @@ namespace Spark
 		bool onWindowResize(WindowResizeEvent& e);
 		void createMultisamplesResources();
 		void cleanupMultisamplesResources();
+		void createClearCommandBuffers();
+		void createResolveCommandBuffers();
+		void fillClearCommandBuffers();
+		void fillResolveCommandBuffers();
 
 	public:
 		VulkanContext m_context;
@@ -71,6 +75,10 @@ namespace Spark
 		VkImage m_multisampleImage;
 		VkDeviceMemory m_multisampleImageMemory;
 		VkImageView m_multisampleImageView;
+		VulkanFramebuffer* m_clearFramebuffer;
+		VulkanFramebuffer* m_resolveFramebuffer;
 		bool m_recreationNeeded;
+		std::vector<VkCommandBuffer> m_clearCommandBuffers;
+		std::vector<VkCommandBuffer> m_resolveCommandBuffers;
 	};
 }

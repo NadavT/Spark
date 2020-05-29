@@ -2,13 +2,13 @@
 
 namespace Spark
 {
-	VulkanFramebuffer::VulkanFramebuffer(VulkanContext& context, bool firstLayer, bool lastLayer, VkImageView multisampleImageView)
+	VulkanFramebuffer::VulkanFramebuffer(VulkanContext& context, VkImageView renderTarget, bool clear, bool resolve)
 		: m_context(context)
 		, m_renderPass(VK_NULL_HANDLE)
 		, m_swapChainFramebuffers()
-		, m_firstLayer(firstLayer)
-		, m_lastLayer(lastLayer)
-		, m_multisampleImageView(multisampleImageView)
+		, m_renderTarget(renderTarget)
+		, m_clear(clear)
+		, m_resolve(resolve)
 	{
 
 	}
@@ -27,9 +27,9 @@ namespace Spark
 		vkDestroyRenderPass(m_context.m_device, m_renderPass, nullptr);
 	}
 
-	void VulkanFramebuffer::recreate(VkImageView multisampleImageView)
+	void VulkanFramebuffer::recreate(VkImageView renderTarget)
 	{
-		m_multisampleImageView = multisampleImageView;
+		m_renderTarget = renderTarget;
 		m_renderPass = VK_NULL_HANDLE;
 		m_swapChainFramebuffers.resize(0);
 	}
@@ -42,13 +42,5 @@ namespace Spark
 	const std::vector<VkFramebuffer> VulkanFramebuffer::getswapChainFramebuffers() const
 	{
 		return m_swapChainFramebuffers;
-	}
-	bool VulkanFramebuffer::isFirstLayer() const
-	{
-		return m_firstLayer;
-	}
-	bool VulkanFramebuffer::isLastLayer() const
-	{
-		return m_lastLayer;
 	}
 }

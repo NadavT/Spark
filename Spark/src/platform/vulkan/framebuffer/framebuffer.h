@@ -18,22 +18,19 @@ namespace Spark
 		VulkanFramebuffer& operator=(const VulkanFramebuffer& other) = delete;
 
 		virtual void cleanup();
-		virtual void recreate(VkImageView multisampleImageView = VK_NULL_HANDLE);
+		virtual void recreate(VkImageView renderTarget);
 
 		VkRenderPass getRenderPass() const;
 		const std::vector<VkFramebuffer> getswapChainFramebuffers() const;
-
-		bool isFirstLayer() const;
-		bool isLastLayer() const;
 	protected:
-		VulkanFramebuffer(VulkanContext& context, bool firstLayer = false, bool lastLayer = false, VkImageView multisampleImageView = VK_NULL_HANDLE);
+		VulkanFramebuffer(VulkanContext& context, VkImageView renderTarget, bool clear = false, bool resolve = false);
 
 	protected:
-		bool m_firstLayer;
-		bool m_lastLayer;
+		bool m_clear;
+		bool m_resolve;
 		VulkanContext& m_context;
 		VkRenderPass m_renderPass;
 		std::vector<VkFramebuffer> m_swapChainFramebuffers;
-		VkImageView m_multisampleImageView;
+		VkImageView m_renderTarget;
 	};
 }
