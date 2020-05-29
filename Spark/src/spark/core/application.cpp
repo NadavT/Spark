@@ -8,6 +8,8 @@
 
 #include "platform/vulkan/test/test_layer.h"
 
+double FPS_LIMIT = 1.0 / 120;
+
 namespace Spark
 {
 	Application::Application()
@@ -90,21 +92,19 @@ namespace Spark
 			Time timestep = currTime - m_lastFrameTime;
 			if (timestep.GetSeconds() < 0)
 			{
-				timestep = Time(1.0f / 120);
+				timestep = Time(FPS_LIMIT);
 			}
-			if (1.0f / 120 - timestep.GetSeconds() > 0.001)
+			if (FPS_LIMIT - timestep.GetSeconds() > FPS_LIMIT / 10)
 			{
-				sleep(Time(1.0f / 120) - timestep.GetSeconds() - Time(0.001));
+				sleep(Time(FPS_LIMIT) - timestep.GetSeconds() - Time(FPS_LIMIT / 10));
 			}
-			while (timestep.GetSeconds() < 1.0f / 120)
+			while (timestep.GetSeconds() < FPS_LIMIT)
 			{
 				currTime = getCurrentTime();
 				timestep = currTime - m_lastFrameTime;
 
 			}
 			m_lastFrameTime = currTime;
-
-			//SPARK_CORE_TRACE("timestep: {0}ms", timestep.GetMilliSeconds());
 
 			for (auto it = m_layerStack.rbegin(); it != m_layerStack.rend(); ++it)
 				(*it)->OnUpdate(timestep);
@@ -114,7 +114,6 @@ namespace Spark
 			Render();
 
 			Time frameTime = getCurrentTime() - m_lastFrameTime;
-			//SPARK_CORE_TRACE("frame time: {0}ms", (getCurrentTime() - currTime).GetMilliSeconds());
 		}
 
 		m_renderer->waitForIdle();
