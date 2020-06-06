@@ -44,7 +44,7 @@ namespace Spark
 		void waitForFence(const VkFence* fence);
 		void resetFence(const VkFence* fence);
 		void resetCommandBuffer(VkCommandBuffer commandBuffer);
-		void beginRenderPass(VkCommandBuffer commandBuffer, VkRenderPass renderPass, VkFramebuffer framebuffer, uint32_t clearValueCount, const VkClearValue* clearValues = VK_NULL_HANDLE);
+		void beginRenderPass(VkCommandBuffer commandBuffer, VkRenderPass renderPass, VkFramebuffer framebuffer, uint32_t clearValueCount = 0, const VkClearValue* clearValues = VK_NULL_HANDLE);
 		void endRenderPass(VkCommandBuffer commandBuffer);
 		void queuePresent(const VkPresentInfoKHR* info);
 		void createUniformBuffers(VkDeviceSize size, std::vector<VkBuffer>& uniformBuffers, std::vector<VkDeviceMemory>& uniformBuffersMemory);

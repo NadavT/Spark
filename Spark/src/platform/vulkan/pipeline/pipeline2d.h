@@ -21,7 +21,6 @@ namespace Spark
 	private:
 		void createDescriptorSetLayout();
 		void createGraphicsPipeline();
-		VkShaderModule createShaderModule(const std::vector<char>& code);
 	private:
 		VkDescriptorSetLayout m_MVPDescriptorSetLayout;
 		VkDescriptorSetLayout m_textureDescriptorSetLayout;

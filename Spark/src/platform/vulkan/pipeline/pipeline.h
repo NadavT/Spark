@@ -8,7 +8,8 @@ namespace Spark
 	enum class VulkanPipelineType
 	{
 		Type2D,
-		Type3D
+		Type3D,
+		TypeTriangle
 	};
 
 	class VulkanPipeline
@@ -21,16 +22,17 @@ namespace Spark
 		virtual void cleanup();
 		virtual void recreate();
 
-		virtual void bind(VkCommandBuffer commandBuffer) = 0;
+		virtual void bind(VkCommandBuffer commandBuffer);
 
 		VkPipelineLayout getLayout();
 	protected:
 		VulkanPipeline(VulkanContext& context, VulkanFramebuffer& framebuffer);
+		VkShaderModule createShaderModule(const std::vector<char>& code);
+		void createGraphicsPipeline(VkShaderModule vertexShader, VkShaderModule fragmentShader, VkPipelineLayout layout);
 
 	protected:
 		VulkanContext& m_context;
 		VulkanFramebuffer& m_framebuffer;
-		VkPipelineLayout m_pipelineLayout;
 		VkPipeline m_pipeline;
 	};
 }

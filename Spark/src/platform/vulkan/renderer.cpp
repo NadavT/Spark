@@ -2,7 +2,7 @@
 
 #include "spark/core/log.h"
 #include "platform/vulkan/framebuffer/framebuffer2d.h"
-#include "platform/vulkan/pipeline/pipeline2d.h"
+#include "platform/vulkan/pipeline/pipeline_triangle.h"
 
 namespace Spark
 {
@@ -209,13 +209,15 @@ namespace Spark
 
 	VulkanPipeline* VulkanRenderer::createPipeline(VulkanPipelineType type, VulkanFramebuffer& framebuffer)
 	{
-		if (type == VulkanPipelineType::Type2D)
+		switch (type)
 		{
-			m_pipelines.push_back(std::make_unique<VulkanPipeline2D>(m_context, framebuffer));
+		//case VulkanPipelineType::Type2D:
+		//	m_pipelines.push_back(std::make_unique<VulkanPipeline2D>(m_context, framebuffer));
+		//	return m_pipelines.back().get();
+		case VulkanPipelineType::TypeTriangle:
+			m_pipelines.push_back(std::make_unique<VulkanPipelineTriangle>(m_context, framebuffer));
 			return m_pipelines.back().get();
-		}
-		else
-		{
+		default:
 			SPARK_CORE_ERROR("Not supporting VulkanPipelineType %d", static_cast<int>(type));
 			throw std::runtime_error("Not supporting pipeline given type!");
 		}

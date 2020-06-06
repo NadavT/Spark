@@ -6,7 +6,7 @@
 #include "spark/core/time.h"
 #include "spark/core/input.h"
 
-#include "platform/vulkan/test/test_layer.h"
+#include "platform/vulkan/test/triangle_layer.h"
 
 double FPS_LIMIT = 1.0 / 120;
 
@@ -23,7 +23,7 @@ namespace Spark
 
 		Input::Init(*this);
 
-		m_testLayer = std::make_unique<VulkanTestLayer>(reinterpret_cast<VulkanRenderer&>(*m_renderer));
+		m_testLayer = std::make_unique<VulkanTriangleLayer>(reinterpret_cast<VulkanRenderer&>(*m_renderer));
 		m_testLayer->OnAttach();
 
 		m_overlay = Overlay::Create(*m_renderer);

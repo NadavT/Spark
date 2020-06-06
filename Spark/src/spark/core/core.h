@@ -41,12 +41,4 @@
     #define SPARK_DEBUG_BREAK()
 #endif
 
-#ifdef SPARK_ENABLE_ASSERTS
-    #define SPARK_ASSERT(x, ...) { if(!(x)) { SPARK_ERROR("Assertion Failed: {0}", __VA_ARGS__); SPARK_DEBUG_BREAK(); } }
-    #define SPARK_CORE_ASSERT(x, ...) { if(!(x)) { SPARK_CORE_ERROR("Assertion Failed: {0}", __VA_ARGS__); SPARK_DEBUG_BREAK(); } }
-#else
-    #define SPARK_ASSERT(x, ...)
-    #define SPARK_CORE_ASSERT(x, ...)
-#endif
-
 #define BIT(n) (1 << n)
