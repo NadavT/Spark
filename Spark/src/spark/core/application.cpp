@@ -7,6 +7,7 @@
 #include "spark/core/input.h"
 
 #include "platform/vulkan/test/triangle_layer.h"
+#include "platform/vulkan/test/layer2d.h"
 
 double FPS_LIMIT = 1.0 / 120;
 
@@ -24,7 +25,9 @@ namespace Spark
 		Input::Init(*this);
 
 		m_testLayer = std::make_unique<VulkanTriangleLayer>(reinterpret_cast<VulkanRenderer&>(*m_renderer));
-		m_testLayer->OnAttach();
+		m_2dLayer = std::make_unique<VulkanLayer2D>(reinterpret_cast<VulkanRenderer&>(*m_renderer));
+		PushLayer(m_2dLayer.get());
+		PushLayer(m_testLayer.get());
 
 		m_overlay = Overlay::Create(*m_renderer);
 		m_overlay->OnAttach();
@@ -32,10 +35,12 @@ namespace Spark
 
 	Application::~Application()
 	{
+		PopLayer(m_2dLayer.get());
+		PopLayer(m_testLayer.get());
 		m_overlay->OnDetach();
 		m_overlay.reset(nullptr);
-		m_testLayer->OnDetach();
 		m_testLayer.reset(nullptr);
+		m_2dLayer.reset(nullptr);
 		Input::Destroy();
 		m_renderer.reset(nullptr);
 		m_window.reset(nullptr);
@@ -130,7 +135,6 @@ namespace Spark
 		{
 			for (Layer* layer : m_layerStack)
 				layer->OnRender();
-			m_testLayer->OnRender();
 			m_overlay->OnRender();
 			m_renderer->end();
 		}

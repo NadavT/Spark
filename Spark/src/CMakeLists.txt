@@ -22,11 +22,13 @@ set(SPARK_VULKAN_SOURCE
     "platform/vulkan/framebuffer/framebuffer2d.cpp"
     "platform/vulkan/overlay/overlay.cpp"
     "platform/vulkan/pipeline/pipeline.cpp"
-#    "platform/vulkan/pipeline/pipeline2d.cpp"
+    "platform/vulkan/pipeline/pipeline2d.cpp"
     "platform/vulkan/pipeline/pipeline_triangle.cpp"
     "platform/vulkan/vertex/vertex2d.cpp"
     "platform/vulkan/test/quad.cpp"
-    "platform/vulkan/test/triangle_layer.cpp")
+    "platform/vulkan/test/triangle_layer.cpp"
+    "platform/vulkan/test/layer2d.cpp"
+)
 
 set(SPARK_IMGUI_SOURCE
     ${PROJECT_SOURCE_DIR}/vendor/imgui/imgui.cpp
@@ -55,27 +57,27 @@ if(CMAKE_BUILD_TYPE STREQUAL "Debug")
 endif()
 target_compile_options(spark PRIVATE /W3)
 
-add_custom_command(OUTPUT ${APP_EXECUTABLE_PATH}/shaders/triangle.vert
-                   COMMAND ${CMAKE_COMMAND} -E make_directory ${PROJECT_BINARY_DIR}/shaders
-                   COMMAND %VULKAN_SDK%/Bin/glslc.exe ${PROJECT_SOURCE_DIR}/src/platform/vulkan/shaders/triangle.vert -o ${PROJECT_BINARY_DIR}/shaders/triangle_vert.spv
-                   COMMAND ${CMAKE_COMMAND} -E make_directory ${APP_EXECUTABLE_PATH}/shaders
-                   COMMAND ${CMAKE_COMMAND} -E copy ${PROJECT_BINARY_DIR}/shaders/triangle_vert.spv ${APP_EXECUTABLE_PATH}/shaders
-                   DEPENDS ${PROJECT_SOURCE_DIR}/src/platform/vulkan/shaders/triangle.vert
-)
+add_custom_command(OUTPUT ${APP_EXECUTABLE_PATH}/shaders
+                    COMMAND ${CMAKE_COMMAND} -E make_directory ${PROJECT_BINARY_DIR}/shaders
+                    COMMAND ${CMAKE_COMMAND} -E make_directory ${APP_EXECUTABLE_PATH}/shaders
+                    )
+file(GLOB vert_shaders ${PROJECT_SOURCE_DIR}/src/platform/vulkan/shaders/*.vert ${PROJECT_SOURCE_DIR}/src/platform/vulkan/shaders/*.frag)
+foreach(shader ${vert_shaders})
+    get_filename_component(shader_name ${shader} NAME)
+    string(REPLACE "." "_"  shader_output_name ${shader_name})
+    string(APPEND shader_output_name ".spv")
+    message(${shader_output_name})
+    add_custom_command(OUTPUT ${APP_EXECUTABLE_PATH}/shaders/${shader_output_name}
+                       COMMAND %VULKAN_SDK%/Bin/glslc.exe ${shader} -o ${PROJECT_BINARY_DIR}/shaders/${shader_output_name}
+                       COMMAND ${CMAKE_COMMAND} -E copy ${PROJECT_BINARY_DIR}/shaders/${shader_output_name} ${APP_EXECUTABLE_PATH}/shaders
+                       DEPENDS ${shader}
+                       )
+    add_custom_target(${shader_name}
+                      DEPENDS ${APP_EXECUTABLE_PATH}/shaders/${shader_output_name}
+                      )
+    add_dependencies(spark ${shader_name})
+endforeach()
 
-add_custom_command(OUTPUT ${APP_EXECUTABLE_PATH}/shaders/triangle.frag
-                   COMMAND ${CMAKE_COMMAND} -E make_directory ${PROJECT_BINARY_DIR}/shaders
-                   COMMAND %VULKAN_SDK%/Bin/glslc.exe ${PROJECT_SOURCE_DIR}/src/platform/vulkan/shaders/triangle.frag -o ${PROJECT_BINARY_DIR}/shaders/triangle_frag.spv
-                   COMMAND ${CMAKE_COMMAND} -E make_directory ${APP_EXECUTABLE_PATH}/shaders
-                   COMMAND ${CMAKE_COMMAND} -E copy ${PROJECT_BINARY_DIR}/shaders/triangle_frag.spv ${APP_EXECUTABLE_PATH}/shaders
-                   DEPENDS ${PROJECT_SOURCE_DIR}/src/platform/vulkan/shaders/triangle.frag
-)
-
-add_custom_target(shaders 
-    DEPENDS ${APP_EXECUTABLE_PATH}/shaders/triangle.vert ${APP_EXECUTABLE_PATH}/shaders/triangle.frag
-)
-
-add_dependencies(spark shaders)
 
 add_custom_command(TARGET spark POST_BUILD
                    COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:spark> ${APP_EXECUTABLE_PATH}

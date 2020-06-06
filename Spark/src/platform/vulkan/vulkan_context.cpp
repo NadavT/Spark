@@ -199,9 +199,7 @@ namespace Spark
 
 	void VulkanContext::createInstance()
 	{
-		if (enableValidationLayers && !checkValidationLayerSupport()) {
-			throw std::runtime_error("validation layers requested, but not available!");
-		}
+		SPARK_CORE_ASSERT(!enableValidationLayers || checkValidationLayerSupport(), "validation layers requested, but not available!");
 
 		VkApplicationInfo appInfo = {};
 		appInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
@@ -650,6 +648,7 @@ namespace Spark
 			}
 
 			if (!layerFound) {
+				SPARK_CORE_ERROR("Layer \"{0}\" was requested but not available", layerName);
 				return false;
 			}
 		}

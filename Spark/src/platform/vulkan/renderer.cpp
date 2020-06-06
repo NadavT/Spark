@@ -3,6 +3,7 @@
 #include "spark/core/log.h"
 #include "platform/vulkan/framebuffer/framebuffer2d.h"
 #include "platform/vulkan/pipeline/pipeline_triangle.h"
+#include "platform/vulkan/pipeline/pipeline2d.h"
 
 namespace Spark
 {
@@ -48,6 +49,23 @@ namespace Spark
 
 	VulkanRenderer::~VulkanRenderer()
 	{
+		for (int i = 0; i < m_clearCommandBuffers.size(); i++)
+		{
+			m_context.destroyCommandBuffer(m_clearCommandBuffers[i]);
+		}
+
+		destroyFramebuffer(m_clearFramebuffer);
+
+		for (int i = 0; i < m_resolveCommandBuffers.size(); i++)
+		{
+			m_context.destroyCommandBuffer(m_resolveCommandBuffers[i]);
+		}
+
+		if (m_context.m_msaaSamples != VK_SAMPLE_COUNT_1_BIT)
+		{
+			destroyFramebuffer(m_resolveFramebuffer);
+		}
+
 		for (int i = 0; i < m_semaphores.size(); i++)
 		{
 			for (int j = 0; j < m_semaphores[i].size(); j++)
@@ -231,9 +249,9 @@ namespace Spark
 	{
 		switch (type)
 		{
-		//case VulkanPipelineType::Type2D:
-		//	m_pipelines.push_back(std::make_unique<VulkanPipeline2D>(m_context, framebuffer));
-		//	return m_pipelines.back().get();
+		case VulkanPipelineType::Type2D:
+			m_pipelines.push_back(std::make_unique<VulkanPipeline2D>(m_context, framebuffer));
+			return m_pipelines.back().get();
 		case VulkanPipelineType::TypeTriangle:
 			m_pipelines.push_back(std::make_unique<VulkanPipelineTriangle>(m_context, framebuffer));
 			return m_pipelines.back().get();

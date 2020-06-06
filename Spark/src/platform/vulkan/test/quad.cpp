@@ -16,13 +16,13 @@ namespace Spark
 
 	Quad::Quad(VulkanContext& context, glm::vec2 position)
 		: m_context(context)
-		, m_model()
+		, m_transformation()
 		, m_vertexBuffer(VK_NULL_HANDLE)
 		, m_vertexBufferMemory(VK_NULL_HANDLE)
 		, m_verticesOffset(0)
 		, m_indicesOffset(0)
 	{
-		m_model = glm::translate(glm::mat3(1.0), position);
+		m_transformation = glm::translate(glm::mat3(1.0), position);
 
 		createVertex2DBuffer(context, m_vertexBuffer, m_vertexBufferMemory, m_verticesOffset, m_indicesOffset, quad_vertices, quad_indices);
 	}
@@ -68,27 +68,26 @@ namespace Spark
 		VkBuffer buff[] = { m_vertexBuffer };
 		VkDeviceSize offsets[] = { m_verticesOffset };
 
-		//vkCmdBindVertexBuffers(commandBuffer, 0, 1, buff, offsets);
-		//vkCmdBindIndexBuffer(commandBuffer, m_vertexBuffer, m_indicesOffset, VK_INDEX_TYPE_UINT32);
-//		vkCmdDrawIndexed(commandBuffer, static_cast<uint32_t>(quad_indices.size()), 1, 0, 0, 0);
-		vkCmdDraw(commandBuffer, 3, 1, 0, 0);
+		vkCmdBindVertexBuffers(commandBuffer, 0, 1, buff, offsets);
+		vkCmdBindIndexBuffer(commandBuffer, m_vertexBuffer, m_indicesOffset, VK_INDEX_TYPE_UINT32);
+		vkCmdDrawIndexed(commandBuffer, static_cast<uint32_t>(quad_indices.size()), 1, 0, 0, 0);
 
 	}
 
 	glm::mat3 Quad::getModelMatrix()
 	{
-		return m_model;
+		return m_transformation;
 	}
 
 	void Quad::copyQuad(const Quad& other)
 	{
-		m_model = other.m_model;
+		m_transformation = other.m_transformation;
 		createVertex2DBuffer(m_context, m_vertexBuffer, m_vertexBufferMemory, m_verticesOffset, m_indicesOffset, quad_vertices, quad_indices);
 	}
 
 	void Quad::moveQuad(Quad& other) noexcept
 	{
-		m_model = other.m_model;
+		m_transformation = other.m_transformation;
 		m_vertexBuffer = other.m_vertexBuffer;
 		other.m_vertexBuffer = VK_NULL_HANDLE;
 		m_vertexBufferMemory = other.m_vertexBufferMemory;

@@ -44,7 +44,7 @@ namespace Spark
 		return shaderModule;
 	}
 
-	void VulkanPipeline::createGraphicsPipeline(VkShaderModule vertexShader, VkShaderModule fragmentShader, VkPipelineLayout layout)
+	void VulkanPipeline::createGraphicsPipeline(VkShaderModule vertexShader, VkShaderModule fragmentShader, VkPipelineVertexInputStateCreateInfo vertexInputInfo, VkPipelineLayout layout)
 	{
 		VkPipelineShaderStageCreateInfo vertShaderStageInfo{};
 		vertShaderStageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
@@ -59,11 +59,6 @@ namespace Spark
 		fragShaderStageInfo.pName = "main";
 
 		VkPipelineShaderStageCreateInfo shaderStages[] = { vertShaderStageInfo, fragShaderStageInfo };
-
-		VkPipelineVertexInputStateCreateInfo vertexInputInfo{};
-		vertexInputInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
-		vertexInputInfo.vertexBindingDescriptionCount = 0;
-		vertexInputInfo.vertexAttributeDescriptionCount = 0;
 
 		VkPipelineInputAssemblyStateCreateInfo inputAssembly{};
 		inputAssembly.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;

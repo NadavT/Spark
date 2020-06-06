@@ -22,7 +22,7 @@ namespace Spark
 		void moveQuad(Quad& other) noexcept;
 
 		VulkanContext& m_context;
-		glm::mat3 m_model;
+		glm::mat3 m_transformation;
 		VkBuffer m_vertexBuffer;
 		VkDeviceMemory m_vertexBufferMemory;
 		VkDeviceSize m_verticesOffset;

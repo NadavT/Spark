@@ -22,6 +22,7 @@ namespace Spark
 		void createDescriptorSetLayout();
 		void createGraphicsPipeline();
 	private:
+		VkPipelineLayout m_pipelineLayout;
 		VkDescriptorSetLayout m_MVPDescriptorSetLayout;
 		VkDescriptorSetLayout m_textureDescriptorSetLayout;
 	};

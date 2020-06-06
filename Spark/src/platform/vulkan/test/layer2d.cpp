@@ -1,25 +1,26 @@
-#include "triangle_layer.h"
+#include "layer2d.h"
 
 #include "platform/vulkan/pipeline/pipeline2d.h"
 
 namespace Spark
 {
-	VulkanTriangleLayer::VulkanTriangleLayer(VulkanRenderer& renderer)
-		: Layer("triangle layer")
+	VulkanLayer2D::VulkanLayer2D(VulkanRenderer& renderer)
+		: Layer("2d layer")
 		, m_renderer(renderer)
 		, m_framebuffer(nullptr)
 		, m_pipeline(nullptr)
 	{
 		m_framebuffer = renderer.createFramebuffer(VulkanFramebufferType::Type2D);
-		m_pipeline = renderer.createPipeline(VulkanPipelineType::TypeTriangle, *m_framebuffer);
+		m_pipeline = renderer.createPipeline(VulkanPipelineType::Type2D, *m_framebuffer);
 		m_commandBuffers.resize(renderer.getImagesAmount());
+		m_quad = std::make_unique<Quad>(m_renderer.m_context, glm::vec2(5,5));
 		for (int i = 0; i < m_commandBuffers.size(); i++)
 		{
 			m_commandBuffers[i] = renderer.m_context.createCommandBuffer();
 		}
 	}
 
-	VulkanTriangleLayer::~VulkanTriangleLayer()
+	VulkanLayer2D::~VulkanLayer2D()
 	{
 		for (int i = 0; i < m_commandBuffers.size(); i++)
 		{
@@ -31,19 +32,19 @@ namespace Spark
 		m_framebuffer = nullptr;
 	}
 
-	void VulkanTriangleLayer::OnAttach()
+	void VulkanLayer2D::OnAttach()
 	{
 		createCommandBuffers();
 	}
 
-	void VulkanTriangleLayer::OnDetach()
+	void VulkanLayer2D::OnDetach()
 	{
 		for (VkCommandBuffer commandBuffer : m_commandBuffers) {
 			m_renderer.resetCommandBuffer(commandBuffer);
 		}
 	}
 
-	void VulkanTriangleLayer::OnRender()
+	void VulkanLayer2D::OnRender()
 	{
 		if (m_renderer.isRecreationNeeded())
 		{
@@ -57,7 +58,7 @@ namespace Spark
 		m_renderer.render(commandBuffer);
 	}
 
-	void VulkanTriangleLayer::createCommandBuffers()
+	void VulkanLayer2D::createCommandBuffers()
 	{
 		int i = 0;
 		for (VkCommandBuffer commandBuffer : m_commandBuffers) {
@@ -73,7 +74,7 @@ namespace Spark
 
 			m_pipeline->bind(commandBuffer);
 
-			vkCmdDraw(commandBuffer, 3, 1, 0, 0);
+			m_quad->fillCommandBuffer(commandBuffer);
 
 			vkCmdEndRenderPass(commandBuffer);
 

@@ -28,7 +28,7 @@ namespace Spark
 	protected:
 		VulkanPipeline(VulkanContext& context, VulkanFramebuffer& framebuffer);
 		VkShaderModule createShaderModule(const std::vector<char>& code);
-		void createGraphicsPipeline(VkShaderModule vertexShader, VkShaderModule fragmentShader, VkPipelineLayout layout);
+		void createGraphicsPipeline(VkShaderModule vertexShader, VkShaderModule fragmentShader, VkPipelineVertexInputStateCreateInfo vertexInputInfo, VkPipelineLayout layout);
 
 	protected:
 		VulkanContext& m_context;
