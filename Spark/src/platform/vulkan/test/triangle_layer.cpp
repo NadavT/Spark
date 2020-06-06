@@ -10,7 +10,7 @@ namespace Spark
 		, m_framebuffer(nullptr)
 		, m_pipeline(nullptr)
 	{
-		m_framebuffer = renderer.createFramebuffer(VulkanFramebufferType::Type2D, true, true);
+		m_framebuffer = renderer.createFramebuffer(VulkanFramebufferType::Type2D);
 		m_pipeline = renderer.createPipeline(VulkanPipelineType::TypeTriangle, *m_framebuffer);
 		m_commandBuffers.resize(renderer.getImagesAmount());
 		for (int i = 0; i < m_commandBuffers.size(); i++)

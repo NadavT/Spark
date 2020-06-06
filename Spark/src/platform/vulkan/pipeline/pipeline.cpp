@@ -101,8 +101,8 @@ namespace Spark
 
 		VkPipelineMultisampleStateCreateInfo multisampling{};
 		multisampling.sType = VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO;
-		multisampling.sampleShadingEnable = (m_framebuffer.isLastLayer()) ? VK_TRUE : VK_TRUE;
-		multisampling.rasterizationSamples = (m_framebuffer.isLastLayer()) ? m_context.m_msaaSamples : m_context.m_msaaSamples;
+		multisampling.sampleShadingEnable = (m_context.m_msaaSamples != VK_SAMPLE_COUNT_1_BIT) ? VK_TRUE : VK_FALSE;
+		multisampling.rasterizationSamples = m_context.m_msaaSamples;
 
 		VkPipelineColorBlendAttachmentState colorBlendAttachment{};
 		colorBlendAttachment.colorWriteMask = VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT;

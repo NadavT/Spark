@@ -29,7 +29,7 @@ namespace Spark
 		bool isRecreationNeeded() const;
 
 		virtual void OnEvent(Event& e);
-		VulkanFramebuffer* createFramebuffer(VulkanFramebufferType type, bool first_layer = false, bool last_layer = false);
+		VulkanFramebuffer* createFramebuffer(VulkanFramebufferType type, bool clear = false, bool resolve = false);
 		void destroyFramebuffer(VulkanFramebuffer* framebuffer);
 		VulkanPipeline* createPipeline(VulkanPipelineType type, VulkanFramebuffer& framebuffer);
 		void destroyPipeline(VulkanPipeline* pipeline);
@@ -53,6 +53,10 @@ namespace Spark
 		bool onWindowResize(WindowResizeEvent& e);
 		void createMultisamplesResources();
 		void cleanupMultisamplesResources();
+		void createClearCommandBuffers();
+		void createResolveCommandBuffers();
+		void fillClearCommandBuffers();
+		void fillResolveCommandBuffers();
 
 	public:
 		VulkanContext m_context;
@@ -71,6 +75,10 @@ namespace Spark
 		VkImage m_multisampleImage;
 		VkDeviceMemory m_multisampleImageMemory;
 		VkImageView m_multisampleImageView;
+		VulkanFramebuffer* m_clearFramebuffer;
+		VulkanFramebuffer* m_resolveFramebuffer;
 		bool m_recreationNeeded;
+		std::vector<VkCommandBuffer> m_clearCommandBuffers;
+		std::vector<VkCommandBuffer> m_resolveCommandBuffers;
 	};
 }

@@ -22,6 +22,8 @@ namespace Spark
 		, m_multisampleImage(VK_NULL_HANDLE)
 		, m_multisampleImageMemory(VK_NULL_HANDLE)
 		, m_multisampleImageView(VK_NULL_HANDLE)
+		, m_clearFramebuffer(VK_NULL_HANDLE)
+		, m_resolveFramebuffer(VK_NULL_HANDLE)
 		, m_recreationNeeded(false)
 	{
 		for (int i = 0; i < m_inFlightFences.size(); i++)
@@ -33,8 +35,15 @@ namespace Spark
 
 		if (m_context.m_msaaSamples != VK_SAMPLE_COUNT_1_BIT)
 		{
+			m_resolveCommandBuffers.resize(getImagesAmount());
 			createMultisamplesResources();
+			m_resolveFramebuffer = createFramebuffer(VulkanFramebufferType::Type2D, false, true);
+			createResolveCommandBuffers();
 		}
+
+		m_clearCommandBuffers.resize(getImagesAmount());
+		m_clearFramebuffer = createFramebuffer(VulkanFramebufferType::Type2D, true, false);
+		createClearCommandBuffers();
 	}
 
 	VulkanRenderer::~VulkanRenderer()
@@ -84,6 +93,8 @@ namespace Spark
 
 		m_imagesInFlight[m_currentImageIndex] = m_inFlightFences[m_currentFrame];
 
+		render(m_clearCommandBuffers[m_currentImageIndex]);
+
 		return true;
 	}
 
@@ -94,6 +105,13 @@ namespace Spark
 		if (m_commandBuffers.size() > 0)
 		{
 			std::vector<VkSubmitInfo> infos;
+			if (m_context.m_msaaSamples != VK_SAMPLE_COUNT_1_BIT)
+				render(m_resolveCommandBuffers[m_currentImageIndex]);
+
+			while (m_commandBuffers.size() >= m_semaphores[m_currentFrame].size())
+			{
+				m_semaphores[m_currentFrame].push_back(m_context.createSemaphore());
+			}
 
 			for (int currentBuffer = 0; currentBuffer < m_commandBuffers.size(); currentBuffer++)
 			{
@@ -146,11 +164,6 @@ namespace Spark
 	void VulkanRenderer::render(VkCommandBuffer commandBuffer)
 	{
 		m_currentCommandsDrawCount++;
-		if (m_currentCommandsDrawCount >= m_semaphores[m_currentFrame].size())
-		{
-			m_semaphores[m_currentFrame].push_back(m_context.createSemaphore());
-		}
-
 		m_commandBuffers.push_back(commandBuffer);
 	}
 
@@ -180,11 +193,18 @@ namespace Spark
 		dispatcher.Dispatch<WindowResizeEvent>(SPARK_BIND_EVENT_FN(VulkanRenderer::onWindowResize));
 	}
 
-	VulkanFramebuffer* VulkanRenderer::createFramebuffer(VulkanFramebufferType type, bool first_layer, bool last_layer)
+	VulkanFramebuffer* VulkanRenderer::createFramebuffer(VulkanFramebufferType type, bool clear, bool resolve)
 	{
 		if (type == VulkanFramebufferType::Type2D)
 		{
-			m_framebuffers.push_back(std::make_unique<VulkanFramebuffer2D>(m_context, first_layer, last_layer, m_multisampleImageView));
+			if (m_context.m_msaaSamples != VK_SAMPLE_COUNT_1_BIT)
+			{
+				m_framebuffers.push_back(std::make_unique<VulkanFramebuffer2D>(m_context, m_multisampleImageView, clear, resolve));
+			}
+			else
+			{
+				m_framebuffers.push_back(std::make_unique<VulkanFramebuffer2D>(m_context, (VkImageView)VK_NULL_HANDLE, clear, resolve));
+			}
 			return m_framebuffers.back().get();
 		}
 		else
@@ -264,9 +284,21 @@ namespace Spark
 
 		vkResetCommandPool(m_context.m_device, m_context.m_commandPool, 0);
 
-		cleanupMultisamplesResources();
+		if (m_context.m_msaaSamples != VK_SAMPLE_COUNT_1_BIT)
+		{
+			cleanupMultisamplesResources();
+			for (VkCommandBuffer commandBuffer : m_resolveCommandBuffers) {
+				resetCommandBuffer(commandBuffer);
+			}
+		}
+
+		for (VkCommandBuffer commandBuffer : m_clearCommandBuffers) {
+			resetCommandBuffer(commandBuffer);
+		}
+
 		m_context.cleanupSwapchain();
 		m_context.recreateSwapchain(m_width, m_height);
+
 		if (m_context.m_msaaSamples != VK_SAMPLE_COUNT_1_BIT)
 		{
 			createMultisamplesResources();
@@ -281,6 +313,9 @@ namespace Spark
 		{
 			pipeline->recreate();
 		}
+
+		fillResolveCommandBuffers();
+		fillClearCommandBuffers();
 
 		m_recreationNeeded = true;
 	}
@@ -409,6 +444,68 @@ namespace Spark
 		if (m_multisampleImageMemory != VK_NULL_HANDLE)
 		{
 			vkFreeMemory(m_context.m_device, m_multisampleImageMemory, nullptr);
+		}
+	}
+
+	void VulkanRenderer::createClearCommandBuffers()
+	{
+		for (int i = 0; i < m_clearCommandBuffers.size(); i++)
+		{
+			m_clearCommandBuffers[i] = m_context.createCommandBuffer();
+		}
+		fillClearCommandBuffers();
+	}
+
+	void VulkanRenderer::createResolveCommandBuffers()
+	{
+		for (int i = 0; i < m_resolveCommandBuffers.size(); i++)
+		{
+			m_resolveCommandBuffers[i] = m_context.createCommandBuffer();
+		}
+		fillResolveCommandBuffers();
+	}
+
+	void VulkanRenderer::fillClearCommandBuffers()
+	{
+		for (int i = 0; i < m_clearCommandBuffers.size(); i++)
+		{
+			VkCommandBufferBeginInfo beginInfo{};
+			beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+
+			if (vkBeginCommandBuffer(m_clearCommandBuffers[i], &beginInfo) != VK_SUCCESS) {
+				throw std::runtime_error("failed to begin recording command buffer!");
+			}
+
+			std::array<VkClearValue, 2> clearValues = {};
+			clearValues[0].color = { 0.1f, 0.1f, 0.1f, 1.0f };
+			clearValues[1].depthStencil = { 1.0f, 0 };
+			beginRenderPass(m_clearCommandBuffers[i], m_clearFramebuffer->getRenderPass(),
+				m_clearFramebuffer->getswapChainFramebuffers()[i], 2, clearValues.data());
+			vkCmdEndRenderPass(m_clearCommandBuffers[i]);
+
+			if (vkEndCommandBuffer(m_clearCommandBuffers[i]) != VK_SUCCESS) {
+				throw std::runtime_error("failed to record command buffer!");
+			}
+		}
+	}
+
+	void VulkanRenderer::fillResolveCommandBuffers()
+	{
+		for (int i = 0; i < m_resolveCommandBuffers.size(); i++)
+		{
+			VkCommandBufferBeginInfo beginInfo{};
+			beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+
+			if (vkBeginCommandBuffer(m_resolveCommandBuffers[i], &beginInfo) != VK_SUCCESS) {
+				throw std::runtime_error("failed to begin recording command buffer!");
+			}
+
+			beginRenderPass(m_resolveCommandBuffers[i], m_resolveFramebuffer->getRenderPass(), m_resolveFramebuffer->getswapChainFramebuffers()[i]);
+			vkCmdEndRenderPass(m_resolveCommandBuffers[i]);
+
+			if (vkEndCommandBuffer(m_resolveCommandBuffers[i]) != VK_SUCCESS) {
+				throw std::runtime_error("failed to record command buffer!");
+			}
 		}
 	}
 }

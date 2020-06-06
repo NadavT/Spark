@@ -4,10 +4,10 @@
 
 namespace Spark
 {
-	VulkanFramebuffer2D::VulkanFramebuffer2D(VulkanContext& context, bool firstLayer, bool lastLayer, VkImageView multisampleImageView)
-		: VulkanFramebuffer(context, firstLayer, lastLayer, multisampleImageView)
+	VulkanFramebuffer2D::VulkanFramebuffer2D(VulkanContext& context, VkImageView renderTarget, bool clear, bool resolve)
+		: VulkanFramebuffer(context, renderTarget, clear, resolve)
 	{
-		createRenderPass(firstLayer, lastLayer);
+		createRenderPass();
 		createSwapchainFramebuffers();
 	}
 
@@ -21,30 +21,30 @@ namespace Spark
 		VulkanFramebuffer::cleanup();
 	}
 
-	void VulkanFramebuffer2D::recreate(VkImageView multisampleImageView)
+	void VulkanFramebuffer2D::recreate(VkImageView renderTarget)
 	{
-		VulkanFramebuffer::recreate(multisampleImageView);
-;		createRenderPass(m_firstLayer, m_lastLayer);
+		VulkanFramebuffer::recreate(renderTarget);
+;		createRenderPass();
 		createSwapchainFramebuffers();
 	}
 
-	void VulkanFramebuffer2D::createRenderPass(bool firstLayer, bool lastLayer)
+	void VulkanFramebuffer2D::createRenderPass()
 	{
 		VkAttachmentDescription colorAttachment = {};
 		colorAttachment.format = m_context.m_swapChainImageFormat;
 		colorAttachment.samples = m_context.m_msaaSamples;
-		colorAttachment.loadOp = (firstLayer) ? VK_ATTACHMENT_LOAD_OP_CLEAR : VK_ATTACHMENT_LOAD_OP_LOAD;
+		colorAttachment.loadOp = (m_clear) ? VK_ATTACHMENT_LOAD_OP_CLEAR : VK_ATTACHMENT_LOAD_OP_LOAD;
 		colorAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
 		colorAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
 		colorAttachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
 		if (m_context.m_msaaSamples != VK_SAMPLE_COUNT_1_BIT)
 		{
-			colorAttachment.initialLayout = (firstLayer) ? VK_IMAGE_LAYOUT_UNDEFINED : VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+			colorAttachment.initialLayout = (m_clear) ? VK_IMAGE_LAYOUT_UNDEFINED : VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
 			colorAttachment.finalLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
 		}
 		else
 		{
-			colorAttachment.initialLayout = (firstLayer) ? VK_IMAGE_LAYOUT_UNDEFINED : VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+			colorAttachment.initialLayout = (m_clear) ? VK_IMAGE_LAYOUT_UNDEFINED : VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
 			colorAttachment.finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
 		}
 
@@ -71,7 +71,7 @@ namespace Spark
 		subpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
 		subpass.colorAttachmentCount = 1;
 		subpass.pColorAttachments = &colorAttachmentRef;
-		if (m_lastLayer && m_context.m_msaaSamples != VK_SAMPLE_COUNT_1_BIT)
+		if (m_resolve && m_context.m_msaaSamples != VK_SAMPLE_COUNT_1_BIT)
 		{
 			subpass.pResolveAttachments = &colorAttachmentResolveRef;
 		}
@@ -87,7 +87,7 @@ namespace Spark
 		std::array<VkAttachmentDescription, 2> attachments = { colorAttachment, colorAttachmentResolve };
 		VkRenderPassCreateInfo renderPassInfo = {};
 		renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
-		if (m_lastLayer && m_context.m_msaaSamples != VK_SAMPLE_COUNT_1_BIT)
+		if (m_resolve && m_context.m_msaaSamples != VK_SAMPLE_COUNT_1_BIT)
 		{
 			renderPassInfo.attachmentCount = static_cast<uint32_t>(attachments.size());
 			renderPassInfo.pAttachments = attachments.data();
@@ -113,10 +113,10 @@ namespace Spark
 
 		for (size_t i = 0; i < m_context.m_swapChainImageViews.size(); i++) {
 			std::vector<VkImageView> attachments;
-			if (m_context.m_msaaSamples != VK_SAMPLE_COUNT_1_BIT)
+			if (m_renderTarget != VK_NULL_HANDLE)
 			{
-				attachments.push_back(m_multisampleImageView);
-				if (m_lastLayer)
+				attachments.push_back(m_renderTarget);
+				if (m_resolve)
 				{
 					attachments.push_back(m_context.m_swapChainImageViews[i]);
 				}
