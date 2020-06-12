@@ -17,6 +17,8 @@ namespace Spark
 		void fillCommandBuffer(VkCommandBuffer commandBuffer);
 		glm::mat3 getTransformation();
 
+		void move(glm::vec2 position);
+
 	private:
 		void copyQuad(const Quad& other);
 		void moveQuad(Quad& other) noexcept;

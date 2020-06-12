@@ -6,7 +6,7 @@
 namespace Spark
 {
 	struct Transformation2D {
-		glm::mat3 transformMatrix;
+		glm::mat4 transformMatrix;
 	};
 
 	class VulkanPipeline2D : public VulkanPipeline

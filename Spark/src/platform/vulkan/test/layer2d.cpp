@@ -18,7 +18,7 @@ namespace Spark
 		m_framebuffer = renderer.createFramebuffer(VulkanFramebufferType::Type2D);
 		m_pipeline = reinterpret_cast<VulkanPipeline2D*>(renderer.createPipeline(VulkanPipelineType::Type2D, *m_framebuffer));
 		m_commandBuffers.resize(renderer.getImagesAmount());
-		m_quad = std::make_unique<Quad>(m_renderer.m_context, glm::vec2(0, 0));
+		m_quad = std::make_unique<Quad>(m_renderer.m_context, glm::vec2(-0.5, -0.5));
 		m_renderer.createUniformBuffers(sizeof(Transformation2D), m_uniformTransformations, m_uniformTransformationsMemory);
 		m_pipeline->createDescriptorSets(m_transfomationDescriptorSets, m_uniformTransformations);
 		for (int i = 0; i < m_commandBuffers.size(); i++)
@@ -60,6 +60,12 @@ namespace Spark
 	{
 	}
 
+	void VulkanLayer2D::OnEvent(Event& e)
+	{
+		EventDispatcher dispatcher(e);
+		dispatcher.Dispatch<KeyPressedEvent>(SPARK_BIND_EVENT_FN(VulkanLayer2D::handleKeyPressed));
+	}
+
 	void VulkanLayer2D::OnRender()
 	{
 		if (m_renderer.isRecreationNeeded())
@@ -72,7 +78,7 @@ namespace Spark
 
 		void* data;
 		struct Transformation2D transformation = {};
-		transformation.transformMatrix = m_quad->getTransformation();
+		transformation.transformMatrix = glm::mat4(m_quad->getTransformation());
 		vkMapMemory(m_renderer.m_context.m_device, m_uniformTransformationsMemory[m_renderer.getCurrentImageIndex()], 0, sizeof(transformation), 0, &data);
 		memcpy(data, &transformation, sizeof(transformation));
 		vkUnmapMemory(m_renderer.m_context.m_device, m_uniformTransformationsMemory[m_renderer.getCurrentImageIndex()]);
@@ -107,5 +113,26 @@ namespace Spark
 			i++;
 		}
 
+	}
+
+	bool VulkanLayer2D::handleKeyPressed(KeyPressedEvent& e)
+	{
+		switch (e.GetKeyCode())
+		{
+		case KeyCode::Left:
+			m_quad->move({-0.05, 0});
+			return true;
+		case KeyCode::Right:
+			m_quad->move({0.05, 0});
+			return true;
+		case KeyCode::Down:
+			m_quad->move({0, 0.05});
+			return true;
+		case KeyCode::Up:
+			m_quad->move({0, -0.05});
+			return true;
+		default:
+			return false;
+		}
 	}
 }

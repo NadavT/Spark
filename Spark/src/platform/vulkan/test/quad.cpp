@@ -79,6 +79,11 @@ namespace Spark
 		return m_transformation;
 	}
 
+	void Quad::move(glm::vec2 position)
+	{
+		m_transformation = glm::translate(m_transformation, position);
+	}
+
 	void Quad::copyQuad(const Quad& other)
 	{
 		m_transformation = other.m_transformation;
