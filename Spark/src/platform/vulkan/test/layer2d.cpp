@@ -9,11 +9,18 @@ namespace Spark
 		, m_renderer(renderer)
 		, m_framebuffer(nullptr)
 		, m_pipeline(nullptr)
+		, m_quad(nullptr)
+		, m_uniformTransformations()
+		, m_uniformTransformationsMemory()
+		, m_transfomationDescriptorSets()
+		, m_commandBuffers()
 	{
 		m_framebuffer = renderer.createFramebuffer(VulkanFramebufferType::Type2D);
-		m_pipeline = renderer.createPipeline(VulkanPipelineType::Type2D, *m_framebuffer);
+		m_pipeline = reinterpret_cast<VulkanPipeline2D*>(renderer.createPipeline(VulkanPipelineType::Type2D, *m_framebuffer));
 		m_commandBuffers.resize(renderer.getImagesAmount());
-		m_quad = std::make_unique<Quad>(m_renderer.m_context, glm::vec2(5,5));
+		m_quad = std::make_unique<Quad>(m_renderer.m_context, glm::vec2(0, 0));
+		m_renderer.createUniformBuffers(sizeof(Transformation2D), m_uniformTransformations, m_uniformTransformationsMemory);
+		m_pipeline->createDescriptorSets(m_transfomationDescriptorSets, m_uniformTransformations);
 		for (int i = 0; i < m_commandBuffers.size(); i++)
 		{
 			m_commandBuffers[i] = renderer.m_context.createCommandBuffer();
@@ -25,6 +32,11 @@ namespace Spark
 		for (int i = 0; i < m_commandBuffers.size(); i++)
 		{
 			m_renderer.m_context.destroyCommandBuffer(m_commandBuffers[i]);
+		}
+		for (size_t i = 0; i < m_uniformTransformations.size(); i++)
+		{
+			vkDestroyBuffer(m_renderer.m_context.m_device, m_uniformTransformations[i], nullptr);
+			vkFreeMemory(m_renderer.m_context.m_device, m_uniformTransformationsMemory[i], nullptr);
 		}
 		m_renderer.destroyPipeline(m_pipeline);
 		m_pipeline = nullptr;
@@ -44,6 +56,10 @@ namespace Spark
 		}
 	}
 
+	void VulkanLayer2D::OnUpdate(Time& diffTime)
+	{
+	}
+
 	void VulkanLayer2D::OnRender()
 	{
 		if (m_renderer.isRecreationNeeded())
@@ -53,6 +69,13 @@ namespace Spark
 			}
 			createCommandBuffers();
 		}
+
+		void* data;
+		struct Transformation2D transformation = {};
+		transformation.transformMatrix = m_quad->getTransformation();
+		vkMapMemory(m_renderer.m_context.m_device, m_uniformTransformationsMemory[m_renderer.getCurrentImageIndex()], 0, sizeof(transformation), 0, &data);
+		memcpy(data, &transformation, sizeof(transformation));
+		vkUnmapMemory(m_renderer.m_context.m_device, m_uniformTransformationsMemory[m_renderer.getCurrentImageIndex()]);
 
 		VkCommandBuffer commandBuffer = m_commandBuffers[m_renderer.getCurrentImageIndex()];
 		m_renderer.render(commandBuffer);
@@ -72,7 +95,7 @@ namespace Spark
 			m_renderer.beginRenderPass(commandBuffer, m_framebuffer->getRenderPass(),
 				m_framebuffer->getswapChainFramebuffers()[i]);
 
-			m_pipeline->bind(commandBuffer);
+			m_pipeline->bind(commandBuffer, m_transfomationDescriptorSets[i]);
 
 			m_quad->fillCommandBuffer(commandBuffer);
 

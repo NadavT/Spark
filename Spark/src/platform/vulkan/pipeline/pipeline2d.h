@@ -1,9 +1,14 @@
 #pragma once
 
 #include "platform/vulkan/pipeline/pipeline.h"
+#include "platform/vulkan/vertex/vertex2d.h"
 
 namespace Spark
 {
+	struct Transformation2D {
+		glm::mat3 transformMatrix;
+	};
+
 	class VulkanPipeline2D : public VulkanPipeline
 	{
 	public:
@@ -13,17 +18,19 @@ namespace Spark
 		virtual void cleanup();
 		virtual void recreate();
 
-		virtual void bind(VkCommandBuffer commandBuffer);
+		virtual void bind(VkCommandBuffer commandBuffer, VkDescriptorSet transformationSet);
 
 		VkDescriptorSetLayout getMVPDescriptorSetLayout();
 		VkDescriptorSetLayout getTextureDescriptorSetLayout();
+
+		void createDescriptorSets(std::vector<VkDescriptorSet>& transformationSets, std::vector<VkBuffer> transformationUniforms);
 
 	private:
 		void createDescriptorSetLayout();
 		void createGraphicsPipeline();
 	private:
 		VkPipelineLayout m_pipelineLayout;
-		VkDescriptorSetLayout m_MVPDescriptorSetLayout;
+		VkDescriptorSetLayout m_transformationDescriptorSetLayout;
 		VkDescriptorSetLayout m_textureDescriptorSetLayout;
 	};
 }

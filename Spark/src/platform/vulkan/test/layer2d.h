@@ -2,7 +2,7 @@
 
 #include "spark/core/layer.h"
 #include "platform/vulkan/renderer.h"
-#include "platform/vulkan/pipeline/pipeline.h"
+#include "platform/vulkan/pipeline/pipeline2d.h"
 #include "platform/vulkan/test/quad.h"
 
 namespace Spark
@@ -15,6 +15,7 @@ namespace Spark
 
 		virtual void OnAttach();
 		virtual void OnDetach();
+		virtual void OnUpdate(Time& diffTime);
 		virtual void OnRender();
 
 	private:
@@ -22,9 +23,12 @@ namespace Spark
 	private:
 		VulkanRenderer& m_renderer;
 		VulkanFramebuffer* m_framebuffer;
-		VulkanPipeline* m_pipeline;
+		VulkanPipeline2D* m_pipeline;
 
 		std::unique_ptr<Quad> m_quad;
+		std::vector<VkBuffer> m_uniformTransformations;
+		std::vector<VkDeviceMemory> m_uniformTransformationsMemory;
+		std::vector<VkDescriptorSet> m_transfomationDescriptorSets;
 
 		std::vector<VkCommandBuffer> m_commandBuffers;
 	};

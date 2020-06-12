@@ -15,7 +15,7 @@ namespace Spark
 		Quad& operator=(Quad&& other) noexcept;
 
 		void fillCommandBuffer(VkCommandBuffer commandBuffer);
-		glm::mat3 getModelMatrix();
+		glm::mat3 getTransformation();
 
 	private:
 		void copyQuad(const Quad& other);

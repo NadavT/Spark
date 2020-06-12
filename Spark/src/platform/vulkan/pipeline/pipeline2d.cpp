@@ -11,24 +11,22 @@ namespace Spark
 
 	VulkanPipeline2D::VulkanPipeline2D(VulkanContext& context, VulkanFramebuffer& framebuffer)
 		: VulkanPipeline(context, framebuffer)
-		, m_MVPDescriptorSetLayout(VK_NULL_HANDLE)
+		, m_transformationDescriptorSetLayout(VK_NULL_HANDLE)
 		, m_textureDescriptorSetLayout(VK_NULL_HANDLE)
 	{
-		//createDescriptorSetLayout();
+		createDescriptorSetLayout();
 		createGraphicsPipeline();
 	}
 
 	VulkanPipeline2D::~VulkanPipeline2D()
 	{
-		//vkDestroyDescriptorSetLayout(m_context.m_device, m_MVPDescriptorSetLayout, nullptr);
-		//vkDestroyDescriptorSetLayout(m_context.m_device, m_textureDescriptorSetLayout, nullptr);
 		cleanup();
 	}
 
 	void VulkanPipeline2D::cleanup()
 	{
-		//vkDestroyDescriptorSetLayout(m_context.m_device, m_MVPDescriptorSetLayout, nullptr);
-		//vkDestroyDescriptorSetLayout(m_context.m_device, m_textureDescriptorSetLayout, nullptr);
+		vkDestroyDescriptorSetLayout(m_context.m_device, m_transformationDescriptorSetLayout, nullptr);
+		vkDestroyDescriptorSetLayout(m_context.m_device, m_textureDescriptorSetLayout, nullptr);
 		vkDestroyPipelineLayout(m_context.m_device, m_pipelineLayout, VK_NULL_HANDLE);
 		m_pipelineLayout = VK_NULL_HANDLE;
 		VulkanPipeline::cleanup();
@@ -37,18 +35,20 @@ namespace Spark
 	void VulkanPipeline2D::recreate()
 	{
 		VulkanPipeline::recreate();
-		//createDescriptorSetLayout();
+		createDescriptorSetLayout();
 		createGraphicsPipeline();
 	}
 
-	void VulkanPipeline2D::bind(VkCommandBuffer commandBuffer)
+	void VulkanPipeline2D::bind(VkCommandBuffer commandBuffer, VkDescriptorSet transformationSet)
 	{
+		const VkDescriptorSet descriptorSets[] = { transformationSet };
+		vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_pipelineLayout, 0, 1, descriptorSets, 0, nullptr);
 		VulkanPipeline::bind(commandBuffer);
 	}
 
 	VkDescriptorSetLayout VulkanPipeline2D::getMVPDescriptorSetLayout()
 	{
-		return m_MVPDescriptorSetLayout;
+		return m_transformationDescriptorSetLayout;
 	}
 
 	VkDescriptorSetLayout VulkanPipeline2D::getTextureDescriptorSetLayout()
@@ -56,36 +56,73 @@ namespace Spark
 		return m_textureDescriptorSetLayout;
 	}
 
+	void VulkanPipeline2D::createDescriptorSets(std::vector<VkDescriptorSet>& transformationSets, std::vector<VkBuffer> transformationUniforms)
+	{
+		std::vector<VkDescriptorSetLayout> transformationLayouts(m_context.m_swapChainImages.size(), m_transformationDescriptorSetLayout);
+		VkDescriptorSetAllocateInfo allocInfo = {};
+		allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
+		allocInfo.descriptorPool = m_context.m_descriptorPool;
+		allocInfo.descriptorSetCount = static_cast<uint32_t>(m_context.m_swapChainImages.size());
+		allocInfo.pSetLayouts = transformationLayouts.data();
+
+		transformationSets.resize(m_context.m_swapChainImages.size());
+		SPARK_CORE_ASSERT(vkAllocateDescriptorSets(m_context.m_device, &allocInfo, transformationSets.data()) == VK_SUCCESS, "Failed to allocate descriptor sets");
+
+		VkWriteDescriptorSet writeDescripotrSet = {};
+		std::vector<VkDescriptorBufferInfo> bufferInfos;
+		bufferInfos.resize(m_context.m_swapChainImages.size());
+
+		for (size_t i = 0; i < m_context.m_swapChainImages.size(); i++)
+		{
+			VkDescriptorBufferInfo bufferInfo = {};
+			bufferInfo.buffer = transformationUniforms[i];
+			bufferInfo.offset = 0;
+			bufferInfo.range = sizeof(Transformation2D);
+
+			std::vector<VkWriteDescriptorSet> descriptorWrites = {};
+
+			writeDescripotrSet.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+			writeDescripotrSet.dstSet = transformationSets[i];
+			writeDescripotrSet.dstBinding = 0;
+			writeDescripotrSet.dstArrayElement = 0;
+			writeDescripotrSet.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+			writeDescripotrSet.descriptorCount = 1;
+			writeDescripotrSet.pBufferInfo = &bufferInfo;
+			descriptorWrites.push_back(writeDescripotrSet);
+
+			vkUpdateDescriptorSets(m_context.m_device, static_cast<uint32_t>(descriptorWrites.size()),
+				descriptorWrites.data(), 0, nullptr);
+		}
+	}
+
 	void VulkanPipeline2D::createDescriptorSetLayout()
 	{
-		VkDescriptorSetLayoutBinding uboLayoutBinding = {};
-		uboLayoutBinding.binding = 0;
-		uboLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-		uboLayoutBinding.descriptorCount = 1;
-		uboLayoutBinding.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
-		uboLayoutBinding.pImmutableSamplers = nullptr;
+		VkDescriptorSetLayoutBinding transformationLayoutBinding = {};
+		transformationLayoutBinding.binding = 0;
+		transformationLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+		transformationLayoutBinding.descriptorCount = 1;
+		transformationLayoutBinding.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
+		transformationLayoutBinding.pImmutableSamplers = nullptr;
 	
-		VkDescriptorSetLayoutBinding samplerLayoutBinding = {};
-		samplerLayoutBinding.binding = 0;
-		samplerLayoutBinding.descriptorCount = 1;
-		samplerLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-		samplerLayoutBinding.pImmutableSamplers = nullptr;
-		samplerLayoutBinding.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
+		//VkDescriptorSetLayoutBinding samplerLayoutBinding = {};
+		//samplerLayoutBinding.binding = 0;
+		//samplerLayoutBinding.descriptorCount = 1;
+		//samplerLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+		//samplerLayoutBinding.pImmutableSamplers = nullptr;
+		//samplerLayoutBinding.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
 
 		VkDescriptorSetLayoutCreateInfo layoutInfo = {};
 		layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
 		layoutInfo.bindingCount = 1;
-		layoutInfo.pBindings = &uboLayoutBinding;
-		if (vkCreateDescriptorSetLayout(m_context.m_device, &layoutInfo, nullptr, &m_MVPDescriptorSetLayout) != VK_SUCCESS) {
-			throw std::runtime_error("failed to create descriptor set layout!");
-		}
+		layoutInfo.pBindings = &transformationLayoutBinding;
+		SPARK_CORE_ASSERT(vkCreateDescriptorSetLayout(m_context.m_device, &layoutInfo, nullptr, &m_transformationDescriptorSetLayout) == VK_SUCCESS, "failed to create descriptor set layout!");
 
-		layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
-		layoutInfo.bindingCount = 1;
-		layoutInfo.pBindings = &samplerLayoutBinding;
-		if (vkCreateDescriptorSetLayout(m_context.m_device, &layoutInfo, nullptr, &m_textureDescriptorSetLayout) != VK_SUCCESS) {
-			throw std::runtime_error("failed to create descriptor set layout!");
-		}
+		//layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
+		//layoutInfo.bindingCount = 1;
+		//layoutInfo.pBindings = &samplerLayoutBinding;
+		//if (vkCreateDescriptorSetLayout(m_context.m_device, &layoutInfo, nullptr, &m_textureDescriptorSetLayout) != VK_SUCCESS) {
+		//	throw std::runtime_error("failed to create descriptor set layout!");
+		//}
 	}
 
 	void VulkanPipeline2D::createGraphicsPipeline()
@@ -107,9 +144,12 @@ namespace Spark
 		vertexInputInfo.pVertexBindingDescriptions = &bindingDescription;
 		vertexInputInfo.pVertexAttributeDescriptions = attributeDescriptions.data();
 
+		std::array<VkDescriptorSetLayout, 1> descriptorSets = { m_transformationDescriptorSetLayout };
+
 		VkPipelineLayoutCreateInfo pipelineLayoutInfo{};
 		pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
-		pipelineLayoutInfo.setLayoutCount = 0;
+		pipelineLayoutInfo.setLayoutCount = descriptorSets.size();
+		pipelineLayoutInfo.pSetLayouts = descriptorSets.data();
 		pipelineLayoutInfo.pushConstantRangeCount = 0;
 
 		SPARK_CORE_ASSERT(vkCreatePipelineLayout(m_context.m_device, &pipelineLayoutInfo, nullptr, &m_pipelineLayout) == VK_SUCCESS, "failed to create pipeline layout!");

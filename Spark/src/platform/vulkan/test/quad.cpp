@@ -74,7 +74,7 @@ namespace Spark
 
 	}
 
-	glm::mat3 Quad::getModelMatrix()
+	glm::mat3 Quad::getTransformation()
 	{
 		return m_transformation;
 	}
