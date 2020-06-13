@@ -18,12 +18,13 @@ namespace Spark
 		virtual void cleanup();
 		virtual void recreate();
 
-		virtual void bind(VkCommandBuffer commandBuffer, VkDescriptorSet transformationSet);
+		virtual void bind(VkCommandBuffer commandBuffer, VkDescriptorSet transformationSet, VkDescriptorSet textureSet);
 
 		VkDescriptorSetLayout getMVPDescriptorSetLayout();
 		VkDescriptorSetLayout getTextureDescriptorSetLayout();
 
-		void createDescriptorSets(std::vector<VkDescriptorSet>& transformationSets, std::vector<VkBuffer> transformationUniforms);
+		void createDescriptorSets(std::vector<VkDescriptorSet>& transformationSets, std::vector<VkBuffer> transformationUniforms,
+			std::vector<VkDescriptorSet>& textureSets, VkImageView textureImageView, VkSampler textureSampler);
 
 	private:
 		void createDescriptorSetLayout();

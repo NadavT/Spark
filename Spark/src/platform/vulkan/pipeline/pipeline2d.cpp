@@ -39,10 +39,10 @@ namespace Spark
 		createGraphicsPipeline();
 	}
 
-	void VulkanPipeline2D::bind(VkCommandBuffer commandBuffer, VkDescriptorSet transformationSet)
+	void VulkanPipeline2D::bind(VkCommandBuffer commandBuffer, VkDescriptorSet transformationSet, VkDescriptorSet textureSet)
 	{
-		const VkDescriptorSet descriptorSets[] = { transformationSet };
-		vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_pipelineLayout, 0, 1, descriptorSets, 0, nullptr);
+		const VkDescriptorSet descriptorSets[] = { transformationSet, textureSet };
+		vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_pipelineLayout, 0, 2, descriptorSets, 0, nullptr);
 		VulkanPipeline::bind(commandBuffer);
 	}
 
@@ -56,7 +56,8 @@ namespace Spark
 		return m_textureDescriptorSetLayout;
 	}
 
-	void VulkanPipeline2D::createDescriptorSets(std::vector<VkDescriptorSet>& transformationSets, std::vector<VkBuffer> transformationUniforms)
+	void VulkanPipeline2D::createDescriptorSets(std::vector<VkDescriptorSet>& transformationSets, std::vector<VkBuffer> transformationUniforms,
+		std::vector<VkDescriptorSet>& textureSets, VkImageView textureImageView, VkSampler textureSampler)
 	{
 		std::vector<VkDescriptorSetLayout> transformationLayouts(m_context.m_swapChainImages.size(), m_transformationDescriptorSetLayout);
 		VkDescriptorSetAllocateInfo allocInfo = {};
@@ -64,11 +65,17 @@ namespace Spark
 		allocInfo.descriptorPool = m_context.m_descriptorPool;
 		allocInfo.descriptorSetCount = static_cast<uint32_t>(m_context.m_swapChainImages.size());
 		allocInfo.pSetLayouts = transformationLayouts.data();
-
 		transformationSets.resize(m_context.m_swapChainImages.size());
 		SPARK_CORE_ASSERT(vkAllocateDescriptorSets(m_context.m_device, &allocInfo, transformationSets.data()) == VK_SUCCESS, "Failed to allocate descriptor sets");
 
-		VkWriteDescriptorSet writeDescripotrSet = {};
+		std::vector<VkDescriptorSetLayout> textureLayouts(m_context.m_swapChainImages.size(), m_textureDescriptorSetLayout);
+		allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
+		allocInfo.descriptorPool = m_context.m_descriptorPool;
+		allocInfo.descriptorSetCount = static_cast<uint32_t>(m_context.m_swapChainImages.size());
+		allocInfo.pSetLayouts = textureLayouts.data();
+		textureSets.resize(m_context.m_swapChainImages.size());
+		SPARK_CORE_ASSERT(vkAllocateDescriptorSets(m_context.m_device, &allocInfo, textureSets.data()) == VK_SUCCESS, "Failed to allocate descriptor sets");
+
 		std::vector<VkDescriptorBufferInfo> bufferInfos;
 		bufferInfos.resize(m_context.m_swapChainImages.size());
 
@@ -79,7 +86,13 @@ namespace Spark
 			bufferInfo.offset = 0;
 			bufferInfo.range = sizeof(Transformation2D);
 
+			VkDescriptorImageInfo imageInfo{};
+			imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+			imageInfo.imageView = textureImageView;
+			imageInfo.sampler = textureSampler;
+
 			std::vector<VkWriteDescriptorSet> descriptorWrites = {};
+			VkWriteDescriptorSet writeDescripotrSet = {};
 
 			writeDescripotrSet.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
 			writeDescripotrSet.dstSet = transformationSets[i];
@@ -88,6 +101,15 @@ namespace Spark
 			writeDescripotrSet.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
 			writeDescripotrSet.descriptorCount = 1;
 			writeDescripotrSet.pBufferInfo = &bufferInfo;
+			descriptorWrites.push_back(writeDescripotrSet);
+
+			writeDescripotrSet.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+			writeDescripotrSet.dstSet = textureSets[i];
+			writeDescripotrSet.dstBinding = 0;
+			writeDescripotrSet.dstArrayElement = 0;
+			writeDescripotrSet.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+			writeDescripotrSet.descriptorCount = 1;
+			writeDescripotrSet.pImageInfo = &imageInfo;
 			descriptorWrites.push_back(writeDescripotrSet);
 
 			vkUpdateDescriptorSets(m_context.m_device, static_cast<uint32_t>(descriptorWrites.size()),
@@ -104,12 +126,12 @@ namespace Spark
 		transformationLayoutBinding.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
 		transformationLayoutBinding.pImmutableSamplers = nullptr;
 	
-		//VkDescriptorSetLayoutBinding samplerLayoutBinding = {};
-		//samplerLayoutBinding.binding = 0;
-		//samplerLayoutBinding.descriptorCount = 1;
-		//samplerLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-		//samplerLayoutBinding.pImmutableSamplers = nullptr;
-		//samplerLayoutBinding.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
+		VkDescriptorSetLayoutBinding samplerLayoutBinding = {};
+		samplerLayoutBinding.binding = 0;
+		samplerLayoutBinding.descriptorCount = 1;
+		samplerLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+		samplerLayoutBinding.pImmutableSamplers = nullptr;
+		samplerLayoutBinding.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
 
 		VkDescriptorSetLayoutCreateInfo layoutInfo = {};
 		layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
@@ -117,12 +139,10 @@ namespace Spark
 		layoutInfo.pBindings = &transformationLayoutBinding;
 		SPARK_CORE_ASSERT(vkCreateDescriptorSetLayout(m_context.m_device, &layoutInfo, nullptr, &m_transformationDescriptorSetLayout) == VK_SUCCESS, "failed to create descriptor set layout!");
 
-		//layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
-		//layoutInfo.bindingCount = 1;
-		//layoutInfo.pBindings = &samplerLayoutBinding;
-		//if (vkCreateDescriptorSetLayout(m_context.m_device, &layoutInfo, nullptr, &m_textureDescriptorSetLayout) != VK_SUCCESS) {
-		//	throw std::runtime_error("failed to create descriptor set layout!");
-		//}
+		layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
+		layoutInfo.bindingCount = 1;
+		layoutInfo.pBindings = &samplerLayoutBinding;
+		SPARK_CORE_ASSERT(vkCreateDescriptorSetLayout(m_context.m_device, &layoutInfo, nullptr, &m_textureDescriptorSetLayout) == VK_SUCCESS, "failed to create descriptor set layout!");
 	}
 
 	void VulkanPipeline2D::createGraphicsPipeline()
@@ -144,7 +164,7 @@ namespace Spark
 		vertexInputInfo.pVertexBindingDescriptions = &bindingDescription;
 		vertexInputInfo.pVertexAttributeDescriptions = attributeDescriptions.data();
 
-		std::array<VkDescriptorSetLayout, 1> descriptorSets = { m_transformationDescriptorSetLayout };
+		std::array<VkDescriptorSetLayout, 2> descriptorSets = { m_transformationDescriptorSetLayout, m_textureDescriptorSetLayout };
 
 		VkPipelineLayoutCreateInfo pipelineLayoutInfo{};
 		pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
