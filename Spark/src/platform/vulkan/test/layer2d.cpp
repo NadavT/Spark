@@ -13,6 +13,9 @@ namespace Spark
 		, m_uniformTransformations()
 		, m_uniformTransformationsMemory()
 		, m_transfomationDescriptorSets()
+		, m_texture(nullptr)
+		, m_sampler(nullptr)
+		, m_textureDescriptorSets()
 		, m_commandBuffers()
 	{
 		m_framebuffer = renderer.createFramebuffer(VulkanFramebufferType::Type2D);
@@ -20,7 +23,9 @@ namespace Spark
 		m_commandBuffers.resize(renderer.getImagesAmount());
 		m_quad = std::make_unique<Quad>(m_renderer.m_context, glm::vec2(-0.5, -0.5));
 		m_renderer.createUniformBuffers(sizeof(Transformation2D), m_uniformTransformations, m_uniformTransformationsMemory);
-		m_pipeline->createDescriptorSets(m_transfomationDescriptorSets, m_uniformTransformations);
+		m_texture = std::make_unique<VulkanTexture>(renderer.m_context, "texture", "C:\\Users\\NadavT\\Pictures\\poke.png");
+		m_sampler = std::make_unique<VulkanTextureSampler>(renderer.m_context, "sampler");
+		m_pipeline->createDescriptorSets(m_transfomationDescriptorSets, m_uniformTransformations, m_textureDescriptorSets, m_texture->getImageView(), m_sampler->getSampler());
 		for (int i = 0; i < m_commandBuffers.size(); i++)
 		{
 			m_commandBuffers[i] = renderer.m_context.createCommandBuffer();
@@ -101,7 +106,7 @@ namespace Spark
 			m_renderer.beginRenderPass(commandBuffer, m_framebuffer->getRenderPass(),
 				m_framebuffer->getswapChainFramebuffers()[i]);
 
-			m_pipeline->bind(commandBuffer, m_transfomationDescriptorSets[i]);
+			m_pipeline->bind(commandBuffer, m_transfomationDescriptorSets[i], m_textureDescriptorSets[i]);
 
 			m_quad->fillCommandBuffer(commandBuffer);
 

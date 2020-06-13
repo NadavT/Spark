@@ -4,6 +4,8 @@
 #include "platform/vulkan/renderer.h"
 #include "platform/vulkan/pipeline/pipeline2d.h"
 #include "platform/vulkan/test/quad.h"
+#include "platform/vulkan/resource/texture.h"
+#include "platform/vulkan/resource/texture_sampler.h"
 
 #include "spark/event/keyboard_event.h"
 
@@ -34,6 +36,10 @@ namespace Spark
 		std::vector<VkBuffer> m_uniformTransformations;
 		std::vector<VkDeviceMemory> m_uniformTransformationsMemory;
 		std::vector<VkDescriptorSet> m_transfomationDescriptorSets;
+
+		std::unique_ptr<VulkanTexture> m_texture;
+		std::unique_ptr<VulkanTextureSampler> m_sampler;
+		std::vector<VkDescriptorSet> m_textureDescriptorSets;
 
 		std::vector<VkCommandBuffer> m_commandBuffers;
 	};
