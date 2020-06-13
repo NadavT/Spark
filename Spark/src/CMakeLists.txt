@@ -28,7 +28,9 @@ set(SPARK_VULKAN_SOURCE
     "platform/vulkan/test/quad.cpp"
     "platform/vulkan/test/triangle_layer.cpp"
     "platform/vulkan/test/layer2d.cpp"
-)
+    "platform/vulkan/resource/texture.cpp"
+    "platform/vulkan/resource/texture_sampler.cpp"
+    )
 
 set(SPARK_IMGUI_SOURCE
     ${PROJECT_SOURCE_DIR}/vendor/imgui/imgui.cpp
@@ -46,12 +48,12 @@ add_library(spark SHARED ${SPARK_SOURCE} ${SPARK_WINDOWS_SOURCE} ${SPARK_VULKAN_
 set_property(TARGET spark PROPERTY CXX_STANDARD 17)
 
 target_include_directories(spark PUBLIC ${PROJECT_SOURCE_DIR}/src ${PROJECT_SOURCE_DIR}/vendor/spdlog/include)
-target_include_directories(spark PRIVATE ${PROJECT_SOURCE_DIR}/vendor/glfw/include Vulkan::Vulkan ${PROJECT_SOURCE_DIR}/vendor/imgui ${PROJECT_SOURCE_DIR}/src ${PROJECT_SOURCE_DIR}/vendor/glm)
+target_include_directories(spark PRIVATE ${PROJECT_SOURCE_DIR}/vendor/glfw/include Vulkan::Vulkan ${PROJECT_SOURCE_DIR}/vendor/imgui ${PROJECT_SOURCE_DIR}/src ${PROJECT_SOURCE_DIR}/vendor/glm ${PROJECT_SOURCE_DIR}/vendor/stb)
 
 target_link_libraries(spark PRIVATE glfw Vulkan::Vulkan)
 
 target_compile_definitions(spark PUBLIC SPARK_DYNAMIC_LINK)
-target_compile_definitions(spark PRIVATE SPARK_BUILD_DLL SPARK_PLATFORM_VULKAN VK_USE_PLATFORM_WIN32_KHR NOMINMAX)
+target_compile_definitions(spark PRIVATE SPARK_BUILD_DLL SPARK_PLATFORM_VULKAN VK_USE_PLATFORM_WIN32_KHR NOMINMAX STB_IMAGE_IMPLEMENTATION)
 if(CMAKE_BUILD_TYPE STREQUAL "Debug")
     target_compile_definitions(spark PRIVATE SPARK_DEBUG)
 endif()
