@@ -11,7 +11,6 @@ layout(location = 1) in vec3 inColor;
 layout(location = 0) out vec3 fragColor;
 
 void main() {
-    vec4 final_position = transformation.transformMatrix * vec4(inPosition, 1.0, 1.0);
-    gl_Position = final_position;
+    gl_Position = transformation.transformMatrix * vec4(inPosition, 1.0, 1.0);
     fragColor = inColor;
 }
