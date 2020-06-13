@@ -147,7 +147,7 @@ namespace Spark
 			}
 
 			resetFence(&m_inFlightFences[m_currentFrame]);
-			queueSubmits(infos.size(), infos.data(), m_inFlightFences[m_currentFrame]);
+			queueSubmits(static_cast<uint32_t>(infos.size()), infos.data(), m_inFlightFences[m_currentFrame]);
 
 			VkSwapchainKHR swapChains[] = { m_context.m_swapChain };
 

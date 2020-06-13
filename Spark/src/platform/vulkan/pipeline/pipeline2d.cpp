@@ -148,7 +148,7 @@ namespace Spark
 
 		VkPipelineLayoutCreateInfo pipelineLayoutInfo{};
 		pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
-		pipelineLayoutInfo.setLayoutCount = descriptorSets.size();
+		pipelineLayoutInfo.setLayoutCount = static_cast<uint32_t>(descriptorSets.size());
 		pipelineLayoutInfo.pSetLayouts = descriptorSets.data();
 		pipelineLayoutInfo.pushConstantRangeCount = 0;
 
