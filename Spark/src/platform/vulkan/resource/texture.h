@@ -1,12 +1,12 @@
 #pragma once
 
-#include "resource.h"
+#include "spark/resource/texture.h"
 
 #include "platform/vulkan/vulkan_context.h"
 
 namespace Spark
 {
-	class VulkanTexture : public VulkanResourse
+	class VulkanTexture : public Texture
 	{
 	public:
 		VulkanTexture(VulkanContext& context, const std::string& name, const std::string& path);
@@ -21,4 +21,3 @@ namespace Spark
 		VkImageView m_textureImageView;
 	};
 }
-

@@ -3,9 +3,10 @@
 #include "spark/core/layer.h"
 #include "platform/vulkan/renderer.h"
 #include "platform/vulkan/pipeline/pipeline2d.h"
-#include "platform/vulkan/test/quad.h"
+#include "platform/vulkan/drawables/quad.h"
 #include "platform/vulkan/resource/texture.h"
 #include "platform/vulkan/resource/texture_sampler.h"
+#include "platform/vulkan/layers/layer_renderer_2d.h"
 
 #include "spark/event/keyboard_event.h"
 
@@ -24,23 +25,15 @@ namespace Spark
 		virtual void OnRender();
 
 	private:
-		void createCommandBuffers();
-
 		bool handleKeyPressed(KeyPressedEvent& e);
 	private:
 		VulkanRenderer& m_renderer;
-		VulkanFramebuffer* m_framebuffer;
-		VulkanPipeline2D* m_pipeline;
+		VulkanLayerRenderer2D m_layer_renderer;
 
-		std::unique_ptr<Quad> m_quad;
-		std::vector<VkBuffer> m_uniformTransformations;
-		std::vector<VkDeviceMemory> m_uniformTransformationsMemory;
-		std::vector<VkDescriptorSet> m_transfomationDescriptorSets;
+		std::unique_ptr<VulkanQuad> m_quad;
+		std::unique_ptr<VulkanQuad> m_quad2;
 
 		std::unique_ptr<VulkanTexture> m_texture;
 		std::unique_ptr<VulkanTextureSampler> m_sampler;
-		std::vector<VkDescriptorSet> m_textureDescriptorSets;
-
-		std::vector<VkCommandBuffer> m_commandBuffers;
 	};
 }

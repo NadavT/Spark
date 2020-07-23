@@ -4,15 +4,14 @@
 
 namespace Spark
 {
-	class VulkanResourse
+	class Resource
 	{
 	public:
 		std::string getName() const { return m_name; };
 	protected:
-		explicit VulkanResourse(const std::string& name) :m_name(name) {};
-		virtual ~VulkanResourse() = default;
+		explicit Resource(const std::string& name) :m_name(name) {};
+		virtual ~Resource() = default;
 	private:
 		std::string m_name;
 	};
 }
-

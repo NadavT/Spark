@@ -1,6 +1,8 @@
 # Build Dir
 build
+build_vscode
 
 # Visual Studio
 .vs
 CMakeSettings.json
+.vscode

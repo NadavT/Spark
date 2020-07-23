@@ -24,12 +24,17 @@ namespace Spark
 
 		SPARK_API void Run();
 
+		SPARK_API static const Application& GetApp();
+
 		const Window& GetWindow() const;
+		Renderer& GetRenderer() const;
 	private:
 		void Render();
 		bool OnWindowClose(WindowCloseEvent& e);
 		bool OnWindowResize(WindowResizeEvent& e);
 	private:
+		static Application* m_app;
+
 		std::unique_ptr<Window> m_window;
 		std::unique_ptr<Renderer> m_renderer;
 		bool m_shouldClose = false;

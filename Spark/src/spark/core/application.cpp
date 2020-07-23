@@ -13,8 +13,12 @@ double FPS_LIMIT = 1.0 / 120;
 
 namespace Spark
 {
+	Application* Application::m_app = nullptr;
+
 	Application::Application()
 	{
+		SPARK_CORE_ASSERT(m_app == nullptr, "App was already created");
+		m_app = this;
 		loggerInit();
 
 		m_window = Window::Create();
@@ -26,8 +30,8 @@ namespace Spark
 
 		m_testLayer = std::make_unique<VulkanTriangleLayer>(reinterpret_cast<VulkanRenderer&>(*m_renderer));
 		m_2dLayer = std::make_unique<VulkanLayer2D>(reinterpret_cast<VulkanRenderer&>(*m_renderer));
-		PushLayer(m_2dLayer.get());
 		PushLayer(m_testLayer.get());
+		PushLayer(m_2dLayer.get());
 
 		m_overlay = Overlay::Create(*m_renderer);
 		m_overlay->OnAttach();
@@ -124,9 +128,22 @@ namespace Spark
 		m_renderer->waitForIdle();
 	}
 
+	const Application& Application::GetApp()
+	{
+		SPARK_CORE_ASSERT(m_app != nullptr, "App wasn't initialized");
+		return *m_app;
+	}
+
 	const Window& Application::GetWindow() const
 	{
+		SPARK_CORE_ASSERT(m_app != nullptr, "Window wasn't initialized");
 		return *m_window;
+	}
+
+	Renderer& Application::GetRenderer() const
+	{
+		SPARK_CORE_ASSERT(m_app != nullptr, "Renderer wasn't initialized");
+		return *m_renderer;
 	}
 
 	void Application::Render()

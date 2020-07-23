@@ -82,6 +82,11 @@ namespace Spark
 		cleanupMultisamplesResources();
 	}
 
+	VulkanContext& VulkanRenderer::getContext()
+	{
+		return m_context;
+	}
+
 	bool VulkanRenderer::begin()
 	{
 		m_commandBuffers.clear();
@@ -433,6 +438,23 @@ namespace Spark
 			m_context.createBuffer(bufferSize, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
 				VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
 				uniformBuffers[i], uniformBuffersMemory[i]);
+		}
+	}
+
+	void VulkanRenderer::createUniformBuffers(VkDeviceSize size, std::vector<std::vector<VkBuffer>>& uniformBuffers, std::vector<std::vector<VkDeviceMemory>>& uniformBuffersMemory, unsigned int amount)
+	{
+		VkDeviceSize bufferSize = size;
+
+		uniformBuffers.resize(m_context.m_swapChainImages.size(), std::vector<VkBuffer>(amount));
+		uniformBuffersMemory.resize(m_context.m_swapChainImages.size(), std::vector<VkDeviceMemory>(amount));
+
+		for (size_t i = 0; i < m_context.m_swapChainImages.size(); i++) {
+			for (size_t j = 0; j < amount; j++)
+			{
+				m_context.createBuffer(bufferSize, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
+					VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
+					uniformBuffers[i][j], uniformBuffersMemory[i][j]);
+			}
 		}
 	}
 

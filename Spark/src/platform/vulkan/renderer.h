@@ -19,6 +19,8 @@ namespace Spark
 		VulkanRenderer(const Window& window);
 		virtual ~VulkanRenderer();
 
+		VulkanContext& getContext();
+
 		virtual bool begin();
 		virtual void end();
 
@@ -48,6 +50,7 @@ namespace Spark
 		void endRenderPass(VkCommandBuffer commandBuffer);
 		void queuePresent(const VkPresentInfoKHR* info);
 		void createUniformBuffers(VkDeviceSize size, std::vector<VkBuffer>& uniformBuffers, std::vector<VkDeviceMemory>& uniformBuffersMemory);
+		void createUniformBuffers(VkDeviceSize size, std::vector<std::vector<VkBuffer>>& uniformBuffers, std::vector<std::vector<VkDeviceMemory>>& uniformBuffersMemory, unsigned int amount);
 
 	private:
 		bool onWindowResize(WindowResizeEvent& e);

@@ -7,7 +7,9 @@ set(SPARK_SOURCE
     "spark/core/input.cpp"
     "spark/renderer/renderer.cpp"
     "spark/overlay/overlay.cpp"
-    "spark/utils/file.cpp")
+    "spark/utils/file.cpp"
+    "spark/resource/texture.cpp"
+     "spark/renderer/layer_renderer.cpp")
 
 set(SPARK_WINDOWS_SOURCE
     "platform/Windows/window.cpp"
@@ -30,7 +32,8 @@ set(SPARK_VULKAN_SOURCE
     "platform/vulkan/test/layer2d.cpp"
     "platform/vulkan/resource/texture.cpp"
     "platform/vulkan/resource/texture_sampler.cpp"
-    )
+    "platform/vulkan/layers/layer_renderer_2d.cpp"
+    "platform/vulkan/drawables/quad.cpp")
 
 set(SPARK_IMGUI_SOURCE
     ${PROJECT_SOURCE_DIR}/vendor/imgui/imgui.cpp
@@ -68,11 +71,11 @@ foreach(shader ${vert_shaders})
     get_filename_component(shader_name ${shader} NAME)
     string(REPLACE "." "_"  shader_output_name ${shader_name})
     string(APPEND shader_output_name ".spv")
-    message(${shader_output_name})
+    message(${shader})
     add_custom_command(OUTPUT ${APP_EXECUTABLE_PATH}/shaders/${shader_output_name}
                        COMMAND %VULKAN_SDK%/Bin/glslc.exe ${shader} -o ${PROJECT_BINARY_DIR}/shaders/${shader_output_name}
                        COMMAND ${CMAKE_COMMAND} -E copy ${PROJECT_BINARY_DIR}/shaders/${shader_output_name} ${APP_EXECUTABLE_PATH}/shaders
-                       DEPENDS ${shader}
+                       DEPENDS ${shader} ${APP_EXECUTABLE_PATH}/shaders
                        )
     add_custom_target(${shader_name}
                       DEPENDS ${APP_EXECUTABLE_PATH}/shaders/${shader_output_name}

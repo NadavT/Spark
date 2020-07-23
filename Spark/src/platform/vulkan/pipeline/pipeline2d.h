@@ -26,6 +26,10 @@ namespace Spark
 		void createDescriptorSets(std::vector<VkDescriptorSet>& transformationSets, std::vector<VkBuffer> transformationUniforms,
 			std::vector<VkDescriptorSet>& textureSets, VkImageView textureImageView, VkSampler textureSampler);
 
+		void createTransformationDescriptorSets(unsigned int drawablesAmount, std::vector<std::vector<VkDescriptorSet>>& transformationSets,
+			std::vector<std::vector<VkBuffer>> transformationUniforms);
+		void createTextureDescriptorSets(unsigned int texturesAmount, std::vector<std::vector<VkDescriptorSet>>& texturesSets, std::vector<VkImageView>& textureImageView, std::vector<VkSampler>& textureSampler);
+
 	private:
 		void createDescriptorSetLayout();
 		void createGraphicsPipeline();
