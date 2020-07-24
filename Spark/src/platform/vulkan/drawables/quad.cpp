@@ -13,7 +13,7 @@ namespace Spark
 		0, 1, 2, 2, 3, 0,
 	};
 
-	VulkanQuad::VulkanQuad(VulkanContext& context, glm::vec2 position, VulkanTexture& texture)
+	VulkanQuad::VulkanQuad(VulkanContext& context, glm::vec2 position, const VulkanTexture& texture)
 		: m_context(context)
 		, m_transformation()
 		, m_vertexBuffer(VK_NULL_HANDLE)
@@ -85,7 +85,7 @@ namespace Spark
 		m_transformation = glm::translate(m_transformation, position);
 	}
 	
-	VulkanTexture& VulkanQuad::getTexture() const
+	const VulkanTexture& VulkanQuad::getTexture() const
 	{
 		return m_texture;
 	}

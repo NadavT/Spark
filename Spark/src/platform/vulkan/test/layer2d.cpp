@@ -1,5 +1,7 @@
 #include "layer2d.h"
 
+#include "spark/resource/resource_manager.h"
+
 #include "platform/vulkan/pipeline/pipeline2d.h"
 
 namespace Spark
@@ -7,18 +9,12 @@ namespace Spark
 	VulkanLayer2D::VulkanLayer2D(VulkanRenderer& renderer)
 		: Layer("2d layer")
 		, m_renderer(renderer)
-		, m_quad(nullptr)
-		, m_texture(nullptr)
-		, m_sampler(nullptr)
 		, m_layer_renderer(renderer)
 	{
-		m_image = std::make_unique<VulkanTextureImage>(renderer.m_context, "texture image", "C:\\Users\\NadavT\\Pictures\\ball.png");
-		m_image2 = std::make_unique<VulkanTextureImage>(renderer.m_context, "texture image 2", "C:\\Users\\NadavT\\Pictures\\Untitled.png");
-		m_sampler = std::make_unique<VulkanTextureSampler>(renderer.m_context, "sampler");
-		m_texture = std::make_unique<VulkanTexture>("texture", *m_image, *m_sampler);
-		m_texture2 = std::make_unique<VulkanTexture>("texture2", *m_image2, *m_sampler);
-		m_quad = std::make_unique<VulkanQuad>(m_renderer.m_context, glm::vec2(-0.5, -0.5), *m_texture);
-		m_quad2 = std::make_unique<VulkanQuad>(m_renderer.m_context, glm::vec2(0.5, 0.5), *m_texture2);
+		const VulkanTexture& texture0 = reinterpret_cast<const VulkanTexture&>(ResourceManager::loadTexture("texture0", "C:\\Users\\NadavT\\Pictures\\ball.png"));
+		const VulkanTexture& texture1 = reinterpret_cast<const VulkanTexture&>(ResourceManager::loadTexture("texture1", "C:\\Users\\NadavT\\Pictures\\Untitled.png"));
+		m_quad = std::make_unique<VulkanQuad>(m_renderer.m_context, glm::vec2(-0.5, -0.5), texture0);
+		m_quad2 = std::make_unique<VulkanQuad>(m_renderer.m_context, glm::vec2(0.5, 0.5), texture1);
 		m_layer_renderer.addDrawable(m_quad.get());
 		m_layer_renderer.addDrawable(m_quad2.get());
 	}

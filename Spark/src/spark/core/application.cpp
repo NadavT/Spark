@@ -5,6 +5,7 @@
 #include "spark/core/log.h"
 #include "spark/core/time.h"
 #include "spark/core/input.h"
+#include "spark/resource/resource_manager.h"
 
 #include "platform/vulkan/test/triangle_layer.h"
 #include "platform/vulkan/test/layer2d.h"
@@ -27,6 +28,7 @@ namespace Spark
 		m_renderer = Renderer::Create(GetWindow());
 
 		Input::Init(*this);
+		ResourceManager::Init();
 
 		m_testLayer = std::make_unique<VulkanTriangleLayer>(reinterpret_cast<VulkanRenderer&>(*m_renderer));
 		m_2dLayer = std::make_unique<VulkanLayer2D>(reinterpret_cast<VulkanRenderer&>(*m_renderer));
@@ -45,6 +47,7 @@ namespace Spark
 		m_overlay.reset(nullptr);
 		m_testLayer.reset(nullptr);
 		m_2dLayer.reset(nullptr);
+		ResourceManager::Cleanup();
 		Input::Destroy();
 		m_renderer.reset(nullptr);
 		m_window.reset(nullptr);

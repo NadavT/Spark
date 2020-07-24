@@ -5,7 +5,7 @@
 namespace Spark
 {
 	VulkanTextureSampler::VulkanTextureSampler(VulkanContext& context, const std::string& name)
-		: Resource(name)
+		: Resource(name, ResourceType::internal)
 		, m_context(context)
 		, m_textureSampler(VK_NULL_HANDLE)
 	{

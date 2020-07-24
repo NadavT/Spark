@@ -9,6 +9,7 @@ set(SPARK_SOURCE
     "spark/overlay/overlay.cpp"
     "spark/utils/file.cpp"
     "spark/resource/texture.cpp"
+    "spark/resource/resource_manager.cpp"
      "spark/renderer/layer_renderer.cpp")
 
 set(SPARK_WINDOWS_SOURCE

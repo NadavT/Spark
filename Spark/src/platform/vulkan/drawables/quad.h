@@ -11,7 +11,7 @@ namespace Spark
 	class VulkanQuad : public Drawable
 	{
 	public:
-		VulkanQuad(VulkanContext& context, glm::vec2 position, VulkanTexture& texture);
+		VulkanQuad(VulkanContext& context, glm::vec2 position, const VulkanTexture& texture);
 		virtual ~VulkanQuad();
 		VulkanQuad(const VulkanQuad& other);
 		VulkanQuad(VulkanQuad&& other) noexcept;
@@ -23,7 +23,7 @@ namespace Spark
 
 		virtual void move(glm::vec2 position);
 
-		virtual VulkanTexture& getTexture() const;
+		virtual const VulkanTexture& getTexture() const;
 
 	private:
 		void copyQuad(const VulkanQuad& other);
@@ -36,6 +36,6 @@ namespace Spark
 		VkDeviceMemory m_vertexBufferMemory;
 		VkDeviceSize m_verticesOffset;
 		VkDeviceSize m_indicesOffset;
-		VulkanTexture& m_texture;
+		const VulkanTexture& m_texture;
 	};
 }

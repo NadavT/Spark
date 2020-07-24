@@ -7,7 +7,7 @@
 namespace Spark
 {
 	VulkanTextureImage::VulkanTextureImage(VulkanContext& context, const std::string& name, const std::string& path)
-		: Resource(name)
+		: Resource(name, ResourceType::internal)
 		, m_context(context)
 		, m_textureImage(VK_NULL_HANDLE)
 		, m_textureImageMemory(VK_NULL_HANDLE)

@@ -13,5 +13,5 @@ namespace Spark
 		virtual ~Texture() = default;
 	};
 
-	//std::unique_ptr<Texture> createTexture(const std::string& name, const std::string& path);
+	std::unique_ptr<Texture> createTexture(const std::string& name, const std::string& path);
 }
