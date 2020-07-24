@@ -12,10 +12,13 @@ namespace Spark
 		, m_sampler(nullptr)
 		, m_layer_renderer(renderer)
 	{
-		m_texture = std::make_unique<VulkanTexture>(renderer.m_context, "texture", "C:\\Users\\nadav\\onedrive\\Pictures\\Capture.png");
+		m_image = std::make_unique<VulkanTextureImage>(renderer.m_context, "texture image", "C:\\Users\\NadavT\\Pictures\\ball.png");
+		m_image2 = std::make_unique<VulkanTextureImage>(renderer.m_context, "texture image 2", "C:\\Users\\NadavT\\Pictures\\Untitled.png");
 		m_sampler = std::make_unique<VulkanTextureSampler>(renderer.m_context, "sampler");
-		m_quad = std::make_unique<VulkanQuad>(m_renderer.m_context, glm::vec2(-0.5, -0.5), *m_texture, *m_sampler);
-		m_quad2 = std::make_unique<VulkanQuad>(m_renderer.m_context, glm::vec2(0.5, 0.5), *m_texture, *m_sampler);
+		m_texture = std::make_unique<VulkanTexture>("texture", *m_image, *m_sampler);
+		m_texture2 = std::make_unique<VulkanTexture>("texture2", *m_image2, *m_sampler);
+		m_quad = std::make_unique<VulkanQuad>(m_renderer.m_context, glm::vec2(-0.5, -0.5), *m_texture);
+		m_quad2 = std::make_unique<VulkanQuad>(m_renderer.m_context, glm::vec2(0.5, 0.5), *m_texture2);
 		m_layer_renderer.addDrawable(m_quad.get());
 		m_layer_renderer.addDrawable(m_quad2.get());
 	}

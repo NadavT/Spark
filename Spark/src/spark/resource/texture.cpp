@@ -15,11 +15,11 @@ namespace Spark
 
     }
 
-    std::unique_ptr<Texture> createTexture(const std::string& name, const std::string& path)
-    {
-#ifdef SPARK_PLATFORM_VULKAN
-        VulkanContext& context = reinterpret_cast<VulkanRenderer&>(Application::GetApp().GetRenderer()).getContext();
-		return std::make_unique<VulkanTexture>(context, name, path);
-#endif // SPARK_PLATFORM_VULKAN
-    }
+//     std::unique_ptr<Texture> createTexture(const std::string& name, const std::string& path)
+//     {
+// #ifdef SPARK_PLATFORM_VULKAN
+//         VulkanContext& context = reinterpret_cast<VulkanRenderer&>(Application::GetApp().GetRenderer()).getContext();
+// 		return std::make_unique<VulkanTexture>(context, name, path);
+// #endif // SPARK_PLATFORM_VULKAN
+//     }
 }

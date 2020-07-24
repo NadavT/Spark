@@ -3,21 +3,22 @@
 #include "spark/resource/texture.h"
 
 #include "platform/vulkan/vulkan_context.h"
+#include "platform/vulkan/resource/texture_image.h"
+#include "platform/vulkan/resource/texture_sampler.h"
 
 namespace Spark
 {
 	class VulkanTexture : public Texture
 	{
 	public:
-		VulkanTexture(VulkanContext& context, const std::string& name, const std::string& path);
+		VulkanTexture(const std::string& name, const VulkanTextureImage& image, const VulkanTextureSampler& sampler);
 		virtual ~VulkanTexture();
 
-		VkImageView getImageView() const;
+		const VulkanTextureImage& getImage() const;
+		const VulkanTextureSampler& getSampler() const;
 
 	private:
-		VulkanContext& m_context;
-		VkImage m_textureImage;
-		VkDeviceMemory m_textureImageMemory;
-		VkImageView m_textureImageView;
+		const VulkanTextureImage& m_image;
+		const VulkanTextureSampler& m_sampler;
 	};
 }

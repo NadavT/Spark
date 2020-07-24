@@ -33,7 +33,10 @@ namespace Spark
 		std::unique_ptr<VulkanQuad> m_quad;
 		std::unique_ptr<VulkanQuad> m_quad2;
 
-		std::unique_ptr<VulkanTexture> m_texture;
+		std::unique_ptr<VulkanTextureImage> m_image;
+		std::unique_ptr<VulkanTextureImage> m_image2;
 		std::unique_ptr<VulkanTextureSampler> m_sampler;
+		std::unique_ptr<VulkanTexture> m_texture;
+		std::unique_ptr<VulkanTexture> m_texture2;
 	};
 }

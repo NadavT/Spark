@@ -13,7 +13,7 @@ namespace Spark
 		0, 1, 2, 2, 3, 0,
 	};
 
-	VulkanQuad::VulkanQuad(VulkanContext& context, glm::vec2 position, VulkanTexture& texture, VulkanTextureSampler& sampler)
+	VulkanQuad::VulkanQuad(VulkanContext& context, glm::vec2 position, VulkanTexture& texture)
 		: m_context(context)
 		, m_transformation()
 		, m_vertexBuffer(VK_NULL_HANDLE)
@@ -21,7 +21,6 @@ namespace Spark
 		, m_verticesOffset(0)
 		, m_indicesOffset(0)
 		, m_texture(texture)
-		, m_sampler(sampler)
 	{
 		m_transformation = glm::translate(glm::mat3(1.0), position);
 
@@ -43,7 +42,6 @@ namespace Spark
 	VulkanQuad::VulkanQuad(const VulkanQuad& other)
 		: m_context(other.m_context)
 		, m_texture(other.m_texture)
-		, m_sampler(other.m_sampler)
 	{
 		copyQuad(other);
 	}
@@ -51,7 +49,6 @@ namespace Spark
 	VulkanQuad::VulkanQuad(VulkanQuad&& other) noexcept
 		: m_context(other.m_context)
 		, m_texture(other.m_texture)
-		, m_sampler(other.m_sampler)
 	{
 		moveQuad(other);
 	}
@@ -92,12 +89,7 @@ namespace Spark
 	{
 		return m_texture;
 	}
-	
-	VulkanTextureSampler& VulkanQuad::getSampler() const
-	{
-		return m_sampler;
-	}
-	
+		
 	void VulkanQuad::copyQuad(const VulkanQuad& other) 
 	{
 		m_transformation = other.m_transformation;

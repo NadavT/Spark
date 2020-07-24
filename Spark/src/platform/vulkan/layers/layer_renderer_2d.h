@@ -4,6 +4,8 @@
 #include "platform/vulkan/renderer.h"
 #include "platform/vulkan/pipeline/pipeline2d.h"
 
+#include <unordered_map>
+
 namespace Spark
 {
 	class VulkanLayerRenderer2D : public LayerRenderer
@@ -28,6 +30,7 @@ namespace Spark
 		std::vector<std::vector<VkDeviceMemory>> m_uniformTransformationsMemory;
 		std::vector<std::vector<VkDescriptorSet>> m_transfomationDescriptorSets;
 		std::vector<std::vector<VkDescriptorSet>> m_textureDescriptorSets;
+		std::unordered_map<std::string, unsigned int> m_textureDescriptorOffset;
 
 		std::vector<VkCommandBuffer> m_commandBuffers;
 	};

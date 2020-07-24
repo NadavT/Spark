@@ -46,16 +46,20 @@ namespace Spark
 	{
 		std::vector<VkImageView> textures;
 		std::vector<VkSampler> samplers;
-		m_renderer.createUniformBuffers(sizeof(Transformation2D), m_uniformTransformations, m_uniformTransformationsMemory, m_drawables.size());
-		m_pipeline->createTransformationDescriptorSets(m_drawables.size(), m_transfomationDescriptorSets, m_uniformTransformations);
+		m_renderer.createUniformBuffers(sizeof(Transformation2D), m_uniformTransformations, m_uniformTransformationsMemory, (unsigned int)m_drawables.size());
+		m_pipeline->createTransformationDescriptorSets((unsigned int)m_drawables.size(), m_transfomationDescriptorSets, m_uniformTransformations);
 		for (auto* drawable : m_drawables)
 		{
-			VulkanQuad* quad = reinterpret_cast<VulkanQuad*>(m_drawables[0]);
-			textures.push_back(quad->getTexture().getImageView());
-			samplers.push_back(quad->getSampler().getSampler());
+			VulkanQuad* quad = reinterpret_cast<VulkanQuad*>(drawable);
+			if (m_textureDescriptorOffset.find(quad->getTexture().getName()) == m_textureDescriptorOffset.end())
+			{
+				m_textureDescriptorOffset[quad->getTexture().getName()] = (unsigned int)textures.size();
+				textures.push_back(quad->getTexture().getImage().getImageView());
+				samplers.push_back(quad->getTexture().getSampler().getSampler());
+			}
 		}
 		
-		m_pipeline->createTextureDescriptorSets(m_drawables.size(), m_textureDescriptorSets, textures, samplers);
+		m_pipeline->createTextureDescriptorSets((unsigned int)textures.size(), m_textureDescriptorSets, textures, samplers);
 		createCommandBuffers();
 	}
 
@@ -78,18 +82,17 @@ namespace Spark
 
 		int i = 0;
 
-		for (Drawable* drawable : m_drawables)
+		for (size_t i = 0; i < m_drawables.size(); i++)
 		{
-			VulkanQuad* quad = reinterpret_cast<VulkanQuad*>(drawable);
+			VulkanQuad* quad = reinterpret_cast<VulkanQuad*>(m_drawables[i]);
 			void* data;
 			struct Transformation2D transformation = {};
 			transformation.transformMatrix = glm::mat4(quad->getTransformation());
 			vkMapMemory(m_renderer.m_context.m_device, m_uniformTransformationsMemory[m_renderer.getCurrentImageIndex()][i], 0, sizeof(transformation), 0, &data);
 			memcpy(data, &transformation, sizeof(transformation));
 			vkUnmapMemory(m_renderer.m_context.m_device, m_uniformTransformationsMemory[m_renderer.getCurrentImageIndex()][i]);
-			i++;
 		}
-
+		
 		VkCommandBuffer commandBuffer = m_commandBuffers[m_renderer.getCurrentImageIndex()];
 		m_renderer.render(commandBuffer);
 	}
@@ -110,8 +113,9 @@ namespace Spark
 
 			for (size_t j = 0; j < m_drawables.size(); j++)
 			{
-				m_pipeline->bind(commandBuffer, m_transfomationDescriptorSets[i][j], m_textureDescriptorSets[i][j]);
-				reinterpret_cast<VulkanQuad*>(m_drawables[j])->fillCommandBuffer(commandBuffer);
+				VulkanQuad* quad = reinterpret_cast<VulkanQuad*>(m_drawables[j]);
+				m_pipeline->bind(commandBuffer, m_transfomationDescriptorSets[i][j], m_textureDescriptorSets[i][m_textureDescriptorOffset[quad->getTexture().getName()]]);
+				quad->fillCommandBuffer(commandBuffer);
 			}
 
 			vkCmdEndRenderPass(commandBuffer);

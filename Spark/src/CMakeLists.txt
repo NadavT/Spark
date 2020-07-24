@@ -32,6 +32,7 @@ set(SPARK_VULKAN_SOURCE
     "platform/vulkan/test/layer2d.cpp"
     "platform/vulkan/resource/texture.cpp"
     "platform/vulkan/resource/texture_sampler.cpp"
+    "platform/vulkan/resource/texture_image.cpp"
     "platform/vulkan/layers/layer_renderer_2d.cpp"
     "platform/vulkan/drawables/quad.cpp")
 
