@@ -9,7 +9,15 @@
 #include "spark/event/event.h"
 
 //----------LAYERS----------
-#include "spark/core/layer.h"
+#include "spark/layer/layer.h"
+#include "spark/layer/layer2d.h"
 
 //----------INPUTS----------
 #include "spark/core/input.h"
+
+//---------DRAWABLES--------
+#include "spark/resource/resource_manager.h"
+
+//---------DRAWABLES--------
+#include "spark/renderer/drawable.h"
+#include "spark/renderer/drawables/quad.h"

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "spark/core/layer.h"
+#include "spark/layer/layer.h"
 #include "platform/vulkan/renderer.h"
 #include "platform/vulkan/pipeline/pipeline.h"
 

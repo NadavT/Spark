@@ -14,16 +14,14 @@ namespace Spark
 	};
 
 	VulkanQuad::VulkanQuad(VulkanContext& context, glm::vec2 position, const VulkanTexture& texture)
-		: m_context(context)
-		, m_transformation()
+		: Quad(position)
+		, m_context(context)
 		, m_vertexBuffer(VK_NULL_HANDLE)
 		, m_vertexBufferMemory(VK_NULL_HANDLE)
 		, m_verticesOffset(0)
 		, m_indicesOffset(0)
 		, m_texture(texture)
 	{
-		m_transformation = glm::translate(glm::mat3(1.0), position);
-
 		createVertex2DBuffer(context, m_vertexBuffer, m_vertexBufferMemory, m_verticesOffset, m_indicesOffset, quad_vertices, quad_indices);
 	}
 	
@@ -40,14 +38,16 @@ namespace Spark
 	}
 	
 	VulkanQuad::VulkanQuad(const VulkanQuad& other)
-		: m_context(other.m_context)
+		: Quad(other)
+		, m_context(other.m_context)
 		, m_texture(other.m_texture)
 	{
 		copyQuad(other);
 	}
 	
 	VulkanQuad::VulkanQuad(VulkanQuad&& other) noexcept
-		: m_context(other.m_context)
+		: Quad(other)
+		, m_context(other.m_context)
 		, m_texture(other.m_texture)
 	{
 		moveQuad(other);
@@ -75,16 +75,6 @@ namespace Spark
 		vkCmdDrawIndexed(commandBuffer, static_cast<uint32_t>(quad_indices.size()), 1, 0, 0, 0);
 	}
 	
-	glm::mat3 VulkanQuad::getTransformation() 
-	{
-		return m_transformation;
-	}
-	
-	void VulkanQuad::move(glm::vec2 position) 
-	{
-		m_transformation = glm::translate(m_transformation, position);
-	}
-	
 	const VulkanTexture& VulkanQuad::getTexture() const
 	{
 		return m_texture;
@@ -92,13 +82,11 @@ namespace Spark
 		
 	void VulkanQuad::copyQuad(const VulkanQuad& other) 
 	{
-		m_transformation = other.m_transformation;
 		createVertex2DBuffer(m_context, m_vertexBuffer, m_vertexBufferMemory, m_verticesOffset, m_indicesOffset, quad_vertices, quad_indices);
 	}
 	
 	void VulkanQuad::moveQuad(VulkanQuad& other) noexcept
 	{
-		m_transformation = other.m_transformation;
 		m_vertexBuffer = other.m_vertexBuffer;
 		other.m_vertexBuffer = VK_NULL_HANDLE;
 		m_vertexBufferMemory = other.m_vertexBufferMemory;

@@ -4,11 +4,11 @@
 #include "platform/vulkan/resource/texture.h"
 #include "platform/vulkan/resource/texture_sampler.h"
 
-#include "spark/renderer/drawable.h"
+#include "spark/renderer/drawables/quad.h"
 
 namespace Spark
 {
-	class VulkanQuad : public Drawable
+	class VulkanQuad : public Quad
 	{
 	public:
 		VulkanQuad(VulkanContext& context, glm::vec2 position, const VulkanTexture& texture);
@@ -19,9 +19,6 @@ namespace Spark
 		VulkanQuad& operator=(VulkanQuad&& other) noexcept;
 
 		void fillCommandBuffer(VkCommandBuffer commandBuffer);
-		virtual glm::mat3 getTransformation();
-
-		virtual void move(glm::vec2 position);
 
 		virtual const VulkanTexture& getTexture() const;
 
@@ -31,7 +28,6 @@ namespace Spark
 
 	private:
 		VulkanContext& m_context;
-		glm::mat3 m_transformation;
 		VkBuffer m_vertexBuffer;
 		VkDeviceMemory m_vertexBufferMemory;
 		VkDeviceSize m_verticesOffset;

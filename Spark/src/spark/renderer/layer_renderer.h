@@ -16,17 +16,17 @@ namespace Spark
 	class LayerRenderer
 	{
 	public:
-		SPARK_API virtual ~LayerRenderer() = default;
+		virtual ~LayerRenderer() = default;
 
-		SPARK_API virtual void OnAttach() = 0;
-		SPARK_API virtual void OnDetach() = 0;
-		SPARK_API virtual void OnRender() = 0;
+		virtual void OnAttach() = 0;
+		virtual void OnDetach() = 0;
+		virtual void OnRender() = 0;
 
-		SPARK_API virtual void addDrawable(Drawable* drawable);
-		SPARK_API virtual void removeDrawable(Drawable* drawable);
+		virtual void addDrawable(Drawable* drawable);
+		virtual void removeDrawable(Drawable* drawable);
 
 	protected:
-		SPARK_API LayerRenderer();
+		LayerRenderer();
 
 	protected:
 		std::vector<Drawable*> m_drawables;

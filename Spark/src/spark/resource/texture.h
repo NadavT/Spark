@@ -1,5 +1,7 @@
 #pragma once
 
+#include "spark/core/core.h"
+
 #include "resource.h"
 
 #include <memory>
@@ -13,5 +15,5 @@ namespace Spark
 		virtual ~Texture() = default;
 	};
 
-	std::unique_ptr<Texture> createTexture(const std::string& name, const std::string& path);
+	SPARK_API std::unique_ptr<Texture> createTexture(const std::string& name, const std::string& path);
 }

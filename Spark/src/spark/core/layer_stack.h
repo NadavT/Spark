@@ -1,6 +1,6 @@
 #pragma once
 
-#include "spark/core/layer.h"
+#include "spark/layer/layer.h"
 
 #include <vector>
 

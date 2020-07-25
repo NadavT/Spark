@@ -2,15 +2,18 @@ set(SPARK_SOURCE
     "spark/core/application.cpp"
     "spark/core/log.cpp"
     "spark/core/window.cpp"
-    "spark/core/layer.cpp"
     "spark/core/layer_stack.cpp"
     "spark/core/input.cpp"
+    "spark/layer/layer.cpp"
+    "spark/layer/layer2d.cpp"
     "spark/renderer/renderer.cpp"
+    "spark/renderer/layer_renderer.cpp"
+    "spark/renderer/drawables/quad.cpp"
     "spark/overlay/overlay.cpp"
     "spark/utils/file.cpp"
     "spark/resource/texture.cpp"
     "spark/resource/resource_manager.cpp"
-     "spark/renderer/layer_renderer.cpp")
+     )
 
 set(SPARK_WINDOWS_SOURCE
     "platform/Windows/window.cpp"
@@ -28,7 +31,6 @@ set(SPARK_VULKAN_SOURCE
     "platform/vulkan/pipeline/pipeline2d.cpp"
     "platform/vulkan/pipeline/pipeline_triangle.cpp"
     "platform/vulkan/vertex/vertex2d.cpp"
-    "platform/vulkan/test/quad.cpp"
     "platform/vulkan/test/triangle_layer.cpp"
     "platform/vulkan/test/layer2d.cpp"
     "platform/vulkan/resource/texture.cpp"
@@ -52,8 +54,8 @@ add_library(spark SHARED ${SPARK_SOURCE} ${SPARK_WINDOWS_SOURCE} ${SPARK_VULKAN_
 
 set_property(TARGET spark PROPERTY CXX_STANDARD 17)
 
-target_include_directories(spark PUBLIC ${PROJECT_SOURCE_DIR}/src ${PROJECT_SOURCE_DIR}/vendor/spdlog/include)
-target_include_directories(spark PRIVATE ${PROJECT_SOURCE_DIR}/vendor/glfw/include Vulkan::Vulkan ${PROJECT_SOURCE_DIR}/vendor/imgui ${PROJECT_SOURCE_DIR}/src ${PROJECT_SOURCE_DIR}/vendor/glm ${PROJECT_SOURCE_DIR}/vendor/stb)
+target_include_directories(spark PUBLIC ${PROJECT_SOURCE_DIR}/src ${PROJECT_SOURCE_DIR}/vendor/spdlog/include ${PROJECT_SOURCE_DIR}/vendor/glm)
+target_include_directories(spark PRIVATE ${PROJECT_SOURCE_DIR}/vendor/glfw/include Vulkan::Vulkan ${PROJECT_SOURCE_DIR}/vendor/imgui ${PROJECT_SOURCE_DIR}/src ${PROJECT_SOURCE_DIR}/vendor/stb)
 
 target_link_libraries(spark PRIVATE glfw Vulkan::Vulkan)
 
