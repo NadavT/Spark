@@ -28,14 +28,7 @@ namespace Spark
 		{
 			m_renderer.m_context.destroyCommandBuffer(m_commandBuffers[i]);
 		}
-		for (size_t i = 0; i < m_uniformTransformations.size(); i++)
-		{
-			for (size_t j = 0; j < m_uniformTransformations[i].size(); j++)
-			{
-				vkDestroyBuffer(m_renderer.m_context.m_device, m_uniformTransformations[i][j], nullptr);
-				vkFreeMemory(m_renderer.m_context.m_device, m_uniformTransformationsMemory[i][j], nullptr);
-			}
-		}
+
 		m_renderer.destroyPipeline(m_pipeline);
 		m_pipeline = nullptr;
 		m_renderer.destroyFramebuffer(m_framebuffer);
@@ -67,6 +60,21 @@ namespace Spark
 	{
 		for (VkCommandBuffer commandBuffer : m_commandBuffers) {
 			m_renderer.resetCommandBuffer(commandBuffer);
+		}
+
+		for (size_t i = 0; i < m_textureDescriptorSets.size(); i++)
+		{
+			vkFreeDescriptorSets(m_renderer.m_context.m_device, m_renderer.m_context.m_descriptorPool, (unsigned int)m_textureDescriptorSets[i].size(), m_textureDescriptorSets[i].data());
+		}
+
+		for (size_t i = 0; i < m_uniformTransformations.size(); i++)
+		{
+			vkFreeDescriptorSets(m_renderer.m_context.m_device, m_renderer.m_context.m_descriptorPool, (unsigned int)m_transfomationDescriptorSets[i].size(), m_transfomationDescriptorSets[i].data());
+			for (size_t j = 0; j < m_uniformTransformations[i].size(); j++)
+			{
+				vkDestroyBuffer(m_renderer.m_context.m_device, m_uniformTransformations[i][j], nullptr);
+				vkFreeMemory(m_renderer.m_context.m_device, m_uniformTransformationsMemory[i][j], nullptr);
+			}
 		}
 	}
 
