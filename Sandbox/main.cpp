@@ -29,10 +29,34 @@ public:
 		Layer2D::OnUpdate(diffTime);
 	}
 
+	bool handleKeyPressed(Spark::KeyPressedEvent& e)
+	{
+		switch (e.GetKeyCode())
+		{
+		case Spark::KeyCode::Left:
+			m_quad->move({-0.05, 0});
+			return true;
+		case Spark::KeyCode::Right:
+			m_quad->move({0.05, 0});
+			return true;
+		case Spark::KeyCode::Down:
+			m_quad->move({0, 0.05});
+			return true;
+		case Spark::KeyCode::Up:
+			m_quad->move({0, -0.05});
+			return true;
+		default:
+			return false;
+		}
+	}
+
 	virtual void OnEvent(Spark::Event& e)
 	{
 		Layer2D::OnEvent(e);
+		Spark::EventDispatcher dispatcher(e);
+		dispatcher.Dispatch<Spark::KeyPressedEvent>(SPARK_BIND_EVENT_FN(SandboxLayer::handleKeyPressed));
 	}
+
 
 private:
 	std::unique_ptr<Spark::Quad> m_quad;

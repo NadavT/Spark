@@ -7,6 +7,9 @@
 
 //----------EVENTS----------
 #include "spark/event/event.h"
+#include "spark/event/keyboard_event.h"
+#include "spark/event/mouse_event.h"
+#include "spark/event/application_event.h"
 
 //----------LAYERS----------
 #include "spark/layer/layer.h"
