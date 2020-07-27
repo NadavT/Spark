@@ -50,7 +50,7 @@ namespace Spark
         Resource* resource = getResource(name);
         if (resource == nullptr || resource->getType() != ResourceType::texture)
         {
-            SPARK_CORE_ERROR("Couldn't find requested texture: " + name);
+            SPARK_CORE_WARN("Couldn't find requested texture: " + name);
             return nullptr;
         }
 
