@@ -18,7 +18,7 @@ namespace Spark
 		std::string getName() const { return m_name; };
 		ResourceType getType() const { return m_type; };
 	protected:
-		explicit Resource(const std::string& name, ResourceType type) :m_name(name) {};
+		Resource(const std::string& name, ResourceType type) :m_name(name), m_type(type) {};
 	private:
 		std::string m_name;
 		ResourceType m_type;
