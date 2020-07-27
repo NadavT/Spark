@@ -56,86 +56,28 @@ namespace Spark
 		return m_textureDescriptorSetLayout;
 	}
 
-	void VulkanPipeline2D::createDescriptorSets(std::vector<VkDescriptorSet>& transformationSets, std::vector<VkBuffer> transformationUniforms,
-		std::vector<VkDescriptorSet>& textureSets, VkImageView textureImageView, VkSampler textureSampler)
+	void VulkanPipeline2D::createTransformationDescriptorSets(unsigned int drawablesAmount, std::vector<std::vector<VkDescriptorSet>>& transformationSets, std::vector<std::vector<VkBuffer>> transformationUniforms)
 	{
 		std::vector<VkDescriptorSetLayout> transformationLayouts(m_context.m_swapChainImages.size(), m_transformationDescriptorSetLayout);
 		VkDescriptorSetAllocateInfo allocInfo = {};
+		transformationSets.resize(drawablesAmount, std::vector<VkDescriptorSet>(m_context.m_swapChainImages.size()));
 		allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
 		allocInfo.descriptorPool = m_context.m_descriptorPool;
 		allocInfo.descriptorSetCount = static_cast<uint32_t>(m_context.m_swapChainImages.size());
 		allocInfo.pSetLayouts = transformationLayouts.data();
-		transformationSets.resize(m_context.m_swapChainImages.size());
-		SPARK_CORE_ASSERT(vkAllocateDescriptorSets(m_context.m_device, &allocInfo, transformationSets.data()) == VK_SUCCESS, "Failed to allocate descriptor sets");
-
-		std::vector<VkDescriptorSetLayout> textureLayouts(m_context.m_swapChainImages.size(), m_textureDescriptorSetLayout);
-		allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
-		allocInfo.descriptorPool = m_context.m_descriptorPool;
-		allocInfo.descriptorSetCount = static_cast<uint32_t>(m_context.m_swapChainImages.size());
-		allocInfo.pSetLayouts = textureLayouts.data();
-		textureSets.resize(m_context.m_swapChainImages.size());
-		SPARK_CORE_ASSERT(vkAllocateDescriptorSets(m_context.m_device, &allocInfo, textureSets.data()) == VK_SUCCESS, "Failed to allocate descriptor sets");
-
-		for (size_t i = 0; i < m_context.m_swapChainImages.size(); i++)
-		{
-			VkDescriptorBufferInfo bufferInfo = {};
-			bufferInfo.buffer = transformationUniforms[i];
-			bufferInfo.offset = 0;
-			bufferInfo.range = sizeof(Transformation2D);
-
-			VkDescriptorImageInfo imageInfo{};
-			imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-			imageInfo.imageView = textureImageView;
-			imageInfo.sampler = textureSampler;
-
-			std::vector<VkWriteDescriptorSet> descriptorWrites = {};
-			VkWriteDescriptorSet writeDescripotrSet = {};
-
-			writeDescripotrSet.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-			writeDescripotrSet.dstSet = transformationSets[i];
-			writeDescripotrSet.dstBinding = 0;
-			writeDescripotrSet.dstArrayElement = 0;
-			writeDescripotrSet.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-			writeDescripotrSet.descriptorCount = 1;
-			writeDescripotrSet.pBufferInfo = &bufferInfo;
-			descriptorWrites.push_back(writeDescripotrSet);
-
-			writeDescripotrSet.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-			writeDescripotrSet.dstSet = textureSets[i];
-			writeDescripotrSet.dstBinding = 0;
-			writeDescripotrSet.dstArrayElement = 0;
-			writeDescripotrSet.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-			writeDescripotrSet.descriptorCount = 1;
-			writeDescripotrSet.pImageInfo = &imageInfo;
-			descriptorWrites.push_back(writeDescripotrSet);
-
-			vkUpdateDescriptorSets(m_context.m_device, static_cast<uint32_t>(descriptorWrites.size()),
-				descriptorWrites.data(), 0, nullptr);
-		}
-	}
-
-	void VulkanPipeline2D::createTransformationDescriptorSets(unsigned int drawablesAmount, std::vector<std::vector<VkDescriptorSet>>& transformationSets, std::vector<std::vector<VkBuffer>> transformationUniforms)
-	{
-		std::vector<VkDescriptorSetLayout> transformationLayouts(drawablesAmount, m_transformationDescriptorSetLayout);
-		VkDescriptorSetAllocateInfo allocInfo = {};
-		transformationSets.resize(m_context.m_swapChainImages.size(), std::vector<VkDescriptorSet>(drawablesAmount));
-		allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
-		allocInfo.descriptorPool = m_context.m_descriptorPool;
-		allocInfo.descriptorSetCount = drawablesAmount;
-		allocInfo.pSetLayouts = transformationLayouts.data();
-		for (size_t i = 0; i < m_context.m_swapChainImages.size(); i++)
+		for (size_t i = 0; i < drawablesAmount; i++)
 		{
 			SPARK_CORE_ASSERT(vkAllocateDescriptorSets(m_context.m_device, &allocInfo, transformationSets[i].data()) == VK_SUCCESS, "Failed to allocate descriptor sets");
 		}
 
 		std::vector<std::vector<VkDescriptorBufferInfo>> bufferInfos;
-		bufferInfos.resize(m_context.m_swapChainImages.size(), std::vector<VkDescriptorBufferInfo>(drawablesAmount));
+		bufferInfos.resize(drawablesAmount, std::vector<VkDescriptorBufferInfo>(m_context.m_swapChainImages.size()));
 
 		std::vector<VkWriteDescriptorSet> descriptorWrites = {};
 
-		for (size_t i = 0; i < m_context.m_swapChainImages.size(); i++)
+		for (size_t i = 0; i < drawablesAmount; i++)
 		{
-			for (size_t j = 0; j < drawablesAmount; j++)
+			for (size_t j = 0; j < m_context.m_swapChainImages.size(); j++)
 			{
 				bufferInfos[i][j].buffer = transformationUniforms[i][j];
 				bufferInfos[i][j].offset = 0;
@@ -160,30 +102,30 @@ namespace Spark
 
 	void VulkanPipeline2D::createTextureDescriptorSets(unsigned int texturesAmount, std::vector<std::vector<VkDescriptorSet>>& texturesSets, std::vector<VkImageView>& textureImageView, std::vector<VkSampler>& textureSampler)
 	{
-		std::vector<VkDescriptorSetLayout> textureLayouts(texturesAmount, m_textureDescriptorSetLayout);
+		std::vector<VkDescriptorSetLayout> textureLayouts(m_context.m_swapChainImages.size(), m_textureDescriptorSetLayout);
 		VkDescriptorSetAllocateInfo allocInfo = {};
-		texturesSets.resize(m_context.m_swapChainImages.size(), std::vector<VkDescriptorSet>(texturesAmount));
+		texturesSets.resize(texturesAmount, std::vector<VkDescriptorSet>(m_context.m_swapChainImages.size()));
 		allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
 		allocInfo.descriptorPool = m_context.m_descriptorPool;
-		allocInfo.descriptorSetCount = texturesAmount;
+		allocInfo.descriptorSetCount = static_cast<uint32_t>(m_context.m_swapChainImages.size());
 		allocInfo.pSetLayouts = textureLayouts.data();
-		for (size_t i = 0; i < m_context.m_swapChainImages.size(); i++)
+		for (size_t i = 0; i < texturesAmount; i++)
 		{
 			SPARK_CORE_ASSERT(vkAllocateDescriptorSets(m_context.m_device, &allocInfo, texturesSets[i].data()) == VK_SUCCESS, "Failed to allocate descriptor sets");
 		}
 
 		std::vector<std::vector<VkDescriptorImageInfo>> imageInfos;
-		imageInfos.resize(m_context.m_swapChainImages.size(), std::vector<VkDescriptorImageInfo>(texturesAmount));
+		imageInfos.resize(texturesAmount, std::vector<VkDescriptorImageInfo>(m_context.m_swapChainImages.size()));
 
 		std::vector<VkWriteDescriptorSet> descriptorWrites = {};
 
-		for (size_t i = 0; i < m_context.m_swapChainImages.size(); i++)
+		for (size_t i = 0; i < texturesAmount; i++)
 		{
-			for (size_t j = 0; j < texturesAmount; j++)
+			for (size_t j = 0; j < m_context.m_swapChainImages.size(); j++)
 			{
 				imageInfos[i][j].imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-				imageInfos[i][j].imageView = textureImageView[j];
-				imageInfos[i][j].sampler = textureSampler[j];
+				imageInfos[i][j].imageView = textureImageView[i];
+				imageInfos[i][j].sampler = textureSampler[i];
 
 				VkWriteDescriptorSet writeDescripotrSet = {};
 
@@ -196,6 +138,83 @@ namespace Spark
 				writeDescripotrSet.pImageInfo = &imageInfos[i][j];
 				descriptorWrites.push_back(writeDescripotrSet);
 			}
+		}
+
+		vkUpdateDescriptorSets(m_context.m_device, static_cast<uint32_t>(descriptorWrites.size()),
+			descriptorWrites.data(), 0, nullptr);
+	}
+	
+	void VulkanPipeline2D::createSingleTransformationDescriptorSet(std::vector<std::vector<VkDescriptorSet>>& transformationSets, std::vector<VkBuffer> transformationUniforms) 
+	{
+		transformationSets.push_back(std::vector<VkDescriptorSet>(m_context.m_swapChainImages.size()));
+		std::vector<VkDescriptorSetLayout> transformationLayouts(m_context.m_swapChainImages.size(), m_transformationDescriptorSetLayout);
+		VkDescriptorSetAllocateInfo allocInfo = {};
+		allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
+		allocInfo.descriptorPool = m_context.m_descriptorPool;
+		allocInfo.descriptorSetCount = static_cast<uint32_t>(m_context.m_swapChainImages.size());
+		allocInfo.pSetLayouts = transformationLayouts.data();
+		SPARK_CORE_ASSERT(vkAllocateDescriptorSets(m_context.m_device, &allocInfo, transformationSets.back().data()) == VK_SUCCESS, "Failed to allocate descriptor sets");
+
+		std::vector<VkDescriptorBufferInfo> bufferInfos;
+		bufferInfos.resize(m_context.m_swapChainImages.size());
+
+		std::vector<VkWriteDescriptorSet> descriptorWrites = {};
+
+		for (size_t i = 0; i < m_context.m_swapChainImages.size(); i++)
+		{
+			bufferInfos[i].buffer = transformationUniforms[i];
+			bufferInfos[i].offset = 0;
+			bufferInfos[i].range = sizeof(Transformation2D);
+
+			VkWriteDescriptorSet writeDescripotrSet = {};
+
+			writeDescripotrSet.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+			writeDescripotrSet.dstSet = transformationSets.back()[i];
+			writeDescripotrSet.dstBinding = 0;
+			writeDescripotrSet.dstArrayElement = 0;
+			writeDescripotrSet.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+			writeDescripotrSet.descriptorCount = 1;
+			writeDescripotrSet.pBufferInfo = &bufferInfos[i];
+			descriptorWrites.push_back(writeDescripotrSet);
+		}
+
+		vkUpdateDescriptorSets(m_context.m_device, static_cast<uint32_t>(descriptorWrites.size()),
+			descriptorWrites.data(), 0, nullptr);
+		
+	}
+	
+	void VulkanPipeline2D::createSingleTextureDescriptorSet(std::vector<std::vector<VkDescriptorSet>>& textureSets, VkImageView textureImageView, VkSampler textureSampler) 
+	{
+		textureSets.push_back(std::vector<VkDescriptorSet>(m_context.m_swapChainImages.size()));
+		std::vector<VkDescriptorSetLayout> textureLayouts(m_context.m_swapChainImages.size(), m_textureDescriptorSetLayout);
+		VkDescriptorSetAllocateInfo allocInfo = {};
+		allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
+		allocInfo.descriptorPool = m_context.m_descriptorPool;
+		allocInfo.descriptorSetCount = static_cast<uint32_t>(m_context.m_swapChainImages.size());
+		allocInfo.pSetLayouts = textureLayouts.data();
+		SPARK_CORE_ASSERT(vkAllocateDescriptorSets(m_context.m_device, &allocInfo, textureSets.back().data()) == VK_SUCCESS, "Failed to allocate descriptor sets");
+
+		std::vector<VkDescriptorImageInfo> imageInfos;
+		imageInfos.resize(m_context.m_swapChainImages.size());
+
+		std::vector<VkWriteDescriptorSet> descriptorWrites = {};
+
+		for (size_t i = 0; i < m_context.m_swapChainImages.size(); i++)
+		{
+			imageInfos[i].imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+			imageInfos[i].imageView = textureImageView;
+			imageInfos[i].sampler = textureSampler;
+
+			VkWriteDescriptorSet writeDescripotrSet = {};
+
+			writeDescripotrSet.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+			writeDescripotrSet.dstSet = textureSets.back()[i];
+			writeDescripotrSet.dstBinding = 0;
+			writeDescripotrSet.dstArrayElement = 0;
+			writeDescripotrSet.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+			writeDescripotrSet.descriptorCount = 1;
+			writeDescripotrSet.pImageInfo = &imageInfos[i];
+			descriptorWrites.push_back(writeDescripotrSet);
 		}
 
 		vkUpdateDescriptorSets(m_context.m_device, static_cast<uint32_t>(descriptorWrites.size()),

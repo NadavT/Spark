@@ -12,6 +12,8 @@ namespace Spark
 		, m_transfomationDescriptorSets()
 		, m_textureDescriptorSets()
 		, m_commandBuffers()
+		, m_isAttached(false)
+		, m_isRecreationNeeded(false)
 	{
 		m_framebuffer = renderer.createFramebuffer(VulkanFramebufferType::Type2D);
 		m_pipeline = reinterpret_cast<VulkanPipeline2D*>(renderer.createPipeline(VulkanPipelineType::Type2D, *m_framebuffer));
@@ -54,10 +56,12 @@ namespace Spark
 		
 		m_pipeline->createTextureDescriptorSets((unsigned int)textures.size(), m_textureDescriptorSets, textures, samplers);
 		createCommandBuffers();
+		m_isAttached = true;
 	}
 
 	void VulkanLayerRenderer2D::OnDetach()
 	{
+		m_isAttached = false;
 		for (VkCommandBuffer commandBuffer : m_commandBuffers) {
 			m_renderer.resetCommandBuffer(commandBuffer);
 		}
@@ -80,12 +84,13 @@ namespace Spark
 
 	void VulkanLayerRenderer2D::OnRender()
 	{
-		if (m_renderer.isRecreationNeeded())
+		if (m_isRecreationNeeded || m_renderer.isRecreationNeeded())
 		{
 			for (VkCommandBuffer commandBuffer : m_commandBuffers) {
 				m_renderer.resetCommandBuffer(commandBuffer);
 			}
 			createCommandBuffers();
+			m_isRecreationNeeded = false;
 		}
 
 		int i = 0;
@@ -96,13 +101,42 @@ namespace Spark
 			void* data;
 			struct Transformation2D transformation = {};
 			transformation.transformMatrix = glm::mat4(quad->getTransformation());
-			vkMapMemory(m_renderer.m_context.m_device, m_uniformTransformationsMemory[m_renderer.getCurrentImageIndex()][i], 0, sizeof(transformation), 0, &data);
+			vkMapMemory(m_renderer.m_context.m_device, m_uniformTransformationsMemory[i][m_renderer.getCurrentImageIndex()], 0, sizeof(transformation), 0, &data);
 			memcpy(data, &transformation, sizeof(transformation));
-			vkUnmapMemory(m_renderer.m_context.m_device, m_uniformTransformationsMemory[m_renderer.getCurrentImageIndex()][i]);
+			vkUnmapMemory(m_renderer.m_context.m_device, m_uniformTransformationsMemory[i][m_renderer.getCurrentImageIndex()]);
 		}
 		
 		VkCommandBuffer commandBuffer = m_commandBuffers[m_renderer.getCurrentImageIndex()];
 		m_renderer.render(commandBuffer);
+	}
+	
+	void VulkanLayerRenderer2D::addDrawable(Drawable* drawable) 
+	{
+		LayerRenderer::addDrawable(drawable);
+
+		VulkanQuad* quad = reinterpret_cast<VulkanQuad*>(drawable);
+		if (m_isAttached)
+		{
+			if (m_uniformTransformations.size() < m_drawables.size())
+			{
+				m_renderer.addUniformBuffers(sizeof(Transformation2D), m_uniformTransformations, m_uniformTransformationsMemory);
+				m_pipeline->createSingleTransformationDescriptorSet(m_transfomationDescriptorSets, m_uniformTransformations.back());
+			}
+			if (m_textureDescriptorOffset.find(quad->getTexture().getName()) == m_textureDescriptorOffset.end())
+			{
+				const VulkanTexture& texture = quad->getTexture();
+				m_textureDescriptorOffset[quad->getTexture().getName()] = static_cast<unsigned int>(m_textureDescriptorSets.size());
+				m_pipeline->createSingleTextureDescriptorSet(m_textureDescriptorSets, texture.getImage().getImageView(), texture.getSampler().getSampler());
+			}
+
+			m_isRecreationNeeded = true;
+		}
+	}
+	
+	void VulkanLayerRenderer2D::removeDrawable(Drawable* drawable) 
+	{
+		LayerRenderer::removeDrawable(drawable);
+    	m_isRecreationNeeded = true;
 	}
 
 	void VulkanLayerRenderer2D::createCommandBuffers()
@@ -122,7 +156,7 @@ namespace Spark
 			for (size_t j = 0; j < m_drawables.size(); j++)
 			{
 				VulkanQuad* quad = reinterpret_cast<VulkanQuad*>(m_drawables[j]);
-				m_pipeline->bind(commandBuffer, m_transfomationDescriptorSets[i][j], m_textureDescriptorSets[i][m_textureDescriptorOffset[quad->getTexture().getName()]]);
+				m_pipeline->bind(commandBuffer, m_transfomationDescriptorSets[j][i], m_textureDescriptorSets[m_textureDescriptorOffset[quad->getTexture().getName()]][i]);
 				quad->fillCommandBuffer(commandBuffer);
 			}
 

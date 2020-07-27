@@ -445,17 +445,25 @@ namespace Spark
 	{
 		VkDeviceSize bufferSize = size;
 
-		uniformBuffers.resize(m_context.m_swapChainImages.size(), std::vector<VkBuffer>(amount));
-		uniformBuffersMemory.resize(m_context.m_swapChainImages.size(), std::vector<VkDeviceMemory>(amount));
+		uniformBuffers.resize(amount, std::vector<VkBuffer>(m_context.m_swapChainImages.size()));
+		uniformBuffersMemory.resize(amount, std::vector<VkDeviceMemory>(m_context.m_swapChainImages.size()));
 
-		for (size_t i = 0; i < m_context.m_swapChainImages.size(); i++) {
-			for (size_t j = 0; j < amount; j++)
+		for (size_t i = 0; i < amount; i++)
+		{
+			for (size_t j = 0; j < m_context.m_swapChainImages.size(); j++)
 			{
 				m_context.createBuffer(bufferSize, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
 					VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
 					uniformBuffers[i][j], uniformBuffersMemory[i][j]);
 			}
 		}
+	}
+	
+	void VulkanRenderer::addUniformBuffers(VkDeviceSize size, std::vector<std::vector<VkBuffer>>& uniformBuffers, std::vector<std::vector<VkDeviceMemory>>& uniformBuffersMemory) 
+	{
+		uniformBuffers.push_back(std::vector<VkBuffer>());
+		uniformBuffersMemory.push_back(std::vector<VkDeviceMemory>());
+		createUniformBuffers(size, uniformBuffers.back(), uniformBuffersMemory.back());
 	}
 
 	void VulkanRenderer::createMultisamplesResources()

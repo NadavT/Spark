@@ -18,6 +18,9 @@ namespace Spark
 		virtual void OnDetach();
 		virtual void OnRender();
 
+		virtual void addDrawable(Drawable* drawable);
+		virtual void removeDrawable(Drawable* drawable);
+
 	private:
 		void createCommandBuffers();
 
@@ -33,5 +36,8 @@ namespace Spark
 		std::unordered_map<std::string, unsigned int> m_textureDescriptorOffset;
 
 		std::vector<VkCommandBuffer> m_commandBuffers;
+
+		bool m_isAttached;
+		bool m_isRecreationNeeded;
 	};
 }
