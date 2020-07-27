@@ -6,10 +6,12 @@ class SandboxLayer : public Spark::Layer2D
 public:
 	SandboxLayer()
 		:Spark::Layer2D("Sandbox layer")
+		, counter(0)
 	{
 		const Spark::Texture& texture = Spark::ResourceManager::loadTexture("sandboxTexture", "C:\\Users\\NadavT\\Pictures\\poke.png");
-		m_quad = std::move(Spark::createQuad(glm::vec2(0, 0), texture));
-		addDrawable(m_quad.get());
+		Spark::ResourceManager::loadTexture("sandboxTexture2", "C:\\Users\\NadavT\\Pictures\\lol.png");
+		m_quads.push_back(std::move(Spark::createQuad(glm::vec2(0, 0), texture)));
+		addDrawable(m_quads.back().get());
 	}
 
 	virtual void OnAttach()
@@ -34,16 +36,25 @@ public:
 		switch (e.GetKeyCode())
 		{
 		case Spark::KeyCode::Left:
-			m_quad->move({-0.05, 0});
+			m_quads.front()->move({-0.05, 0});
 			return true;
 		case Spark::KeyCode::Right:
-			m_quad->move({0.05, 0});
+			m_quads.front()->move({0.05, 0});
 			return true;
 		case Spark::KeyCode::Down:
-			m_quad->move({0, 0.05});
+			m_quads.front()->move({0, 0.05});
 			return true;
 		case Spark::KeyCode::Up:
-			m_quad->move({0, -0.05});
+			m_quads.front()->move({0, -0.05});
+			return true;
+		case Spark::KeyCode::A:
+			counter++;
+			m_quads.push_back(std::move(Spark::createQuad(glm::vec2(-0.5 + counter/10.0, -0.5), *Spark::ResourceManager::getTexture("sandboxTexture2"))));
+			addDrawable(m_quads.back().get());
+			return true;
+		case Spark::KeyCode::D:
+			removeDrawable(m_quads.back().get());
+			m_quads.pop_back();
 			return true;
 		default:
 			return false;
@@ -59,7 +70,8 @@ public:
 
 
 private:
-	std::unique_ptr<Spark::Quad> m_quad;
+	int counter;
+	std::vector<std::unique_ptr<Spark::Quad>> m_quads;
 };
 
 class Sandbox : public Spark::Application
