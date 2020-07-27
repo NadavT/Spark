@@ -23,14 +23,15 @@ namespace Spark
 		SPARK_API Quad& operator=(Quad&& other) noexcept = default;
 
         SPARK_API virtual void move(glm::vec2 position);
+        SPARK_API virtual void scale(glm::vec2 scale);
         SPARK_API virtual glm::mat3 getTransformation();
 
     protected:
-        SPARK_API Quad(glm::vec2 position);
+        SPARK_API Quad(glm::vec2 position, glm::vec2 scale = glm::vec2(1.0));
 
     private:
 		glm::mat3 m_transformation;
     };
 
-	SPARK_API std::unique_ptr<Quad> createQuad(glm::vec2 position, const Texture& texture);
+	SPARK_API std::unique_ptr<Quad> createQuad(glm::vec2 position, const Texture& texture, glm::vec2 scale = glm::vec2(1.0));
 }

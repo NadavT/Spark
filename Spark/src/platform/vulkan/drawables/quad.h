@@ -11,7 +11,7 @@ namespace Spark
 	class VulkanQuad : public Quad
 	{
 	public:
-		VulkanQuad(VulkanContext& context, glm::vec2 position, const VulkanTexture& texture);
+		VulkanQuad(VulkanContext& context, glm::vec2 position, const VulkanTexture& texture, glm::vec2 scale = glm::vec2(1.0));
 		virtual ~VulkanQuad();
 		VulkanQuad(const VulkanQuad& other);
 		VulkanQuad(VulkanQuad&& other) noexcept;

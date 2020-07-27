@@ -10,7 +10,7 @@ public:
 	{
 		const Spark::Texture& texture = Spark::ResourceManager::loadTexture("sandboxTexture", "C:\\Users\\NadavT\\Pictures\\poke.png");
 		Spark::ResourceManager::loadTexture("sandboxTexture2", "C:\\Users\\NadavT\\Pictures\\lol.png");
-		m_quads.push_back(std::move(Spark::createQuad(glm::vec2(0, 0), texture)));
+		m_quads.push_back(std::move(Spark::createQuad(glm::vec2(0, 0), texture, glm::vec2(1))));
 		addDrawable(m_quads.back().get());
 	}
 
@@ -55,6 +55,24 @@ public:
 		case Spark::KeyCode::D:
 			removeDrawable(m_quads.back().get());
 			m_quads.pop_back();
+			return true;
+		case Spark::KeyCode::Z:
+			m_quads.front()->scale(glm::vec2(0.95f));
+			return true;
+		case Spark::KeyCode::X:
+			m_quads.front()->scale(glm::vec2(1.05f));
+			return true;
+		case Spark::KeyCode::Q:
+			m_quads.front()->scale(glm::vec2(0.95f, 1));
+			return true;
+		case Spark::KeyCode::W:
+			m_quads.front()->scale(glm::vec2(1.05f, 1));
+			return true;
+		case Spark::KeyCode::E:
+			m_quads.front()->scale(glm::vec2(1, 0.95f));
+			return true;
+		case Spark::KeyCode::R:
+			m_quads.front()->scale(glm::vec2(1, 1.05f));
 			return true;
 		default:
 			return false;

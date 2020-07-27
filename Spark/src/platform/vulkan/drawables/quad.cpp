@@ -13,8 +13,8 @@ namespace Spark
 		0, 1, 2, 2, 3, 0,
 	};
 
-	VulkanQuad::VulkanQuad(VulkanContext& context, glm::vec2 position, const VulkanTexture& texture)
-		: Quad(position)
+	VulkanQuad::VulkanQuad(VulkanContext& context, glm::vec2 position, const VulkanTexture& texture, glm::vec2 scale)
+		: Quad(position, scale)
 		, m_context(context)
 		, m_vertexBuffer(VK_NULL_HANDLE)
 		, m_vertexBufferMemory(VK_NULL_HANDLE)
