@@ -25,6 +25,10 @@ namespace Spark
 	protected:
 		VulkanFramebuffer(VulkanContext& context, VkImageView renderTarget, bool clear = false, bool resolve = false);
 
+		VkSubpassDescription getBasicSubpass(std::vector<VkAttachmentDescription>& attachments, std::vector<VkAttachmentReference>& attachmentsRefs);
+		VkSubpassDependency getBasicSubpassDependency();
+		std::vector<VkImageView> getBasicFramebufferAttachments(VkImageView currentImageView);
+
 	protected:
 		bool m_clear;
 		bool m_resolve;
