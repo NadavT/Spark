@@ -16,6 +16,7 @@ namespace Spark
 		SPARK_API virtual ~Application();
 
 		SPARK_API void OnEvent(Event& e);
+		SPARK_API virtual void handleEvent(Event& e);
 
 		SPARK_API void PushLayer(Layer* layer);
 		SPARK_API void PushOverlay(Layer* layer);

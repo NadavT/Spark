@@ -1,6 +1,6 @@
 #pragma once
 #include "platform/vulkan/vertex/vertex2d.h"
-#include "platform/vulkan/vulkan_context.h"
+#include "platform/vulkan/renderer.h"
 #include "platform/vulkan/resource/texture.h"
 #include "platform/vulkan/resource/texture_sampler.h"
 
@@ -11,7 +11,7 @@ namespace Spark
 	class VulkanQuad : public Quad
 	{
 	public:
-		VulkanQuad(VulkanContext& context, glm::vec2 position, const VulkanTexture& texture, glm::vec2 scale = glm::vec2(1.0));
+		VulkanQuad(VulkanRenderer& renderer, glm::vec2 position, const VulkanTexture& texture, glm::vec2 scale = glm::vec2(1.0));
 		virtual ~VulkanQuad();
 		VulkanQuad(const VulkanQuad& other);
 		VulkanQuad(VulkanQuad&& other) noexcept;
@@ -28,6 +28,7 @@ namespace Spark
 
 	private:
 		VulkanContext& m_context;
+		VulkanRenderer& m_renderer;
 		VkBuffer m_vertexBuffer;
 		VkDeviceMemory m_vertexBufferMemory;
 		VkDeviceSize m_verticesOffset;

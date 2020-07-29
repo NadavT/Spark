@@ -26,6 +26,11 @@ namespace Spark
 
 	VulkanLayerRenderer2D::~VulkanLayerRenderer2D()
 	{
+		if (m_isAttached)
+		{
+			OnDetach();
+		}
+
 		for (int i = 0; i < m_commandBuffers.size(); i++)
 		{
 			m_renderer.m_context.destroyCommandBuffer(m_commandBuffers[i]);
@@ -61,6 +66,7 @@ namespace Spark
 
 	void VulkanLayerRenderer2D::OnDetach()
 	{
+		m_renderer.waitForIdle();
 		m_isAttached = false;
 		for (VkCommandBuffer commandBuffer : m_commandBuffers) {
 			m_renderer.resetCommandBuffer(commandBuffer);

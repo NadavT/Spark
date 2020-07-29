@@ -13,20 +13,22 @@ namespace Spark
 		0, 1, 2, 2, 3, 0,
 	};
 
-	VulkanQuad::VulkanQuad(VulkanContext& context, glm::vec2 position, const VulkanTexture& texture, glm::vec2 scale)
+	VulkanQuad::VulkanQuad(VulkanRenderer& renderer, glm::vec2 position, const VulkanTexture& texture, glm::vec2 scale)
 		: Quad(position, scale)
-		, m_context(context)
+		, m_context(renderer.m_context)
+		, m_renderer(renderer)
 		, m_vertexBuffer(VK_NULL_HANDLE)
 		, m_vertexBufferMemory(VK_NULL_HANDLE)
 		, m_verticesOffset(0)
 		, m_indicesOffset(0)
 		, m_texture(texture)
 	{
-		createVertex2DBuffer(context, m_vertexBuffer, m_vertexBufferMemory, m_verticesOffset, m_indicesOffset, quad_vertices, quad_indices);
+		createVertex2DBuffer(m_context, m_vertexBuffer, m_vertexBufferMemory, m_verticesOffset, m_indicesOffset, quad_vertices, quad_indices);
 	}
 	
 	VulkanQuad::~VulkanQuad() 
 	{
+		m_renderer.waitForIdle();
 		if (m_vertexBuffer != VK_NULL_HANDLE)
 		{
 			vkDestroyBuffer(m_context.m_device, m_vertexBuffer, nullptr);
@@ -40,6 +42,7 @@ namespace Spark
 	VulkanQuad::VulkanQuad(const VulkanQuad& other)
 		: Quad(other)
 		, m_context(other.m_context)
+		, m_renderer(other.m_renderer)
 		, m_texture(other.m_texture)
 	{
 		copyQuad(other);
@@ -48,6 +51,7 @@ namespace Spark
 	VulkanQuad::VulkanQuad(VulkanQuad&& other) noexcept
 		: Quad(other)
 		, m_context(other.m_context)
+		, m_renderer(other.m_renderer)
 		, m_texture(other.m_texture)
 	{
 		moveQuad(other);

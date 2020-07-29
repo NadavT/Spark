@@ -24,7 +24,7 @@ namespace Spark
 	void VulkanFramebuffer2D::recreate(VkImageView renderTarget)
 	{
 		VulkanFramebuffer::recreate(renderTarget);
-;		createRenderPass();
+		createRenderPass();
 		createSwapchainFramebuffers();
 	}
 

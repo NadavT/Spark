@@ -98,16 +98,40 @@ public:
 	Sandbox()
 		: layer()
 	{
-		PushLayer(&layer);
+		layer = std::make_unique<SandboxLayer>();
+		PushLayer(layer.get());
+	}
+
+	bool handleKeyPressed(Spark::KeyPressedEvent& e)
+	{
+		switch (e.GetKeyCode())
+		{
+		case Spark::KeyCode::S:
+			PopLayer(layer.get());
+			layer.reset(nullptr);
+			return true;
+		default:
+			return false;
+		}
+	}
+
+	virtual void handleEvent(Spark::Event& e)
+	{
+		Application::handleEvent(e);
+		Spark::EventDispatcher dispatcher(e);
+		dispatcher.Dispatch<Spark::KeyPressedEvent>(SPARK_BIND_EVENT_FN(Sandbox::handleKeyPressed));
 	}
 
 	~Sandbox()
 	{
-		PopLayer(&layer);
+		if (layer.get() != nullptr)
+		{
+			PopLayer(layer.get());
+		}
 	}
 
 private:
-	SandboxLayer layer;
+	std::unique_ptr<SandboxLayer> layer;
 };
 
 Spark::Application* Spark::CreateApplication()
