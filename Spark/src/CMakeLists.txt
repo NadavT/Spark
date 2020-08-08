@@ -26,6 +26,7 @@ set(SPARK_VULKAN_SOURCE
     "platform/vulkan/vulkan_context.cpp"
     "platform/vulkan/framebuffer/framebuffer.cpp"
     "platform/vulkan/framebuffer/framebuffer2d.cpp"
+    "platform/vulkan/framebuffer/framebuffer3d.cpp"
     "platform/vulkan/overlay/overlay.cpp"
     "platform/vulkan/pipeline/pipeline.cpp"
     "platform/vulkan/pipeline/pipeline2d.cpp"
@@ -37,7 +38,8 @@ set(SPARK_VULKAN_SOURCE
     "platform/vulkan/resource/texture_sampler.cpp"
     "platform/vulkan/resource/texture_image.cpp"
     "platform/vulkan/layers/layer_renderer_2d.cpp"
-    "platform/vulkan/drawables/quad.cpp")
+    "platform/vulkan/drawables/quad.cpp"
+    )
 
 set(SPARK_IMGUI_SOURCE
     ${PROJECT_SOURCE_DIR}/vendor/imgui/imgui.cpp
