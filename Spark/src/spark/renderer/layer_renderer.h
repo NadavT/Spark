@@ -22,13 +22,13 @@ namespace Spark
 		virtual void OnDetach() = 0;
 		virtual void OnRender() = 0;
 
-		virtual void addDrawable(Drawable* drawable);
+		virtual void addDrawable(std::shared_ptr<Drawable>& drawable);
 		virtual void removeDrawable(Drawable* drawable);
 
 	protected:
 		LayerRenderer();
 
 	protected:
-		std::vector<Drawable*> m_drawables;
+		std::vector<std::shared_ptr<Drawable>> m_drawables;
 	};
 }

@@ -32,7 +32,7 @@ namespace Spark
         m_layer_renderer->OnRender();
     }
     
-    SPARK_API void Layer2D::addDrawable(Drawable* drawable) 
+    SPARK_API void Layer2D::addDrawable(std::shared_ptr<Drawable>& drawable) 
     {
         m_layer_renderer->addDrawable(drawable);
     }

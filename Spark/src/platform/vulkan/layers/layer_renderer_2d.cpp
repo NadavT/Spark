@@ -12,6 +12,7 @@ namespace Spark
 		, m_transfomationDescriptorSets()
 		, m_textureDescriptorSets()
 		, m_commandBuffers()
+		, m_toBeRemoved()
 		, m_isAttached(false)
 		, m_isRecreationNeeded(false)
 	{
@@ -43,9 +44,9 @@ namespace Spark
 		std::vector<VkSampler> samplers;
 		m_renderer.createUniformBuffers(sizeof(Transformation2D), m_uniformTransformations, m_uniformTransformationsMemory, (unsigned int)m_drawables.size());
 		m_pipeline->createTransformationDescriptorSets((unsigned int)m_drawables.size(), m_transfomationDescriptorSets, m_uniformTransformations);
-		for (auto* drawable : m_drawables)
+		for (auto drawable : m_drawables)
 		{
-			VulkanQuad* quad = reinterpret_cast<VulkanQuad*>(drawable);
+			VulkanQuad* quad = reinterpret_cast<VulkanQuad*>(drawable.get());
 			if (m_textureDescriptorOffset.find(quad->getTexture().getName()) == m_textureDescriptorOffset.end())
 			{
 				m_textureDescriptorOffset[quad->getTexture().getName()] = (unsigned int)textures.size();
@@ -89,6 +90,12 @@ namespace Spark
 			for (VkCommandBuffer commandBuffer : m_commandBuffers) {
 				m_renderer.resetCommandBuffer(commandBuffer);
 			}
+
+			while (!m_toBeRemoved.empty()) {
+				LayerRenderer::removeDrawable(m_toBeRemoved.back());
+				m_toBeRemoved.pop_back();
+			}
+
 			createCommandBuffers();
 			m_isRecreationNeeded = false;
 		}
@@ -97,7 +104,7 @@ namespace Spark
 
 		for (size_t i = 0; i < m_drawables.size(); i++)
 		{
-			VulkanQuad* quad = reinterpret_cast<VulkanQuad*>(m_drawables[i]);
+			VulkanQuad* quad = reinterpret_cast<VulkanQuad*>(m_drawables[i].get());
 			void* data;
 			struct Transformation2D transformation = {};
 			transformation.transformMatrix = glm::mat4(quad->getTransformation());
@@ -110,11 +117,11 @@ namespace Spark
 		m_renderer.render(commandBuffer);
 	}
 	
-	void VulkanLayerRenderer2D::addDrawable(Drawable* drawable) 
+	void VulkanLayerRenderer2D::addDrawable(std::shared_ptr<Drawable>& drawable) 
 	{
 		LayerRenderer::addDrawable(drawable);
 
-		VulkanQuad* quad = reinterpret_cast<VulkanQuad*>(drawable);
+		VulkanQuad* quad = reinterpret_cast<VulkanQuad*>(drawable.get());
 		if (m_isAttached)
 		{
 			if (m_uniformTransformations.size() < m_drawables.size())
@@ -135,7 +142,7 @@ namespace Spark
 	
 	void VulkanLayerRenderer2D::removeDrawable(Drawable* drawable) 
 	{
-		LayerRenderer::removeDrawable(drawable);
+		m_toBeRemoved.push_back(drawable);
     	m_isRecreationNeeded = true;
 	}
 
@@ -155,7 +162,7 @@ namespace Spark
 
 			for (size_t j = 0; j < m_drawables.size(); j++)
 			{
-				VulkanQuad* quad = reinterpret_cast<VulkanQuad*>(m_drawables[j]);
+				VulkanQuad* quad = reinterpret_cast<VulkanQuad*>(m_drawables[j].get());
 				m_pipeline->bind(commandBuffer, m_transfomationDescriptorSets[j][i], m_textureDescriptorSets[m_textureDescriptorOffset[quad->getTexture().getName()]][i]);
 				quad->fillCommandBuffer(commandBuffer);
 			}

@@ -18,7 +18,7 @@ namespace Spark
 		SPARK_API virtual void OnDetach();
 		SPARK_API virtual void OnRender();
 
-        SPARK_API virtual void addDrawable(Drawable* drawable);
+        SPARK_API virtual void addDrawable(std::shared_ptr<Drawable>& drawable);
 		SPARK_API virtual void removeDrawable(Drawable* drawable);
 
 	private:

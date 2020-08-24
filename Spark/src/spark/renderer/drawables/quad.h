@@ -33,5 +33,5 @@ namespace Spark
 		glm::mat3 m_transformation;
     };
 
-	SPARK_API std::unique_ptr<Quad> createQuad(glm::vec2 position, const Texture& texture, glm::vec2 scale = glm::vec2(1.0));
+	SPARK_API std::shared_ptr<Drawable> createQuad(glm::vec2 position, const Texture& texture, glm::vec2 scale = glm::vec2(1.0));
 }
