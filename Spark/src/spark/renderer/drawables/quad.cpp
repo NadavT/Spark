@@ -30,7 +30,7 @@ namespace Spark
         return m_transformation;
     }
 
-    std::unique_ptr<Quad> createQuad(glm::vec2 position, const Texture& texture, glm::vec2 scale)
+    std::shared_ptr<Drawable> createQuad(glm::vec2 position, const Texture& texture, glm::vec2 scale)
     {
 #ifdef SPARK_PLATFORM_VULKAN
         VulkanRenderer& renderer = reinterpret_cast<VulkanRenderer&>(Application::GetApp().GetRenderer());

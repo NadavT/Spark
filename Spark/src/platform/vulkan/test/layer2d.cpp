@@ -15,8 +15,6 @@ namespace Spark
 		const VulkanTexture& texture1 = reinterpret_cast<const VulkanTexture&>(ResourceManager::loadTexture("texture1", "C:\\Users\\NadavT\\Pictures\\Untitled.png"));
 		m_quad = std::make_unique<VulkanQuad>(m_renderer, glm::vec2(-0.5, -0.5), texture0);
 		m_quad2 = std::make_unique<VulkanQuad>(m_renderer, glm::vec2(0.5, 0.5), texture1);
-		m_layer_renderer.addDrawable(m_quad.get());
-		m_layer_renderer.addDrawable(m_quad2.get());
 	}
 
 	VulkanLayer2D::~VulkanLayer2D()
