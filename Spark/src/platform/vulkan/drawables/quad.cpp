@@ -28,7 +28,6 @@ namespace Spark
 	
 	VulkanQuad::~VulkanQuad() 
 	{
-		m_renderer.waitForIdle();
 		if (m_vertexBuffer != VK_NULL_HANDLE)
 		{
 			vkDestroyBuffer(m_context.m_device, m_vertexBuffer, nullptr);
