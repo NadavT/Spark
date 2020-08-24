@@ -58,10 +58,9 @@ namespace Spark
 		m_renderer->OnEvent(e);
 		m_overlay->OnEvent(e);
 
-		handleEvent(e);
-
 		if (!e.handled)
 		{
+			handleEvent(e);
 			for (auto it = m_layerStack.rbegin(); it != m_layerStack.rend(); ++it)
 			{
 				(*it)->OnEvent(e);

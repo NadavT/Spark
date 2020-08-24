@@ -284,7 +284,7 @@ namespace Spark
 		m_width = e.GetWidth();
 		m_height = e.GetHeight();
 		m_framebufferResized = true;
-		return true;
+		return false;
 	}
 
 	void VulkanRenderer::recreateSwapchain()
