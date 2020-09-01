@@ -9,6 +9,7 @@ set(SPARK_SOURCE
     "spark/renderer/renderer.cpp"
     "spark/renderer/layer_renderer.cpp"
     "spark/renderer/drawables/quad.cpp"
+    "spark/renderer/drawables/cube.cpp"
     "spark/overlay/overlay.cpp"
     "spark/utils/file.cpp"
     "spark/resource/texture.cpp"
@@ -30,15 +31,19 @@ set(SPARK_VULKAN_SOURCE
     "platform/vulkan/overlay/overlay.cpp"
     "platform/vulkan/pipeline/pipeline.cpp"
     "platform/vulkan/pipeline/pipeline2d.cpp"
+    "platform/vulkan/pipeline/pipeline3d.cpp"
     "platform/vulkan/pipeline/pipeline_triangle.cpp"
     "platform/vulkan/vertex/vertex2d.cpp"
+    "platform/vulkan/vertex/vertex3d.cpp"
     "platform/vulkan/test/triangle_layer.cpp"
     "platform/vulkan/test/layer2d.cpp"
     "platform/vulkan/resource/texture.cpp"
     "platform/vulkan/resource/texture_sampler.cpp"
     "platform/vulkan/resource/texture_image.cpp"
     "platform/vulkan/layers/layer_renderer_2d.cpp"
+    "platform/vulkan/layers/layer_renderer_3d.cpp"
     "platform/vulkan/drawables/quad.cpp"
+    "platform/vulkan/drawables/cube.cpp"
     )
 
 set(SPARK_IMGUI_SOURCE
