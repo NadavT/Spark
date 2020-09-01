@@ -1,4 +1,4 @@
-#include "pipeline2d.h"
+#include "pipeline3d.h"
 
 #include "platform/vulkan/vertex/vertex2d.h"
 #include "spark/utils/file.h"
@@ -6,8 +6,8 @@
 
 namespace Spark
 {
-	const std::string VERTEX_2D_SHADER_PATH = "shaders/shader3d_vert.spv";
-	const std::string FRAGMENT_2D_SHADER_PATH = "shaders/shader3d_frag.spv";
+	const std::string VERTEX_3D_SHADER_PATH = "shaders/shader3d_vert.spv";
+	const std::string FRAGMENT_3D_SHADER_PATH = "shaders/shader3d_frag.spv";
 
 	VulkanPipeline3D::VulkanPipeline3D(VulkanContext& context, VulkanFramebuffer& framebuffer)
 		: VulkanPipeline(context, framebuffer)
@@ -81,7 +81,7 @@ namespace Spark
 			{
 				bufferInfos[i][j].buffer = transformationUniforms[i][j];
 				bufferInfos[i][j].offset = 0;
-				bufferInfos[i][j].range = sizeof(Transformation2D);
+				bufferInfos[i][j].range = sizeof(Transformation3D);
 
 				VkWriteDescriptorSet writeDescripotrSet = {};
 
@@ -100,7 +100,7 @@ namespace Spark
 			descriptorWrites.data(), 0, nullptr);
 	}
 
-	void VulkanPipeline2D::createTextureDescriptorSets(unsigned int texturesAmount, std::vector<std::vector<VkDescriptorSet>>& texturesSets, std::vector<VkImageView>& textureImageView, std::vector<VkSampler>& textureSampler)
+	void VulkanPipeline3D::createTextureDescriptorSets(unsigned int texturesAmount, std::vector<std::vector<VkDescriptorSet>>& texturesSets, std::vector<VkImageView>& textureImageView, std::vector<VkSampler>& textureSampler)
 	{
 		std::vector<VkDescriptorSetLayout> textureLayouts(m_context.m_swapChainImages.size(), m_textureDescriptorSetLayout);
 		VkDescriptorSetAllocateInfo allocInfo = {};
@@ -144,7 +144,7 @@ namespace Spark
 			descriptorWrites.data(), 0, nullptr);
 	}
 	
-	void VulkanPipeline2D::createSingleTransformationDescriptorSet(std::vector<std::vector<VkDescriptorSet>>& transformationSets, std::vector<VkBuffer> transformationUniforms) 
+	void VulkanPipeline3D::createSingleTransformationDescriptorSet(std::vector<std::vector<VkDescriptorSet>>& transformationSets, std::vector<VkBuffer> transformationUniforms) 
 	{
 		transformationSets.push_back(std::vector<VkDescriptorSet>(m_context.m_swapChainImages.size()));
 		std::vector<VkDescriptorSetLayout> transformationLayouts(m_context.m_swapChainImages.size(), m_transformationDescriptorSetLayout);
@@ -164,7 +164,7 @@ namespace Spark
 		{
 			bufferInfos[i].buffer = transformationUniforms[i];
 			bufferInfos[i].offset = 0;
-			bufferInfos[i].range = sizeof(Transformation2D);
+			bufferInfos[i].range = sizeof(Transformation3D);
 
 			VkWriteDescriptorSet writeDescripotrSet = {};
 
@@ -183,7 +183,7 @@ namespace Spark
 		
 	}
 	
-	void VulkanPipeline2D::createSingleTextureDescriptorSet(std::vector<std::vector<VkDescriptorSet>>& textureSets, VkImageView textureImageView, VkSampler textureSampler) 
+	void VulkanPipeline3D::createSingleTextureDescriptorSet(std::vector<std::vector<VkDescriptorSet>>& textureSets, VkImageView textureImageView, VkSampler textureSampler) 
 	{
 		textureSets.push_back(std::vector<VkDescriptorSet>(m_context.m_swapChainImages.size()));
 		std::vector<VkDescriptorSetLayout> textureLayouts(m_context.m_swapChainImages.size(), m_textureDescriptorSetLayout);
@@ -221,7 +221,7 @@ namespace Spark
 			descriptorWrites.data(), 0, nullptr);
 	}
 
-	void VulkanPipeline2D::createDescriptorSetLayout()
+	void VulkanPipeline3D::createDescriptorSetLayout()
 	{
 		VkDescriptorSetLayoutBinding transformationLayoutBinding = {};
 		transformationLayoutBinding.binding = 0;
@@ -249,10 +249,10 @@ namespace Spark
 		SPARK_CORE_ASSERT(vkCreateDescriptorSetLayout(m_context.m_device, &layoutInfo, nullptr, &m_textureDescriptorSetLayout) == VK_SUCCESS, "failed to create descriptor set layout!");
 	}
 
-	void VulkanPipeline2D::createGraphicsPipeline()
+	void VulkanPipeline3D::createGraphicsPipeline()
 	{
-		auto vertexShaderCode = readFile(VERTEX_2D_SHADER_PATH);
-		auto fragmentShaderCode = readFile(FRAGMENT_2D_SHADER_PATH);
+		auto vertexShaderCode = readFile(VERTEX_3D_SHADER_PATH);
+		auto fragmentShaderCode = readFile(FRAGMENT_3D_SHADER_PATH);
 
 		VkShaderModule vertexShader = createShaderModule(vertexShaderCode);
 		VkShaderModule fragmentShader = createShaderModule(fragmentShaderCode);
@@ -260,8 +260,8 @@ namespace Spark
 		VkPipelineVertexInputStateCreateInfo vertexInputInfo{};
 		vertexInputInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
 
-		auto bindingDescription = Vertex2D::getBindingDescription();
-		auto attributeDescriptions = Vertex2D::getAttributeDescriptions();
+		auto bindingDescription = Vertex3D::getBindingDescription();
+		auto attributeDescriptions = Vertex3D::getAttributeDescriptions();
 
 		vertexInputInfo.vertexBindingDescriptionCount = 1;
 		vertexInputInfo.vertexAttributeDescriptionCount = static_cast<uint32_t>(attributeDescriptions.size());

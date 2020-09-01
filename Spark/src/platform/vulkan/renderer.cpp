@@ -2,8 +2,10 @@
 
 #include "spark/core/log.h"
 #include "platform/vulkan/framebuffer/framebuffer2d.h"
+#include "platform/vulkan/framebuffer/framebuffer3d.h"
 #include "platform/vulkan/pipeline/pipeline_triangle.h"
 #include "platform/vulkan/pipeline/pipeline2d.h"
+#include "platform/vulkan/pipeline/pipeline3d.h"
 
 namespace Spark
 {
@@ -218,8 +220,9 @@ namespace Spark
 
 	VulkanFramebuffer* VulkanRenderer::createFramebuffer(VulkanFramebufferType type, bool clear, bool resolve)
 	{
-		if (type == VulkanFramebufferType::Type2D)
+		switch (type)
 		{
+		case VulkanFramebufferType::Type2D:
 			if (m_context.m_msaaSamples != VK_SAMPLE_COUNT_1_BIT)
 			{
 				m_framebuffers.push_back(std::make_unique<VulkanFramebuffer2D>(m_context, m_multisampleImageView, clear, resolve));
@@ -229,9 +232,17 @@ namespace Spark
 				m_framebuffers.push_back(std::make_unique<VulkanFramebuffer2D>(m_context, (VkImageView)VK_NULL_HANDLE, clear, resolve));
 			}
 			return m_framebuffers.back().get();
-		}
-		else
-		{
+		case VulkanFramebufferType::Type3D:
+			if (m_context.m_msaaSamples != VK_SAMPLE_COUNT_1_BIT)
+			{
+				m_framebuffers.push_back(std::make_unique<VulkanFramebuffer3D>(m_context, m_multisampleImageView, clear, resolve));
+			}
+			else
+			{
+				m_framebuffers.push_back(std::make_unique<VulkanFramebuffer3D>(m_context, (VkImageView)VK_NULL_HANDLE, clear, resolve));
+			}
+			return m_framebuffers.back().get();
+		default:
 			SPARK_CORE_ERROR("Not supporting VulkanFramebufferType %d", static_cast<int>(type));
 			throw std::runtime_error("Not supporting framebuffer given type!");
 		}
@@ -256,6 +267,9 @@ namespace Spark
 		{
 		case VulkanPipelineType::Type2D:
 			m_pipelines.push_back(std::make_unique<VulkanPipeline2D>(m_context, framebuffer));
+			return m_pipelines.back().get();
+		case VulkanPipelineType::Type3D:
+			m_pipelines.push_back(std::make_unique<VulkanPipeline3D>(m_context, framebuffer));
 			return m_pipelines.back().get();
 		case VulkanPipelineType::TypeTriangle:
 			m_pipelines.push_back(std::make_unique<VulkanPipelineTriangle>(m_context, framebuffer));
