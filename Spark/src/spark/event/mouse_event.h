@@ -10,11 +10,13 @@ namespace Spark
 	class MouseMovedEvent : public Event
 	{
 	public:
-		MouseMovedEvent(float x, float y)
-			: m_MouseX(x), m_MouseY(y) {}
+		MouseMovedEvent(float x, float y, float diffX, float diffY)
+			: m_MouseX(x), m_MouseY(y), m_diffX(diffX), m_diffY(diffY) {}
 
 		float GetMouseX() const { return m_MouseX; }
 		float GetMouseY() const { return m_MouseY; }
+		float GetDiffX() const { return m_diffX; }
+		float GetDiffY() const { return m_diffY; }
 
 		std::string ToString() const override
 		{
@@ -26,7 +28,7 @@ namespace Spark
 		EVENT_CLASS_TYPE(MouseMoved)
 		EVENT_CLASS_CATEGORY(EventCategoryMouse | EventCategoryInput)
 	private:
-		float m_MouseX, m_MouseY;
+		float m_MouseX, m_MouseY, m_diffX, m_diffY;
 	};
 
 	class MouseScrolledEvent : public Event

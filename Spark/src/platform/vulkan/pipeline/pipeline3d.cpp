@@ -278,7 +278,7 @@ namespace Spark
 
 		SPARK_CORE_ASSERT(vkCreatePipelineLayout(m_context.m_device, &pipelineLayoutInfo, nullptr, &m_pipelineLayout) == VK_SUCCESS, "failed to create pipeline layout!");
 
-		VulkanPipeline::createGraphicsPipeline(vertexShader, fragmentShader, vertexInputInfo, m_pipelineLayout);
+		VulkanPipeline::createGraphicsPipeline(vertexShader, fragmentShader, vertexInputInfo, m_pipelineLayout, true);
 
 		vkDestroyShaderModule(m_context.m_device, vertexShader, VK_NULL_HANDLE);
 		vkDestroyShaderModule(m_context.m_device, fragmentShader, VK_NULL_HANDLE);

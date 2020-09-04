@@ -31,7 +31,7 @@ namespace Spark
 		ResourceManager::Init();
 
 		m_testLayer = std::make_unique<VulkanTriangleLayer>(reinterpret_cast<VulkanRenderer&>(*m_renderer));
-		PushLayer(m_testLayer.get());
+		// PushLayer(m_testLayer.get());
 
 		m_overlay = Overlay::Create(*m_renderer);
 		m_overlay->OnAttach();
@@ -39,7 +39,7 @@ namespace Spark
 
 	Application::~Application()
 	{
-		PopLayer(m_testLayer.get());
+		// PopLayer(m_testLayer.get());
 		m_overlay->OnDetach();
 		m_overlay.reset(nullptr);
 		m_testLayer.reset(nullptr);

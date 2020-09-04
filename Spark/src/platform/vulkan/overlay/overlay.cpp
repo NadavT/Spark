@@ -273,6 +273,13 @@ namespace Spark
         io.KeyShift = io.KeysDown[static_cast<int>(KeyCode::LeftShift)] || io.KeysDown[static_cast<int>(KeyCode::RightShift)];
         io.KeyAlt = io.KeysDown[static_cast<int>(KeyCode::LeftAlt)] || io.KeysDown[static_cast<int>(KeyCode::RightAlt)];
 
+        if (io.WantCaptureKeyboard) {
+            Input::BlockInput();
+        }
+        else {
+			Input::UnBlockInput();
+        }
+
         return io.WantCaptureKeyboard;
     }
 

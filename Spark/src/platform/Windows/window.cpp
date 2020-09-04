@@ -106,7 +106,20 @@ namespace Spark
 		WindowData* data = (WindowData*)glfwGetWindowUserPointer(window);
 		SPARK_CORE_ASSERT(data != NULL, "Got NULL as glfw user pointer");
 
-		MouseMovedEvent event((float)xPos, (float)yPos);
+		if (data->firstMove) {
+			data->lastX = (float)xPos;
+			data->lastY = (float)yPos;
+			data->firstMove = false;
+		}
+
+		float xOffset = (float)(xPos - data->lastX);
+		float yOffset = (float)(data->lastY - yPos);
+
+		MouseMovedEvent event((float)xPos, (float)yPos, xOffset, yOffset);
+
+		data->lastX = (float)xPos;
+		data->lastY = (float)yPos;
+
 		data->eventCallback(event);
 	}
 

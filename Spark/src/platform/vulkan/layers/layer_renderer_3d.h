@@ -1,6 +1,7 @@
 #pragma once
 
 #include "spark/renderer/layer_renderer.h"
+#include "spark/renderer/camera.h"
 #include "platform/vulkan/renderer.h"
 #include "platform/vulkan/pipeline/pipeline3d.h"
 
@@ -11,7 +12,7 @@ namespace Spark
 	class VulkanLayerRenderer3D : public LayerRenderer
 	{
 	public:
-		explicit VulkanLayerRenderer3D(VulkanRenderer& renderer);
+		VulkanLayerRenderer3D(VulkanRenderer& renderer, Camera& camera);
 		virtual ~VulkanLayerRenderer3D();
 
 		virtual void OnAttach();
@@ -40,5 +41,7 @@ namespace Spark
 
 		bool m_isAttached;
 		bool m_isRecreationNeeded;
+
+		Camera& m_camera;
 	};
 }

@@ -14,6 +14,7 @@
 //----------LAYERS----------
 #include "spark/layer/layer.h"
 #include "spark/layer/layer2d.h"
+#include "spark/layer/layer3d.h"
 
 //----------INPUTS----------
 #include "spark/core/input.h"
@@ -24,3 +25,4 @@
 //---------DRAWABLES--------
 #include "spark/renderer/drawable.h"
 #include "spark/renderer/drawables/quad.h"
+#include "spark/renderer/drawables/cube.h"

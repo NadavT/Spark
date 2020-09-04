@@ -7,6 +7,7 @@
 namespace Spark
 {
 	std::unique_ptr<Input> s_input = nullptr;
+	bool s_blockInput = false;
 
 	void Input::Init(const Application& app)
 	{
@@ -22,12 +23,12 @@ namespace Spark
 
 	bool Input::IsKeyPressed(KeyCode key)
 	{
-		return s_input->IsKeyPressedImpl(key);
+		return !s_blockInput && s_input->IsKeyPressedImpl(key);
 	}
 
 	bool Input::IsMouseButtonPressed(MouseCode button)
 	{
-		return s_input->IsMouseButtonPressedImpl(button);
+		return !s_blockInput && s_input->IsMouseButtonPressedImpl(button);
 	}
 
 	std::pair<float, float> Input::GetMousePosition()
@@ -43,5 +44,25 @@ namespace Spark
 	float Input::GetMouseY()
 	{
 		return s_input->GetMouseYImpl();
+	}
+
+	void Input::BlockInput()
+	{
+		s_blockInput = true;
+	}
+
+	void Input::UnBlockInput()
+	{
+		s_blockInput = false;
+	}
+
+	void Input::HideMouse()
+	{
+		s_input->HideMouseImpl();
+	}
+
+	void Input::UnHideMouse()
+	{
+		s_input->UnHideMouseImpl();
 	}
 }

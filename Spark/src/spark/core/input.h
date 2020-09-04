@@ -22,6 +22,10 @@ namespace Spark
 		SPARK_API static std::pair<float, float> GetMousePosition();
 		SPARK_API static float GetMouseX();
 		SPARK_API static float GetMouseY();
+		SPARK_API static void BlockInput();
+		SPARK_API static void UnBlockInput();
+		SPARK_API static void HideMouse();
+		SPARK_API static void UnHideMouse();
 
 		static void Init(const Application& app);
 		static void Destroy();
@@ -32,5 +36,7 @@ namespace Spark
 		virtual std::pair<float, float> GetMousePositionImpl() = 0;
 		virtual float GetMouseXImpl() = 0;
 		virtual float GetMouseYImpl() = 0;
+		virtual void HideMouseImpl() = 0;
+		virtual void UnHideMouseImpl() = 0;
 	};
 }

@@ -47,12 +47,14 @@ namespace Spark
 	{
 		std::vector<VkAttachmentDescription> attachments;
 		std::vector<VkAttachmentReference> attachmentsRefs;
+		attachments.reserve(2);
+		attachmentsRefs.reserve(2);
 		VkSubpassDescription subpass = getBasicSubpass(attachments, attachmentsRefs);
 
 		VkAttachmentDescription depthAttachment = {};
 		depthAttachment.format = m_context.findDepthFormat();
 		depthAttachment.samples = m_context.m_msaaSamples;
-		depthAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
+		depthAttachment.loadOp = (m_clear) ? VK_ATTACHMENT_LOAD_OP_CLEAR : VK_ATTACHMENT_LOAD_OP_LOAD;
 		depthAttachment.storeOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
 		depthAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
 		depthAttachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
@@ -61,11 +63,11 @@ namespace Spark
 		attachments.push_back(depthAttachment);
 
 		VkAttachmentReference depthAttachmentRef{};
-		depthAttachmentRef.attachment = static_cast<uint32_t>(attachments.size());
+		depthAttachmentRef.attachment = static_cast<uint32_t>(attachments.size() - 1);
 		depthAttachmentRef.layout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
 		attachmentsRefs.push_back(depthAttachmentRef);
 
-		subpass.pDepthStencilAttachment = &depthAttachmentRef;
+		subpass.pDepthStencilAttachment = &(attachmentsRefs.back());
 
 		VkSubpassDependency dependency = getBasicSubpassDependency();
 

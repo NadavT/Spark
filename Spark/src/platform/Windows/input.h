@@ -17,6 +17,8 @@ namespace Spark
 		virtual std::pair<float, float> GetMousePositionImpl();
 		virtual float GetMouseXImpl();
 		virtual float GetMouseYImpl();
+		virtual void HideMouseImpl();
+		virtual void UnHideMouseImpl();
 	private:
 		const WindowsWindow& m_window;
 	};

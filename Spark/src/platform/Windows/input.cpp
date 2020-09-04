@@ -40,4 +40,14 @@ namespace Spark
 		auto pos = GetMousePositionImpl();
 		return pos.second;
 	}
+	
+	void WindowsInput::HideMouseImpl() 
+	{
+		glfwSetInputMode(static_cast<GLFWwindow*>(m_window.GetNativeWindow()), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+	}
+
+	void WindowsInput::UnHideMouseImpl() 
+	{
+		glfwSetInputMode(static_cast<GLFWwindow*>(m_window.GetNativeWindow()), GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+	}
 }

@@ -3,7 +3,7 @@
 
 namespace Spark
 {
-	VulkanLayerRenderer3D::VulkanLayerRenderer3D(VulkanRenderer& renderer)
+	VulkanLayerRenderer3D::VulkanLayerRenderer3D(VulkanRenderer& renderer, Camera& camera)
 		: m_renderer(renderer)
 		, m_framebuffer(nullptr)
 		, m_pipeline(nullptr)
@@ -15,6 +15,7 @@ namespace Spark
 		, m_toBeRemoved()
 		, m_isAttached(false)
 		, m_isRecreationNeeded(false)
+		, m_camera(camera)
 	{
 		m_framebuffer = renderer.createFramebuffer(VulkanFramebufferType::Type3D);
 		m_pipeline = reinterpret_cast<VulkanPipeline3D*>(renderer.createPipeline(VulkanPipelineType::Type3D, *m_framebuffer));
@@ -113,7 +114,10 @@ namespace Spark
 			VulkanCube* cube = reinterpret_cast<VulkanCube*>(m_drawables[i].get());
 			void* data;
 			struct Transformation3D transformation = {};
-			transformation.model = glm::mat4(cube->getTransformation());
+        	transformation.model = cube->getTransformation();
+        	transformation.view = m_camera.getViewMatrix();
+        	transformation.projection = glm::perspective(m_camera.getZoom(), m_renderer.m_context.m_swapChainExtent.width / (float) m_renderer.m_context.m_swapChainExtent.height, 0.1f, 100.0f);
+        	transformation.projection[1][1] *= -1;
 			vkMapMemory(m_renderer.m_context.m_device, m_uniformTransformationsMemory[i][m_renderer.getCurrentImageIndex()], 0, sizeof(transformation), 0, &data);
 			memcpy(data, &transformation, sizeof(transformation));
 			vkUnmapMemory(m_renderer.m_context.m_device, m_uniformTransformationsMemory[i][m_renderer.getCurrentImageIndex()]);
