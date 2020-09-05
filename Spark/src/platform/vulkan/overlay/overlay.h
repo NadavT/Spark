@@ -22,6 +22,7 @@ namespace Spark
 		virtual void OnUpdate(Time& diffTime);
 		virtual void OnEvent(Event& e);
 		virtual void OnRender();
+		virtual void prepareOverlay();
 
 	private:
 		void frameRender();
@@ -40,7 +41,5 @@ namespace Spark
 
 		std::vector<VkCommandBuffer> m_commandBuffers;
 
-		bool m_showDemoWindow;
-		bool m_showAnotherWindow;
 	};
 }

@@ -7,6 +7,12 @@
 
 namespace Spark
 {
+	Overlay::Overlay() 
+		:Layer("Overlay")
+	{
+
+	};
+
 	std::unique_ptr<Overlay> Spark::Overlay::Create(Renderer& renderer)
 	{
 #ifdef SPARK_PLATFORM_VULKAN
