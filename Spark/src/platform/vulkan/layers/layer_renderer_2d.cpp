@@ -78,6 +78,8 @@ namespace Spark
 			vkFreeDescriptorSets(m_renderer.m_context.m_device, m_renderer.m_context.m_descriptorPool, (unsigned int)m_textureDescriptorSets[i].size(), m_textureDescriptorSets[i].data());
 		}
 
+		m_textureDescriptorOffset.clear();
+
 		for (size_t i = 0; i < m_uniformTransformations.size(); i++)
 		{
 			vkFreeDescriptorSets(m_renderer.m_context.m_device, m_renderer.m_context.m_descriptorPool, (unsigned int)m_transfomationDescriptorSets[i].size(), m_transfomationDescriptorSets[i].data());
