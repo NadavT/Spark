@@ -47,12 +47,12 @@ public:
 		case Spark::KeyCode::Up:
 			reinterpret_cast<Spark::Quad*>(m_quads.front().get())->move({0, -0.05});
 			return true;
-		case Spark::KeyCode::A:
+		case Spark::KeyCode::N:
 			counter++;
 			m_quads.push_back(std::move(Spark::createQuad(glm::vec2(-0.5 + counter/10.0, -0.5), *Spark::ResourceManager::getTexture("sandboxTexture2"))));
 			addDrawable(m_quads.back());
 			return true;
-		case Spark::KeyCode::D:
+		case Spark::KeyCode::M:
 			removeDrawable(m_quads.back().get());
 			m_quads.pop_back();
 			return true;
@@ -62,16 +62,16 @@ public:
 		case Spark::KeyCode::X:
 			reinterpret_cast<Spark::Quad*>(m_quads.front().get())->scale(glm::vec2(1.05f));
 			return true;
-		case Spark::KeyCode::Q:
+		case Spark::KeyCode::C:
 			reinterpret_cast<Spark::Quad*>(m_quads.front().get())->scale(glm::vec2(0.95f, 1));
 			return true;
-		case Spark::KeyCode::W:
+		case Spark::KeyCode::V:
 			reinterpret_cast<Spark::Quad*>(m_quads.front().get())->scale(glm::vec2(1.05f, 1));
 			return true;
-		case Spark::KeyCode::E:
+		case Spark::KeyCode::F:
 			reinterpret_cast<Spark::Quad*>(m_quads.front().get())->scale(glm::vec2(1, 0.95f));
 			return true;
-		case Spark::KeyCode::R:
+		case Spark::KeyCode::G:
 			reinterpret_cast<Spark::Quad*>(m_quads.front().get())->scale(glm::vec2(1, 1.05f));
 			return true;
 		default:
@@ -202,8 +202,10 @@ class Sandbox : public Spark::Application
 public:
 	Sandbox()
 		: layer()
+		, m_layer2D(false)
 	{
 		layer = std::make_unique<Sandbox3DLayer>();
+		layer2d = std::make_unique<SandboxLayer>();
 		PushLayer(layer.get());
 	}
 
@@ -211,26 +213,25 @@ public:
 	{
 		Spark::Application::generateOverlay();
 
-        ImGui::SetNextWindowPos(ImVec2(0, 190), ImGuiCond_Always);
         ImGui::SetNextWindowSize(ImVec2(350, 170), ImGuiCond_Always);
-        ImGui::Begin("Sandbox", NULL, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoBackground); // Create a window called "Hello, world!" and append into it.
+        ImGui::SetNextWindowPos(ImVec2(0, ImGui::GetIO().DisplaySize.y - 170), ImGuiCond_Always);
+        ImGui::Begin("Sandbox", NULL, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove);
 
-		ImGui::Button("2d layer");
+		if(ImGui::Checkbox("2d layer", &m_layer2D)) {
+			if (m_layer2D) {
+				PushLayerBefore(layer2d.get(), layer.get());
+			}
+			else {
+				PopLayer(layer2d.get());
+			}
+		}
 
         ImGui::End();
 	}
 
 	bool handleKeyPressed(Spark::KeyPressedEvent& e)
 	{
-		switch (e.GetKeyCode())
-		{
-		// case Spark::KeyCode::S:
-		// 	PopLayer(layer.get());
-		// 	layer.reset(nullptr);
-		// 	return true;
-		default:
-			return false;
-		}
+		return false;
 	}
 
 	virtual void handleEvent(Spark::Event& e)
@@ -250,6 +251,8 @@ public:
 
 private:
 	std::unique_ptr<Sandbox3DLayer> layer;
+	std::unique_ptr<SandboxLayer> layer2d;
+	bool m_layer2D;
 };
 
 Spark::Application* Spark::CreateApplication()
