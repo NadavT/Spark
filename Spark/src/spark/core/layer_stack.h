@@ -12,6 +12,9 @@ namespace Spark
 		LayerStack() = default;
 
 		void PushLayer(Layer* layer);
+		void PushLayerBefore(Layer* layer, Layer* beforeLayer);
+		void PushLayerAfter(Layer* layer, Layer* afterLayer);
+		void PushFirstLayer(Layer* layer);
 		void PushOverlayLayer(Layer* layer);
 		void PopLayer(Layer* layer);
 		void PopOverlayLayer(Layer* layer);
