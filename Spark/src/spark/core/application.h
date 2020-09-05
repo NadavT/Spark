@@ -19,6 +19,10 @@ namespace Spark
 		SPARK_API virtual void handleEvent(Event& e);
 
 		SPARK_API void PushLayer(Layer* layer);
+		SPARK_API void PushLayerBefore(Layer* layer, Layer* beforeLayer);
+		SPARK_API void PushLayerAfter(Layer* layer, Layer* afterLayer);
+		SPARK_API void PushFirstLayer(Layer* layer);
+		SPARK_API void PushOverlayLayer(Layer* layer);
 		SPARK_API void PushOverlay(Layer* layer);
 		SPARK_API void PopLayer(Layer* layer);
 		SPARK_API void PopOverlay(Layer* layer);
@@ -26,6 +30,8 @@ namespace Spark
 		SPARK_API void Run();
 
 		SPARK_API static const Application& GetApp();
+
+		SPARK_API void generateOverlay();
 
 		const Window& GetWindow() const;
 		Renderer& GetRenderer() const;
@@ -45,6 +51,8 @@ namespace Spark
 
 		std::unique_ptr<Overlay> m_overlay;
 		std::unique_ptr<Layer> m_testLayer;
+		bool m_showTestLayer;
+		bool m_testLayerExist;
 	};
 
 	Application* CreateApplication();

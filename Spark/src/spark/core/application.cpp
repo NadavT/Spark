@@ -17,6 +17,8 @@ namespace Spark
 	Application* Application::m_app = nullptr;
 
 	Application::Application()
+		: m_showTestLayer(true)
+		, m_testLayerExist(true)
 	{
 		SPARK_CORE_ASSERT(m_app == nullptr, "App was already created");
 		m_app = this;
@@ -31,7 +33,7 @@ namespace Spark
 		ResourceManager::Init();
 
 		m_testLayer = std::make_unique<VulkanTriangleLayer>(reinterpret_cast<VulkanRenderer&>(*m_renderer));
-		// PushLayer(m_testLayer.get());
+		PushLayer(m_testLayer.get());
 
 		m_overlay = Overlay::Create(*m_renderer);
 		m_overlay->OnAttach();
@@ -39,7 +41,7 @@ namespace Spark
 
 	Application::~Application()
 	{
-		// PopLayer(m_testLayer.get());
+		PopLayer(m_testLayer.get());
 		m_overlay->OnDetach();
 		m_overlay.reset(nullptr);
 		m_testLayer.reset(nullptr);
@@ -78,6 +80,24 @@ namespace Spark
 	void Application::PushLayer(Layer* layer)
 	{
 		m_layerStack.PushLayer(layer);
+		layer->OnAttach();
+	}
+	
+	void Application::PushLayerBefore(Layer* layer, Layer* beforeLayer) 
+	{
+		m_layerStack.PushLayerBefore(layer, beforeLayer);
+		layer->OnAttach();
+	}
+	
+	void Application::PushLayerAfter(Layer* layer, Layer* afterLayer) 
+	{
+		m_layerStack.PushLayerAfter(layer, afterLayer);
+		layer->OnAttach();
+	}
+	
+	void Application::PushFirstLayer(Layer* layer) 
+	{
+		m_layerStack.PushFirstLayer(layer);
 		layer->OnAttach();
 	}
 
@@ -126,6 +146,15 @@ namespace Spark
 			m_overlay->OnUpdate(timestep);
 			m_window->OnUpdate(timestep);
 
+			if (m_showTestLayer && !m_testLayerExist) {
+				PushFirstLayer(m_testLayer.get());
+				m_testLayerExist = true;
+			}
+			else if (!m_showTestLayer && m_testLayerExist) {
+				PopLayer(m_testLayer.get());
+				m_testLayerExist = false;
+			}
+
 			Render();
 
 			Time frameTime = getCurrentTime() - m_lastFrameTime;
@@ -138,6 +167,20 @@ namespace Spark
 	{
 		SPARK_CORE_ASSERT(m_app != nullptr, "App wasn't initialized");
 		return *m_app;
+	}
+	
+	void Application::generateOverlay() 
+	{
+        ImGuiIO& io = ImGui::GetIO();
+
+        ImGui::SetNextWindowPos(ImVec2(0, 0), ImGuiCond_Always);
+        ImGui::SetNextWindowSize(ImVec2(350, 170), ImGuiCond_Always);
+        ImGui::Begin("Main", NULL, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoBackground); // Create a window called "Hello, world!" and append into it.
+
+        ImGui::Checkbox("test layer", &m_showTestLayer);
+
+        ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / io.Framerate, io.Framerate);
+        ImGui::End();
 	}
 
 	const Window& Application::GetWindow() const
@@ -158,6 +201,8 @@ namespace Spark
 		{
 			for (Layer* layer : m_layerStack)
 				layer->OnRender();
+			m_overlay->prepareOverlay();
+			generateOverlay();
 			m_overlay->OnRender();
 			m_renderer->end();
 		}
