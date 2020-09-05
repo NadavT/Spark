@@ -38,6 +38,7 @@ namespace Spark
 
 	void VulkanTriangleLayer::OnDetach()
 	{
+		m_renderer.waitForIdle();
 		for (VkCommandBuffer commandBuffer : m_commandBuffers) {
 			m_renderer.resetCommandBuffer(commandBuffer);
 		}
