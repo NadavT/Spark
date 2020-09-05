@@ -73,6 +73,9 @@ target_compile_definitions(spark PRIVATE SPARK_BUILD_DLL SPARK_PLATFORM_VULKAN V
 if(CMAKE_BUILD_TYPE STREQUAL "Debug")
     target_compile_definitions(spark PRIVATE SPARK_DEBUG)
 endif()
+if(MSVC)
+    target_compile_definitions(spark PRIVATE IMGUI_API=__declspec\(dllexport\))
+endif()
 target_compile_options(spark PRIVATE /W3)
 
 add_custom_command(OUTPUT ${APP_EXECUTABLE_PATH}/shaders

@@ -3,7 +3,9 @@
 #include "spark/layer/layer.h"
 #include "spark/renderer/renderer.h"
 
+#ifndef IMGUI_API
 #define IMGUI_API SPARK_API
+#endif
 #include <imgui.h>
 
 namespace Spark

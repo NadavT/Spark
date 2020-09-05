@@ -52,7 +52,6 @@ namespace Spark
 		std::unique_ptr<Overlay> m_overlay;
 		std::unique_ptr<Layer> m_testLayer;
 		bool m_showTestLayer;
-		bool m_testLayerExist;
 	};
 
 	Application* CreateApplication();
