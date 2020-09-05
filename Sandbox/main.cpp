@@ -8,8 +8,8 @@ public:
 		:Spark::Layer2D("Sandbox layer")
 		, counter(0)
 	{
-		const Spark::Texture& texture = Spark::ResourceManager::loadTexture("sandboxTexture", "C:\\Users\\nadav\\source\\repos\\vulkan-tutorial\\VulkanTutorial\\textures\\container2.png");
-		Spark::ResourceManager::loadTexture("sandboxTexture2", "C:\\Users\\nadav\\OneDrive\\Pictures\\ophir.PNG");
+		const Spark::Texture& texture = Spark::ResourceManager::loadTexture("sandboxTexture", "textures/texture.jpg");
+		Spark::ResourceManager::loadTexture("sandboxTexture2", "textures/test.jpg");
 		m_quads.push_back(std::move(Spark::createQuad(glm::vec2(0, 0), texture, glm::vec2(1))));
 		addDrawable(m_quads.back());
 	}
@@ -100,7 +100,7 @@ public:
 		, Spark::Layer3D("Sandbox layer", m_camera)
 		, m_focused(false)
 	{
-		const Spark::Texture& texture = Spark::ResourceManager::loadTexture("cubeTexutre", "C:\\Users\\nadav\\source\\repos\\vulkan-tutorial\\VulkanTutorial\\textures\\container2.png");
+		const Spark::Texture& texture = Spark::ResourceManager::loadTexture("cubeTexutre", "textures/container2.png");
 		m_cube = std::move(Spark::createCube({0, 0, 0}, texture));
 		addDrawable(m_cube);
 	}
