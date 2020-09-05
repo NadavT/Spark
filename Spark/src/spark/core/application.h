@@ -31,7 +31,7 @@ namespace Spark
 
 		SPARK_API static const Application& GetApp();
 
-		SPARK_API void generateOverlay();
+		SPARK_API virtual void generateOverlay();
 
 		const Window& GetWindow() const;
 		Renderer& GetRenderer() const;

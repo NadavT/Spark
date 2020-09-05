@@ -207,6 +207,19 @@ public:
 		PushLayer(layer.get());
 	}
 
+	virtual void generateOverlay()
+	{
+		Spark::Application::generateOverlay();
+
+        ImGui::SetNextWindowPos(ImVec2(0, 190), ImGuiCond_Always);
+        ImGui::SetNextWindowSize(ImVec2(350, 170), ImGuiCond_Always);
+        ImGui::Begin("Sandbox", NULL, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoBackground); // Create a window called "Hello, world!" and append into it.
+
+		ImGui::Button("2d layer");
+
+        ImGui::End();
+	}
+
 	bool handleKeyPressed(Spark::KeyPressedEvent& e)
 	{
 		switch (e.GetKeyCode())
