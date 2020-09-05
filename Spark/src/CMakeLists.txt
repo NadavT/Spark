@@ -63,8 +63,8 @@ add_library(spark SHARED ${SPARK_SOURCE} ${SPARK_WINDOWS_SOURCE} ${SPARK_VULKAN_
 
 set_property(TARGET spark PROPERTY CXX_STANDARD 17)
 
-target_include_directories(spark PUBLIC ${PROJECT_SOURCE_DIR}/src ${PROJECT_SOURCE_DIR}/vendor/spdlog/include ${PROJECT_SOURCE_DIR}/vendor/glm)
-target_include_directories(spark PRIVATE ${PROJECT_SOURCE_DIR}/vendor/glfw/include Vulkan::Vulkan ${PROJECT_SOURCE_DIR}/vendor/imgui ${PROJECT_SOURCE_DIR}/src ${PROJECT_SOURCE_DIR}/vendor/stb)
+target_include_directories(spark PUBLIC ${PROJECT_SOURCE_DIR}/src ${PROJECT_SOURCE_DIR}/vendor/spdlog/include ${PROJECT_SOURCE_DIR}/vendor/glm ${PROJECT_SOURCE_DIR}/vendor/imgui)
+target_include_directories(spark PRIVATE ${PROJECT_SOURCE_DIR}/vendor/glfw/include Vulkan::Vulkan ${PROJECT_SOURCE_DIR}/src ${PROJECT_SOURCE_DIR}/vendor/stb)
 
 target_link_libraries(spark PRIVATE glfw Vulkan::Vulkan)
 
