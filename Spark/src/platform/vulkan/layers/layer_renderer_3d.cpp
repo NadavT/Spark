@@ -167,8 +167,11 @@ namespace Spark
 				throw std::runtime_error("failed to begin recording command buffer!");
 			}
 
+			std::array<VkClearValue, 2> clearValues{};
+            clearValues[1].depthStencil = {1.0f, 0};
+
 			m_renderer.beginRenderPass(commandBuffer, m_framebuffer->getRenderPass(),
-				m_framebuffer->getswapChainFramebuffers()[i]);
+				m_framebuffer->getswapChainFramebuffers()[i], 2, clearValues.data());
 
 			for (size_t j = 0; j < m_drawables.size(); j++)
 			{

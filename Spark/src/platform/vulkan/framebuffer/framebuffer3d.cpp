@@ -54,7 +54,7 @@ namespace Spark
 		VkAttachmentDescription depthAttachment = {};
 		depthAttachment.format = m_context.findDepthFormat();
 		depthAttachment.samples = m_context.m_msaaSamples;
-		depthAttachment.loadOp = (m_clear) ? VK_ATTACHMENT_LOAD_OP_CLEAR : VK_ATTACHMENT_LOAD_OP_LOAD;
+		depthAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
 		depthAttachment.storeOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
 		depthAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
 		depthAttachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
