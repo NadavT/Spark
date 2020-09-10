@@ -99,10 +99,14 @@ public:
 		: m_camera({10.0f, 0.0f, 0.0f})
 		, Spark::Layer3D("Sandbox layer", m_camera)
 		, m_focused(false)
+		, m_addingBox(false)
+		, m_removingBox(false)
+		, m_nextCords{0, 0, 0}
+		, m_removeBoxIndex(0)
 	{
 		const Spark::Texture& texture = Spark::ResourceManager::loadTexture("cubeTexutre", "textures/container2.png");
-		m_cube = std::move(Spark::createCube({0, 0, 0}, texture));
-		addDrawable(m_cube);
+		m_cube.push_back(std::move(Spark::createCube({0, 0, 0}, texture)));
+		addDrawable(m_cube[0]);
 	}
 
 	virtual void OnAttach()
@@ -191,10 +195,78 @@ public:
 		}
 	}
 
+	void generateOverlay()
+	{
+        ImGui::SetNextWindowSize(ImVec2(350, 170), ImGuiCond_Always);
+        ImGui::SetNextWindowPos(ImVec2(ImGui::GetIO().DisplaySize.x - 360, 10), ImGuiCond_Once);
+        ImGui::Begin("3d editor", NULL, ImGuiWindowFlags_NoResize);
+
+		if(ImGui::Button("add box"))
+		{
+			SPARK_INFO("Adding box");
+			m_addingBox = true;
+		}
+
+		if (m_addingBox)
+		{
+        	ImGui::SetNextWindowSize(ImVec2(195, 35), ImGuiCond_Always);
+        	ImGui::SetNextWindowPos(ImVec2(ImGui::GetIO().DisplaySize.x / 2 - 195 / 2, ImGui::GetIO().DisplaySize.y / 2 - 35 / 2), ImGuiCond_Once);
+        	ImGui::Begin("Box adder", NULL, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize);
+
+			ImGui::InputFloat3("", m_nextCords);
+			ImGui::SameLine(150);
+			if (ImGui::Button("add"))
+			{
+				const Spark::Texture* texture = Spark::ResourceManager::getTexture("cubeTexutre");
+				m_cube.push_back(std::move(Spark::createCube({m_nextCords[0], m_nextCords[1], m_nextCords[2]}, *texture)));
+				addDrawable(m_cube.back());
+				for (int i = 0; i < 3; i++)
+				{
+					m_nextCords[i] = 0;
+				}
+				m_addingBox = false;
+			}
+
+			ImGui::End();
+		}
+
+
+		if(ImGui::Button("remove box"))
+		{
+			SPARK_INFO("Removing box");
+			m_removingBox = true;
+		}
+
+		if (m_removingBox)
+		{
+        	ImGui::SetNextWindowSize(ImVec2(210, 35), ImGuiCond_Always);
+        	ImGui::SetNextWindowPos(ImVec2(ImGui::GetIO().DisplaySize.x / 2 - 210 / 2, ImGui::GetIO().DisplaySize.y / 2 - 35 / 2), ImGuiCond_Once);
+        	ImGui::Begin("Box remover", NULL, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize);
+
+			ImGui::InputInt("", &m_removeBoxIndex);
+			ImGui::SameLine(150);
+			if (ImGui::Button("remove"))
+			{
+				removeDrawable(m_cube[m_removeBoxIndex].get());
+				m_cube.erase(m_cube.begin() + m_removeBoxIndex);
+				m_removeBoxIndex = 0;
+				m_removingBox = false;
+			}
+
+			ImGui::End();
+		}
+
+        ImGui::End();
+	}
+
 private:
-	std::shared_ptr<Spark::Drawable> m_cube;
+	std::vector<std::shared_ptr<Spark::Drawable>> m_cube;
 	Spark::Camera m_camera;
 	bool m_focused;
+	bool m_addingBox;
+	bool m_removingBox;
+    float m_nextCords[3];
+	int m_removeBoxIndex;
 };
 
 class Sandbox : public Spark::Application
@@ -217,16 +289,21 @@ public:
         ImGui::SetNextWindowPos(ImVec2(0, ImGui::GetIO().DisplaySize.y - 170), ImGuiCond_Always);
         ImGui::Begin("Sandbox", NULL, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove);
 
-		if(ImGui::Checkbox("2d layer", &m_layer2D)) {
-			if (m_layer2D) {
+		if(ImGui::Checkbox("2d layer", &m_layer2D))
+		{
+			if (m_layer2D)
+			{
 				PushLayerBefore(layer2d.get(), layer.get());
 			}
-			else {
+			else
+			{
 				PopLayer(layer2d.get());
 			}
 		}
 
         ImGui::End();
+
+		layer->generateOverlay();
 	}
 
 	bool handleKeyPressed(Spark::KeyPressedEvent& e)
