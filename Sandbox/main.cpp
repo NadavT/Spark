@@ -324,6 +324,11 @@ public:
 		{
 			PopLayer(layer.get());
 		}
+
+		if (layer2d.get() != nullptr)
+		{
+			PopLayer(layer2d.get());
+		}
 	}
 
 private:
