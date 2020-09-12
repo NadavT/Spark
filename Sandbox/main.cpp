@@ -318,14 +318,6 @@ public:
 		dispatcher.Dispatch<Spark::KeyPressedEvent>(SPARK_BIND_EVENT_FN(Sandbox::handleKeyPressed));
 	}
 
-	~Sandbox()
-	{
-		if (layer.get() != nullptr)
-		{
-			PopLayer(layer.get());
-		}
-	}
-
 private:
 	std::unique_ptr<Sandbox3DLayer> layer;
 	std::unique_ptr<SandboxLayer> layer2d;
