@@ -1,79 +1,96 @@
 #pragma once
 
-#include "spark/event/event.h"
 #include "spark/core/key_codes.h"
+#include "spark/event/event.h"
 
-namespace Spark {
 
-	class KeyEvent : public Event
-	{
-	public:
-		inline KeyCode GetKeyCode() const { return m_KeyCode; }
+namespace Spark
+{
 
-		std::string ToString() const override
-		{
-			std::stringstream stream;
-			stream << Event::ToString() << ": keycode=" << m_KeyCode;
-			return stream.str();
-		}
+class KeyEvent : public Event
+{
+  public:
+    inline KeyCode GetKeyCode() const
+    {
+        return m_KeyCode;
+    }
 
-		EVENT_CLASS_CATEGORY(EventCategoryInput | EventCategoryKeyboard)
-	protected:
-		KeyEvent(KeyCode keycode)
-			: m_KeyCode(keycode) {}
+    std::string ToString() const override
+    {
+        std::stringstream stream;
+        stream << Event::ToString() << ": keycode=" << m_KeyCode;
+        return stream.str();
+    }
 
-		KeyCode m_KeyCode;
-	};
+    EVENT_CLASS_CATEGORY(EventCategoryInput | EventCategoryKeyboard)
+  protected:
+    KeyEvent(KeyCode keycode)
+        : m_KeyCode(keycode)
+    {
+    }
 
-	class KeyPressedEvent : public KeyEvent
-	{
-	public:
-		KeyPressedEvent(KeyCode keycode, int repeatCount)
-			: KeyEvent(keycode), m_RepeatCount(repeatCount) {}
+    KeyCode m_KeyCode;
+};
 
-		inline int GetRepeatCount() const { return m_RepeatCount; }
+class KeyPressedEvent : public KeyEvent
+{
+  public:
+    KeyPressedEvent(KeyCode keycode, int repeatCount)
+        : KeyEvent(keycode)
+        , m_RepeatCount(repeatCount)
+    {
+    }
 
-		std::string ToString() const override
-		{
-			std::stringstream stream;
-			stream << Event::ToString() << ": keycode=" << m_KeyCode << " (" << m_RepeatCount << " repeats)";
-			return stream.str();
-		}
+    inline int GetRepeatCount() const
+    {
+        return m_RepeatCount;
+    }
 
-		EVENT_CLASS_TYPE(KeyPressed)
-	private:
-		int m_RepeatCount;
-	};
+    std::string ToString() const override
+    {
+        std::stringstream stream;
+        stream << Event::ToString() << ": keycode=" << m_KeyCode << " (" << m_RepeatCount << " repeats)";
+        return stream.str();
+    }
 
-	class KeyReleasedEvent : public KeyEvent
-	{
-	public:
-		KeyReleasedEvent(KeyCode keycode)
-			: KeyEvent(keycode) {}
+    EVENT_CLASS_TYPE(KeyPressed)
+  private:
+    int m_RepeatCount;
+};
 
-		std::string ToString() const override
-		{
-			std::stringstream stream;
-			stream << "KeyReleasedEvent: " << m_KeyCode;
-			return stream.str();
-		}
+class KeyReleasedEvent : public KeyEvent
+{
+  public:
+    KeyReleasedEvent(KeyCode keycode)
+        : KeyEvent(keycode)
+    {
+    }
 
-		EVENT_CLASS_TYPE(KeyReleased)
-	};
+    std::string ToString() const override
+    {
+        std::stringstream stream;
+        stream << "KeyReleasedEvent: " << m_KeyCode;
+        return stream.str();
+    }
 
-	class KeyTypedEvent : public KeyEvent
-	{
-	public:
-		KeyTypedEvent(KeyCode keycode)
-			: KeyEvent(keycode) {}
+    EVENT_CLASS_TYPE(KeyReleased)
+};
 
-		std::string ToString() const override
-		{
-			std::stringstream stream;
-			stream << "KeyTypedEvent: " << m_KeyCode;
-			return stream.str();
-		}
+class KeyTypedEvent : public KeyEvent
+{
+  public:
+    KeyTypedEvent(KeyCode keycode)
+        : KeyEvent(keycode)
+    {
+    }
 
-		EVENT_CLASS_TYPE(KeyTyped)
-	};
-}
+    std::string ToString() const override
+    {
+        std::stringstream stream;
+        stream << "KeyTypedEvent: " << m_KeyCode;
+        return stream.str();
+    }
+
+    EVENT_CLASS_TYPE(KeyTyped)
+};
+} // namespace Spark

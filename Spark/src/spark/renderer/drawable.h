@@ -4,11 +4,12 @@
 
 namespace Spark
 {
-	class Drawable
-	{
-	public:
-		SPARK_API virtual ~Drawable() = default;
-	protected:
-		SPARK_API Drawable() = default;
-	};
-}
+class Drawable
+{
+  public:
+    SPARK_API virtual ~Drawable() = default;
+
+  protected:
+    SPARK_API Drawable() = default;
+};
+} // namespace Spark

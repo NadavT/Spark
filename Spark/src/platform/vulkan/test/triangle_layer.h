@@ -1,28 +1,29 @@
 #pragma once
 
-#include "spark/layer/layer.h"
-#include "platform/vulkan/renderer.h"
 #include "platform/vulkan/pipeline/pipeline.h"
+#include "platform/vulkan/renderer.h"
+#include "spark/layer/layer.h"
 
 namespace Spark
 {
-	class VulkanTriangleLayer : public Layer
-	{
-	public:
-		VulkanTriangleLayer(VulkanRenderer& renderer);
-		virtual ~VulkanTriangleLayer();
+class VulkanTriangleLayer : public Layer
+{
+  public:
+    VulkanTriangleLayer(VulkanRenderer &renderer);
+    virtual ~VulkanTriangleLayer();
 
-		virtual void OnAttach();
-		virtual void OnDetach();
-		virtual void OnRender();
+    virtual void OnAttach();
+    virtual void OnDetach();
+    virtual void OnRender();
 
-	private:
-		void createCommandBuffers();
-	private:
-		VulkanRenderer& m_renderer;
-		VulkanFramebuffer* m_framebuffer;
-		VulkanPipeline* m_pipeline;
+  private:
+    void createCommandBuffers();
 
-		std::vector<VkCommandBuffer> m_commandBuffers;
-	};
-}
+  private:
+    VulkanRenderer &m_renderer;
+    VulkanFramebuffer *m_framebuffer;
+    VulkanPipeline *m_pipeline;
+
+    std::vector<VkCommandBuffer> m_commandBuffers;
+};
+} // namespace Spark

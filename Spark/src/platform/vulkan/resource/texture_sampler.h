@@ -6,16 +6,16 @@
 
 namespace Spark
 {
-	class VulkanTextureSampler : public Resource
-	{
-	public:
-		VulkanTextureSampler(VulkanContext& context, const std::string& name);
-		virtual ~VulkanTextureSampler();
+class VulkanTextureSampler : public Resource
+{
+  public:
+    VulkanTextureSampler(VulkanContext &context, const std::string &name);
+    virtual ~VulkanTextureSampler();
 
-		VkSampler getSampler() const;
+    VkSampler getSampler() const;
 
-	private:
-		VulkanContext& m_context;
-		VkSampler m_textureSampler;
-	};
-}
+  private:
+    VulkanContext &m_context;
+    VkSampler m_textureSampler;
+};
+} // namespace Spark

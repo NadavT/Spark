@@ -8,37 +8,37 @@
 
 namespace Spark
 {
-    Layer2D::Layer2D(const std::string& name)
-        : Layer(name)
-    {
+Layer2D::Layer2D(const std::string &name)
+    : Layer(name)
+{
 #ifdef SPARK_PLATFORM_VULKAN
-        VulkanRenderer& renderer = reinterpret_cast<VulkanRenderer&>(Application::GetApp().GetRenderer());
-        m_layer_renderer = std::make_unique<VulkanLayerRenderer2D>(renderer);
+    VulkanRenderer &renderer = reinterpret_cast<VulkanRenderer &>(Application::GetApp().GetRenderer());
+    m_layer_renderer = std::make_unique<VulkanLayerRenderer2D>(renderer);
 #endif // SPARK_PLATFORM_VULKAN
-    }
-    
-    void Layer2D::OnAttach() 
-    {
-        m_layer_renderer->OnAttach();
-    }
-    
-    void Layer2D::OnDetach() 
-    {
-        m_layer_renderer->OnDetach();
-    }
-    
-    void Layer2D::OnRender() 
-    {
-        m_layer_renderer->OnRender();
-    }
-    
-    void Layer2D::addDrawable(std::shared_ptr<Drawable>& drawable) 
-    {
-        m_layer_renderer->addDrawable(drawable);
-    }
-    
-    void Layer2D::removeDrawable(Drawable* drawable) 
-    {
-        m_layer_renderer->removeDrawable(drawable);
-    }
 }
+
+void Layer2D::OnAttach()
+{
+    m_layer_renderer->OnAttach();
+}
+
+void Layer2D::OnDetach()
+{
+    m_layer_renderer->OnDetach();
+}
+
+void Layer2D::OnRender()
+{
+    m_layer_renderer->OnRender();
+}
+
+void Layer2D::addDrawable(std::shared_ptr<Drawable> &drawable)
+{
+    m_layer_renderer->addDrawable(drawable);
+}
+
+void Layer2D::removeDrawable(Drawable *drawable)
+{
+    m_layer_renderer->removeDrawable(drawable);
+}
+} // namespace Spark

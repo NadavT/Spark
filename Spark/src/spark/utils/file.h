@@ -1,9 +1,9 @@
 #pragma once
 
-#include <vector>
 #include <string>
+#include <vector>
 
 namespace Spark
 {
-	std::vector<char> readFile(const std::string& filename);
+std::vector<char> readFile(const std::string &filename);
 }

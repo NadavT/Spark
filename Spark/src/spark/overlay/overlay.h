@@ -10,16 +10,17 @@
 
 namespace Spark
 {
-	class Overlay : public Layer
-	{
-	public:
-		virtual ~Overlay() = default;
+class Overlay : public Layer
+{
+  public:
+    virtual ~Overlay() = default;
 
-		virtual void prepareOverlay() {};
+    virtual void prepareOverlay(){};
 
-	protected:
-		Overlay();
-	public:
-		static std::unique_ptr<Overlay> Create(Renderer& renderer);
-	};
-}
+  protected:
+    Overlay();
+
+  public:
+    static std::unique_ptr<Overlay> Create(Renderer &renderer);
+};
+} // namespace Spark
