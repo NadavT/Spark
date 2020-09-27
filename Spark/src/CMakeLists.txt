@@ -34,6 +34,7 @@ set(SPARK_VULKAN_SOURCE
     "platform/vulkan/pipeline/pipeline.cpp"
     "platform/vulkan/pipeline/pipeline2d.cpp"
     "platform/vulkan/pipeline/pipeline3d.cpp"
+    "platform/vulkan/pipeline/pipeline3d_lights.cpp"
     "platform/vulkan/pipeline/pipeline_triangle.cpp"
     "platform/vulkan/vertex/vertex2d.cpp"
     "platform/vulkan/vertex/vertex3d.cpp"
