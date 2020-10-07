@@ -31,8 +31,8 @@ class VulkanPipeline3D : public VulkanPipeline
                                             std::vector<std::vector<VkBuffer>> transformationUniforms);
     void createTextureDescriptorSets(unsigned int texturesAmount,
                                      std::vector<std::vector<VkDescriptorSet>> &texturesSets,
-                                     std::vector<VkImageView> &textureImageView,
-                                     std::vector<VkSampler> &textureSampler);
+                                     std::vector<VkImageView> &textureImageViews,
+                                     std::vector<VkSampler> &textureSamplers);
 
     void createSingleTransformationDescriptorSet(std::vector<std::vector<VkDescriptorSet>> &transformationSets,
                                                  std::vector<VkBuffer> transformationUniforms);

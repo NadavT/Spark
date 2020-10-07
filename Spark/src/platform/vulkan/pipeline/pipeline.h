@@ -33,6 +33,16 @@ class VulkanPipeline
     void createGraphicsPipeline(VkShaderModule vertexShader, VkShaderModule fragmentShader,
                                 VkPipelineVertexInputStateCreateInfo vertexInputInfo, VkPipelineLayout layout,
                                 bool depthTesting = false);
+    void allocateDescriptorSets(unsigned int amount, VkDescriptorSetLayout layout,
+                                std::vector<std::vector<VkDescriptorSet>> &sets);
+    void addDescriptorSets(VkDescriptorSetLayout layout, std::vector<std::vector<VkDescriptorSet>> &sets,
+                           unsigned int amount = 1);
+    void updateBufferDescriptorSets(unsigned int amount, std::vector<std::vector<VkDescriptorSet>> &sets,
+                                    std::vector<std::vector<VkBuffer>> uniforms, VkDeviceSize range,
+                                    unsigned int offset = 0);
+    void updateTextureDescriptorSets(unsigned int amount, std::vector<std::vector<VkDescriptorSet>> &sets,
+                                     std::vector<VkImageView> &textureImageViews,
+                                     std::vector<VkSampler> &textureSamplers, unsigned int offset = 0);
 
   protected:
     VulkanContext &m_context;

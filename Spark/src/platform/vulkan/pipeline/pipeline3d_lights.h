@@ -12,9 +12,9 @@ struct Transformation3D
     glm::mat4 projection;
 };
 
-struct PushConsts {
-	alignas(4) int mvpOffset;
-	alignas(4) int numberOfPointLights;
+struct PushConsts
+{
+    alignas(4) int numberOfPointLights;
 };
 
 class VulkanPipeline3DLights : public VulkanPipeline
@@ -26,7 +26,8 @@ class VulkanPipeline3DLights : public VulkanPipeline
     virtual void cleanup();
     virtual void recreate();
 
-    virtual void bind(VkCommandBuffer commandBuffer, VkDescriptorSet transformationSet, VkDescriptorSet textureSet);
+    virtual void bind(VkCommandBuffer commandBuffer, VkDescriptorSet transformationSet, VkDescriptorSet lightSet,
+                      VkDescriptorSet textureSet);
 
     VkDescriptorSetLayout getMVPDescriptorSetLayout();
     VkDescriptorSetLayout getTextureDescriptorSetLayout();
@@ -36,8 +37,8 @@ class VulkanPipeline3DLights : public VulkanPipeline
                                             std::vector<std::vector<VkBuffer>> transformationUniforms);
     void createTextureDescriptorSets(unsigned int texturesAmount,
                                      std::vector<std::vector<VkDescriptorSet>> &texturesSets,
-                                     std::vector<VkImageView> &textureImageView,
-                                     std::vector<VkSampler> &textureSampler);
+                                     std::vector<VkImageView> &textureImageViews,
+                                     std::vector<VkSampler> &textureSamplers);
 
     void createSingleTransformationDescriptorSet(std::vector<std::vector<VkDescriptorSet>> &transformationSets,
                                                  std::vector<VkBuffer> transformationUniforms);

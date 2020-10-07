@@ -1,5 +1,7 @@
 #include "pipeline.h"
 
+#include "spark/core/log.h"
+
 namespace Spark
 {
 VulkanPipeline::VulkanPipeline(VulkanContext &context, VulkanFramebuffer &framebuffer)
@@ -147,5 +149,113 @@ void VulkanPipeline::createGraphicsPipeline(VkShaderModule vertexShader, VkShade
     {
         throw std::runtime_error("failed to create graphics pipeline!");
     }
+}
+
+void VulkanPipeline::allocateDescriptorSets(unsigned int amount, VkDescriptorSetLayout layout,
+                                            std::vector<std::vector<VkDescriptorSet>> &sets)
+{
+    std::vector<VkDescriptorSetLayout> layouts(m_context.m_swapChainImages.size(), layout);
+    VkDescriptorSetAllocateInfo allocInfo = {};
+    sets.resize(amount, std::vector<VkDescriptorSet>(m_context.m_swapChainImages.size()));
+    allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
+    allocInfo.descriptorPool = m_context.m_descriptorPool;
+    allocInfo.descriptorSetCount = static_cast<uint32_t>(m_context.m_swapChainImages.size());
+    allocInfo.pSetLayouts = layouts.data();
+    for (size_t i = 0; i < amount; i++)
+    {
+        SPARK_CORE_ASSERT(vkAllocateDescriptorSets(m_context.m_device, &allocInfo, sets[i].data()) == VK_SUCCESS,
+                          "Failed to allocate descriptor sets");
+    }
+}
+
+void VulkanPipeline::addDescriptorSets(VkDescriptorSetLayout layout, std::vector<std::vector<VkDescriptorSet>> &sets,
+                                       unsigned int amount)
+{
+    size_t originalAmount = sets.size();
+    for (size_t i = 0; i < amount; i++)
+    {
+        sets.push_back(std::vector<VkDescriptorSet>(m_context.m_swapChainImages.size()));
+    }
+
+    std::vector<VkDescriptorSetLayout> layouts(m_context.m_swapChainImages.size(), layout);
+    VkDescriptorSetAllocateInfo allocInfo = {};
+    allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
+    allocInfo.descriptorPool = m_context.m_descriptorPool;
+    allocInfo.descriptorSetCount = static_cast<uint32_t>(m_context.m_swapChainImages.size());
+    allocInfo.pSetLayouts = layouts.data();
+    for (size_t i = 0; i < amount; i++)
+    {
+        SPARK_CORE_ASSERT(vkAllocateDescriptorSets(m_context.m_device, &allocInfo, sets[originalAmount + i].data()) ==
+                              VK_SUCCESS,
+                          "Failed to allocate descriptor sets");
+    }
+}
+
+void VulkanPipeline::updateBufferDescriptorSets(unsigned int amount, std::vector<std::vector<VkDescriptorSet>> &sets,
+                                                std::vector<std::vector<VkBuffer>> uniforms, VkDeviceSize range,
+                                                unsigned int offset)
+{
+    std::vector<std::vector<VkDescriptorBufferInfo>> bufferInfos;
+    bufferInfos.resize(amount, std::vector<VkDescriptorBufferInfo>(m_context.m_swapChainImages.size()));
+
+    std::vector<VkWriteDescriptorSet> descriptorWrites = {};
+
+    for (size_t i = 0; i < amount; i++)
+    {
+        for (size_t j = 0; j < m_context.m_swapChainImages.size(); j++)
+        {
+            bufferInfos[i][j].buffer = uniforms[i][j];
+            bufferInfos[i][j].offset = 0;
+            bufferInfos[i][j].range = range;
+
+            VkWriteDescriptorSet writeDescripotrSet = {};
+
+            writeDescripotrSet.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+            writeDescripotrSet.dstSet = sets[offset + i][j];
+            writeDescripotrSet.dstBinding = 0;
+            writeDescripotrSet.dstArrayElement = 0;
+            writeDescripotrSet.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+            writeDescripotrSet.descriptorCount = 1;
+            writeDescripotrSet.pBufferInfo = &bufferInfos[i][j];
+            descriptorWrites.push_back(writeDescripotrSet);
+        }
+    }
+
+    vkUpdateDescriptorSets(m_context.m_device, static_cast<uint32_t>(descriptorWrites.size()), descriptorWrites.data(),
+                           0, nullptr);
+}
+
+void VulkanPipeline::updateTextureDescriptorSets(unsigned int amount, std::vector<std::vector<VkDescriptorSet>> &sets,
+                                                 std::vector<VkImageView> &textureImageViews,
+                                                 std::vector<VkSampler> &textureSamplers, unsigned int offset)
+{
+    std::vector<std::vector<VkDescriptorImageInfo>> imageInfos;
+    imageInfos.resize(amount, std::vector<VkDescriptorImageInfo>(m_context.m_swapChainImages.size()));
+
+    std::vector<VkWriteDescriptorSet> descriptorWrites = {};
+
+    for (size_t i = 0; i < amount; i++)
+    {
+        for (size_t j = 0; j < m_context.m_swapChainImages.size(); j++)
+        {
+            imageInfos[i][j].imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+            imageInfos[i][j].imageView = textureImageViews[i];
+            imageInfos[i][j].sampler = textureSamplers[i];
+
+            VkWriteDescriptorSet writeDescripotrSet = {};
+
+            writeDescripotrSet.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+            writeDescripotrSet.dstSet = sets[offset + i][j];
+            writeDescripotrSet.dstBinding = 0;
+            writeDescripotrSet.dstArrayElement = 0;
+            writeDescripotrSet.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+            writeDescripotrSet.descriptorCount = 1;
+            writeDescripotrSet.pImageInfo = &imageInfos[i][j];
+            descriptorWrites.push_back(writeDescripotrSet);
+        }
+    }
+
+    vkUpdateDescriptorSets(m_context.m_device, static_cast<uint32_t>(descriptorWrites.size()), descriptorWrites.data(),
+                           0, nullptr);
 }
 } // namespace Spark
