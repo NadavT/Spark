@@ -62,6 +62,7 @@ layout(set = 1, binding = 2) uniform SpotLightUBO
 spotLight;
 
 layout(set = 2, binding = 0) uniform sampler2D texSampler;
+layout(set = 2, binding = 1) uniform sampler2D specularSampler;
 layout(set = 2, binding = 2) uniform Material
 {
     float shininess;

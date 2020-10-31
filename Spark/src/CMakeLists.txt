@@ -45,6 +45,7 @@ set(SPARK_VULKAN_SOURCE
     "platform/vulkan/resource/texture_image.cpp"
     "platform/vulkan/layers/layer_renderer_2d.cpp"
     "platform/vulkan/layers/layer_renderer_3d.cpp"
+    "platform/vulkan/layers/layer_renderer_3d_lights.cpp"
     "platform/vulkan/drawables/quad.cpp"
     "platform/vulkan/drawables/cube.cpp"
     )

@@ -1,15 +1,16 @@
-#include "layer_renderer_3d.h"
+#include "layer_renderer_3d_lights.h"
 #include "platform/vulkan/drawables/cube.h"
 
 namespace Spark
 {
-VulkanLayerRenderer3D::VulkanLayerRenderer3D(VulkanRenderer &renderer, Camera &camera)
+VulkanLayerRenderer3DLights::VulkanLayerRenderer3DLights(VulkanRenderer &renderer, Camera &camera)
     : m_renderer(renderer)
     , m_framebuffer(nullptr)
     , m_pipeline(nullptr)
     , m_uniformTransformations()
     , m_uniformTransformationsMemory()
-    , m_transfomationDescriptorSets()
+    , m_transformationDescriptorSets()
+    , m_lightsDescriptorSets()
     , m_textureDescriptorSets()
     , m_commandBuffers()
     , m_toBeRemoved()
@@ -18,8 +19,8 @@ VulkanLayerRenderer3D::VulkanLayerRenderer3D(VulkanRenderer &renderer, Camera &c
     , m_camera(camera)
 {
     m_framebuffer = renderer.createFramebuffer(VulkanFramebufferType::Type3D);
-    m_pipeline =
-        reinterpret_cast<VulkanPipeline3D *>(renderer.createPipeline(VulkanPipelineType::Type3D, *m_framebuffer));
+    m_pipeline = reinterpret_cast<VulkanPipeline3DLights *>(
+        renderer.createPipeline(VulkanPipelineType::Type3DLights, *m_framebuffer));
     m_commandBuffers.resize(renderer.getImagesAmount());
     for (int i = 0; i < m_commandBuffers.size(); i++)
     {
@@ -27,7 +28,7 @@ VulkanLayerRenderer3D::VulkanLayerRenderer3D(VulkanRenderer &renderer, Camera &c
     }
 }
 
-VulkanLayerRenderer3D::~VulkanLayerRenderer3D()
+VulkanLayerRenderer3DLights::~VulkanLayerRenderer3DLights()
 {
     if (m_isAttached)
     {
@@ -45,13 +46,13 @@ VulkanLayerRenderer3D::~VulkanLayerRenderer3D()
     m_framebuffer = nullptr;
 }
 
-void VulkanLayerRenderer3D::OnAttach()
+void VulkanLayerRenderer3DLights::OnAttach()
 {
     std::vector<VkImageView> textures;
     std::vector<VkSampler> samplers;
-    m_renderer.createUniformBuffers(sizeof(Transformation3D), m_uniformTransformations, m_uniformTransformationsMemory,
-                                    (unsigned int)m_drawables.size());
-    m_pipeline->createTransformationDescriptorSets((unsigned int)m_drawables.size(), m_transfomationDescriptorSets,
+    m_renderer.createUniformBuffers(sizeof(Transformation3DLights), m_uniformTransformations,
+                                    m_uniformTransformationsMemory, (unsigned int)m_drawables.size());
+    m_pipeline->createTransformationDescriptorSets((unsigned int)m_drawables.size(), m_transformationDescriptorSets,
                                                    m_uniformTransformations);
     for (auto drawable : m_drawables)
     {
@@ -69,7 +70,7 @@ void VulkanLayerRenderer3D::OnAttach()
     m_isAttached = true;
 }
 
-void VulkanLayerRenderer3D::OnDetach()
+void VulkanLayerRenderer3DLights::OnDetach()
 {
     m_renderer.waitForIdle();
     m_isAttached = false;
@@ -89,8 +90,8 @@ void VulkanLayerRenderer3D::OnDetach()
     for (size_t i = 0; i < m_uniformTransformations.size(); i++)
     {
         vkFreeDescriptorSets(m_renderer.m_context.m_device, m_renderer.m_context.m_descriptorPool,
-                             (unsigned int)m_transfomationDescriptorSets[i].size(),
-                             m_transfomationDescriptorSets[i].data());
+                             (unsigned int)m_transformationDescriptorSets[i].size(),
+                             m_transformationDescriptorSets[i].data());
         for (size_t j = 0; j < m_uniformTransformations[i].size(); j++)
         {
             vkDestroyBuffer(m_renderer.m_context.m_device, m_uniformTransformations[i][j], nullptr);
@@ -99,7 +100,7 @@ void VulkanLayerRenderer3D::OnDetach()
     }
 }
 
-void VulkanLayerRenderer3D::OnRender()
+void VulkanLayerRenderer3DLights::OnRender()
 {
     if (m_isRecreationNeeded || m_renderer.isRecreationNeeded())
     {
@@ -124,7 +125,7 @@ void VulkanLayerRenderer3D::OnRender()
     {
         VulkanCube *cube = reinterpret_cast<VulkanCube *>(m_drawables[i].get());
         void *data;
-        struct Transformation3D transformation = {};
+        struct Transformation3DLights transformation = {};
         transformation.model = cube->getTransformation();
         transformation.view = m_camera.getViewMatrix();
         transformation.projection = glm::perspective(m_camera.getZoom(),
@@ -143,7 +144,7 @@ void VulkanLayerRenderer3D::OnRender()
     m_renderer.render(commandBuffer);
 }
 
-void VulkanLayerRenderer3D::addDrawable(std::shared_ptr<Drawable> &drawable)
+void VulkanLayerRenderer3DLights::addDrawable(std::shared_ptr<Drawable> &drawable)
 {
     LayerRenderer::addDrawable(drawable);
 
@@ -152,9 +153,9 @@ void VulkanLayerRenderer3D::addDrawable(std::shared_ptr<Drawable> &drawable)
     {
         if (m_uniformTransformations.size() < m_drawables.size())
         {
-            m_renderer.addUniformBuffers(sizeof(Transformation3D), m_uniformTransformations,
+            m_renderer.addUniformBuffers(sizeof(Transformation3DLights), m_uniformTransformations,
                                          m_uniformTransformationsMemory);
-            m_pipeline->createSingleTransformationDescriptorSet(m_transfomationDescriptorSets,
+            m_pipeline->createSingleTransformationDescriptorSet(m_transformationDescriptorSets,
                                                                 m_uniformTransformations.back());
         }
         if (m_textureDescriptorOffset.find(cube->getTexture().getName()) == m_textureDescriptorOffset.end())
@@ -170,13 +171,13 @@ void VulkanLayerRenderer3D::addDrawable(std::shared_ptr<Drawable> &drawable)
     }
 }
 
-void VulkanLayerRenderer3D::removeDrawable(Drawable *drawable)
+void VulkanLayerRenderer3DLights::removeDrawable(Drawable *drawable)
 {
     m_toBeRemoved.push_back(drawable);
     m_isRecreationNeeded = true;
 }
 
-void VulkanLayerRenderer3D::createCommandBuffers()
+void VulkanLayerRenderer3DLights::createCommandBuffers()
 {
     int i = 0;
     for (VkCommandBuffer commandBuffer : m_commandBuffers)
@@ -195,11 +196,15 @@ void VulkanLayerRenderer3D::createCommandBuffers()
         m_renderer.beginRenderPass(commandBuffer, m_framebuffer->getRenderPass(),
                                    m_framebuffer->getswapChainFramebuffers()[i], 2, clearValues.data());
 
+        struct PushConsts pushConsts;
+        pushConsts.numberOfPointLights = 0;
+
         for (size_t j = 0; j < m_drawables.size(); j++)
         {
             VulkanCube *cube = reinterpret_cast<VulkanCube *>(m_drawables[j].get());
-            m_pipeline->bind(commandBuffer, m_transfomationDescriptorSets[j][i],
-                             m_textureDescriptorSets[m_textureDescriptorOffset[cube->getTexture().getName()]][i]);
+            m_pipeline->bind(commandBuffer, m_transformationDescriptorSets[j][i], m_lightsDescriptorSets[i],
+                             m_textureDescriptorSets[m_textureDescriptorOffset[cube->getTexture().getName()]][i],
+                             pushConsts);
             cube->fillCommandBuffer(commandBuffer);
         }
 

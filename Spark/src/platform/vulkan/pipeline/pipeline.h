@@ -10,6 +10,7 @@ enum class VulkanPipelineType
 {
     Type2D,
     Type3D,
+    Type3DLights,
     TypeTriangle
 };
 

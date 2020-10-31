@@ -40,12 +40,14 @@ void VulkanPipeline3DLights::recreate()
 }
 
 void VulkanPipeline3DLights::bind(VkCommandBuffer commandBuffer, VkDescriptorSet transformationSet,
-                                  VkDescriptorSet lightSet, VkDescriptorSet textureSet)
+                                  VkDescriptorSet lightSet, VkDescriptorSet textureSet, struct PushConsts pushConsts)
 {
     const VkDescriptorSet descriptorSets[] = {transformationSet, lightSet, textureSet};
     vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_pipelineLayout, 0, 3, descriptorSets, 0,
                             nullptr);
     VulkanPipeline::bind(commandBuffer);
+    vkCmdPushConstants(commandBuffer, m_pipelineLayout, VK_SHADER_STAGE_ALL_GRAPHICS, 0, sizeof(pushConsts),
+                       &pushConsts);
 }
 
 VkDescriptorSetLayout VulkanPipeline3DLights::getMVPDescriptorSetLayout()
@@ -63,7 +65,8 @@ void VulkanPipeline3DLights::createTransformationDescriptorSets(
     std::vector<std::vector<VkBuffer>> transformationUniforms)
 {
     allocateDescriptorSets(drawablesAmount, m_transformationDescriptorSetLayout, transformationSets);
-    updateBufferDescriptorSets(drawablesAmount, transformationSets, transformationUniforms, sizeof(Transformation3D));
+    updateBufferDescriptorSets(drawablesAmount, transformationSets, transformationUniforms,
+                               sizeof(Transformation3DLights));
 }
 
 void VulkanPipeline3DLights::createTextureDescriptorSets(unsigned int texturesAmount,
@@ -79,7 +82,7 @@ void VulkanPipeline3DLights::createSingleTransformationDescriptorSet(
     std::vector<std::vector<VkDescriptorSet>> &transformationSets, std::vector<VkBuffer> transformationUniforms)
 {
     addDescriptorSets(m_transformationDescriptorSetLayout, transformationSets);
-    updateBufferDescriptorSets(1, transformationSets, {transformationUniforms}, sizeof(Transformation3D),
+    updateBufferDescriptorSets(1, transformationSets, {transformationUniforms}, sizeof(Transformation3DLights),
                                static_cast<unsigned int>(transformationSets.size() - 1));
 }
 
@@ -130,6 +133,20 @@ void VulkanPipeline3DLights::createDescriptorSetLayout()
     samplerLayoutBinding.pImmutableSamplers = nullptr;
     samplerLayoutBinding.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
 
+    VkDescriptorSetLayoutBinding specularLayoutBinding = {};
+    specularLayoutBinding.binding = 1;
+    specularLayoutBinding.descriptorCount = 1;
+    specularLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+    specularLayoutBinding.pImmutableSamplers = nullptr;
+    specularLayoutBinding.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
+
+    VkDescriptorSetLayoutBinding materialBinding = {};
+    materialBinding.binding = 2;
+    materialBinding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+    materialBinding.descriptorCount = 1;
+    materialBinding.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
+    materialBinding.pImmutableSamplers = nullptr;
+
     VkDescriptorSetLayoutCreateInfo layoutInfo = {};
     layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
     layoutInfo.bindingCount = 1;
@@ -147,9 +164,11 @@ void VulkanPipeline3DLights::createDescriptorSetLayout()
                                                   &m_lightsDescriptorSetLayout) == VK_SUCCESS,
                       "failed to create descriptor set layout!");
 
+    std::array<VkDescriptorSetLayoutBinding, 3> samplerBindings = {samplerLayoutBinding, specularLayoutBinding,
+                                                                   materialBinding};
     layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
-    layoutInfo.bindingCount = 1;
-    layoutInfo.pBindings = &samplerLayoutBinding;
+    layoutInfo.bindingCount = static_cast<uint32_t>(samplerBindings.size());
+    layoutInfo.pBindings = samplerBindings.data();
     SPARK_CORE_ASSERT(vkCreateDescriptorSetLayout(m_context.m_device, &layoutInfo, nullptr,
                                                   &m_textureDescriptorSetLayout) == VK_SUCCESS,
                       "failed to create descriptor set layout!");

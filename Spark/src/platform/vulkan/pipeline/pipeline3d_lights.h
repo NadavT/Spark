@@ -5,7 +5,7 @@
 
 namespace Spark
 {
-struct Transformation3D
+struct Transformation3DLights
 {
     glm::mat4 model;
     glm::mat4 view;
@@ -27,7 +27,7 @@ class VulkanPipeline3DLights : public VulkanPipeline
     virtual void recreate();
 
     virtual void bind(VkCommandBuffer commandBuffer, VkDescriptorSet transformationSet, VkDescriptorSet lightSet,
-                      VkDescriptorSet textureSet);
+                      VkDescriptorSet textureSet, struct PushConsts pushConsts);
 
     VkDescriptorSetLayout getMVPDescriptorSetLayout();
     VkDescriptorSetLayout getTextureDescriptorSetLayout();

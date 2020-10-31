@@ -9,7 +9,7 @@ VulkanLayerRenderer3D::VulkanLayerRenderer3D(VulkanRenderer &renderer, Camera &c
     , m_pipeline(nullptr)
     , m_uniformTransformations()
     , m_uniformTransformationsMemory()
-    , m_transfomationDescriptorSets()
+    , m_transformationDescriptorSets()
     , m_textureDescriptorSets()
     , m_commandBuffers()
     , m_toBeRemoved()
@@ -51,7 +51,7 @@ void VulkanLayerRenderer3D::OnAttach()
     std::vector<VkSampler> samplers;
     m_renderer.createUniformBuffers(sizeof(Transformation3D), m_uniformTransformations, m_uniformTransformationsMemory,
                                     (unsigned int)m_drawables.size());
-    m_pipeline->createTransformationDescriptorSets((unsigned int)m_drawables.size(), m_transfomationDescriptorSets,
+    m_pipeline->createTransformationDescriptorSets((unsigned int)m_drawables.size(), m_transformationDescriptorSets,
                                                    m_uniformTransformations);
     for (auto drawable : m_drawables)
     {
@@ -89,8 +89,8 @@ void VulkanLayerRenderer3D::OnDetach()
     for (size_t i = 0; i < m_uniformTransformations.size(); i++)
     {
         vkFreeDescriptorSets(m_renderer.m_context.m_device, m_renderer.m_context.m_descriptorPool,
-                             (unsigned int)m_transfomationDescriptorSets[i].size(),
-                             m_transfomationDescriptorSets[i].data());
+                             (unsigned int)m_transformationDescriptorSets[i].size(),
+                             m_transformationDescriptorSets[i].data());
         for (size_t j = 0; j < m_uniformTransformations[i].size(); j++)
         {
             vkDestroyBuffer(m_renderer.m_context.m_device, m_uniformTransformations[i][j], nullptr);
@@ -154,7 +154,7 @@ void VulkanLayerRenderer3D::addDrawable(std::shared_ptr<Drawable> &drawable)
         {
             m_renderer.addUniformBuffers(sizeof(Transformation3D), m_uniformTransformations,
                                          m_uniformTransformationsMemory);
-            m_pipeline->createSingleTransformationDescriptorSet(m_transfomationDescriptorSets,
+            m_pipeline->createSingleTransformationDescriptorSet(m_transformationDescriptorSets,
                                                                 m_uniformTransformations.back());
         }
         if (m_textureDescriptorOffset.find(cube->getTexture().getName()) == m_textureDescriptorOffset.end())
@@ -198,7 +198,7 @@ void VulkanLayerRenderer3D::createCommandBuffers()
         for (size_t j = 0; j < m_drawables.size(); j++)
         {
             VulkanCube *cube = reinterpret_cast<VulkanCube *>(m_drawables[j].get());
-            m_pipeline->bind(commandBuffer, m_transfomationDescriptorSets[j][i],
+            m_pipeline->bind(commandBuffer, m_transformationDescriptorSets[j][i],
                              m_textureDescriptorSets[m_textureDescriptorOffset[cube->getTexture().getName()]][i]);
             cube->fillCommandBuffer(commandBuffer);
         }

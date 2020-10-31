@@ -33,7 +33,7 @@ class VulkanLayerRenderer3D : public LayerRenderer
 
     std::vector<std::vector<VkBuffer>> m_uniformTransformations;
     std::vector<std::vector<VkDeviceMemory>> m_uniformTransformationsMemory;
-    std::vector<std::vector<VkDescriptorSet>> m_transfomationDescriptorSets;
+    std::vector<std::vector<VkDescriptorSet>> m_transformationDescriptorSets;
     std::vector<std::vector<VkDescriptorSet>> m_textureDescriptorSets;
     std::unordered_map<std::string, unsigned int> m_textureDescriptorOffset;
 

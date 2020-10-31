@@ -1,7 +1,7 @@
 #version 450
 #extension GL_ARB_separate_shader_objects : enable
 
-struct MVP
+layout(set = 0, binding = 0) uniform MVPUniform
 {
     mat4 model;
     mat4 view;

@@ -4,6 +4,7 @@
 #include "platform/vulkan/framebuffer/framebuffer3d.h"
 #include "platform/vulkan/pipeline/pipeline2d.h"
 #include "platform/vulkan/pipeline/pipeline3d.h"
+#include "platform/vulkan/pipeline/pipeline3d_lights.h"
 #include "platform/vulkan/pipeline/pipeline_triangle.h"
 #include "spark/core/log.h"
 
@@ -277,6 +278,9 @@ VulkanPipeline *VulkanRenderer::createPipeline(VulkanPipelineType type, VulkanFr
         return m_pipelines.back().get();
     case VulkanPipelineType::Type3D:
         m_pipelines.push_back(std::make_unique<VulkanPipeline3D>(m_context, framebuffer));
+        return m_pipelines.back().get();
+    case VulkanPipelineType::Type3DLights:
+        m_pipelines.push_back(std::make_unique<VulkanPipeline3DLights>(m_context, framebuffer));
         return m_pipelines.back().get();
     case VulkanPipelineType::TypeTriangle:
         m_pipelines.push_back(std::make_unique<VulkanPipelineTriangle>(m_context, framebuffer));
