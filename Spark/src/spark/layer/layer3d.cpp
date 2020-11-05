@@ -3,7 +3,7 @@
 #include "spark/core/application.h"
 
 #ifdef SPARK_PLATFORM_VULKAN
-#include "platform/vulkan/layers/layer_renderer_3d.h"
+    #include "platform/vulkan/layers/layer_renderer_3d_lights.h"
 #endif // SPARK_PLATFORM_VULKAN
 
 namespace Spark
@@ -14,7 +14,7 @@ Layer3D::Layer3D(const std::string &name, Camera &camera)
 {
 #ifdef SPARK_PLATFORM_VULKAN
     VulkanRenderer &renderer = reinterpret_cast<VulkanRenderer &>(Application::GetApp().GetRenderer());
-    m_layer_renderer = std::make_unique<VulkanLayerRenderer3D>(renderer, m_camera);
+    m_layer_renderer = std::make_unique<VulkanLayerRenderer3DLights>(renderer, m_camera);
 #endif // SPARK_PLATFORM_VULKAN
 }
 

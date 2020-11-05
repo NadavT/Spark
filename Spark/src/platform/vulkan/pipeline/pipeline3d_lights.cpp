@@ -55,6 +55,11 @@ VkDescriptorSetLayout VulkanPipeline3DLights::getMVPDescriptorSetLayout()
     return m_transformationDescriptorSetLayout;
 }
 
+VkDescriptorSetLayout VulkanPipeline3DLights::getLightsDescriptorSetLayout()
+{
+    return m_lightsDescriptorSetLayout;
+}
+
 VkDescriptorSetLayout VulkanPipeline3DLights::getTextureDescriptorSetLayout()
 {
     return m_textureDescriptorSetLayout;
@@ -69,13 +74,26 @@ void VulkanPipeline3DLights::createTransformationDescriptorSets(
                                sizeof(Transformation3DLights));
 }
 
+void VulkanPipeline3DLights::createLightDescriptorSets(std::vector<std::vector<VkDescriptorSet>> &lightSets,
+                                                       std::vector<VkBuffer> &dirLightUniform,
+                                                       std::vector<VkBuffer> &pointLightsUniform,
+                                                       std::vector<VkBuffer> &spotLightUniform)
+{
+    allocateDescriptorSets(1, m_lightsDescriptorSetLayout, lightSets);
+    updateLightsDescriptorSets(lightSets, dirLightUniform, pointLightsUniform, spotLightUniform);
+}
+
 void VulkanPipeline3DLights::createTextureDescriptorSets(unsigned int texturesAmount,
                                                          std::vector<std::vector<VkDescriptorSet>> &texturesSets,
                                                          std::vector<VkImageView> &textureImageViews,
-                                                         std::vector<VkSampler> &textureSamplers)
+                                                         std::vector<VkSampler> &textureSamplers,
+                                                         std::vector<VkImageView> &specularImageViews,
+                                                         std::vector<VkSampler> &specularSamplers,
+                                                         std::vector<std::vector<VkBuffer>> materialUniform)
 {
     allocateDescriptorSets(texturesAmount, m_textureDescriptorSetLayout, texturesSets);
-    updateTextureDescriptorSets(texturesAmount, texturesSets, textureImageViews, textureSamplers);
+    updateTextureDescriptorSets(texturesAmount, texturesSets, textureImageViews, textureSamplers, specularImageViews,
+                                specularSamplers, materialUniform);
 }
 
 void VulkanPipeline3DLights::createSingleTransformationDescriptorSet(
@@ -87,13 +105,17 @@ void VulkanPipeline3DLights::createSingleTransformationDescriptorSet(
 }
 
 void VulkanPipeline3DLights::createSingleTextureDescriptorSet(std::vector<std::vector<VkDescriptorSet>> &textureSets,
-                                                              VkImageView textureImageView, VkSampler textureSampler)
+                                                              VkImageView textureImageView, VkSampler textureSampler,
+                                                              VkImageView specularImageView, VkSampler specularSampler,
+                                                              std::vector<VkBuffer> materialUniform)
 {
     std::vector<VkImageView> imageViews = {textureImageView};
     std::vector<VkSampler> samplers = {textureSampler};
+    std::vector<VkImageView> specularViews = {specularImageView};
+    std::vector<VkSampler> specularSamplers = {specularSampler};
     addDescriptorSets(m_textureDescriptorSetLayout, textureSets);
-    updateTextureDescriptorSets(1, textureSets, imageViews, samplers,
-                                static_cast<unsigned int>(textureSets.size() - 1));
+    updateTextureDescriptorSets(1, textureSets, imageViews, samplers, specularViews, specularSamplers,
+                                {materialUniform}, static_cast<unsigned int>(textureSets.size() - 1));
 }
 
 void VulkanPipeline3DLights::createDescriptorSetLayout()
@@ -217,4 +239,120 @@ void VulkanPipeline3DLights::createGraphicsPipeline()
     vkDestroyShaderModule(m_context.m_device, vertexShader, VK_NULL_HANDLE);
     vkDestroyShaderModule(m_context.m_device, fragmentShader, VK_NULL_HANDLE);
 }
+
+void VulkanPipeline3DLights::updateLightsDescriptorSets(std::vector<std::vector<VkDescriptorSet>> &lightSets,
+                                                        std::vector<VkBuffer> &dirLightUniform,
+                                                        std::vector<VkBuffer> &pointLightsUniform,
+                                                        std::vector<VkBuffer> &spotLightUniform)
+{
+    std::vector<VkDescriptorBufferInfo> bufferInfos;
+    bufferInfos.resize(m_context.m_swapChainImages.size() * 3);
+
+    std::vector<VkWriteDescriptorSet> descriptorWrites = {};
+
+    for (size_t i = 0; i < m_context.m_swapChainImages.size(); i++)
+    {
+        VkWriteDescriptorSet writeDescripotrSet = {};
+
+        bufferInfos[i * 3].buffer = dirLightUniform[i];
+        bufferInfos[i * 3].offset = 0;
+        bufferInfos[i * 3].range = sizeof(DirectionalLight);
+        writeDescripotrSet.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+        writeDescripotrSet.dstSet = lightSets[0][i];
+        writeDescripotrSet.dstBinding = 0;
+        writeDescripotrSet.dstArrayElement = 0;
+        writeDescripotrSet.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+        writeDescripotrSet.descriptorCount = 1;
+        writeDescripotrSet.pBufferInfo = &bufferInfos[i * 3];
+        descriptorWrites.push_back(writeDescripotrSet);
+
+        bufferInfos[i * 3 + 1].buffer = pointLightsUniform[i];
+        bufferInfos[i * 3 + 1].offset = 0;
+        bufferInfos[i * 3 + 1].range = sizeof(PointLight) * MAX_POINT_LIGHTS;
+        writeDescripotrSet.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+        writeDescripotrSet.dstSet = lightSets[0][i];
+        writeDescripotrSet.dstBinding = 1;
+        writeDescripotrSet.dstArrayElement = 0;
+        writeDescripotrSet.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+        writeDescripotrSet.descriptorCount = 1;
+        writeDescripotrSet.pBufferInfo = &bufferInfos[i * 3 + 1];
+        descriptorWrites.push_back(writeDescripotrSet);
+
+        bufferInfos[i * 3 + 2].buffer = spotLightUniform[i];
+        bufferInfos[i * 3 + 2].offset = 0;
+        bufferInfos[i * 3 + 2].range = sizeof(SpotLight);
+        writeDescripotrSet.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+        writeDescripotrSet.dstSet = lightSets[0][i];
+        writeDescripotrSet.dstBinding = 2;
+        writeDescripotrSet.dstArrayElement = 0;
+        writeDescripotrSet.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+        writeDescripotrSet.descriptorCount = 1;
+        writeDescripotrSet.pBufferInfo = &bufferInfos[i * 3 + 2];
+        descriptorWrites.push_back(writeDescripotrSet);
+    }
+
+    vkUpdateDescriptorSets(m_context.m_device, static_cast<uint32_t>(descriptorWrites.size()), descriptorWrites.data(),
+                           0, nullptr);
+}
+
+void VulkanPipeline3DLights::updateTextureDescriptorSets(
+    unsigned int amount, std::vector<std::vector<VkDescriptorSet>> &sets, std::vector<VkImageView> &textureImageViews,
+    std::vector<VkSampler> &textureSamplers, std::vector<VkImageView> &specularImageViews,
+    std::vector<VkSampler> &specularSamplers, std::vector<std::vector<VkBuffer>> materialUniform, unsigned int offset)
+{
+    std::vector<std::vector<VkDescriptorImageInfo>> imageInfos;
+    imageInfos.resize(amount * 2, std::vector<VkDescriptorImageInfo>(m_context.m_swapChainImages.size()));
+    std::vector<std::vector<VkDescriptorBufferInfo>> bufferInfos;
+    bufferInfos.resize(amount, std::vector<VkDescriptorBufferInfo>(m_context.m_swapChainImages.size()));
+
+    std::vector<VkWriteDescriptorSet> descriptorWrites = {};
+
+    for (size_t i = 0; i < amount; i++)
+    {
+        for (size_t j = 0; j < m_context.m_swapChainImages.size(); j++)
+        {
+            VkWriteDescriptorSet writeDescripotrSet = {};
+
+            imageInfos[i * 2][j].imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+            imageInfos[i * 2][j].imageView = textureImageViews[i];
+            imageInfos[i * 2][j].sampler = textureSamplers[i];
+            writeDescripotrSet.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+            writeDescripotrSet.dstSet = sets[offset + i][j];
+            writeDescripotrSet.dstBinding = 0;
+            writeDescripotrSet.dstArrayElement = 0;
+            writeDescripotrSet.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+            writeDescripotrSet.descriptorCount = 1;
+            writeDescripotrSet.pImageInfo = &imageInfos[i * 3][j];
+            descriptorWrites.push_back(writeDescripotrSet);
+
+            imageInfos[i * 2 + 1][j].imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+            imageInfos[i * 2 + 1][j].imageView = specularImageViews[i];
+            imageInfos[i * 2 + 1][j].sampler = specularSamplers[i];
+            writeDescripotrSet.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+            writeDescripotrSet.dstSet = sets[offset + i][j];
+            writeDescripotrSet.dstBinding = 1;
+            writeDescripotrSet.dstArrayElement = 0;
+            writeDescripotrSet.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+            writeDescripotrSet.descriptorCount = 1;
+            writeDescripotrSet.pImageInfo = &imageInfos[i * 3 + 1][j];
+            descriptorWrites.push_back(writeDescripotrSet);
+
+            bufferInfos[i][j].buffer = materialUniform[i][j];
+            bufferInfos[i][j].offset = 0;
+            bufferInfos[i][j].range = sizeof(Material);
+            writeDescripotrSet.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+            writeDescripotrSet.dstSet = sets[offset + i][j];
+            writeDescripotrSet.dstBinding = 2;
+            writeDescripotrSet.dstArrayElement = 0;
+            writeDescripotrSet.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+            writeDescripotrSet.descriptorCount = 1;
+            writeDescripotrSet.pBufferInfo = &bufferInfos[i][j];
+            descriptorWrites.push_back(writeDescripotrSet);
+        }
+    }
+
+    vkUpdateDescriptorSets(m_context.m_device, static_cast<uint32_t>(descriptorWrites.size()), descriptorWrites.data(),
+                           0, nullptr);
+}
+
 } // namespace Spark

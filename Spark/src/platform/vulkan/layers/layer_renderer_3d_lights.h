@@ -39,10 +39,10 @@ class VulkanLayerRenderer3DLights : public LayerRenderer
     std::vector<VkDeviceMemory> m_uniformPointLightBuffersMemory;
     std::vector<VkBuffer> m_uniformSpotLightBuffers;
     std::vector<VkDeviceMemory> m_uniformSpotLightBuffersMemory;
-    std::vector<VkBuffer> m_uniformMaterialBuffers;
-    std::vector<VkDeviceMemory> m_uniformMaterialBuffersMemory;
+    std::vector<std::vector<VkBuffer>> m_uniformMaterialBuffers;
+    std::vector<std::vector<VkDeviceMemory>> m_uniformMaterialBuffersMemory;
     std::vector<std::vector<VkDescriptorSet>> m_transformationDescriptorSets;
-    std::vector<VkDescriptorSet> m_lightsDescriptorSets;
+    std::vector<std::vector<VkDescriptorSet>> m_lightsDescriptorSets;
     std::vector<std::vector<VkDescriptorSet>> m_textureDescriptorSets;
     std::unordered_map<std::string, unsigned int> m_textureDescriptorOffset;
 

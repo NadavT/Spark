@@ -12,6 +12,47 @@ struct Transformation3DLights
     glm::mat4 projection;
 };
 
+struct DirectionalLight
+{
+    alignas(16) glm::vec3 direction;
+
+    alignas(16) glm::vec3 ambient;
+    alignas(16) glm::vec3 diffuse;
+    alignas(16) glm::vec3 specular;
+};
+
+#define MAX_POINT_LIGHTS (10)
+struct PointLight
+{
+    alignas(16) glm::vec3 position;
+
+    alignas(16) glm::vec3 ambient;
+    alignas(16) glm::vec3 diffuse;
+    alignas(16) glm::vec3 specular;
+
+    alignas(4) float constant;
+    alignas(4) float linear;
+    alignas(4) float quadratic;
+};
+
+struct SpotLight
+{
+    alignas(16) glm::vec3 position;
+    alignas(16) glm::vec3 direction;
+
+    alignas(16) glm::vec3 ambient;
+    alignas(16) glm::vec3 diffuse;
+    alignas(16) glm::vec3 specular;
+
+    float innerCutOff;
+    float outerCutOff;
+};
+
+struct Material
+{
+    float shininess;
+};
+
 struct PushConsts
 {
     alignas(4) int numberOfPointLights;
@@ -30,24 +71,42 @@ class VulkanPipeline3DLights : public VulkanPipeline
                       VkDescriptorSet textureSet, struct PushConsts pushConsts);
 
     VkDescriptorSetLayout getMVPDescriptorSetLayout();
+    VkDescriptorSetLayout getLightsDescriptorSetLayout();
     VkDescriptorSetLayout getTextureDescriptorSetLayout();
 
     void createTransformationDescriptorSets(unsigned int drawablesAmount,
                                             std::vector<std::vector<VkDescriptorSet>> &transformationSets,
                                             std::vector<std::vector<VkBuffer>> transformationUniforms);
+    void createLightDescriptorSets(std::vector<std::vector<VkDescriptorSet>> &lightSets,
+                                   std::vector<VkBuffer> &dirLightUniform, std::vector<VkBuffer> &pointLightsUniform,
+                                   std::vector<VkBuffer> &spotLightUniform);
     void createTextureDescriptorSets(unsigned int texturesAmount,
                                      std::vector<std::vector<VkDescriptorSet>> &texturesSets,
                                      std::vector<VkImageView> &textureImageViews,
-                                     std::vector<VkSampler> &textureSamplers);
+                                     std::vector<VkSampler> &textureSamplers,
+                                     std::vector<VkImageView> &specularImageViews,
+                                     std::vector<VkSampler> &specularSamplers,
+                                     std::vector<std::vector<VkBuffer>> materialUniform);
 
     void createSingleTransformationDescriptorSet(std::vector<std::vector<VkDescriptorSet>> &transformationSets,
                                                  std::vector<VkBuffer> transformationUniforms);
     void createSingleTextureDescriptorSet(std::vector<std::vector<VkDescriptorSet>> &textureSets,
-                                          VkImageView textureImageView, VkSampler textureSampler);
+                                          VkImageView textureImageView, VkSampler textureSampler,
+                                          VkImageView specularImageView, VkSampler specularSampler,
+                                          std::vector<VkBuffer> materialUniform);
 
   private:
     void createDescriptorSetLayout();
     void createGraphicsPipeline();
+    void updateLightsDescriptorSets(std::vector<std::vector<VkDescriptorSet>> &lightSets,
+                                    std::vector<VkBuffer> &dirLightUniform, std::vector<VkBuffer> &pointLightsUniform,
+                                    std::vector<VkBuffer> &spotLightUniform);
+    void updateTextureDescriptorSets(unsigned int amount, std::vector<std::vector<VkDescriptorSet>> &sets,
+                                     std::vector<VkImageView> &textureImageViews,
+                                     std::vector<VkSampler> &textureSamplers,
+                                     std::vector<VkImageView> &specularImageViews,
+                                     std::vector<VkSampler> &specularSamplers,
+                                     std::vector<std::vector<VkBuffer>> materialUniform, unsigned int offset = 0);
 
   private:
     VkPipelineLayout m_pipelineLayout;

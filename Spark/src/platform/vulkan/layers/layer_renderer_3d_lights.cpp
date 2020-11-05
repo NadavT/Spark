@@ -9,6 +9,12 @@ VulkanLayerRenderer3DLights::VulkanLayerRenderer3DLights(VulkanRenderer &rendere
     , m_pipeline(nullptr)
     , m_uniformTransformations()
     , m_uniformTransformationsMemory()
+    , m_uniformDirectionalLightBuffers()
+    , m_uniformDirectionalLightBuffersMemory()
+    , m_uniformPointLightBuffers()
+    , m_uniformPointLightBuffersMemory()
+    , m_uniformSpotLightBuffers()
+    , m_uniformSpotLightBuffersMemory()
     , m_transformationDescriptorSets()
     , m_lightsDescriptorSets()
     , m_textureDescriptorSets()
@@ -50,10 +56,23 @@ void VulkanLayerRenderer3DLights::OnAttach()
 {
     std::vector<VkImageView> textures;
     std::vector<VkSampler> samplers;
+    std::vector<VkImageView> specularTextures;
+    std::vector<VkSampler> specularSamplers;
     m_renderer.createUniformBuffers(sizeof(Transformation3DLights), m_uniformTransformations,
                                     m_uniformTransformationsMemory, (unsigned int)m_drawables.size());
     m_pipeline->createTransformationDescriptorSets((unsigned int)m_drawables.size(), m_transformationDescriptorSets,
                                                    m_uniformTransformations);
+
+    m_renderer.createUniformBuffers(sizeof(DirectionalLight), m_uniformDirectionalLightBuffers,
+                                    m_uniformDirectionalLightBuffersMemory);
+    m_renderer.createUniformBuffers(sizeof(PointLight) * MAX_POINT_LIGHTS, m_uniformPointLightBuffers,
+                                    m_uniformPointLightBuffersMemory);
+    m_renderer.createUniformBuffers(sizeof(SpotLight), m_uniformSpotLightBuffers, m_uniformSpotLightBuffersMemory);
+    m_pipeline->createLightDescriptorSets(m_lightsDescriptorSets, m_uniformDirectionalLightBuffers,
+                                          m_uniformPointLightBuffers, m_uniformSpotLightBuffers);
+
+    m_renderer.createUniformBuffers(sizeof(Material), m_uniformMaterialBuffers, m_uniformMaterialBuffersMemory,
+                                    (unsigned int)m_drawables.size());
     for (auto drawable : m_drawables)
     {
         VulkanCube *quad = reinterpret_cast<VulkanCube *>(drawable.get());
@@ -62,10 +81,13 @@ void VulkanLayerRenderer3DLights::OnAttach()
             m_textureDescriptorOffset[quad->getTexture().getName()] = (unsigned int)textures.size();
             textures.push_back(quad->getTexture().getImage().getImageView());
             samplers.push_back(quad->getTexture().getSampler().getSampler());
+            specularTextures.push_back(quad->getTexture().getImage().getImageView());
+            specularSamplers.push_back(quad->getTexture().getSampler().getSampler());
         }
     }
 
-    m_pipeline->createTextureDescriptorSets((unsigned int)textures.size(), m_textureDescriptorSets, textures, samplers);
+    m_pipeline->createTextureDescriptorSets((unsigned int)textures.size(), m_textureDescriptorSets, textures, samplers,
+                                            specularTextures, specularSamplers, m_uniformMaterialBuffers);
     createCommandBuffers();
     m_isAttached = true;
 }
@@ -138,6 +160,43 @@ void VulkanLayerRenderer3DLights::OnRender()
         memcpy(data, &transformation, sizeof(transformation));
         vkUnmapMemory(m_renderer.m_context.m_device,
                       m_uniformTransformationsMemory[i][m_renderer.getCurrentImageIndex()]);
+
+        glm::vec3 dirLightColor = {1.0f, 1.0f, 1.0f};
+        DirectionalLight dirLight = {};
+        dirLight.direction =
+            glm::transpose(glm::inverse(m_camera.getViewMatrix())) * glm::vec4(0.0f, 0.0f, -1.0f, 1.0f);
+        dirLight.ambient = dirLightColor * 0.3f;
+        dirLight.diffuse = dirLightColor * 0.4f;
+        dirLight.specular = dirLightColor * 0.3f;
+        vkMapMemory(m_renderer.m_context.m_device,
+                    m_uniformDirectionalLightBuffersMemory[m_renderer.getCurrentImageIndex()], 0, sizeof(dirLight), 0,
+                    &data);
+        memcpy(data, &dirLight, sizeof(dirLight));
+        vkUnmapMemory(m_renderer.m_context.m_device,
+                      m_uniformDirectionalLightBuffersMemory[m_renderer.getCurrentImageIndex()]);
+
+        glm::vec3 spotLightColor = {0, 0, 1.0f};
+        SpotLight spotLight = {};
+        spotLight.position = glm::vec3(0);
+        spotLight.direction = glm::vec3(0.0f, 0.0f, -1.0f);
+        spotLight.ambient = spotLightColor * 0.2f;
+        spotLight.diffuse = spotLightColor * 0.5f;
+        spotLight.specular = spotLightColor;
+        spotLight.innerCutOff = glm::cos(glm::radians(12.5f));
+        spotLight.outerCutOff = glm::cos(glm::radians(14.5f));
+        vkMapMemory(m_renderer.m_context.m_device, m_uniformSpotLightBuffersMemory[m_renderer.getCurrentImageIndex()],
+                    0, sizeof(spotLight), 0, &data);
+        memcpy(data, &spotLight, sizeof(spotLight));
+        vkUnmapMemory(m_renderer.m_context.m_device,
+                      m_uniformSpotLightBuffersMemory[m_renderer.getCurrentImageIndex()]);
+
+        Material material = {};
+        material.shininess = 32.0f;
+        vkMapMemory(m_renderer.m_context.m_device, m_uniformMaterialBuffersMemory[0][m_renderer.getCurrentImageIndex()],
+                    0, sizeof(material), 0, &data);
+        memcpy(data, &material, sizeof(material));
+        vkUnmapMemory(m_renderer.m_context.m_device,
+                      m_uniformMaterialBuffersMemory[0][m_renderer.getCurrentImageIndex()]);
     }
 
     VkCommandBuffer commandBuffer = m_commandBuffers[m_renderer.getCurrentImageIndex()];
@@ -163,8 +222,10 @@ void VulkanLayerRenderer3DLights::addDrawable(std::shared_ptr<Drawable> &drawabl
             const VulkanTexture &texture = cube->getTexture();
             m_textureDescriptorOffset[cube->getTexture().getName()] =
                 static_cast<unsigned int>(m_textureDescriptorSets.size());
-            m_pipeline->createSingleTextureDescriptorSet(m_textureDescriptorSets, texture.getImage().getImageView(),
-                                                         texture.getSampler().getSampler());
+            m_renderer.addUniformBuffers(sizeof(Material), m_uniformMaterialBuffers, m_uniformMaterialBuffersMemory);
+            m_pipeline->createSingleTextureDescriptorSet(
+                m_textureDescriptorSets, texture.getImage().getImageView(), texture.getSampler().getSampler(),
+                texture.getImage().getImageView(), texture.getSampler().getSampler(), m_uniformMaterialBuffers.back());
         }
 
         m_isRecreationNeeded = true;
@@ -202,7 +263,7 @@ void VulkanLayerRenderer3DLights::createCommandBuffers()
         for (size_t j = 0; j < m_drawables.size(); j++)
         {
             VulkanCube *cube = reinterpret_cast<VulkanCube *>(m_drawables[j].get());
-            m_pipeline->bind(commandBuffer, m_transformationDescriptorSets[j][i], m_lightsDescriptorSets[i],
+            m_pipeline->bind(commandBuffer, m_transformationDescriptorSets[j][i], m_lightsDescriptorSets[0][i],
                              m_textureDescriptorSets[m_textureDescriptorOffset[cube->getTexture().getName()]][i],
                              pushConsts);
             cube->fillCommandBuffer(commandBuffer);
