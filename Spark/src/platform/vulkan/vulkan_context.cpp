@@ -30,8 +30,10 @@ static VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(VkDebugUtilsMessageSeverityF
         SPARK_CORE_WARN("Vulkan: {0}", pCallbackData->pMessage);
     else if (messageSeverity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT)
         SPARK_CORE_INFO("Vulkan: {0}", pCallbackData->pMessage);
+#ifdef VULKAN_VERBOSE
     else if (messageSeverity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT)
         SPARK_CORE_TRACE("Vulkan: {0}", pCallbackData->pMessage);
+#endif
     return VK_FALSE;
 }
 
