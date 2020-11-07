@@ -163,8 +163,7 @@ void VulkanLayerRenderer3DLights::OnRender()
 
         glm::vec3 dirLightColor = {1.0f, 1.0f, 1.0f};
         DirectionalLight dirLight = {};
-        dirLight.direction =
-            glm::transpose(glm::inverse(m_camera.getViewMatrix())) * glm::vec4(0.0f, 0.0f, -1.0f, 1.0f);
+        dirLight.direction = m_camera.getViewMatrix() * glm::vec4(0.0f, 0.0f, -1.0f, 0.0f);
         dirLight.ambient = dirLightColor * 0.3f;
         dirLight.diffuse = dirLightColor * 0.4f;
         dirLight.specular = dirLightColor * 0.3f;
@@ -175,7 +174,7 @@ void VulkanLayerRenderer3DLights::OnRender()
         vkUnmapMemory(m_renderer.m_context.m_device,
                       m_uniformDirectionalLightBuffersMemory[m_renderer.getCurrentImageIndex()]);
 
-        glm::vec3 spotLightColor = {0, 0, 1.0f};
+        glm::vec3 spotLightColor = {1.0f, 1.0f, 1.0f};
         SpotLight spotLight = {};
         spotLight.position = glm::vec3(0);
         spotLight.direction = glm::vec3(0.0f, 0.0f, -1.0f);

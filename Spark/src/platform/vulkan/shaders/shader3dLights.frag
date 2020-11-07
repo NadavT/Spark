@@ -146,7 +146,7 @@ void main()
     for (int i = 0; i < pushConsts.numberOfPointLights; i++)
         finalColor += CalcPointLight(pointLights.lights[i], normal, fragPos, viewDir);
 
-    // finalColor += CalcSpotLight(spotLight.light, normal, fragPos, viewDir);
+    finalColor += CalcSpotLight(spotLight.light, normal, fragPos, viewDir);
 
     outColor = vec4(finalColor, 1.0);
 }
