@@ -12,6 +12,7 @@ const std::string FRAGMENT_3D_SHADER_PATH = "shaders/shader3dLights_frag.spv";
 VulkanPipeline3DLights::VulkanPipeline3DLights(VulkanContext &context, VulkanFramebuffer &framebuffer)
     : VulkanPipeline(context, framebuffer)
     , m_transformationDescriptorSetLayout(VK_NULL_HANDLE)
+    , m_lightsDescriptorSetLayout(VK_NULL_HANDLE)
     , m_textureDescriptorSetLayout(VK_NULL_HANDLE)
 {
     createDescriptorSetLayout();
@@ -26,6 +27,7 @@ VulkanPipeline3DLights::~VulkanPipeline3DLights()
 void VulkanPipeline3DLights::cleanup()
 {
     vkDestroyDescriptorSetLayout(m_context.m_device, m_transformationDescriptorSetLayout, nullptr);
+    vkDestroyDescriptorSetLayout(m_context.m_device, m_lightsDescriptorSetLayout, nullptr);
     vkDestroyDescriptorSetLayout(m_context.m_device, m_textureDescriptorSetLayout, nullptr);
     vkDestroyPipelineLayout(m_context.m_device, m_pipelineLayout, VK_NULL_HANDLE);
     m_pipelineLayout = VK_NULL_HANDLE;

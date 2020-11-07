@@ -71,8 +71,6 @@ void VulkanLayerRenderer3DLights::OnAttach()
     m_pipeline->createLightDescriptorSets(m_lightsDescriptorSets, m_uniformDirectionalLightBuffers,
                                           m_uniformPointLightBuffers, m_uniformSpotLightBuffers);
 
-    m_renderer.createUniformBuffers(sizeof(Material), m_uniformMaterialBuffers, m_uniformMaterialBuffersMemory,
-                                    (unsigned int)m_drawables.size());
     for (auto drawable : m_drawables)
     {
         VulkanCube *quad = reinterpret_cast<VulkanCube *>(drawable.get());
@@ -85,6 +83,8 @@ void VulkanLayerRenderer3DLights::OnAttach()
             specularSamplers.push_back(quad->getTexture().getSampler().getSampler());
         }
     }
+    m_renderer.createUniformBuffers(sizeof(Material), m_uniformMaterialBuffers, m_uniformMaterialBuffersMemory,
+                                    (unsigned int)textures.size());
 
     m_pipeline->createTextureDescriptorSets((unsigned int)textures.size(), m_textureDescriptorSets, textures, samplers,
                                             specularTextures, specularSamplers, m_uniformMaterialBuffers);
@@ -105,9 +105,30 @@ void VulkanLayerRenderer3DLights::OnDetach()
     {
         vkFreeDescriptorSets(m_renderer.m_context.m_device, m_renderer.m_context.m_descriptorPool,
                              (unsigned int)m_textureDescriptorSets[i].size(), m_textureDescriptorSets[i].data());
+        for (size_t j = 0; j < m_uniformMaterialBuffers[i].size(); j++)
+        {
+            vkDestroyBuffer(m_renderer.m_context.m_device, m_uniformMaterialBuffers[i][j], nullptr);
+            vkFreeMemory(m_renderer.m_context.m_device, m_uniformMaterialBuffersMemory[i][j], nullptr);
+        }
     }
 
     m_textureDescriptorOffset.clear();
+
+    for (size_t i = 0; i < m_lightsDescriptorSets.size(); i++)
+    {
+        vkFreeDescriptorSets(m_renderer.m_context.m_device, m_renderer.m_context.m_descriptorPool,
+                             (unsigned int)m_lightsDescriptorSets[i].size(), m_lightsDescriptorSets[i].data());
+    }
+
+    for (size_t i = 0; i < m_uniformDirectionalLightBuffers.size(); i++)
+    {
+        vkDestroyBuffer(m_renderer.m_context.m_device, m_uniformSpotLightBuffers[i], nullptr);
+        vkFreeMemory(m_renderer.m_context.m_device, m_uniformSpotLightBuffersMemory[i], nullptr);
+        vkDestroyBuffer(m_renderer.m_context.m_device, m_uniformPointLightBuffers[i], nullptr);
+        vkFreeMemory(m_renderer.m_context.m_device, m_uniformPointLightBuffersMemory[i], nullptr);
+        vkDestroyBuffer(m_renderer.m_context.m_device, m_uniformDirectionalLightBuffers[i], nullptr);
+        vkFreeMemory(m_renderer.m_context.m_device, m_uniformDirectionalLightBuffersMemory[i], nullptr);
+    }
 
     for (size_t i = 0; i < m_uniformTransformations.size(); i++)
     {
@@ -163,7 +184,7 @@ void VulkanLayerRenderer3DLights::OnRender()
 
         glm::vec3 dirLightColor = {1.0f, 1.0f, 1.0f};
         DirectionalLight dirLight = {};
-        dirLight.direction = m_camera.getViewMatrix() * glm::vec4(0.0f, 0.0f, -1.0f, 0.0f);
+        dirLight.direction = m_camera.getViewMatrix() * glm::vec4(-0.2f, -1.0f, -0.3f, 0.0f);
         dirLight.ambient = dirLightColor * 0.3f;
         dirLight.diffuse = dirLightColor * 0.4f;
         dirLight.specular = dirLightColor * 0.3f;
