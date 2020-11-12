@@ -5,7 +5,7 @@
 #include "spark/renderer/camera.h"
 #include "spark/renderer/layer_renderer.h"
 
-
+#include <glm/glm.hpp>
 #include <memory>
 
 namespace Spark
@@ -22,6 +22,9 @@ class Layer3D : public Layer
 
     SPARK_API virtual void addDrawable(std::shared_ptr<Drawable> &drawable);
     SPARK_API virtual void removeDrawable(Drawable *drawable);
+
+    SPARK_API virtual void setDirLight(glm::vec3 direction, glm::vec3 color);
+    SPARK_API virtual void setSpotLight(glm::vec3 color);
 
   private:
     std::unique_ptr<LayerRenderer> m_layer_renderer;

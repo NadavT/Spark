@@ -101,12 +101,20 @@ class Sandbox3DLayer : public Spark::Layer3D
         , m_focused(false)
         , m_addingBox(false)
         , m_removingBox(false)
+        , m_setDirLight(false)
+        , m_setSpotLight(false)
         , m_nextCords{0, 0, 0}
+        , m_dirLightColor{1.0f, 1.0f, 1.0f}
+        , m_dirLightDirection{-0.2f, -1.0f, -0.3f}
+        , m_spotLightColor{1.0f, 1.0f, 1.0f}
         , m_removeBoxIndex(0)
     {
         const Spark::Texture &texture = Spark::ResourceManager::loadTexture("cubeTexutre", "textures/container2.png");
         m_cube.push_back(std::move(Spark::createCube({0, 0, 0}, texture)));
         addDrawable(m_cube[0]);
+        setDirLight({m_dirLightDirection[0], m_dirLightDirection[1], m_dirLightDirection[2]},
+                    {m_dirLightColor[0], m_dirLightColor[1], m_dirLightColor[2]});
+        setSpotLight({m_spotLightColor[0], m_spotLightColor[1], m_spotLightColor[2]});
     }
 
     virtual void OnAttach()
@@ -268,6 +276,55 @@ class Sandbox3DLayer : public Spark::Layer3D
             ImGui::End();
         }
 
+        if (ImGui::Button("set dir light"))
+        {
+            SPARK_INFO("Setting dir light");
+            m_setDirLight = true;
+        }
+
+        if (m_setDirLight)
+        {
+            ImGui::SetNextWindowSize(ImVec2(250, 100), ImGuiCond_Always);
+            ImGui::SetNextWindowPos(
+                ImVec2(ImGui::GetIO().DisplaySize.x / 2 - 210 / 2, ImGui::GetIO().DisplaySize.y / 2 - 35 / 2),
+                ImGuiCond_Once);
+            ImGui::Begin("Dir light setter", NULL, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize);
+
+            ImGui::InputFloat3("direction", m_dirLightDirection);
+            ImGui::InputFloat3("color", m_dirLightColor);
+            if (ImGui::Button("set"))
+            {
+                setDirLight({m_dirLightDirection[0], m_dirLightDirection[1], m_dirLightDirection[2]},
+                            {m_dirLightColor[0], m_dirLightColor[1], m_dirLightColor[2]});
+                m_setDirLight = false;
+            }
+
+            ImGui::End();
+        }
+
+        if (ImGui::Button("set spot light"))
+        {
+            SPARK_INFO("Setting spot light");
+            m_setSpotLight = true;
+        }
+
+        if (m_setSpotLight)
+        {
+            ImGui::SetNextWindowSize(ImVec2(250, 100), ImGuiCond_Always);
+            ImGui::SetNextWindowPos(
+                ImVec2(ImGui::GetIO().DisplaySize.x / 2 - 210 / 2, ImGui::GetIO().DisplaySize.y / 2 - 35 / 2),
+                ImGuiCond_Once);
+            ImGui::Begin("Spot light setter", NULL, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize);
+
+            ImGui::InputFloat3("color", m_spotLightColor);
+            if (ImGui::Button("set"))
+            {
+                setSpotLight({m_spotLightColor[0], m_spotLightColor[1], m_spotLightColor[2]});
+                m_setSpotLight = false;
+            }
+
+            ImGui::End();
+        }
         ImGui::End();
     }
 
@@ -277,7 +334,12 @@ class Sandbox3DLayer : public Spark::Layer3D
     bool m_focused;
     bool m_addingBox;
     bool m_removingBox;
+    bool m_setDirLight;
+    bool m_setSpotLight;
     float m_nextCords[3];
+    float m_dirLightDirection[3];
+    float m_dirLightColor[3];
+    float m_spotLightColor[3];
     int m_removeBoxIndex;
 };
 

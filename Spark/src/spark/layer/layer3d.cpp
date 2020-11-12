@@ -42,4 +42,18 @@ void Layer3D::removeDrawable(Drawable *drawable)
 {
     m_layer_renderer->removeDrawable(drawable);
 }
+
+void Layer3D::setDirLight(glm::vec3 direction, glm::vec3 color)
+{
+#ifdef SPARK_PLATFORM_VULKAN
+    reinterpret_cast<VulkanLayerRenderer3DLights *>(m_layer_renderer.get())->setDirLight(direction, color);
+#endif
+}
+
+void Layer3D::setSpotLight(glm::vec3 direction)
+{
+#ifdef SPARK_PLATFORM_VULKAN
+    reinterpret_cast<VulkanLayerRenderer3DLights *>(m_layer_renderer.get())->setSpotLight(direction);
+#endif
+}
 } // namespace Spark

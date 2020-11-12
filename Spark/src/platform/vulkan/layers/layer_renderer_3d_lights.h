@@ -23,6 +23,9 @@ class VulkanLayerRenderer3DLights : public LayerRenderer
     virtual void addDrawable(std::shared_ptr<Drawable> &drawable);
     virtual void removeDrawable(Drawable *drawable);
 
+    virtual void setDirLight(glm::vec3 direction, glm::vec3 color);
+    virtual void setSpotLight(glm::vec3 color);
+
   private:
     void createCommandBuffers();
 
@@ -53,5 +56,8 @@ class VulkanLayerRenderer3DLights : public LayerRenderer
     bool m_isRecreationNeeded;
 
     Camera &m_camera;
+    glm::vec3 m_dirLightDirection;
+    glm::vec3 m_dirLightColor;
+    glm::vec3 m_spotLightColor;
 };
 } // namespace Spark

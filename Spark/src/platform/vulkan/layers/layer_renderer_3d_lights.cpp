@@ -23,6 +23,9 @@ VulkanLayerRenderer3DLights::VulkanLayerRenderer3DLights(VulkanRenderer &rendere
     , m_isAttached(false)
     , m_isRecreationNeeded(false)
     , m_camera(camera)
+    , m_dirLightDirection({0.0f, 0.0f, 0.0f})
+    , m_dirLightColor({1.0f, 1.0f, 1.0f})
+    , m_spotLightColor({1.0f, 1.0f, 1.0f})
 {
     m_framebuffer = renderer.createFramebuffer(VulkanFramebufferType::Type3D);
     m_pipeline = reinterpret_cast<VulkanPipeline3DLights *>(
@@ -182,12 +185,11 @@ void VulkanLayerRenderer3DLights::OnRender()
         vkUnmapMemory(m_renderer.m_context.m_device,
                       m_uniformTransformationsMemory[i][m_renderer.getCurrentImageIndex()]);
 
-        glm::vec3 dirLightColor = {1.0f, 1.0f, 1.0f};
         DirectionalLight dirLight = {};
-        dirLight.direction = m_camera.getViewMatrix() * glm::vec4(-0.2f, -1.0f, -0.3f, 0.0f);
-        dirLight.ambient = dirLightColor * 0.3f;
-        dirLight.diffuse = dirLightColor * 0.4f;
-        dirLight.specular = dirLightColor * 0.3f;
+        dirLight.direction = m_camera.getViewMatrix() * glm::vec4(m_dirLightDirection, 0.0f);
+        dirLight.ambient = m_dirLightColor * 0.3f;
+        dirLight.diffuse = m_dirLightColor * 0.4f;
+        dirLight.specular = m_dirLightColor * 0.3f;
         vkMapMemory(m_renderer.m_context.m_device,
                     m_uniformDirectionalLightBuffersMemory[m_renderer.getCurrentImageIndex()], 0, sizeof(dirLight), 0,
                     &data);
@@ -195,13 +197,12 @@ void VulkanLayerRenderer3DLights::OnRender()
         vkUnmapMemory(m_renderer.m_context.m_device,
                       m_uniformDirectionalLightBuffersMemory[m_renderer.getCurrentImageIndex()]);
 
-        glm::vec3 spotLightColor = {1.0f, 1.0f, 1.0f};
         SpotLight spotLight = {};
         spotLight.position = glm::vec3(0);
         spotLight.direction = glm::vec3(0.0f, 0.0f, -1.0f);
-        spotLight.ambient = spotLightColor * 0.2f;
-        spotLight.diffuse = spotLightColor * 0.5f;
-        spotLight.specular = spotLightColor;
+        spotLight.ambient = m_spotLightColor * 0.2f;
+        spotLight.diffuse = m_spotLightColor * 0.5f;
+        spotLight.specular = m_spotLightColor;
         spotLight.innerCutOff = glm::cos(glm::radians(12.5f));
         spotLight.outerCutOff = glm::cos(glm::radians(14.5f));
         vkMapMemory(m_renderer.m_context.m_device, m_uniformSpotLightBuffersMemory[m_renderer.getCurrentImageIndex()],
@@ -256,6 +257,17 @@ void VulkanLayerRenderer3DLights::removeDrawable(Drawable *drawable)
 {
     m_toBeRemoved.push_back(drawable);
     m_isRecreationNeeded = true;
+}
+
+void VulkanLayerRenderer3DLights::setDirLight(glm::vec3 direction, glm::vec3 color)
+{
+    m_dirLightDirection = direction;
+    m_dirLightColor = color;
+}
+
+void VulkanLayerRenderer3DLights::setSpotLight(glm::vec3 color)
+{
+    m_spotLightColor = color;
 }
 
 void VulkanLayerRenderer3DLights::createCommandBuffers()
