@@ -127,9 +127,11 @@ void Application::Run()
         {
             timestep = Time(FPS_LIMIT);
         }
-        if (FPS_LIMIT - timestep.GetSeconds() > FPS_LIMIT / 10)
+        while (FPS_LIMIT - timestep.GetSeconds() > FPS_LIMIT / 10)
         {
-            sleep(Time(FPS_LIMIT) - timestep.GetSeconds() - Time(FPS_LIMIT / 10));
+            std::this_thread::yield();
+            currTime = getCurrentTime();
+            timestep = currTime - m_lastFrameTime;
         }
         while (timestep.GetSeconds() < FPS_LIMIT)
         {
