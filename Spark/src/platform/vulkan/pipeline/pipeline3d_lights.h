@@ -56,6 +56,9 @@ struct Material
 struct PushConsts
 {
     alignas(4) int numberOfPointLights;
+    alignas(4) bool useColor;
+    alignas(4) bool calcLight;
+    alignas(16) glm::vec3 color;
 };
 
 class VulkanPipeline3DLights : public VulkanPipeline

@@ -4,7 +4,6 @@
 #include "platform/vulkan/resource/texture_sampler.h"
 #include "platform/vulkan/vertex/vertex3d.h"
 
-
 #include "spark/renderer/drawables/cube.h"
 
 namespace Spark
@@ -13,7 +12,7 @@ class VulkanCube : public Cube
 {
   public:
     VulkanCube(VulkanRenderer &renderer, glm::vec3 position, const VulkanTexture &texture,
-               glm::vec3 scale = glm::vec3(1.0));
+               const VulkanTexture &specularTexture, glm::vec3 scale = glm::vec3(1.0));
     virtual ~VulkanCube();
     VulkanCube(const VulkanCube &other);
     VulkanCube(VulkanCube &&other) noexcept;
@@ -23,6 +22,7 @@ class VulkanCube : public Cube
     void fillCommandBuffer(VkCommandBuffer commandBuffer);
 
     virtual const VulkanTexture &getTexture() const;
+    virtual const VulkanTexture &getSpecularTexture() const;
 
   private:
     void copyCube(const VulkanCube &other);
@@ -36,5 +36,6 @@ class VulkanCube : public Cube
     VkDeviceSize m_verticesOffset;
     VkDeviceSize m_indicesOffset;
     const VulkanTexture &m_texture;
+    const VulkanTexture &m_specularTexture;
 };
 } // namespace Spark

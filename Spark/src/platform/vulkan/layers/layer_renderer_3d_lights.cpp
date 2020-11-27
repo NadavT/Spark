@@ -82,8 +82,8 @@ void VulkanLayerRenderer3DLights::OnAttach()
             m_textureDescriptorOffset[quad->getTexture().getName()] = (unsigned int)textures.size();
             textures.push_back(quad->getTexture().getImage().getImageView());
             samplers.push_back(quad->getTexture().getSampler().getSampler());
-            specularTextures.push_back(quad->getTexture().getImage().getImageView());
-            specularSamplers.push_back(quad->getTexture().getSampler().getSampler());
+            specularTextures.push_back(quad->getSpecularTexture().getImage().getImageView());
+            specularSamplers.push_back(quad->getSpecularTexture().getSampler().getSampler());
         }
     }
     m_renderer.createUniformBuffers(sizeof(Material), m_uniformMaterialBuffers, m_uniformMaterialBuffersMemory,
@@ -241,12 +241,14 @@ void VulkanLayerRenderer3DLights::addDrawable(std::shared_ptr<Drawable> &drawabl
         if (m_textureDescriptorOffset.find(cube->getTexture().getName()) == m_textureDescriptorOffset.end())
         {
             const VulkanTexture &texture = cube->getTexture();
+            const VulkanTexture &specularTexture = cube->getSpecularTexture();
             m_textureDescriptorOffset[cube->getTexture().getName()] =
                 static_cast<unsigned int>(m_textureDescriptorSets.size());
             m_renderer.addUniformBuffers(sizeof(Material), m_uniformMaterialBuffers, m_uniformMaterialBuffersMemory);
             m_pipeline->createSingleTextureDescriptorSet(
                 m_textureDescriptorSets, texture.getImage().getImageView(), texture.getSampler().getSampler(),
-                texture.getImage().getImageView(), texture.getSampler().getSampler(), m_uniformMaterialBuffers.back());
+                specularTexture.getImage().getImageView(), specularTexture.getSampler().getSampler(),
+                m_uniformMaterialBuffers.back());
         }
 
         m_isRecreationNeeded = true;
@@ -289,8 +291,11 @@ void VulkanLayerRenderer3DLights::createCommandBuffers()
         m_renderer.beginRenderPass(commandBuffer, m_framebuffer->getRenderPass(),
                                    m_framebuffer->getswapChainFramebuffers()[i], 2, clearValues.data());
 
-        struct PushConsts pushConsts;
+        struct PushConsts pushConsts = {};
         pushConsts.numberOfPointLights = 0;
+        pushConsts.useColor = false;
+        pushConsts.calcLight = true;
+        pushConsts.color = {1.0f, 1.0f, 1.0f};
 
         for (size_t j = 0; j < m_drawables.size(); j++)
         {

@@ -35,5 +35,5 @@ class Cube : public Drawable
 };
 
 SPARK_API std::shared_ptr<Drawable> createCube(glm::vec3 position, const Texture &texture,
-                                               glm::vec3 scale = glm::vec3(1.0));
+                                               const Texture &specularTexture, glm::vec3 scale = glm::vec3(1.0));
 } // namespace Spark

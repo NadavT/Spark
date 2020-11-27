@@ -110,7 +110,9 @@ class Sandbox3DLayer : public Spark::Layer3D
         , m_removeBoxIndex(0)
     {
         const Spark::Texture &texture = Spark::ResourceManager::loadTexture("cubeTexutre", "textures/container2.png");
-        m_cube.push_back(std::move(Spark::createCube({0, 0, 0}, texture)));
+        const Spark::Texture &specularTexture =
+            Spark::ResourceManager::loadTexture("cubeTexutreSpecular", "textures/container2_specular.png");
+        m_cube.push_back(std::move(Spark::createCube({0, 0, 0}, texture, specularTexture)));
         addDrawable(m_cube[0]);
         setDirLight({m_dirLightDirection[0], m_dirLightDirection[1], m_dirLightDirection[2]},
                     {m_dirLightColor[0], m_dirLightColor[1], m_dirLightColor[2]});
@@ -236,8 +238,9 @@ class Sandbox3DLayer : public Spark::Layer3D
             if (ImGui::Button("add"))
             {
                 const Spark::Texture *texture = Spark::ResourceManager::getTexture("cubeTexutre");
-                m_cube.push_back(
-                    std::move(Spark::createCube({m_nextCords[0], m_nextCords[1], m_nextCords[2]}, *texture)));
+                const Spark::Texture *specularTexture = Spark::ResourceManager::getTexture("cubeTexutreSpecular");
+                m_cube.push_back(std::move(
+                    Spark::createCube({m_nextCords[0], m_nextCords[1], m_nextCords[2]}, *texture, *specularTexture)));
                 addDrawable(m_cube.back());
                 for (int i = 0; i < 3; i++)
                 {
