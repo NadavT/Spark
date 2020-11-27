@@ -17,7 +17,7 @@ namespace Spark
 Application *Application::m_app = nullptr;
 
 Application::Application()
-    : m_showTestLayer(true)
+    : m_showTestLayer(false)
 {
     SPARK_CORE_ASSERT(m_app == nullptr, "App was already created");
     m_app = this;
@@ -32,7 +32,6 @@ Application::Application()
     ResourceManager::Init();
 
     m_testLayer = std::make_unique<VulkanTriangleLayer>(reinterpret_cast<VulkanRenderer &>(*m_renderer));
-    PushLayer(m_testLayer.get());
 
     m_overlay = Overlay::Create(*m_renderer);
     m_overlay->OnAttach();
