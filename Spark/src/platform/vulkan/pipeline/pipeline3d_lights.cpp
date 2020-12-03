@@ -52,6 +52,17 @@ void VulkanPipeline3DLights::bind(VkCommandBuffer commandBuffer, VkDescriptorSet
                        &pushConsts);
 }
 
+void VulkanPipeline3DLights::bind(VkCommandBuffer commandBuffer, VkDescriptorSet transformationSet,
+                                  VkDescriptorSet lightSet, struct PushConsts pushConsts)
+{
+    const VkDescriptorSet descriptorSets[] = {transformationSet, lightSet};
+    vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_pipelineLayout, 0, 2, descriptorSets, 0,
+                            nullptr);
+    VulkanPipeline::bind(commandBuffer);
+    vkCmdPushConstants(commandBuffer, m_pipelineLayout, VK_SHADER_STAGE_ALL_GRAPHICS, 0, sizeof(pushConsts),
+                       &pushConsts);
+}
+
 VkDescriptorSetLayout VulkanPipeline3DLights::getMVPDescriptorSetLayout()
 {
     return m_transformationDescriptorSetLayout;

@@ -1,5 +1,6 @@
 #include "layer_renderer_3d_lights.h"
-#include "platform/vulkan/drawables/cube.h"
+#include "platform/vulkan/drawables/colored_cube.h"
+#include "platform/vulkan/drawables/textured_cube.h"
 
 namespace Spark
 {
@@ -26,6 +27,7 @@ VulkanLayerRenderer3DLights::VulkanLayerRenderer3DLights(VulkanRenderer &rendere
     , m_dirLightDirection({0.0f, 0.0f, 0.0f})
     , m_dirLightColor({1.0f, 1.0f, 1.0f})
     , m_spotLightColor({1.0f, 1.0f, 1.0f})
+    , m_pointLights()
 {
     m_framebuffer = renderer.createFramebuffer(VulkanFramebufferType::Type3D);
     m_pipeline = reinterpret_cast<VulkanPipeline3DLights *>(
@@ -76,14 +78,18 @@ void VulkanLayerRenderer3DLights::OnAttach()
 
     for (auto drawable : m_drawables)
     {
-        VulkanCube *quad = reinterpret_cast<VulkanCube *>(drawable.get());
-        if (m_textureDescriptorOffset.find(quad->getTexture().getName()) == m_textureDescriptorOffset.end())
+        Cube *cube = reinterpret_cast<Cube *>(drawable.get());
+        if (cube->getType() == CubeType::TexturedCude)
         {
-            m_textureDescriptorOffset[quad->getTexture().getName()] = (unsigned int)textures.size();
-            textures.push_back(quad->getTexture().getImage().getImageView());
-            samplers.push_back(quad->getTexture().getSampler().getSampler());
-            specularTextures.push_back(quad->getSpecularTexture().getImage().getImageView());
-            specularSamplers.push_back(quad->getSpecularTexture().getSampler().getSampler());
+            VulkanTexturedCube *texturedCube = reinterpret_cast<VulkanTexturedCube *>(cube);
+            if (m_textureDescriptorOffset.find(texturedCube->getTexture().getName()) == m_textureDescriptorOffset.end())
+            {
+                m_textureDescriptorOffset[texturedCube->getTexture().getName()] = (unsigned int)textures.size();
+                textures.push_back(texturedCube->getTexture().getImage().getImageView());
+                samplers.push_back(texturedCube->getTexture().getSampler().getSampler());
+                specularTextures.push_back(texturedCube->getSpecularTexture().getImage().getImageView());
+                specularSamplers.push_back(texturedCube->getSpecularTexture().getSampler().getSampler());
+            }
         }
     }
     m_renderer.createUniformBuffers(sizeof(Material), m_uniformMaterialBuffers, m_uniformMaterialBuffersMemory,
@@ -169,7 +175,7 @@ void VulkanLayerRenderer3DLights::OnRender()
 
     for (size_t i = 0; i < m_drawables.size(); i++)
     {
-        VulkanCube *cube = reinterpret_cast<VulkanCube *>(m_drawables[i].get());
+        Cube *cube = reinterpret_cast<Cube *>(m_drawables[i].get());
         void *data;
         struct Transformation3DLights transformation = {};
         transformation.model = cube->getTransformation();
@@ -196,6 +202,26 @@ void VulkanLayerRenderer3DLights::OnRender()
         memcpy(data, &dirLight, sizeof(dirLight));
         vkUnmapMemory(m_renderer.m_context.m_device,
                       m_uniformDirectionalLightBuffersMemory[m_renderer.getCurrentImageIndex()]);
+
+        int lightIndex = 0;
+        for (auto &light : m_pointLights)
+        {
+            PointLight pointLight = {};
+            pointLight.position = m_camera.getViewMatrix() * glm::vec4(light.position, 1.0f);
+            pointLight.ambient = light.color * 0.2f;
+            pointLight.diffuse = light.color * 0.5f;
+            pointLight.specular = light.color;
+            pointLight.constant = 1.0f;
+            pointLight.linear = 0.09f;
+            pointLight.quadratic = 0.032f;
+            vkMapMemory(m_renderer.m_context.m_device,
+                        m_uniformPointLightBuffersMemory[m_renderer.getCurrentImageIndex()],
+                        lightIndex * sizeof(pointLight), sizeof(pointLight), 0, &data);
+            memcpy(data, &pointLight, sizeof(pointLight));
+            vkUnmapMemory(m_renderer.m_context.m_device,
+                          m_uniformPointLightBuffersMemory[m_renderer.getCurrentImageIndex()]);
+            lightIndex++;
+        }
 
         SpotLight spotLight = {};
         spotLight.position = glm::vec3(0);
@@ -228,7 +254,7 @@ void VulkanLayerRenderer3DLights::addDrawable(std::shared_ptr<Drawable> &drawabl
 {
     LayerRenderer::addDrawable(drawable);
 
-    VulkanCube *cube = reinterpret_cast<VulkanCube *>(drawable.get());
+    Cube *cube = reinterpret_cast<Cube *>(drawable.get());
     if (m_isAttached)
     {
         if (m_uniformTransformations.size() < m_drawables.size())
@@ -238,19 +264,23 @@ void VulkanLayerRenderer3DLights::addDrawable(std::shared_ptr<Drawable> &drawabl
             m_pipeline->createSingleTransformationDescriptorSet(m_transformationDescriptorSets,
                                                                 m_uniformTransformations.back());
         }
-        if (m_textureDescriptorOffset.find(cube->getTexture().getName()) == m_textureDescriptorOffset.end())
+        if (cube->getType() == CubeType::TexturedCude)
         {
-            const VulkanTexture &texture = cube->getTexture();
-            const VulkanTexture &specularTexture = cube->getSpecularTexture();
-            m_textureDescriptorOffset[cube->getTexture().getName()] =
-                static_cast<unsigned int>(m_textureDescriptorSets.size());
-            m_renderer.addUniformBuffers(sizeof(Material), m_uniformMaterialBuffers, m_uniformMaterialBuffersMemory);
-            m_pipeline->createSingleTextureDescriptorSet(
-                m_textureDescriptorSets, texture.getImage().getImageView(), texture.getSampler().getSampler(),
-                specularTexture.getImage().getImageView(), specularTexture.getSampler().getSampler(),
-                m_uniformMaterialBuffers.back());
+            VulkanTexturedCube *texturedCube = reinterpret_cast<VulkanTexturedCube *>(cube);
+            if (m_textureDescriptorOffset.find(texturedCube->getTexture().getName()) == m_textureDescriptorOffset.end())
+            {
+                const VulkanTexture &texture = texturedCube->getTexture();
+                const VulkanTexture &specularTexture = texturedCube->getSpecularTexture();
+                m_textureDescriptorOffset[texturedCube->getTexture().getName()] =
+                    static_cast<unsigned int>(m_textureDescriptorSets.size());
+                m_renderer.addUniformBuffers(sizeof(Material), m_uniformMaterialBuffers,
+                                             m_uniformMaterialBuffersMemory);
+                m_pipeline->createSingleTextureDescriptorSet(
+                    m_textureDescriptorSets, texture.getImage().getImageView(), texture.getSampler().getSampler(),
+                    specularTexture.getImage().getImageView(), specularTexture.getSampler().getSampler(),
+                    m_uniformMaterialBuffers.back());
+            }
         }
-
         m_isRecreationNeeded = true;
     }
 }
@@ -265,6 +295,12 @@ void VulkanLayerRenderer3DLights::setDirLight(glm::vec3 direction, glm::vec3 col
 {
     m_dirLightDirection = direction;
     m_dirLightColor = color;
+}
+
+void VulkanLayerRenderer3DLights::addPointLight(glm::vec3 position, glm::vec3 color)
+{
+    VulkanPointLight pointLight = {position, color};
+    m_pointLights.push_back(pointLight);
 }
 
 void VulkanLayerRenderer3DLights::setSpotLight(glm::vec3 color)
@@ -292,18 +328,35 @@ void VulkanLayerRenderer3DLights::createCommandBuffers()
                                    m_framebuffer->getswapChainFramebuffers()[i], 2, clearValues.data());
 
         struct PushConsts pushConsts = {};
-        pushConsts.numberOfPointLights = 0;
+        pushConsts.numberOfPointLights = static_cast<int>(m_pointLights.size());
         pushConsts.useColor = false;
         pushConsts.calcLight = true;
         pushConsts.color = {1.0f, 1.0f, 1.0f};
 
         for (size_t j = 0; j < m_drawables.size(); j++)
         {
-            VulkanCube *cube = reinterpret_cast<VulkanCube *>(m_drawables[j].get());
-            m_pipeline->bind(commandBuffer, m_transformationDescriptorSets[j][i], m_lightsDescriptorSets[0][i],
-                             m_textureDescriptorSets[m_textureDescriptorOffset[cube->getTexture().getName()]][i],
-                             pushConsts);
-            cube->fillCommandBuffer(commandBuffer);
+            Cube *cube = reinterpret_cast<Cube *>(m_drawables[j].get());
+            if (cube->getType() == CubeType::TexturedCude)
+            {
+                VulkanTexturedCube *texturedCube = reinterpret_cast<VulkanTexturedCube *>(cube);
+                pushConsts.useColor = false;
+                pushConsts.calcLight = true;
+                m_pipeline->bind(
+                    commandBuffer, m_transformationDescriptorSets[j][i], m_lightsDescriptorSets[0][i],
+                    m_textureDescriptorSets[m_textureDescriptorOffset[texturedCube->getTexture().getName()]][i],
+                    pushConsts);
+                texturedCube->fillCommandBuffer(commandBuffer);
+            }
+            else if (cube->getType() == CubeType::ColoredCube)
+            {
+                VulkanColoredCube *coloredCube = reinterpret_cast<VulkanColoredCube *>(cube);
+                pushConsts.useColor = true;
+                pushConsts.calcLight = false;
+                pushConsts.color = coloredCube->getColor();
+                m_pipeline->bind(commandBuffer, m_transformationDescriptorSets[j][i], m_lightsDescriptorSets[0][i],
+                                 pushConsts);
+                coloredCube->fillCommandBuffer(commandBuffer);
+            }
         }
 
         vkCmdEndRenderPass(commandBuffer);

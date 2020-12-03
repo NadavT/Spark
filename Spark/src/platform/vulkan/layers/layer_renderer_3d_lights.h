@@ -5,11 +5,16 @@
 #include "spark/renderer/camera.h"
 #include "spark/renderer/layer_renderer.h"
 
-
 #include <unordered_map>
 
 namespace Spark
 {
+struct VulkanPointLight
+{
+    glm::vec3 position;
+    glm::vec3 color;
+};
+
 class VulkanLayerRenderer3DLights : public LayerRenderer
 {
   public:
@@ -24,6 +29,7 @@ class VulkanLayerRenderer3DLights : public LayerRenderer
     virtual void removeDrawable(Drawable *drawable);
 
     virtual void setDirLight(glm::vec3 direction, glm::vec3 color);
+    virtual void addPointLight(glm::vec3 position, glm::vec3 color);
     virtual void setSpotLight(glm::vec3 color);
 
   private:
@@ -59,5 +65,6 @@ class VulkanLayerRenderer3DLights : public LayerRenderer
     glm::vec3 m_dirLightDirection;
     glm::vec3 m_dirLightColor;
     glm::vec3 m_spotLightColor;
+    std::vector<VulkanPointLight> m_pointLights;
 };
 } // namespace Spark

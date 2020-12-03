@@ -8,16 +8,16 @@
 
 namespace Spark
 {
-class VulkanCube : public Cube
+class VulkanTexturedCube : public Cube
 {
   public:
-    VulkanCube(VulkanRenderer &renderer, glm::vec3 position, const VulkanTexture &texture,
-               const VulkanTexture &specularTexture, glm::vec3 scale = glm::vec3(1.0));
-    virtual ~VulkanCube();
-    VulkanCube(const VulkanCube &other);
-    VulkanCube(VulkanCube &&other) noexcept;
-    VulkanCube &operator=(const VulkanCube &other);
-    VulkanCube &operator=(VulkanCube &&other) noexcept;
+    VulkanTexturedCube(VulkanRenderer &renderer, glm::vec3 position, const VulkanTexture &texture,
+                       const VulkanTexture &specularTexture, glm::vec3 scale = glm::vec3(1.0));
+    virtual ~VulkanTexturedCube();
+    VulkanTexturedCube(const VulkanTexturedCube &other);
+    VulkanTexturedCube(VulkanTexturedCube &&other) noexcept;
+    VulkanTexturedCube &operator=(const VulkanTexturedCube &other);
+    VulkanTexturedCube &operator=(VulkanTexturedCube &&other) noexcept;
 
     void fillCommandBuffer(VkCommandBuffer commandBuffer);
 
@@ -25,8 +25,8 @@ class VulkanCube : public Cube
     virtual const VulkanTexture &getSpecularTexture() const;
 
   private:
-    void copyCube(const VulkanCube &other);
-    void moveCube(VulkanCube &other) noexcept;
+    void copyCube(const VulkanTexturedCube &other);
+    void moveCube(VulkanTexturedCube &other) noexcept;
 
   private:
     VulkanContext &m_context;

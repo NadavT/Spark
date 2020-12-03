@@ -14,6 +14,11 @@
 
 namespace Spark
 {
+enum class CubeType
+{
+    TexturedCude,
+    ColoredCube
+};
 class Cube : public Drawable
 {
   public:
@@ -27,13 +32,18 @@ class Cube : public Drawable
     SPARK_API virtual void scale(glm::vec3 scale);
     SPARK_API virtual glm::mat4 getTransformation();
 
+    virtual CubeType getType() const;
+
   protected:
-    SPARK_API Cube(glm::vec3 position, glm::vec3 scale = glm::vec3(1.0));
+    SPARK_API Cube(CubeType type, glm::vec3 position, glm::vec3 scale = glm::vec3(1.0));
 
   private:
-    glm::mat4 m_transformation;
+    CubeType m_type;
+    glm::vec3 m_position;
+    glm::vec3 m_scale;
 };
 
 SPARK_API std::shared_ptr<Drawable> createCube(glm::vec3 position, const Texture &texture,
                                                const Texture &specularTexture, glm::vec3 scale = glm::vec3(1.0));
+SPARK_API std::shared_ptr<Drawable> createCube(glm::vec3 position, glm::vec3, glm::vec3 scale = glm::vec3(1.0));
 } // namespace Spark

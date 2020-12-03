@@ -1,4 +1,4 @@
-#include "cube.h"
+#include "textured_cube.h"
 
 namespace Spark
 {
@@ -39,9 +39,9 @@ const std::vector<uint32_t> cube_indices = {
     12, 13, 14, 14, 15, 12, 16, 17, 18, 18, 19, 16, 20, 21, 22, 22, 23, 20,
 };
 
-VulkanCube::VulkanCube(VulkanRenderer &renderer, glm::vec3 position, const VulkanTexture &texture,
-                       const VulkanTexture &specularTexture, glm::vec3 scale)
-    : Cube(position, scale)
+VulkanTexturedCube::VulkanTexturedCube(VulkanRenderer &renderer, glm::vec3 position, const VulkanTexture &texture,
+                                       const VulkanTexture &specularTexture, glm::vec3 scale)
+    : Cube(CubeType::TexturedCude, position, scale)
     , m_context(renderer.m_context)
     , m_renderer(renderer)
     , m_vertexBuffer(VK_NULL_HANDLE)
@@ -55,7 +55,7 @@ VulkanCube::VulkanCube(VulkanRenderer &renderer, glm::vec3 position, const Vulka
                          cube_vertices, cube_indices);
 }
 
-VulkanCube::~VulkanCube()
+VulkanTexturedCube::~VulkanTexturedCube()
 {
     if (m_vertexBuffer != VK_NULL_HANDLE)
     {
@@ -67,7 +67,7 @@ VulkanCube::~VulkanCube()
     }
 }
 
-VulkanCube::VulkanCube(const VulkanCube &other)
+VulkanTexturedCube::VulkanTexturedCube(const VulkanTexturedCube &other)
     : Cube(other)
     , m_context(other.m_context)
     , m_renderer(other.m_renderer)
@@ -77,7 +77,7 @@ VulkanCube::VulkanCube(const VulkanCube &other)
     copyCube(other);
 }
 
-VulkanCube::VulkanCube(VulkanCube &&other) noexcept
+VulkanTexturedCube::VulkanTexturedCube(VulkanTexturedCube &&other) noexcept
     : Cube(other)
     , m_context(other.m_context)
     , m_renderer(other.m_renderer)
@@ -87,19 +87,19 @@ VulkanCube::VulkanCube(VulkanCube &&other) noexcept
     moveCube(other);
 }
 
-VulkanCube &VulkanCube::operator=(const VulkanCube &other)
+VulkanTexturedCube &VulkanTexturedCube::operator=(const VulkanTexturedCube &other)
 {
     copyCube(other);
     return *this;
 }
 
-VulkanCube &VulkanCube::operator=(VulkanCube &&other) noexcept
+VulkanTexturedCube &VulkanTexturedCube::operator=(VulkanTexturedCube &&other) noexcept
 {
     moveCube(other);
     return *this;
 }
 
-void VulkanCube::fillCommandBuffer(VkCommandBuffer commandBuffer)
+void VulkanTexturedCube::fillCommandBuffer(VkCommandBuffer commandBuffer)
 {
     VkBuffer buff[] = {m_vertexBuffer};
     VkDeviceSize offsets[] = {m_verticesOffset};
@@ -109,22 +109,22 @@ void VulkanCube::fillCommandBuffer(VkCommandBuffer commandBuffer)
     vkCmdDrawIndexed(commandBuffer, static_cast<uint32_t>(cube_indices.size()), 1, 0, 0, 0);
 }
 
-const VulkanTexture &VulkanCube::getTexture() const
+const VulkanTexture &VulkanTexturedCube::getTexture() const
 {
     return m_texture;
 }
 
-const VulkanTexture &VulkanCube::getSpecularTexture() const
+const VulkanTexture &VulkanTexturedCube::getSpecularTexture() const
 {
     return m_specularTexture;
 }
 
-void VulkanCube::copyCube(const VulkanCube &other)
+void VulkanTexturedCube::copyCube(const VulkanTexturedCube &other)
 {
     createVertex3DBuffer(m_context, m_vertexBuffer, m_vertexBufferMemory, m_verticesOffset, m_indicesOffset,
                          cube_vertices, cube_indices);
 }
-void VulkanCube::moveCube(VulkanCube &other) noexcept
+void VulkanTexturedCube::moveCube(VulkanTexturedCube &other) noexcept
 {
     m_vertexBuffer = other.m_vertexBuffer;
     other.m_vertexBuffer = VK_NULL_HANDLE;

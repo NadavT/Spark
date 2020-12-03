@@ -72,6 +72,8 @@ class VulkanPipeline3DLights : public VulkanPipeline
 
     virtual void bind(VkCommandBuffer commandBuffer, VkDescriptorSet transformationSet, VkDescriptorSet lightSet,
                       VkDescriptorSet textureSet, struct PushConsts pushConsts);
+    virtual void bind(VkCommandBuffer commandBuffer, VkDescriptorSet transformationSet, VkDescriptorSet lightSet,
+                      struct PushConsts pushConsts);
 
     VkDescriptorSetLayout getMVPDescriptorSetLayout();
     VkDescriptorSetLayout getLightsDescriptorSetLayout();

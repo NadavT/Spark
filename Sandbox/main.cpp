@@ -116,6 +116,7 @@ class Sandbox3DLayer : public Spark::Layer3D
         addDrawable(m_cube[0]);
         setDirLight({m_dirLightDirection[0], m_dirLightDirection[1], m_dirLightDirection[2]},
                     {m_dirLightColor[0], m_dirLightColor[1], m_dirLightColor[2]});
+        addPointLight({0, 0, -1.0f}, {1, 1, 0});
         setSpotLight({m_spotLightColor[0], m_spotLightColor[1], m_spotLightColor[2]});
     }
 

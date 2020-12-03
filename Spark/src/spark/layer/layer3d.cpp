@@ -4,6 +4,7 @@
 
 #ifdef SPARK_PLATFORM_VULKAN
     #include "platform/vulkan/layers/layer_renderer_3d_lights.h"
+    #include "spark/renderer/drawables/cube.h"
 #endif // SPARK_PLATFORM_VULKAN
 
 namespace Spark
@@ -47,6 +48,14 @@ void Layer3D::setDirLight(glm::vec3 direction, glm::vec3 color)
 {
 #ifdef SPARK_PLATFORM_VULKAN
     reinterpret_cast<VulkanLayerRenderer3DLights *>(m_layer_renderer.get())->setDirLight(direction, color);
+#endif
+}
+
+SPARK_API void Layer3D::addPointLight(glm::vec3 position, glm::vec3 color)
+{
+#ifdef SPARK_PLATFORM_VULKAN
+    addDrawable(createCube(position, color, glm::vec3(0.3f)));
+    reinterpret_cast<VulkanLayerRenderer3DLights *>(m_layer_renderer.get())->addPointLight(position, color);
 #endif
 }
 

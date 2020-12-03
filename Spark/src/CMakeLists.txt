@@ -47,7 +47,8 @@ set(SPARK_VULKAN_SOURCE
     "platform/vulkan/layers/layer_renderer_3d.cpp"
     "platform/vulkan/layers/layer_renderer_3d_lights.cpp"
     "platform/vulkan/drawables/quad.cpp"
-    "platform/vulkan/drawables/cube.cpp"
+    "platform/vulkan/drawables/textured_cube.cpp"
+    "platform/vulkan/drawables/colored_cube.cpp"
     )
 
 set(SPARK_IMGUI_SOURCE
