@@ -1,5 +1,6 @@
 #pragma once
 
+#include "platform/vulkan/drawables/point_light.h"
 #include "platform/vulkan/pipeline/pipeline3d_lights.h"
 #include "platform/vulkan/renderer.h"
 #include "spark/renderer/camera.h"
@@ -9,13 +10,6 @@
 
 namespace Spark
 {
-struct VulkanPointLight
-{
-    glm::vec3 position;
-    glm::vec3 color;
-    Drawable *drawable;
-};
-
 class VulkanLayerRenderer3DLights : public LayerRenderer
 {
   public:
@@ -30,7 +24,8 @@ class VulkanLayerRenderer3DLights : public LayerRenderer
     virtual void removeDrawable(Drawable *drawable);
 
     virtual void setDirLight(glm::vec3 direction, glm::vec3 color);
-    virtual void addPointLight(glm::vec3 position, glm::vec3 color, Drawable *drawable);
+    virtual void addPointLight(VulkanPointLight &pointLight);
+    virtual void removePointLight(VulkanPointLight &pointLight);
     virtual void setSpotLight(glm::vec3 color);
 
   private:
@@ -66,6 +61,6 @@ class VulkanLayerRenderer3DLights : public LayerRenderer
     glm::vec3 m_dirLightDirection;
     glm::vec3 m_dirLightColor;
     glm::vec3 m_spotLightColor;
-    std::vector<VulkanPointLight> m_pointLights;
+    std::vector<VulkanPointLight *> m_pointLights;
 };
 } // namespace Spark

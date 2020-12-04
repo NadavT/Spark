@@ -12,7 +12,7 @@ struct Transformation3DLights
     glm::mat4 projection;
 };
 
-struct DirectionalLight
+struct VulkanShaderDirectionalLight
 {
     alignas(16) glm::vec3 direction;
 
@@ -22,7 +22,7 @@ struct DirectionalLight
 };
 
 #define MAX_POINT_LIGHTS (10)
-struct PointLight
+struct VulkanShaderPointLight
 {
     alignas(16) glm::vec3 position;
 
@@ -35,7 +35,7 @@ struct PointLight
     alignas(4) float quadratic;
 };
 
-struct SpotLight
+struct VulkanShaderSpotLight
 {
     alignas(16) glm::vec3 position;
     alignas(16) glm::vec3 direction;

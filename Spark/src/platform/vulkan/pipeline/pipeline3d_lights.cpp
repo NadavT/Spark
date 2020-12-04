@@ -269,7 +269,7 @@ void VulkanPipeline3DLights::updateLightsDescriptorSets(std::vector<std::vector<
 
         bufferInfos[i * 3].buffer = dirLightUniform[i];
         bufferInfos[i * 3].offset = 0;
-        bufferInfos[i * 3].range = sizeof(DirectionalLight);
+        bufferInfos[i * 3].range = sizeof(VulkanShaderDirectionalLight);
         writeDescripotrSet.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
         writeDescripotrSet.dstSet = lightSets[0][i];
         writeDescripotrSet.dstBinding = 0;
@@ -281,7 +281,7 @@ void VulkanPipeline3DLights::updateLightsDescriptorSets(std::vector<std::vector<
 
         bufferInfos[i * 3 + 1].buffer = pointLightsUniform[i];
         bufferInfos[i * 3 + 1].offset = 0;
-        bufferInfos[i * 3 + 1].range = sizeof(PointLight) * MAX_POINT_LIGHTS;
+        bufferInfos[i * 3 + 1].range = sizeof(VulkanShaderPointLight) * MAX_POINT_LIGHTS;
         writeDescripotrSet.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
         writeDescripotrSet.dstSet = lightSets[0][i];
         writeDescripotrSet.dstBinding = 1;
@@ -293,7 +293,7 @@ void VulkanPipeline3DLights::updateLightsDescriptorSets(std::vector<std::vector<
 
         bufferInfos[i * 3 + 2].buffer = spotLightUniform[i];
         bufferInfos[i * 3 + 2].offset = 0;
-        bufferInfos[i * 3 + 2].range = sizeof(SpotLight);
+        bufferInfos[i * 3 + 2].range = sizeof(VulkanShaderSpotLight);
         writeDescripotrSet.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
         writeDescripotrSet.dstSet = lightSets[0][i];
         writeDescripotrSet.dstBinding = 2;

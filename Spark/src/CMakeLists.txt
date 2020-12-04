@@ -12,6 +12,7 @@ set(SPARK_SOURCE
     "spark/renderer/camera.cpp"
     "spark/renderer/drawables/quad.cpp"
     "spark/renderer/drawables/cube.cpp"
+    "spark/renderer/drawables/point_light.cpp"
     "spark/overlay/overlay.cpp"
     "spark/utils/file.cpp"
     "spark/resource/texture.cpp"
@@ -49,6 +50,7 @@ set(SPARK_VULKAN_SOURCE
     "platform/vulkan/drawables/quad.cpp"
     "platform/vulkan/drawables/textured_cube.cpp"
     "platform/vulkan/drawables/colored_cube.cpp"
+    "platform/vulkan/drawables/point_light.cpp"
     )
 
 set(SPARK_IMGUI_SOURCE

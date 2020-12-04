@@ -2,6 +2,8 @@
 #include "platform/vulkan/drawables/colored_cube.h"
 #include "platform/vulkan/drawables/textured_cube.h"
 
+#include "spark/core/log.h"
+
 #include <algorithm>
 
 namespace Spark
@@ -70,11 +72,12 @@ void VulkanLayerRenderer3DLights::OnAttach()
     m_pipeline->createTransformationDescriptorSets((unsigned int)m_drawables.size(), m_transformationDescriptorSets,
                                                    m_uniformTransformations);
 
-    m_renderer.createUniformBuffers(sizeof(DirectionalLight), m_uniformDirectionalLightBuffers,
+    m_renderer.createUniformBuffers(sizeof(VulkanShaderDirectionalLight), m_uniformDirectionalLightBuffers,
                                     m_uniformDirectionalLightBuffersMemory);
-    m_renderer.createUniformBuffers(sizeof(PointLight) * MAX_POINT_LIGHTS, m_uniformPointLightBuffers,
+    m_renderer.createUniformBuffers(sizeof(VulkanShaderPointLight) * MAX_POINT_LIGHTS, m_uniformPointLightBuffers,
                                     m_uniformPointLightBuffersMemory);
-    m_renderer.createUniformBuffers(sizeof(SpotLight), m_uniformSpotLightBuffers, m_uniformSpotLightBuffersMemory);
+    m_renderer.createUniformBuffers(sizeof(VulkanShaderSpotLight), m_uniformSpotLightBuffers,
+                                    m_uniformSpotLightBuffersMemory);
     m_pipeline->createLightDescriptorSets(m_lightsDescriptorSets, m_uniformDirectionalLightBuffers,
                                           m_uniformPointLightBuffers, m_uniformSpotLightBuffers);
 
@@ -193,7 +196,7 @@ void VulkanLayerRenderer3DLights::OnRender()
         vkUnmapMemory(m_renderer.m_context.m_device,
                       m_uniformTransformationsMemory[i][m_renderer.getCurrentImageIndex()]);
 
-        DirectionalLight dirLight = {};
+        VulkanShaderDirectionalLight dirLight = {};
         dirLight.direction = m_camera.getViewMatrix() * glm::vec4(m_dirLightDirection, 0.0f);
         dirLight.ambient = m_dirLightColor * 0.3f;
         dirLight.diffuse = m_dirLightColor * 0.4f;
@@ -208,24 +211,27 @@ void VulkanLayerRenderer3DLights::OnRender()
         int lightIndex = 0;
         for (auto &light : m_pointLights)
         {
-            PointLight pointLight = {};
-            pointLight.position = m_camera.getViewMatrix() * glm::vec4(light.position, 1.0f);
-            pointLight.ambient = light.color * 0.2f;
-            pointLight.diffuse = light.color * 0.5f;
-            pointLight.specular = light.color;
-            pointLight.constant = 1.0f;
-            pointLight.linear = 0.09f;
-            pointLight.quadratic = 0.032f;
-            vkMapMemory(m_renderer.m_context.m_device,
-                        m_uniformPointLightBuffersMemory[m_renderer.getCurrentImageIndex()],
-                        lightIndex * sizeof(pointLight), sizeof(pointLight), 0, &data);
-            memcpy(data, &pointLight, sizeof(pointLight));
-            vkUnmapMemory(m_renderer.m_context.m_device,
-                          m_uniformPointLightBuffersMemory[m_renderer.getCurrentImageIndex()]);
-            lightIndex++;
+            if (light->isLit())
+            {
+                VulkanShaderPointLight pointLight = {};
+                pointLight.position = m_camera.getViewMatrix() * glm::vec4(light->position, 1.0f);
+                pointLight.ambient = light->color * 0.0f;
+                pointLight.diffuse = light->color * 0.5f;
+                pointLight.specular = light->color;
+                pointLight.constant = 1.0f;
+                pointLight.linear = 0.09f;
+                pointLight.quadratic = 0.032f;
+                vkMapMemory(m_renderer.m_context.m_device,
+                            m_uniformPointLightBuffersMemory[m_renderer.getCurrentImageIndex()],
+                            lightIndex * sizeof(pointLight), sizeof(pointLight), 0, &data);
+                memcpy(data, &pointLight, sizeof(pointLight));
+                vkUnmapMemory(m_renderer.m_context.m_device,
+                              m_uniformPointLightBuffersMemory[m_renderer.getCurrentImageIndex()]);
+                lightIndex++;
+            }
         }
 
-        SpotLight spotLight = {};
+        VulkanShaderSpotLight spotLight = {};
         spotLight.position = glm::vec3(0);
         spotLight.direction = glm::vec3(0.0f, 0.0f, -1.0f);
         spotLight.ambient = m_spotLightColor * 0.2f;
@@ -299,10 +305,21 @@ void VulkanLayerRenderer3DLights::setDirLight(glm::vec3 direction, glm::vec3 col
     m_dirLightColor = color;
 }
 
-void VulkanLayerRenderer3DLights::addPointLight(glm::vec3 position, glm::vec3 color, Drawable *drawable)
+void VulkanLayerRenderer3DLights::addPointLight(VulkanPointLight &pointLight)
 {
-    VulkanPointLight pointLight = {position, color, drawable};
-    m_pointLights.push_back(pointLight);
+    m_pointLights.push_back(&pointLight);
+}
+
+void VulkanLayerRenderer3DLights::removePointLight(VulkanPointLight &pointLight)
+{
+    auto found_it =
+        std::find_if(m_pointLights.begin(), m_pointLights.end(), [&](VulkanPointLight *p) { return p == &pointLight; });
+
+    SPARK_CORE_ASSERT(found_it != m_pointLights.end(), "Tried to remove a point light which isn't in the layer");
+    if (found_it != m_pointLights.end())
+    {
+        m_pointLights.erase(found_it);
+    }
 }
 
 void VulkanLayerRenderer3DLights::setSpotLight(glm::vec3 color)
@@ -330,10 +347,15 @@ void VulkanLayerRenderer3DLights::createCommandBuffers()
                                    m_framebuffer->getswapChainFramebuffers()[i], 2, clearValues.data());
 
         struct PushConsts pushConsts = {};
-        pushConsts.numberOfPointLights = static_cast<int>(m_pointLights.size());
-        pushConsts.useColor = false;
-        pushConsts.calcLight = true;
-        pushConsts.color = {1.0f, 1.0f, 1.0f};
+        pushConsts.numberOfPointLights = 0;
+
+        for (auto &light : m_pointLights)
+        {
+            if (light->isLit())
+            {
+                pushConsts.numberOfPointLights++;
+            }
+        }
 
         for (size_t j = 0; j < m_drawables.size(); j++)
         {
@@ -356,11 +378,11 @@ void VulkanLayerRenderer3DLights::createCommandBuffers()
                 pushConsts.useColor = true;
                 auto pointLight =
                     std::find_if(m_pointLights.begin(), m_pointLights.end(),
-                                 [&drawable](const VulkanPointLight x) { return x.drawable == drawable; });
-                if (pointLight != m_pointLights.end())
+                                 [&drawable](const VulkanPointLight *x) { return x->drawable.get() == drawable; });
+                if (pointLight != m_pointLights.end() && (*pointLight)->isLit())
                 {
                     pushConsts.calcLight = false;
-                    pushConsts.color = coloredCube->getColor();
+                    pushConsts.color = (*pointLight)->color;
                 }
                 else
                 {

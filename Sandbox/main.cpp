@@ -103,11 +103,16 @@ class Sandbox3DLayer : public Spark::Layer3D
         , m_removingBox(false)
         , m_setDirLight(false)
         , m_setSpotLight(false)
+        , m_addingLightBox(false)
+        , m_removingLightBox(false)
         , m_nextCords{0, 0, 0}
+        , m_nextLightsCords{0, 0, 0}
         , m_dirLightColor{1.0f, 1.0f, 1.0f}
         , m_dirLightDirection{-0.2f, -1.0f, -0.3f}
         , m_spotLightColor{1.0f, 1.0f, 1.0f}
+        , m_pointLightColor{1.0f, 1.0f, 1.0f}
         , m_removeBoxIndex(0)
+        , m_removeLightIndex(0)
     {
         const Spark::Texture &texture = Spark::ResourceManager::loadTexture("cubeTexutre", "textures/container2.png");
         const Spark::Texture &specularTexture =
@@ -116,7 +121,9 @@ class Sandbox3DLayer : public Spark::Layer3D
         addDrawable(m_cube[0]);
         setDirLight({m_dirLightDirection[0], m_dirLightDirection[1], m_dirLightDirection[2]},
                     {m_dirLightColor[0], m_dirLightColor[1], m_dirLightColor[2]});
-        addPointLight({0, 0, -1.0f}, {1, 1, 0});
+        m_pointLights.push_back(Spark::createPointLight(
+            {0, 0, -2.0f}, {0, 1, 0}, Spark::createCube({0, 0, -2.0f}, {0.3, 0.3f, 0.3f}, {0.3, 0.3f, 0.3f})));
+        addPointLight(*(m_pointLights.back()));
         setSpotLight({m_spotLightColor[0], m_spotLightColor[1], m_spotLightColor[2]});
     }
 
@@ -190,11 +197,13 @@ class Sandbox3DLayer : public Spark::Layer3D
 
     bool handleKeyPressed(Spark::KeyPressedEvent &e)
     {
+        ImGuiIO &io = ImGui::GetIO();
         switch (e.GetKeyCode())
         {
         case Spark::KeyCode::Escape:
             Spark::Input::UnHideMouse();
             m_focused = false;
+            io.ConfigFlags &= ~ImGuiConfigFlags_NoMouse;
             return true;
         default:
             return false;
@@ -203,11 +212,13 @@ class Sandbox3DLayer : public Spark::Layer3D
 
     bool handleMousePressed(Spark::MouseButtonPressedEvent &e)
     {
+        ImGuiIO &io = ImGui::GetIO();
         switch (e.GetMouseButton())
         {
         case Spark::MouseCode::ButtonLeft:
             Spark::Input::HideMouse();
             m_focused = true;
+            io.ConfigFlags |= ImGuiConfigFlags_NoMouse;
             return true;
         default:
             return false;
@@ -216,7 +227,7 @@ class Sandbox3DLayer : public Spark::Layer3D
 
     void generateOverlay()
     {
-        ImGui::SetNextWindowSize(ImVec2(350, 170), ImGuiCond_Always);
+        ImGui::SetNextWindowSize(ImVec2(350, 170 + 30.0f * m_pointLights.size()), ImGuiCond_Always);
         ImGui::SetNextWindowPos(ImVec2(ImGui::GetIO().DisplaySize.x - 360, 10), ImGuiCond_Once);
         ImGui::Begin("3d editor", NULL, ImGuiWindowFlags_NoResize);
 
@@ -228,14 +239,16 @@ class Sandbox3DLayer : public Spark::Layer3D
 
         if (m_addingBox)
         {
-            ImGui::SetNextWindowSize(ImVec2(195, 35), ImGuiCond_Always);
+            ImGui::SetNextWindowSize(ImVec2(260, 35), ImGuiCond_Always);
             ImGui::SetNextWindowPos(
                 ImVec2(ImGui::GetIO().DisplaySize.x / 2 - 195 / 2, ImGui::GetIO().DisplaySize.y / 2 - 35 / 2),
                 ImGuiCond_Once);
             ImGui::Begin("Box adder", NULL, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize);
 
+            ImGui::PushItemWidth(150);
             ImGui::InputFloat3("", m_nextCords);
-            ImGui::SameLine(150);
+            ImGui::PopItemWidth();
+            ImGui::SameLine(165);
             if (ImGui::Button("add"))
             {
                 const Spark::Texture *texture = Spark::ResourceManager::getTexture("cubeTexutre");
@@ -243,6 +256,15 @@ class Sandbox3DLayer : public Spark::Layer3D
                 m_cube.push_back(std::move(
                     Spark::createCube({m_nextCords[0], m_nextCords[1], m_nextCords[2]}, *texture, *specularTexture)));
                 addDrawable(m_cube.back());
+                for (int i = 0; i < 3; i++)
+                {
+                    m_nextCords[i] = 0;
+                }
+                m_addingBox = false;
+            }
+            ImGui::SameLine(200);
+            if (ImGui::Button("cancel"))
+            {
                 for (int i = 0; i < 3; i++)
                 {
                     m_nextCords[i] = 0;
@@ -261,18 +283,26 @@ class Sandbox3DLayer : public Spark::Layer3D
 
         if (m_removingBox)
         {
-            ImGui::SetNextWindowSize(ImVec2(210, 35), ImGuiCond_Always);
+            ImGui::SetNextWindowSize(ImVec2(220, 35), ImGuiCond_Always);
             ImGui::SetNextWindowPos(
                 ImVec2(ImGui::GetIO().DisplaySize.x / 2 - 210 / 2, ImGui::GetIO().DisplaySize.y / 2 - 35 / 2),
                 ImGuiCond_Once);
             ImGui::Begin("Box remover", NULL, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize);
 
+            ImGui::PushItemWidth(75);
             ImGui::InputInt("", &m_removeBoxIndex);
-            ImGui::SameLine(150);
+            ImGui::PopItemWidth();
+            ImGui::SameLine(90);
             if (ImGui::Button("remove"))
             {
                 removeDrawable(m_cube[m_removeBoxIndex].get());
                 m_cube.erase(m_cube.begin() + m_removeBoxIndex);
+                m_removeBoxIndex = 0;
+                m_removingBox = false;
+            }
+            ImGui::SameLine(150);
+            if (ImGui::Button("cancel"))
+            {
                 m_removeBoxIndex = 0;
                 m_removingBox = false;
             }
@@ -284,6 +314,19 @@ class Sandbox3DLayer : public Spark::Layer3D
         {
             SPARK_INFO("Setting dir light");
             m_setDirLight = true;
+        }
+        ImGui::SameLine(130);
+        if (ImGui::Button("dir light off"))
+        {
+            SPARK_INFO("Turning off dir light");
+            setDirLight({m_dirLightDirection[0], m_dirLightDirection[1], m_dirLightDirection[2]}, {0, 0, 0});
+        }
+        ImGui::SameLine(250);
+        if (ImGui::Button("dir light on"))
+        {
+            SPARK_INFO("Turning on dir light");
+            setDirLight({m_dirLightDirection[0], m_dirLightDirection[1], m_dirLightDirection[2]},
+                        {m_dirLightColor[0], m_dirLightColor[1], m_dirLightColor[2]});
         }
 
         if (m_setDirLight)
@@ -302,6 +345,11 @@ class Sandbox3DLayer : public Spark::Layer3D
                             {m_dirLightColor[0], m_dirLightColor[1], m_dirLightColor[2]});
                 m_setDirLight = false;
             }
+            ImGui::SameLine(100);
+            if (ImGui::Button("cancel"))
+            {
+                m_setDirLight = false;
+            }
 
             ImGui::End();
         }
@@ -310,6 +358,18 @@ class Sandbox3DLayer : public Spark::Layer3D
         {
             SPARK_INFO("Setting spot light");
             m_setSpotLight = true;
+        }
+        ImGui::SameLine(130);
+        if (ImGui::Button("spot light off"))
+        {
+            SPARK_INFO("Turning off spot light");
+            setSpotLight({0, 0, 0});
+        }
+        ImGui::SameLine(250);
+        if (ImGui::Button("spot light on"))
+        {
+            SPARK_INFO("Turning on spot light");
+            setSpotLight({m_spotLightColor[0], m_spotLightColor[1], m_spotLightColor[2]});
         }
 
         if (m_setSpotLight)
@@ -326,9 +386,112 @@ class Sandbox3DLayer : public Spark::Layer3D
                 setSpotLight({m_spotLightColor[0], m_spotLightColor[1], m_spotLightColor[2]});
                 m_setSpotLight = false;
             }
+            ImGui::SameLine(100);
+            if (ImGui::Button("cancel"))
+            {
+                m_setSpotLight = false;
+            }
 
             ImGui::End();
         }
+
+        if (ImGui::Button("add light box"))
+        {
+            SPARK_INFO("Adding light box");
+            m_addingLightBox = true;
+        }
+
+        if (m_addingLightBox)
+        {
+            ImGui::SetNextWindowSize(ImVec2(200, 100), ImGuiCond_Always);
+            ImGui::SetNextWindowPos(
+                ImVec2(ImGui::GetIO().DisplaySize.x / 2 - 195 / 2, ImGui::GetIO().DisplaySize.y / 2 - 35 / 2),
+                ImGuiCond_Once);
+            ImGui::Begin("Light box adder", NULL, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize);
+
+            ImGui::InputFloat3("location", m_nextLightsCords);
+            ImGui::InputFloat3("color", m_pointLightColor);
+            if (ImGui::Button("add"))
+            {
+                m_pointLights.push_back(Spark::createPointLight(
+                    {m_nextLightsCords[0], m_nextLightsCords[1], m_nextLightsCords[2]},
+                    {m_pointLightColor[0], m_pointLightColor[1], m_pointLightColor[2]},
+                    Spark::createCube({m_nextLightsCords[0], m_nextLightsCords[1], m_nextLightsCords[2]},
+                                      {0.3f, 0.3f, 0.3f}, {0.3f, 0.3f, 0.3f})));
+                addPointLight(*(m_pointLights.back()));
+                for (int i = 0; i < 3; i++)
+                {
+                    m_nextLightsCords[i] = 0;
+                    m_pointLightColor[i] = 0;
+                }
+                m_addingLightBox = false;
+            }
+            ImGui::SameLine(100);
+            if (ImGui::Button("cancel"))
+            {
+                for (int i = 0; i < 3; i++)
+                {
+                    m_nextLightsCords[i] = 0;
+                    m_pointLightColor[i] = 0;
+                }
+                m_addingLightBox = false;
+            }
+
+            ImGui::End();
+        }
+
+        if (ImGui::Button("remove light box"))
+        {
+            SPARK_INFO("Removing light box");
+            m_removingLightBox = true;
+        }
+
+        if (m_removingLightBox)
+        {
+            ImGui::SetNextWindowSize(ImVec2(220, 35), ImGuiCond_Always);
+            ImGui::SetNextWindowPos(
+                ImVec2(ImGui::GetIO().DisplaySize.x / 2 - 210 / 2, ImGui::GetIO().DisplaySize.y / 2 - 35 / 2),
+                ImGuiCond_Once);
+            ImGui::Begin("Light box remover", NULL, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize);
+
+            ImGui::PushItemWidth(75);
+            ImGui::InputInt("", &m_removeBoxIndex);
+            ImGui::PopItemWidth();
+            ImGui::SameLine(90);
+            if (ImGui::Button("remove"))
+            {
+                removePointLight(*(m_pointLights[m_removeBoxIndex].get()));
+                m_pointLights.erase(m_pointLights.begin() + m_removeBoxIndex);
+                m_removeLightIndex = 0;
+                m_removingLightBox = false;
+            }
+            ImGui::SameLine(150);
+            if (ImGui::Button("cancel"))
+            {
+                m_removeLightIndex = 0;
+                m_removingLightBox = false;
+            }
+
+            ImGui::End();
+        }
+
+        int index = 0;
+        for (auto &pointLight : m_pointLights)
+        {
+            if (ImGui::Button(("Switch light cube " + std::to_string(index)).c_str()))
+            {
+                if (pointLight->isLit())
+                {
+                    pointLight->turnOff();
+                }
+                else
+                {
+                    pointLight->turnOn();
+                }
+            }
+            index++;
+        }
+
         ImGui::End();
     }
 
@@ -340,11 +503,17 @@ class Sandbox3DLayer : public Spark::Layer3D
     bool m_removingBox;
     bool m_setDirLight;
     bool m_setSpotLight;
+    bool m_addingLightBox;
+    bool m_removingLightBox;
     float m_nextCords[3];
+    float m_nextLightsCords[3];
     float m_dirLightDirection[3];
     float m_dirLightColor[3];
     float m_spotLightColor[3];
+    float m_pointLightColor[3];
     int m_removeBoxIndex;
+    int m_removeLightIndex;
+    std::vector<std::shared_ptr<Spark::PointLight>> m_pointLights;
 };
 
 class Sandbox : public Spark::Application

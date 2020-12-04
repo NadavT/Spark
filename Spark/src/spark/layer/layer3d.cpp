@@ -51,13 +51,20 @@ void Layer3D::setDirLight(glm::vec3 direction, glm::vec3 color)
 #endif
 }
 
-SPARK_API void Layer3D::addPointLight(glm::vec3 position, glm::vec3 color)
+SPARK_API void Layer3D::addPointLight(PointLight &pointLight)
 {
 #ifdef SPARK_PLATFORM_VULKAN
-    auto cube = createCube(position, color, glm::vec3(0.3f));
-    addDrawable(cube);
-    reinterpret_cast<VulkanLayerRenderer3DLights *>(m_layer_renderer.get())->addPointLight(position, color, cube.get());
+    addDrawable(pointLight.drawable);
+    reinterpret_cast<VulkanLayerRenderer3DLights *>(m_layer_renderer.get())
+        ->addPointLight(reinterpret_cast<VulkanPointLight &>(pointLight));
 #endif
+}
+
+SPARK_API void Layer3D::removePointLight(PointLight &pointLight)
+{
+    reinterpret_cast<VulkanLayerRenderer3DLights *>(m_layer_renderer.get())
+        ->removePointLight(reinterpret_cast<VulkanPointLight &>(pointLight));
+    m_layer_renderer->removeDrawable(pointLight.drawable.get());
 }
 
 void Layer3D::setSpotLight(glm::vec3 direction)

@@ -3,9 +3,8 @@
 #include "spark/core/application.h"
 
 #ifdef SPARK_PLATFORM_VULKAN
-#include "platform/vulkan/drawables/quad.h"
-#include "platform/vulkan/renderer.h"
-
+    #include "platform/vulkan/drawables/quad.h"
+    #include "platform/vulkan/renderer.h"
 #endif // SPARK_PLATFORM_VULKAN
 
 namespace Spark

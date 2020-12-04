@@ -3,6 +3,7 @@
 #include "layer.h"
 
 #include "spark/renderer/camera.h"
+#include "spark/renderer/drawables/point_light.h"
 #include "spark/renderer/layer_renderer.h"
 
 #include <glm/glm.hpp>
@@ -24,7 +25,8 @@ class Layer3D : public Layer
     SPARK_API virtual void removeDrawable(Drawable *drawable);
 
     SPARK_API virtual void setDirLight(glm::vec3 direction, glm::vec3 color);
-    SPARK_API virtual void addPointLight(glm::vec3 position, glm::vec3 color);
+    SPARK_API virtual void addPointLight(PointLight &pointLight);
+    SPARK_API virtual void removePointLight(PointLight &pointLight);
     SPARK_API virtual void setSpotLight(glm::vec3 color);
 
   private:
