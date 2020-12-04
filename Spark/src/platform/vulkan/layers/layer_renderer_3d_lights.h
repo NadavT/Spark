@@ -13,6 +13,7 @@ struct VulkanPointLight
 {
     glm::vec3 position;
     glm::vec3 color;
+    Drawable *drawable;
 };
 
 class VulkanLayerRenderer3DLights : public LayerRenderer
@@ -29,7 +30,7 @@ class VulkanLayerRenderer3DLights : public LayerRenderer
     virtual void removeDrawable(Drawable *drawable);
 
     virtual void setDirLight(glm::vec3 direction, glm::vec3 color);
-    virtual void addPointLight(glm::vec3 position, glm::vec3 color);
+    virtual void addPointLight(glm::vec3 position, glm::vec3 color, Drawable *drawable);
     virtual void setSpotLight(glm::vec3 color);
 
   private:

@@ -2,6 +2,8 @@
 #include "platform/vulkan/drawables/colored_cube.h"
 #include "platform/vulkan/drawables/textured_cube.h"
 
+#include <algorithm>
+
 namespace Spark
 {
 VulkanLayerRenderer3DLights::VulkanLayerRenderer3DLights(VulkanRenderer &renderer, Camera &camera)
@@ -297,9 +299,9 @@ void VulkanLayerRenderer3DLights::setDirLight(glm::vec3 direction, glm::vec3 col
     m_dirLightColor = color;
 }
 
-void VulkanLayerRenderer3DLights::addPointLight(glm::vec3 position, glm::vec3 color)
+void VulkanLayerRenderer3DLights::addPointLight(glm::vec3 position, glm::vec3 color, Drawable *drawable)
 {
-    VulkanPointLight pointLight = {position, color};
+    VulkanPointLight pointLight = {position, color, drawable};
     m_pointLights.push_back(pointLight);
 }
 
@@ -335,7 +337,8 @@ void VulkanLayerRenderer3DLights::createCommandBuffers()
 
         for (size_t j = 0; j < m_drawables.size(); j++)
         {
-            Cube *cube = reinterpret_cast<Cube *>(m_drawables[j].get());
+            Drawable *drawable = m_drawables[j].get();
+            Cube *cube = reinterpret_cast<Cube *>(drawable);
             if (cube->getType() == CubeType::TexturedCude)
             {
                 VulkanTexturedCube *texturedCube = reinterpret_cast<VulkanTexturedCube *>(cube);
@@ -351,8 +354,19 @@ void VulkanLayerRenderer3DLights::createCommandBuffers()
             {
                 VulkanColoredCube *coloredCube = reinterpret_cast<VulkanColoredCube *>(cube);
                 pushConsts.useColor = true;
-                pushConsts.calcLight = false;
-                pushConsts.color = coloredCube->getColor();
+                auto pointLight =
+                    std::find_if(m_pointLights.begin(), m_pointLights.end(),
+                                 [&drawable](const VulkanPointLight x) { return x.drawable == drawable; });
+                if (pointLight != m_pointLights.end())
+                {
+                    pushConsts.calcLight = false;
+                    pushConsts.color = coloredCube->getColor();
+                }
+                else
+                {
+                    pushConsts.calcLight = true;
+                    pushConsts.color = coloredCube->getColor();
+                }
                 m_pipeline->bind(commandBuffer, m_transformationDescriptorSets[j][i], m_lightsDescriptorSets[0][i],
                                  pushConsts);
                 coloredCube->fillCommandBuffer(commandBuffer);

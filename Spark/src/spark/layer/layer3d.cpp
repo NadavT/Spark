@@ -54,8 +54,9 @@ void Layer3D::setDirLight(glm::vec3 direction, glm::vec3 color)
 SPARK_API void Layer3D::addPointLight(glm::vec3 position, glm::vec3 color)
 {
 #ifdef SPARK_PLATFORM_VULKAN
-    addDrawable(createCube(position, color, glm::vec3(0.3f)));
-    reinterpret_cast<VulkanLayerRenderer3DLights *>(m_layer_renderer.get())->addPointLight(position, color);
+    auto cube = createCube(position, color, glm::vec3(0.3f));
+    addDrawable(cube);
+    reinterpret_cast<VulkanLayerRenderer3DLights *>(m_layer_renderer.get())->addPointLight(position, color, cube.get());
 #endif
 }
 
