@@ -36,6 +36,8 @@ VulkanLayerRenderer3DLights::VulkanLayerRenderer3DLights(VulkanRenderer &rendere
     m_framebuffer = renderer.createFramebuffer(VulkanFramebufferType::Type3D);
     m_pipeline = reinterpret_cast<VulkanPipeline3DLights *>(
         renderer.createPipeline(VulkanPipelineType::Type3DLights, *m_framebuffer));
+    m_outlinePipeline = reinterpret_cast<VulkanPipeline3DOutline *>(
+        renderer.createPipeline(VulkanPipelineType::Type3DOutline, *m_framebuffer));
     m_commandBuffers.resize(renderer.getImagesAmount());
     for (int i = 0; i < m_commandBuffers.size(); i++)
     {
@@ -55,6 +57,8 @@ VulkanLayerRenderer3DLights::~VulkanLayerRenderer3DLights()
         m_renderer.m_context.destroyCommandBuffer(m_commandBuffers[i]);
     }
 
+    m_renderer.destroyPipeline(m_outlinePipeline);
+    m_outlinePipeline = nullptr;
     m_renderer.destroyPipeline(m_pipeline);
     m_pipeline = nullptr;
     m_renderer.destroyFramebuffer(m_framebuffer);
@@ -346,8 +350,12 @@ void VulkanLayerRenderer3DLights::createCommandBuffers()
         m_renderer.beginRenderPass(commandBuffer, m_framebuffer->getRenderPass(),
                                    m_framebuffer->getswapChainFramebuffers()[i], 2, clearValues.data());
 
-        struct PushConsts pushConsts = {};
+        struct Vulkan3DLightsConsts pushConsts = {};
         pushConsts.numberOfPointLights = 0;
+
+        struct Vulkan3DOutlinePushConsts outlinePushConsts = {};
+        outlinePushConsts.color = glm::vec3(1.0f, 1.0f, 1.0f);
+        outlinePushConsts.lineWidth = 0.025f;
 
         for (auto &light : m_pointLights)
         {
@@ -391,6 +399,23 @@ void VulkanLayerRenderer3DLights::createCommandBuffers()
                 }
                 m_pipeline->bind(commandBuffer, m_transformationDescriptorSets[j][i], m_lightsDescriptorSets[0][i],
                                  pushConsts);
+                coloredCube->fillCommandBuffer(commandBuffer);
+            }
+        }
+
+        for (size_t j = 0; j < m_drawables.size(); j++)
+        {
+            Drawable *drawable = m_drawables[j].get();
+            Cube *cube = reinterpret_cast<Cube *>(drawable);
+            m_outlinePipeline->bind(commandBuffer, m_transformationDescriptorSets[j][i], outlinePushConsts);
+            if (cube->getType() == CubeType::TexturedCude)
+            {
+                VulkanTexturedCube *texturedCube = reinterpret_cast<VulkanTexturedCube *>(cube);
+                texturedCube->fillCommandBuffer(commandBuffer);
+            }
+            else if (cube->getType() == CubeType::ColoredCube)
+            {
+                VulkanColoredCube *coloredCube = reinterpret_cast<VulkanColoredCube *>(cube);
                 coloredCube->fillCommandBuffer(commandBuffer);
             }
         }

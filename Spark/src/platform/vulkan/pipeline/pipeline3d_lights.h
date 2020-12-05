@@ -53,7 +53,7 @@ struct Material
     float shininess;
 };
 
-struct PushConsts
+struct Vulkan3DLightsConsts
 {
     alignas(4) int numberOfPointLights;
     alignas(4) bool useColor;
@@ -71,9 +71,9 @@ class VulkanPipeline3DLights : public VulkanPipeline
     virtual void recreate();
 
     virtual void bind(VkCommandBuffer commandBuffer, VkDescriptorSet transformationSet, VkDescriptorSet lightSet,
-                      VkDescriptorSet textureSet, struct PushConsts pushConsts);
+                      VkDescriptorSet textureSet, struct Vulkan3DLightsConsts pushConsts);
     virtual void bind(VkCommandBuffer commandBuffer, VkDescriptorSet transformationSet, VkDescriptorSet lightSet,
-                      struct PushConsts pushConsts);
+                      struct Vulkan3DLightsConsts pushConsts);
 
     VkDescriptorSetLayout getMVPDescriptorSetLayout();
     VkDescriptorSetLayout getLightsDescriptorSetLayout();

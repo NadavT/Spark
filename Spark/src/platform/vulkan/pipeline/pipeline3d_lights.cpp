@@ -1,6 +1,5 @@
 #include "pipeline3d_lights.h"
 
-#include "platform/vulkan/vertex/vertex2d.h"
 #include "spark/core/log.h"
 #include "spark/utils/file.h"
 
@@ -42,7 +41,8 @@ void VulkanPipeline3DLights::recreate()
 }
 
 void VulkanPipeline3DLights::bind(VkCommandBuffer commandBuffer, VkDescriptorSet transformationSet,
-                                  VkDescriptorSet lightSet, VkDescriptorSet textureSet, struct PushConsts pushConsts)
+                                  VkDescriptorSet lightSet, VkDescriptorSet textureSet,
+                                  struct Vulkan3DLightsConsts pushConsts)
 {
     const VkDescriptorSet descriptorSets[] = {transformationSet, lightSet, textureSet};
     vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_pipelineLayout, 0, 3, descriptorSets, 0,
@@ -53,7 +53,7 @@ void VulkanPipeline3DLights::bind(VkCommandBuffer commandBuffer, VkDescriptorSet
 }
 
 void VulkanPipeline3DLights::bind(VkCommandBuffer commandBuffer, VkDescriptorSet transformationSet,
-                                  VkDescriptorSet lightSet, struct PushConsts pushConsts)
+                                  VkDescriptorSet lightSet, struct Vulkan3DLightsConsts pushConsts)
 {
     const VkDescriptorSet descriptorSets[] = {transformationSet, lightSet};
     vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_pipelineLayout, 0, 2, descriptorSets, 0,
@@ -234,7 +234,7 @@ void VulkanPipeline3DLights::createGraphicsPipeline()
     VkPushConstantRange pushConstantRange = {};
     pushConstantRange.stageFlags = VK_SHADER_STAGE_ALL_GRAPHICS;
     pushConstantRange.offset = 0;
-    pushConstantRange.size = sizeof(struct PushConsts);
+    pushConstantRange.size = sizeof(struct Vulkan3DLightsConsts);
 
     VkPipelineLayoutCreateInfo pipelineLayoutInfo{};
     pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
@@ -247,7 +247,24 @@ void VulkanPipeline3DLights::createGraphicsPipeline()
                           VK_SUCCESS,
                       "failed to create pipeline layout!");
 
-    VulkanPipeline::createGraphicsPipeline(vertexShader, fragmentShader, vertexInputInfo, m_pipelineLayout, true);
+    VkPipelineDepthStencilStateCreateInfo depthStencil{};
+    depthStencil.sType = VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO;
+    depthStencil.depthTestEnable = VK_TRUE;
+    depthStencil.depthWriteEnable = VK_TRUE;
+    depthStencil.depthCompareOp = VK_COMPARE_OP_LESS;
+    depthStencil.depthBoundsTestEnable = VK_FALSE;
+    depthStencil.stencilTestEnable = VK_TRUE;
+    depthStencil.front.compareOp = VK_COMPARE_OP_ALWAYS;
+    depthStencil.front.failOp = VK_STENCIL_OP_REPLACE;
+    depthStencil.front.depthFailOp = VK_STENCIL_OP_REPLACE;
+    depthStencil.front.passOp = VK_STENCIL_OP_REPLACE;
+    depthStencil.front.compareMask = 0xff;
+    depthStencil.front.writeMask = 0xff;
+    depthStencil.front.reference = 1;
+    depthStencil.back = depthStencil.front;
+
+    VulkanPipeline::createGraphicsPipeline(vertexShader, fragmentShader, vertexInputInfo, m_pipelineLayout, true,
+                                           &depthStencil);
 
     vkDestroyShaderModule(m_context.m_device, vertexShader, VK_NULL_HANDLE);
     vkDestroyShaderModule(m_context.m_device, fragmentShader, VK_NULL_HANDLE);

@@ -49,7 +49,8 @@ VkShaderModule VulkanPipeline::createShaderModule(const std::vector<char> &code)
 
 void VulkanPipeline::createGraphicsPipeline(VkShaderModule vertexShader, VkShaderModule fragmentShader,
                                             VkPipelineVertexInputStateCreateInfo vertexInputInfo,
-                                            VkPipelineLayout layout, bool depthTesting)
+                                            VkPipelineLayout layout, bool depthTesting,
+                                            VkPipelineDepthStencilStateCreateInfo *depthStencilState)
 {
     VkPipelineShaderStageCreateInfo vertShaderStageInfo{};
     vertShaderStageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
@@ -95,8 +96,8 @@ void VulkanPipeline::createGraphicsPipeline(VkShaderModule vertexShader, VkShade
     rasterizer.rasterizerDiscardEnable = VK_FALSE;
     rasterizer.polygonMode = VK_POLYGON_MODE_FILL;
     rasterizer.lineWidth = 1.0f;
-    rasterizer.cullMode = VK_CULL_MODE_BACK_BIT;
-    rasterizer.frontFace = VK_FRONT_FACE_COUNTER_CLOCKWISE;
+    rasterizer.cullMode = VK_CULL_MODE_FRONT_BIT;
+    rasterizer.frontFace = VK_FRONT_FACE_CLOCKWISE;
     rasterizer.depthBiasEnable = VK_FALSE;
 
     VkPipelineMultisampleStateCreateInfo multisampling{};
@@ -111,6 +112,10 @@ void VulkanPipeline::createGraphicsPipeline(VkShaderModule vertexShader, VkShade
     depthStencil.depthCompareOp = VK_COMPARE_OP_LESS;
     depthStencil.depthBoundsTestEnable = VK_FALSE;
     depthStencil.stencilTestEnable = VK_FALSE;
+    if (depthTesting && depthStencilState == VK_NULL_HANDLE)
+    {
+        depthStencilState = &depthStencil;
+    }
 
     VkPipelineColorBlendAttachmentState colorBlendAttachment{};
     colorBlendAttachment.colorWriteMask =
@@ -143,7 +148,7 @@ void VulkanPipeline::createGraphicsPipeline(VkShaderModule vertexShader, VkShade
     pipelineInfo.pViewportState = &viewportState;
     pipelineInfo.pRasterizationState = &rasterizer;
     pipelineInfo.pMultisampleState = &multisampling;
-    pipelineInfo.pDepthStencilState = (depthTesting) ? &depthStencil : VK_NULL_HANDLE;
+    pipelineInfo.pDepthStencilState = (depthTesting) ? depthStencilState : VK_NULL_HANDLE;
     pipelineInfo.pColorBlendState = &colorBlending;
     pipelineInfo.layout = layout;
     pipelineInfo.renderPass = m_framebuffer.getRenderPass();

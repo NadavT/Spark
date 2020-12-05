@@ -41,7 +41,8 @@ void VulkanFramebuffer3D::createDepthImage()
                           m_context.m_msaaSamples, depthFormat, VK_IMAGE_TILING_OPTIMAL,
                           VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
                           m_depthImage, m_depthImageMemory);
-    m_depthImageView = m_context.createImageView(m_depthImage, depthFormat, VK_IMAGE_ASPECT_DEPTH_BIT, 1);
+    m_depthImageView = m_context.createImageView(m_depthImage, depthFormat,
+                                                 VK_IMAGE_ASPECT_DEPTH_BIT | VK_IMAGE_ASPECT_STENCIL_BIT, 1);
 }
 
 void VulkanFramebuffer3D::createRenderPass()

@@ -1,9 +1,7 @@
 #include "pipeline3d.h"
 
-#include "platform/vulkan/vertex/vertex2d.h"
 #include "spark/core/log.h"
 #include "spark/utils/file.h"
-
 
 namespace Spark
 {

@@ -3,7 +3,6 @@
 #include "platform/vulkan/framebuffer/framebuffer.h"
 #include "platform/vulkan/vulkan_context.h"
 
-
 namespace Spark
 {
 enum class VulkanPipelineType
@@ -11,6 +10,7 @@ enum class VulkanPipelineType
     Type2D,
     Type3D,
     Type3DLights,
+    Type3DOutline,
     TypeTriangle
 };
 
@@ -33,7 +33,8 @@ class VulkanPipeline
     VkShaderModule createShaderModule(const std::vector<char> &code);
     void createGraphicsPipeline(VkShaderModule vertexShader, VkShaderModule fragmentShader,
                                 VkPipelineVertexInputStateCreateInfo vertexInputInfo, VkPipelineLayout layout,
-                                bool depthTesting = false);
+                                bool depthTesting = false,
+                                VkPipelineDepthStencilStateCreateInfo *depthStencilState = VK_NULL_HANDLE);
     void allocateDescriptorSets(unsigned int amount, VkDescriptorSetLayout layout,
                                 std::vector<std::vector<VkDescriptorSet>> &sets);
     void addDescriptorSets(VkDescriptorSetLayout layout, std::vector<std::vector<VkDescriptorSet>> &sets,
