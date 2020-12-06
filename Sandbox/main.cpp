@@ -112,13 +112,14 @@ class Sandbox3DLayer : public Spark::Layer3D
         , m_spotLightColor{1.0f, 1.0f, 1.0f}
         , m_pointLightColor{1.0f, 1.0f, 1.0f}
         , m_removeBoxIndex(0)
+        , m_previousRemoveBoxIndex(0)
         , m_removeLightIndex(0)
     {
         const Spark::Texture &texture = Spark::ResourceManager::loadTexture("cubeTexutre", "textures/container2.png");
         const Spark::Texture &specularTexture =
             Spark::ResourceManager::loadTexture("cubeTexutreSpecular", "textures/container2_specular.png");
-        m_cube.push_back(std::move(Spark::createCube({0, 0, 0}, texture, specularTexture)));
-        addDrawable(m_cube[0]);
+        m_cubes.push_back(std::move(Spark::createCube({0, 0, 0}, texture, specularTexture)));
+        addDrawable(m_cubes[0]);
         setDirLight({m_dirLightDirection[0], m_dirLightDirection[1], m_dirLightDirection[2]},
                     {m_dirLightColor[0], m_dirLightColor[1], m_dirLightColor[2]});
         m_pointLights.push_back(Spark::createPointLight(
@@ -253,9 +254,9 @@ class Sandbox3DLayer : public Spark::Layer3D
             {
                 const Spark::Texture *texture = Spark::ResourceManager::getTexture("cubeTexutre");
                 const Spark::Texture *specularTexture = Spark::ResourceManager::getTexture("cubeTexutreSpecular");
-                m_cube.push_back(std::move(
+                m_cubes.push_back(std::move(
                     Spark::createCube({m_nextCords[0], m_nextCords[1], m_nextCords[2]}, *texture, *specularTexture)));
-                addDrawable(m_cube.back());
+                addDrawable(m_cubes.back());
                 for (int i = 0; i < 3; i++)
                 {
                     m_nextCords[i] = 0;
@@ -279,6 +280,10 @@ class Sandbox3DLayer : public Spark::Layer3D
         {
             SPARK_INFO("Removing box");
             m_removingBox = true;
+            if (m_cubes.size() > 0)
+            {
+                reinterpret_cast<Spark::Cube *>(m_cubes[0].get())->highlight();
+            }
         }
 
         if (m_removingBox)
@@ -290,20 +295,45 @@ class Sandbox3DLayer : public Spark::Layer3D
             ImGui::Begin("Box remover", NULL, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize);
 
             ImGui::PushItemWidth(75);
-            ImGui::InputInt("", &m_removeBoxIndex);
+            if (ImGui::InputInt("", &m_removeBoxIndex))
+            {
+                if (m_removeBoxIndex >= 0 && m_removeBoxIndex < m_cubes.size())
+                {
+                    reinterpret_cast<Spark::Cube *>(m_cubes[m_previousRemoveBoxIndex].get())->unhighlight();
+                    reinterpret_cast<Spark::Cube *>(m_cubes[m_removeBoxIndex].get())->highlight();
+                    m_previousRemoveBoxIndex = m_removeBoxIndex;
+                }
+                else if (m_removeBoxIndex < 0)
+                {
+                    m_removeBoxIndex = 0;
+                    reinterpret_cast<Spark::Cube *>(m_cubes[m_previousRemoveBoxIndex].get())->unhighlight();
+                    reinterpret_cast<Spark::Cube *>(m_cubes[m_removeBoxIndex].get())->highlight();
+                    m_previousRemoveBoxIndex = m_removeBoxIndex;
+                }
+                else
+                {
+                    m_removeBoxIndex = static_cast<int>(m_cubes.size()) - 1;
+                    reinterpret_cast<Spark::Cube *>(m_cubes[m_previousRemoveBoxIndex].get())->unhighlight();
+                    reinterpret_cast<Spark::Cube *>(m_cubes[m_removeBoxIndex].get())->highlight();
+                    m_previousRemoveBoxIndex = m_removeBoxIndex;
+                }
+            }
             ImGui::PopItemWidth();
             ImGui::SameLine(90);
             if (ImGui::Button("remove"))
             {
-                removeDrawable(m_cube[m_removeBoxIndex].get());
-                m_cube.erase(m_cube.begin() + m_removeBoxIndex);
+                removeDrawable(m_cubes[m_removeBoxIndex].get());
+                m_cubes.erase(m_cubes.begin() + m_removeBoxIndex);
                 m_removeBoxIndex = 0;
+                m_previousRemoveBoxIndex = 0;
                 m_removingBox = false;
             }
             ImGui::SameLine(150);
             if (ImGui::Button("cancel"))
             {
+                reinterpret_cast<Spark::Cube *>(m_cubes[m_removeBoxIndex].get())->unhighlight();
                 m_removeBoxIndex = 0;
+                m_previousRemoveBoxIndex = 0;
                 m_removingBox = false;
             }
 
@@ -444,6 +474,12 @@ class Sandbox3DLayer : public Spark::Layer3D
         {
             SPARK_INFO("Removing light box");
             m_removingLightBox = true;
+            m_removeLightIndex = 0;
+            m_previousRemoveLightIndex = 0;
+            if (m_pointLights.size() > 0)
+            {
+                reinterpret_cast<Spark::Cube *>(m_pointLights[0].get()->drawable.get())->highlight();
+            }
         }
 
         if (m_removingLightBox)
@@ -455,20 +491,51 @@ class Sandbox3DLayer : public Spark::Layer3D
             ImGui::Begin("Light box remover", NULL, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize);
 
             ImGui::PushItemWidth(75);
-            ImGui::InputInt("", &m_removeBoxIndex);
+            if (ImGui::InputInt("", &m_removeLightIndex))
+            {
+                if (m_removeLightIndex >= 0 && m_removeLightIndex < m_pointLights.size())
+                {
+                    reinterpret_cast<Spark::Cube *>(m_pointLights[m_previousRemoveLightIndex].get()->drawable.get())
+                        ->unhighlight();
+                    reinterpret_cast<Spark::Cube *>(m_pointLights[m_removeLightIndex].get()->drawable.get())
+                        ->highlight();
+                    m_previousRemoveLightIndex = m_removeLightIndex;
+                }
+                else if (m_removeLightIndex < 0)
+                {
+                    m_removeLightIndex = 0;
+                    reinterpret_cast<Spark::Cube *>(m_pointLights[m_previousRemoveLightIndex].get()->drawable.get())
+                        ->unhighlight();
+                    reinterpret_cast<Spark::Cube *>(m_pointLights[m_removeLightIndex].get()->drawable.get())
+                        ->highlight();
+                    m_previousRemoveLightIndex = m_removeLightIndex;
+                }
+                else
+                {
+                    m_removeLightIndex = static_cast<int>(m_pointLights.size()) - 1;
+                    reinterpret_cast<Spark::Cube *>(m_pointLights[m_previousRemoveLightIndex].get()->drawable.get())
+                        ->unhighlight();
+                    reinterpret_cast<Spark::Cube *>(m_pointLights[m_removeLightIndex].get()->drawable.get())
+                        ->highlight();
+                    m_previousRemoveLightIndex = m_removeLightIndex;
+                }
+            }
             ImGui::PopItemWidth();
             ImGui::SameLine(90);
             if (ImGui::Button("remove"))
             {
-                removePointLight(*(m_pointLights[m_removeBoxIndex].get()));
-                m_pointLights.erase(m_pointLights.begin() + m_removeBoxIndex);
+                removePointLight(*(m_pointLights[m_removeLightIndex].get()));
+                m_pointLights.erase(m_pointLights.begin() + m_removeLightIndex);
                 m_removeLightIndex = 0;
+                m_previousRemoveLightIndex = 0;
                 m_removingLightBox = false;
             }
             ImGui::SameLine(150);
             if (ImGui::Button("cancel"))
             {
+                reinterpret_cast<Spark::Cube *>(m_pointLights[m_removeLightIndex].get()->drawable.get())->unhighlight();
                 m_removeLightIndex = 0;
+                m_previousRemoveLightIndex = 0;
                 m_removingLightBox = false;
             }
 
@@ -496,7 +563,7 @@ class Sandbox3DLayer : public Spark::Layer3D
     }
 
   private:
-    std::vector<std::shared_ptr<Spark::Drawable>> m_cube;
+    std::vector<std::shared_ptr<Spark::Drawable>> m_cubes;
     Spark::Camera m_camera;
     bool m_focused;
     bool m_addingBox;
@@ -512,7 +579,9 @@ class Sandbox3DLayer : public Spark::Layer3D
     float m_spotLightColor[3];
     float m_pointLightColor[3];
     int m_removeBoxIndex;
+    int m_previousRemoveBoxIndex;
     int m_removeLightIndex;
+    int m_previousRemoveLightIndex;
     std::vector<std::shared_ptr<Spark::PointLight>> m_pointLights;
 };
 

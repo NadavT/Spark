@@ -24,6 +24,9 @@ class VulkanTexturedCube : public Cube
     virtual const VulkanTexture &getTexture() const;
     virtual const VulkanTexture &getSpecularTexture() const;
 
+    virtual void highlight();
+    virtual void unhighlight();
+
   private:
     void copyCube(const VulkanTexturedCube &other);
     void moveCube(VulkanTexturedCube &other) noexcept;

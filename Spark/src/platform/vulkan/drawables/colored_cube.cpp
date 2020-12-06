@@ -1,5 +1,9 @@
 #include "colored_cube.h"
 
+#include "platform/vulkan/renderer.h"
+
+#include "spark/core/application.h"
+
 namespace Spark
 {
 
@@ -99,6 +103,20 @@ VulkanColoredCube &VulkanColoredCube::operator=(VulkanColoredCube &&other) noexc
 const glm::vec3 &VulkanColoredCube::getColor() const
 {
     return m_color;
+}
+
+void VulkanColoredCube::highlight()
+{
+    Cube::highlight();
+    VulkanRenderer &renderer = reinterpret_cast<VulkanRenderer &>(Application::GetApp().GetRenderer());
+    renderer.m_recreationNeeded = true;
+}
+
+void VulkanColoredCube::unhighlight()
+{
+    Cube::unhighlight();
+    VulkanRenderer &renderer = reinterpret_cast<VulkanRenderer &>(Application::GetApp().GetRenderer());
+    renderer.m_recreationNeeded = true;
 }
 
 void VulkanColoredCube::fillCommandBuffer(VkCommandBuffer commandBuffer)

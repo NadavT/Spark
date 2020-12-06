@@ -6,7 +6,6 @@ layout(location = 0) out vec4 outColor;
 layout(push_constant) uniform PushConsts
 {
     vec3 color;
-    float lineWidth;
 }
 pushConsts;
 

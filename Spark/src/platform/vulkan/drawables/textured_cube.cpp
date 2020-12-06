@@ -1,5 +1,9 @@
 #include "textured_cube.h"
 
+#include "platform/vulkan/renderer.h"
+
+#include "spark/core/application.h"
+
 namespace Spark
 {
 const std::vector<Vertex3D> cube_vertices = {
@@ -117,6 +121,20 @@ const VulkanTexture &VulkanTexturedCube::getTexture() const
 const VulkanTexture &VulkanTexturedCube::getSpecularTexture() const
 {
     return m_specularTexture;
+}
+
+void VulkanTexturedCube::highlight()
+{
+    Cube::highlight();
+    VulkanRenderer &renderer = reinterpret_cast<VulkanRenderer &>(Application::GetApp().GetRenderer());
+    renderer.m_recreationNeeded = true;
+}
+
+void VulkanTexturedCube::unhighlight()
+{
+    Cube::unhighlight();
+    VulkanRenderer &renderer = reinterpret_cast<VulkanRenderer &>(Application::GetApp().GetRenderer());
+    renderer.m_recreationNeeded = true;
 }
 
 void VulkanTexturedCube::copyCube(const VulkanTexturedCube &other)

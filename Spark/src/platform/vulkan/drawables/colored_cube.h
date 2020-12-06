@@ -20,6 +20,9 @@ class VulkanColoredCube : public Cube
 
     virtual const glm::vec3 &getColor() const;
 
+    virtual void highlight();
+    virtual void unhighlight();
+
   private:
     void copyCube(const VulkanColoredCube &other);
     void moveCube(VulkanColoredCube &other) noexcept;
