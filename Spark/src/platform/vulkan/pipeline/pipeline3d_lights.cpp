@@ -255,8 +255,8 @@ void VulkanPipeline3DLights::createGraphicsPipeline()
     depthStencil.depthBoundsTestEnable = VK_FALSE;
     depthStencil.stencilTestEnable = VK_TRUE;
     depthStencil.front.compareOp = VK_COMPARE_OP_ALWAYS;
-    depthStencil.front.failOp = VK_STENCIL_OP_REPLACE;
-    depthStencil.front.depthFailOp = VK_STENCIL_OP_REPLACE;
+    depthStencil.front.failOp = VK_STENCIL_OP_KEEP;
+    depthStencil.front.depthFailOp = VK_STENCIL_OP_KEEP;
     depthStencil.front.passOp = VK_STENCIL_OP_REPLACE;
     depthStencil.front.compareMask = 0xff;
     depthStencil.front.writeMask = 0xff;
