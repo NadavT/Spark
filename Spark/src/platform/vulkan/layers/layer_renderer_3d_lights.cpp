@@ -462,27 +462,6 @@ void VulkanLayerRenderer3DLights::createCommandBuffers()
             }
         }
 
-        // for (size_t j = 0; j < m_drawables.size(); j++)
-        // {
-        //     Drawable *drawable = m_drawables[j].get();
-        //     Cube *cube = reinterpret_cast<Cube *>(drawable);
-        //     if (cube->isHighlighted())
-        //     {
-        //         outlinePushConsts.color = cube->getHighlightColor();
-        //         m_outlinePipeline->bind(commandBuffer, m_outlineTransformationDescriptorSets[j][i],
-        //         outlinePushConsts); if (cube->getType() == CubeType::TexturedCude)
-        //         {
-        //             VulkanTexturedCube *texturedCube = reinterpret_cast<VulkanTexturedCube *>(cube);
-        //             texturedCube->fillCommandBuffer(commandBuffer);
-        //         }
-        //         else if (cube->getType() == CubeType::ColoredCube)
-        //         {
-        //             VulkanColoredCube *coloredCube = reinterpret_cast<VulkanColoredCube *>(cube);
-        //             coloredCube->fillCommandBuffer(commandBuffer);
-        //         }
-        //     }
-        // }
-
         vkCmdEndRenderPass(commandBuffer);
 
         if (vkEndCommandBuffer(commandBuffer) != VK_SUCCESS)
