@@ -1,6 +1,7 @@
 #pragma once
 
 #include "platform/vulkan/drawables/point_light.h"
+#include "platform/vulkan/framebuffer/framebuffer3d.h"
 #include "platform/vulkan/pipeline/pipeline3d_lights.h"
 #include "platform/vulkan/pipeline/pipeline3d_outline.h"
 #include "platform/vulkan/renderer.h"
@@ -34,7 +35,7 @@ class VulkanLayerRenderer3DLights : public LayerRenderer
 
   private:
     VulkanRenderer &m_renderer;
-    VulkanFramebuffer *m_framebuffer;
+    VulkanFramebuffer3D *m_framebuffer;
     VulkanPipeline3DLights *m_pipeline;
     VulkanPipeline3DOutline *m_outlinePipeline;
 
@@ -53,6 +54,7 @@ class VulkanLayerRenderer3DLights : public LayerRenderer
     std::vector<std::vector<VkDescriptorSet>> m_transformationDescriptorSets;
     std::vector<std::vector<VkDescriptorSet>> m_outlineTransformationDescriptorSets;
     std::vector<std::vector<VkDescriptorSet>> m_lightsDescriptorSets;
+    std::vector<std::vector<VkDescriptorSet>> m_materialDescriptorSets;
     std::vector<std::vector<VkDescriptorSet>> m_textureDescriptorSets;
     std::unordered_map<std::string, unsigned int> m_textureDescriptorOffset;
 

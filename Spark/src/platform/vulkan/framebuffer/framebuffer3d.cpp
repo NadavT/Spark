@@ -33,6 +33,21 @@ void VulkanFramebuffer3D::recreate(VkImageView renderTarget)
     createSwapchainFramebuffers();
 }
 
+VkImage VulkanFramebuffer3D::getDepthImage() const
+{
+    return m_depthImage;
+}
+
+VkImageView VulkanFramebuffer3D::getDepthImageView() const
+{
+    return m_depthImageView;
+}
+
+VkRect2D VulkanFramebuffer3D::getDepthImageDimentions() const
+{
+    return {0, 0, m_context.m_swapChainExtent.width, m_context.m_swapChainExtent.height};
+}
+
 void VulkanFramebuffer3D::createDepthImage()
 {
     VkFormat depthFormat = m_context.findDepthFormat();

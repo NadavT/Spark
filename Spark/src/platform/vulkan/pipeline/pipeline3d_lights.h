@@ -56,7 +56,6 @@ struct Material
 struct Vulkan3DLightsConsts
 {
     alignas(4) int numberOfPointLights;
-    alignas(4) bool useColor;
     alignas(4) bool calcLight;
     alignas(16) glm::vec3 color;
 };
@@ -71,12 +70,13 @@ class VulkanPipeline3DLights : public VulkanPipeline
     virtual void recreate();
 
     virtual void bind(VkCommandBuffer commandBuffer, VkDescriptorSet transformationSet, VkDescriptorSet lightSet,
-                      VkDescriptorSet textureSet, struct Vulkan3DLightsConsts pushConsts);
+                      VkDescriptorSet materialSet, VkDescriptorSet textureSet, struct Vulkan3DLightsConsts pushConsts);
     virtual void bind(VkCommandBuffer commandBuffer, VkDescriptorSet transformationSet, VkDescriptorSet lightSet,
-                      struct Vulkan3DLightsConsts pushConsts);
+                      VkDescriptorSet materialSet, struct Vulkan3DLightsConsts pushConsts);
 
     VkDescriptorSetLayout getMVPDescriptorSetLayout();
     VkDescriptorSetLayout getLightsDescriptorSetLayout();
+    VkDescriptorSetLayout getMaterialDescriptorSetLayout();
     VkDescriptorSetLayout getTextureDescriptorSetLayout();
 
     void createTransformationDescriptorSets(unsigned int drawablesAmount,
@@ -85,20 +85,23 @@ class VulkanPipeline3DLights : public VulkanPipeline
     void createLightDescriptorSets(std::vector<std::vector<VkDescriptorSet>> &lightSets,
                                    std::vector<VkBuffer> &dirLightUniform, std::vector<VkBuffer> &pointLightsUniform,
                                    std::vector<VkBuffer> &spotLightUniform);
+    void createMaterialDescriptorSets(unsigned int drawablesAmount,
+                                      std::vector<std::vector<VkDescriptorSet>> &materialSets,
+                                      std::vector<std::vector<VkBuffer>> materialUniform);
     void createTextureDescriptorSets(unsigned int texturesAmount,
                                      std::vector<std::vector<VkDescriptorSet>> &texturesSets,
                                      std::vector<VkImageView> &textureImageViews,
                                      std::vector<VkSampler> &textureSamplers,
                                      std::vector<VkImageView> &specularImageViews,
-                                     std::vector<VkSampler> &specularSamplers,
-                                     std::vector<std::vector<VkBuffer>> materialUniform);
+                                     std::vector<VkSampler> &specularSamplers);
 
     void createSingleTransformationDescriptorSet(std::vector<std::vector<VkDescriptorSet>> &transformationSets,
                                                  std::vector<VkBuffer> transformationUniforms);
+    void createSingleMaterialDescriptorSet(std::vector<std::vector<VkDescriptorSet>> &materialSets,
+                                           std::vector<VkBuffer> materialUniforms);
     void createSingleTextureDescriptorSet(std::vector<std::vector<VkDescriptorSet>> &textureSets,
                                           VkImageView textureImageView, VkSampler textureSampler,
-                                          VkImageView specularImageView, VkSampler specularSampler,
-                                          std::vector<VkBuffer> materialUniform);
+                                          VkImageView specularImageView, VkSampler specularSampler);
 
   private:
     void createDescriptorSetLayout();
@@ -110,13 +113,16 @@ class VulkanPipeline3DLights : public VulkanPipeline
                                      std::vector<VkImageView> &textureImageViews,
                                      std::vector<VkSampler> &textureSamplers,
                                      std::vector<VkImageView> &specularImageViews,
-                                     std::vector<VkSampler> &specularSamplers,
-                                     std::vector<std::vector<VkBuffer>> materialUniform, unsigned int offset = 0);
+                                     std::vector<VkSampler> &specularSamplers, unsigned int offset = 0);
 
   private:
-    VkPipelineLayout m_pipelineLayout;
+    VkPipelineLayout m_pipelineColorLayout;
+    VkPipelineLayout m_pipelineTextureLayout;
     VkDescriptorSetLayout m_transformationDescriptorSetLayout;
     VkDescriptorSetLayout m_lightsDescriptorSetLayout;
+    VkDescriptorSetLayout m_materialDescriptorSetLayout;
     VkDescriptorSetLayout m_textureDescriptorSetLayout;
+    VkPipeline m_pipelineColor;
+    VkPipeline m_pipelineTexture;
 };
 } // namespace Spark

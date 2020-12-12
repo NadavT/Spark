@@ -88,21 +88,46 @@ add_custom_command(OUTPUT ${APP_EXECUTABLE_PATH}/shaders
                     COMMAND ${CMAKE_COMMAND} -E make_directory ${PROJECT_BINARY_DIR}/shaders
                     COMMAND ${CMAKE_COMMAND} -E make_directory ${APP_EXECUTABLE_PATH}/shaders
                     )
-file(GLOB vert_shaders ${PROJECT_SOURCE_DIR}/src/platform/vulkan/shaders/*.vert ${PROJECT_SOURCE_DIR}/src/platform/vulkan/shaders/*.frag)
-foreach(shader ${vert_shaders})
+file(GLOB shaders ${PROJECT_SOURCE_DIR}/src/platform/vulkan/shaders/*.vert ${PROJECT_SOURCE_DIR}/src/platform/vulkan/shaders/*.frag)
+foreach(shader ${shaders})
     get_filename_component(shader_name ${shader} NAME)
     string(REPLACE "." "_"  shader_output_name ${shader_name})
     string(APPEND shader_output_name ".spv")
     message(${shader})
-    add_custom_command(OUTPUT ${APP_EXECUTABLE_PATH}/shaders/${shader_output_name}
-                       COMMAND %VULKAN_SDK%/Bin/glslc.exe ${shader} -o ${PROJECT_BINARY_DIR}/shaders/${shader_output_name}
-                       COMMAND ${CMAKE_COMMAND} -E copy ${PROJECT_BINARY_DIR}/shaders/${shader_output_name} ${APP_EXECUTABLE_PATH}/shaders
-                       DEPENDS ${shader} ${APP_EXECUTABLE_PATH}/shaders
-                       )
-    add_custom_target(${shader_name}
-                      DEPENDS ${APP_EXECUTABLE_PATH}/shaders/${shader_output_name}
-                      )
-    add_dependencies(spark ${shader_name})
+    if("${shader}" MATCHES ".*/shader3dLights.frag")
+        string(REPLACE "." "_"  shader_output_name ${shader_name})
+        string(APPEND shader_output_name "_color.spv")
+        add_custom_command(OUTPUT ${APP_EXECUTABLE_PATH}/shaders/${shader_output_name}
+                        COMMAND %VULKAN_SDK%/Bin/glslc.exe ${shader} -DCOLOR -o ${PROJECT_BINARY_DIR}/shaders/${shader_output_name}
+                        COMMAND ${CMAKE_COMMAND} -E copy ${PROJECT_BINARY_DIR}/shaders/${shader_output_name} ${APP_EXECUTABLE_PATH}/shaders
+                        DEPENDS ${shader} ${APP_EXECUTABLE_PATH}/shaders
+                        )
+        add_custom_target(${shader_name}_color
+                        DEPENDS ${APP_EXECUTABLE_PATH}/shaders/${shader_output_name}
+                        )
+        add_dependencies(spark ${shader_name}_color)
+        string(REPLACE "." "_"  shader_output_name ${shader_name})
+        string(APPEND shader_output_name "_texture.spv")
+        add_custom_command(OUTPUT ${APP_EXECUTABLE_PATH}/shaders/${shader_output_name}
+                        COMMAND %VULKAN_SDK%/Bin/glslc.exe ${shader} -DTEXTURE -o ${PROJECT_BINARY_DIR}/shaders/${shader_output_name}
+                        COMMAND ${CMAKE_COMMAND} -E copy ${PROJECT_BINARY_DIR}/shaders/${shader_output_name} ${APP_EXECUTABLE_PATH}/shaders
+                        DEPENDS ${shader} ${APP_EXECUTABLE_PATH}/shaders
+                        )
+        add_custom_target(${shader_name}_texture
+                        DEPENDS ${APP_EXECUTABLE_PATH}/shaders/${shader_output_name}
+                        )
+        add_dependencies(spark ${shader_name}_texture)
+    else()
+        add_custom_command(OUTPUT ${APP_EXECUTABLE_PATH}/shaders/${shader_output_name}
+                        COMMAND %VULKAN_SDK%/Bin/glslc.exe ${shader} -o ${PROJECT_BINARY_DIR}/shaders/${shader_output_name}
+                        COMMAND ${CMAKE_COMMAND} -E copy ${PROJECT_BINARY_DIR}/shaders/${shader_output_name} ${APP_EXECUTABLE_PATH}/shaders
+                        DEPENDS ${shader} ${APP_EXECUTABLE_PATH}/shaders
+                        )
+        add_custom_target(${shader_name}
+                        DEPENDS ${APP_EXECUTABLE_PATH}/shaders/${shader_output_name}
+                        )
+        add_dependencies(spark ${shader_name})
+    endif()
 endforeach()
 
 

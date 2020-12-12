@@ -7,6 +7,7 @@ namespace Spark
 VulkanPipeline::VulkanPipeline(VulkanContext &context, VulkanFramebuffer &framebuffer)
     : m_context(context)
     , m_framebuffer(framebuffer)
+    , m_pipeline(VK_NULL_HANDLE)
 {
 }
 
@@ -50,7 +51,8 @@ VkShaderModule VulkanPipeline::createShaderModule(const std::vector<char> &code)
 void VulkanPipeline::createGraphicsPipeline(VkShaderModule vertexShader, VkShaderModule fragmentShader,
                                             VkPipelineVertexInputStateCreateInfo vertexInputInfo,
                                             VkPipelineLayout layout, bool depthTesting,
-                                            VkPipelineDepthStencilStateCreateInfo *depthStencilState)
+                                            VkPipelineDepthStencilStateCreateInfo *depthStencilState,
+                                            VkPipeline *pipeline)
 {
     VkPipelineShaderStageCreateInfo vertShaderStageInfo{};
     vertShaderStageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
@@ -155,7 +157,12 @@ void VulkanPipeline::createGraphicsPipeline(VkShaderModule vertexShader, VkShade
     pipelineInfo.subpass = 0;
     pipelineInfo.basePipelineHandle = VK_NULL_HANDLE;
 
-    if (vkCreateGraphicsPipelines(m_context.m_device, VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &m_pipeline) !=
+    if (pipeline == VK_NULL_HANDLE)
+    {
+        pipeline = &m_pipeline;
+    }
+
+    if (vkCreateGraphicsPipelines(m_context.m_device, VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, pipeline) !=
         VK_SUCCESS)
     {
         throw std::runtime_error("failed to create graphics pipeline!");

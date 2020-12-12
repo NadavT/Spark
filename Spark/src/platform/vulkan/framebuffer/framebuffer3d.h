@@ -14,6 +14,10 @@ class VulkanFramebuffer3D : public VulkanFramebuffer
     virtual void cleanup();
     virtual void recreate(VkImageView renderTarget);
 
+    virtual VkImage getDepthImage() const;
+    virtual VkImageView getDepthImageView() const;
+    virtual VkRect2D getDepthImageDimentions() const;
+
   private:
     void createDepthImage();
     void createRenderPass();

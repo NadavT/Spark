@@ -39,7 +39,6 @@ pointLights;
 layout(push_constant) uniform PushConsts
 {
     int numberOfPointLights;
-    bool useColor;
     bool calcLight;
     vec3 color;
 }
@@ -64,13 +63,16 @@ layout(set = 1, binding = 2) uniform SpotLightUBO
 }
 spotLight;
 
-layout(set = 2, binding = 0) uniform sampler2D texSampler;
-layout(set = 2, binding = 1) uniform sampler2D specularSampler;
-layout(set = 2, binding = 2) uniform Material
+layout(set = 2, binding = 0) uniform Material
 {
     float shininess;
 }
 material;
+
+#ifdef TEXTURE
+layout(set = 3, binding = 0) uniform sampler2D texSampler;
+layout(set = 3, binding = 1) uniform sampler2D specularSampler;
+#endif
 
 layout(location = 0) in vec3 fragPos;
 layout(location = 1) in vec3 fragNormal;
@@ -140,19 +142,14 @@ void main()
 {
     vec3 normal = normalize(fragNormal);
     vec3 viewDir = normalize(-fragPos);
-    vec3 originalColor = vec3(0);
-    vec3 specularColor = vec3(0);
 
-    if (pushConsts.useColor)
-    {
-        originalColor = pushConsts.color;
-        specularColor = pushConsts.color;
-    }
-    else
-    {
-        originalColor = vec3(texture(texSampler, fragTexCoord));
-        specularColor = vec3(texture(specularSampler, fragTexCoord));
-    }
+#ifdef COLOR
+    vec3 originalColor = pushConsts.color;
+    vec3 specularColor = pushConsts.color;
+#elif defined(TEXTURE)
+    vec3 originalColor = vec3(texture(texSampler, fragTexCoord));
+    vec3 specularColor = vec3(texture(specularSampler, fragTexCoord));
+#endif
 
     if (pushConsts.calcLight)
     {

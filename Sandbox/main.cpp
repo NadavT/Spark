@@ -452,7 +452,7 @@ class Sandbox3DLayer : public Spark::Layer3D
                 for (int i = 0; i < 3; i++)
                 {
                     m_nextLightsCords[i] = 0;
-                    m_pointLightColor[i] = 0;
+                    m_pointLightColor[i] = 1;
                 }
                 m_addingLightBox = false;
             }
@@ -462,7 +462,7 @@ class Sandbox3DLayer : public Spark::Layer3D
                 for (int i = 0; i < 3; i++)
                 {
                     m_nextLightsCords[i] = 0;
-                    m_pointLightColor[i] = 0;
+                    m_pointLightColor[i] = 1;
                 }
                 m_addingLightBox = false;
             }

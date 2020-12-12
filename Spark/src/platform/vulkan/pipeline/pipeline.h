@@ -26,15 +26,14 @@ class VulkanPipeline
 
     virtual void bind(VkCommandBuffer commandBuffer);
 
-    VkPipelineLayout getLayout();
-
   protected:
     VulkanPipeline(VulkanContext &context, VulkanFramebuffer &framebuffer);
     VkShaderModule createShaderModule(const std::vector<char> &code);
     void createGraphicsPipeline(VkShaderModule vertexShader, VkShaderModule fragmentShader,
                                 VkPipelineVertexInputStateCreateInfo vertexInputInfo, VkPipelineLayout layout,
                                 bool depthTesting = false,
-                                VkPipelineDepthStencilStateCreateInfo *depthStencilState = VK_NULL_HANDLE);
+                                VkPipelineDepthStencilStateCreateInfo *depthStencilState = VK_NULL_HANDLE,
+                                VkPipeline *pipeline = VK_NULL_HANDLE);
     void allocateDescriptorSets(unsigned int amount, VkDescriptorSetLayout layout,
                                 std::vector<std::vector<VkDescriptorSet>> &sets);
     void addDescriptorSets(VkDescriptorSetLayout layout, std::vector<std::vector<VkDescriptorSet>> &sets,
