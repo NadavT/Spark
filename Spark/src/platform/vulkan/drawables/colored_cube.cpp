@@ -109,14 +109,14 @@ void VulkanColoredCube::highlight()
 {
     Cube::highlight();
     VulkanRenderer &renderer = reinterpret_cast<VulkanRenderer &>(Application::GetApp().GetRenderer());
-    renderer.m_recreationNeeded = true;
+    renderer.signalRecreationNeeded();
 }
 
 void VulkanColoredCube::unhighlight()
 {
     Cube::unhighlight();
     VulkanRenderer &renderer = reinterpret_cast<VulkanRenderer &>(Application::GetApp().GetRenderer());
-    renderer.m_recreationNeeded = true;
+    renderer.signalRecreationNeeded();
 }
 
 void VulkanColoredCube::fillCommandBuffer(VkCommandBuffer commandBuffer)

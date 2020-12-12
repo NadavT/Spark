@@ -216,6 +216,11 @@ bool VulkanRenderer::isRecreationNeeded() const
     return m_recreationNeeded;
 }
 
+void VulkanRenderer::signalRecreationNeeded()
+{
+    m_recreationNeeded = true;
+}
+
 void VulkanRenderer::OnEvent(Event &e)
 {
     EventDispatcher dispatcher(e);

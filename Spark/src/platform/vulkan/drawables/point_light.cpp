@@ -15,13 +15,13 @@ void VulkanPointLight::turnOn()
 {
     PointLight::turnOn();
     VulkanRenderer &renderer = reinterpret_cast<VulkanRenderer &>(Application::GetApp().GetRenderer());
-    renderer.m_recreationNeeded = true;
+    renderer.signalRecreationNeeded();
 }
 
 void VulkanPointLight::turnOff()
 {
     PointLight::turnOff();
     VulkanRenderer &renderer = reinterpret_cast<VulkanRenderer &>(Application::GetApp().GetRenderer());
-    renderer.m_recreationNeeded = true;
+    renderer.signalRecreationNeeded();
 }
 } // namespace Spark

@@ -29,6 +29,7 @@ class VulkanRenderer : public Renderer
     uint32_t getImagesAmount() const;
     VkImageView getMultisampleImageView() const;
     bool isRecreationNeeded() const;
+    void signalRecreationNeeded();
 
     virtual void OnEvent(Event &e);
     VulkanFramebuffer *createFramebuffer(VulkanFramebufferType type, bool clear = false, bool resolve = false);

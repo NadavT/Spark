@@ -127,14 +127,14 @@ void VulkanTexturedCube::highlight()
 {
     Cube::highlight();
     VulkanRenderer &renderer = reinterpret_cast<VulkanRenderer &>(Application::GetApp().GetRenderer());
-    renderer.m_recreationNeeded = true;
+    renderer.signalRecreationNeeded();
 }
 
 void VulkanTexturedCube::unhighlight()
 {
     Cube::unhighlight();
     VulkanRenderer &renderer = reinterpret_cast<VulkanRenderer &>(Application::GetApp().GetRenderer());
-    renderer.m_recreationNeeded = true;
+    renderer.signalRecreationNeeded();
 }
 
 void VulkanTexturedCube::copyCube(const VulkanTexturedCube &other)
