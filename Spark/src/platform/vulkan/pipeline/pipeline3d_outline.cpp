@@ -139,9 +139,9 @@ void VulkanPipeline3DOutline::createGraphicsPipeline()
     depthStencil.front.writeMask = 0xff;
     depthStencil.front.reference = 1;
     depthStencil.back = depthStencil.front;
+    setDepthStencilState(depthStencil);
 
-    VulkanPipeline::createGraphicsPipeline(vertexShader, fragmentShader, vertexInputInfo, m_pipelineLayout, true,
-                                           &depthStencil);
+    VulkanPipeline::createGraphicsPipeline(vertexShader, fragmentShader, vertexInputInfo, m_pipelineLayout, true);
 
     vkDestroyShaderModule(m_context.m_device, vertexShader, VK_NULL_HANDLE);
     vkDestroyShaderModule(m_context.m_device, fragmentShader, VK_NULL_HANDLE);

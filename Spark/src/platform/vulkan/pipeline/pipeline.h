@@ -31,9 +31,7 @@ class VulkanPipeline
     VkShaderModule createShaderModule(const std::vector<char> &code);
     void createGraphicsPipeline(VkShaderModule vertexShader, VkShaderModule fragmentShader,
                                 VkPipelineVertexInputStateCreateInfo vertexInputInfo, VkPipelineLayout layout,
-                                bool depthTesting = false,
-                                VkPipelineDepthStencilStateCreateInfo *depthStencilState = VK_NULL_HANDLE,
-                                VkPipeline *pipeline = VK_NULL_HANDLE);
+                                bool depthTesting = false, VkPipeline *pipeline = VK_NULL_HANDLE);
     void allocateDescriptorSets(unsigned int amount, VkDescriptorSetLayout layout,
                                 std::vector<std::vector<VkDescriptorSet>> &sets);
     void addDescriptorSets(VkDescriptorSetLayout layout, std::vector<std::vector<VkDescriptorSet>> &sets,
@@ -45,9 +43,25 @@ class VulkanPipeline
                                      std::vector<VkImageView> &textureImageViews,
                                      std::vector<VkSampler> &textureSamplers, unsigned int offset = 0);
 
+    void setInputAssemblyState(VkPipelineInputAssemblyStateCreateInfo info);
+    void setviewportState(VkPipelineViewportStateCreateInfo info);
+    void setRasterizationState(VkPipelineRasterizationStateCreateInfo info);
+    void setMultiSampleState(VkPipelineMultisampleStateCreateInfo info);
+    void setDepthStencilState(VkPipelineDepthStencilStateCreateInfo info);
+    void setColorBlendState(VkPipelineColorBlendStateCreateInfo info);
+
   protected:
     VulkanContext &m_context;
     VulkanFramebuffer &m_framebuffer;
     VkPipeline m_pipeline;
+    VkPipelineInputAssemblyStateCreateInfo m_inputAssemblyState;
+    VkViewport m_viewport;
+    VkRect2D m_scissor;
+    VkPipelineViewportStateCreateInfo m_viewportState;
+    VkPipelineRasterizationStateCreateInfo m_rasterizationState;
+    VkPipelineMultisampleStateCreateInfo m_multiSampleState;
+    VkPipelineDepthStencilStateCreateInfo m_depthStencilState;
+    VkPipelineColorBlendAttachmentState m_colorBlendAttachment;
+    VkPipelineColorBlendStateCreateInfo m_colorBlendState;
 };
 } // namespace Spark

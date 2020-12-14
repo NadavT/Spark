@@ -8,7 +8,75 @@ VulkanPipeline::VulkanPipeline(VulkanContext &context, VulkanFramebuffer &frameb
     : m_context(context)
     , m_framebuffer(framebuffer)
     , m_pipeline(VK_NULL_HANDLE)
+    , m_inputAssemblyState{}
+    , m_viewport{}
+    , m_scissor{}
+    , m_viewportState{}
+    , m_rasterizationState{}
+    , m_multiSampleState{}
+    , m_depthStencilState{}
+    , m_colorBlendAttachment{}
+    , m_colorBlendState{}
 {
+    m_inputAssemblyState.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
+    m_inputAssemblyState.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
+    m_inputAssemblyState.primitiveRestartEnable = VK_FALSE;
+
+    m_viewport.x = 0.0f;
+    m_viewport.y = 0.0f;
+    m_viewport.width = (float)m_context.m_swapChainExtent.width;
+    m_viewport.height = (float)m_context.m_swapChainExtent.height;
+    m_viewport.minDepth = 0.0f;
+    m_viewport.maxDepth = 1.0f;
+
+    m_scissor.offset = {0, 0};
+    m_scissor.extent = m_context.m_swapChainExtent;
+
+    m_viewportState.sType = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO;
+    m_viewportState.viewportCount = 1;
+    m_viewportState.pViewports = &m_viewport;
+    m_viewportState.scissorCount = 1;
+    m_viewportState.pScissors = &m_scissor;
+
+    m_rasterizationState.sType = VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO;
+    m_rasterizationState.depthClampEnable = VK_FALSE;
+    m_rasterizationState.rasterizerDiscardEnable = VK_FALSE;
+    m_rasterizationState.polygonMode = VK_POLYGON_MODE_FILL;
+    m_rasterizationState.lineWidth = 1.0f;
+    m_rasterizationState.cullMode = VK_CULL_MODE_FRONT_BIT;
+    m_rasterizationState.frontFace = VK_FRONT_FACE_CLOCKWISE;
+    m_rasterizationState.depthBiasEnable = VK_FALSE;
+
+    m_multiSampleState.sType = VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO;
+    m_multiSampleState.sampleShadingEnable = (m_context.m_msaaSamples != VK_SAMPLE_COUNT_1_BIT) ? VK_TRUE : VK_FALSE;
+    m_multiSampleState.rasterizationSamples = m_context.m_msaaSamples;
+
+    m_depthStencilState.sType = VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO;
+    m_depthStencilState.depthTestEnable = VK_TRUE;
+    m_depthStencilState.depthWriteEnable = VK_TRUE;
+    m_depthStencilState.depthCompareOp = VK_COMPARE_OP_LESS;
+    m_depthStencilState.depthBoundsTestEnable = VK_FALSE;
+    m_depthStencilState.stencilTestEnable = VK_FALSE;
+
+    m_colorBlendAttachment.colorWriteMask =
+        VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT;
+    m_colorBlendAttachment.blendEnable = VK_TRUE;
+    m_colorBlendAttachment.srcColorBlendFactor = VK_BLEND_FACTOR_SRC_ALPHA;
+    m_colorBlendAttachment.dstColorBlendFactor = VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA;
+    m_colorBlendAttachment.colorBlendOp = VK_BLEND_OP_ADD;
+    m_colorBlendAttachment.srcAlphaBlendFactor = VK_BLEND_FACTOR_SRC_ALPHA;
+    m_colorBlendAttachment.dstAlphaBlendFactor = VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA;
+    m_colorBlendAttachment.alphaBlendOp = VK_BLEND_OP_SUBTRACT;
+
+    m_colorBlendState.sType = VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO;
+    m_colorBlendState.logicOpEnable = VK_FALSE;
+    m_colorBlendState.logicOp = VK_LOGIC_OP_COPY;
+    m_colorBlendState.attachmentCount = 1;
+    m_colorBlendState.pAttachments = &m_colorBlendAttachment;
+    m_colorBlendState.blendConstants[0] = 0.0f;
+    m_colorBlendState.blendConstants[1] = 0.0f;
+    m_colorBlendState.blendConstants[2] = 0.0f;
+    m_colorBlendState.blendConstants[3] = 0.0f;
 }
 
 VulkanPipeline::~VulkanPipeline()
@@ -50,9 +118,7 @@ VkShaderModule VulkanPipeline::createShaderModule(const std::vector<char> &code)
 
 void VulkanPipeline::createGraphicsPipeline(VkShaderModule vertexShader, VkShaderModule fragmentShader,
                                             VkPipelineVertexInputStateCreateInfo vertexInputInfo,
-                                            VkPipelineLayout layout, bool depthTesting,
-                                            VkPipelineDepthStencilStateCreateInfo *depthStencilState,
-                                            VkPipeline *pipeline)
+                                            VkPipelineLayout layout, bool depthTesting, VkPipeline *pipeline)
 {
     VkPipelineShaderStageCreateInfo vertShaderStageInfo{};
     vertShaderStageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
@@ -68,90 +134,17 @@ void VulkanPipeline::createGraphicsPipeline(VkShaderModule vertexShader, VkShade
 
     VkPipelineShaderStageCreateInfo shaderStages[] = {vertShaderStageInfo, fragShaderStageInfo};
 
-    VkPipelineInputAssemblyStateCreateInfo inputAssembly{};
-    inputAssembly.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
-    inputAssembly.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
-    inputAssembly.primitiveRestartEnable = VK_FALSE;
-
-    VkViewport viewport{};
-    viewport.x = 0.0f;
-    viewport.y = 0.0f;
-    viewport.width = (float)m_context.m_swapChainExtent.width;
-    viewport.height = (float)m_context.m_swapChainExtent.height;
-    viewport.minDepth = 0.0f;
-    viewport.maxDepth = 1.0f;
-
-    VkRect2D scissor{};
-    scissor.offset = {0, 0};
-    scissor.extent = m_context.m_swapChainExtent;
-
-    VkPipelineViewportStateCreateInfo viewportState{};
-    viewportState.sType = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO;
-    viewportState.viewportCount = 1;
-    viewportState.pViewports = &viewport;
-    viewportState.scissorCount = 1;
-    viewportState.pScissors = &scissor;
-
-    VkPipelineRasterizationStateCreateInfo rasterizer{};
-    rasterizer.sType = VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO;
-    rasterizer.depthClampEnable = VK_FALSE;
-    rasterizer.rasterizerDiscardEnable = VK_FALSE;
-    rasterizer.polygonMode = VK_POLYGON_MODE_FILL;
-    rasterizer.lineWidth = 1.0f;
-    rasterizer.cullMode = VK_CULL_MODE_FRONT_BIT;
-    rasterizer.frontFace = VK_FRONT_FACE_CLOCKWISE;
-    rasterizer.depthBiasEnable = VK_FALSE;
-
-    VkPipelineMultisampleStateCreateInfo multisampling{};
-    multisampling.sType = VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO;
-    multisampling.sampleShadingEnable = (m_context.m_msaaSamples != VK_SAMPLE_COUNT_1_BIT) ? VK_TRUE : VK_FALSE;
-    multisampling.rasterizationSamples = m_context.m_msaaSamples;
-
-    VkPipelineDepthStencilStateCreateInfo depthStencil = {};
-    depthStencil.sType = VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO;
-    depthStencil.depthTestEnable = VK_TRUE;
-    depthStencil.depthWriteEnable = VK_TRUE;
-    depthStencil.depthCompareOp = VK_COMPARE_OP_LESS;
-    depthStencil.depthBoundsTestEnable = VK_FALSE;
-    depthStencil.stencilTestEnable = VK_FALSE;
-    if (depthTesting && depthStencilState == VK_NULL_HANDLE)
-    {
-        depthStencilState = &depthStencil;
-    }
-
-    VkPipelineColorBlendAttachmentState colorBlendAttachment{};
-    colorBlendAttachment.colorWriteMask =
-        VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT;
-    colorBlendAttachment.blendEnable = VK_TRUE;
-    colorBlendAttachment.srcColorBlendFactor = VK_BLEND_FACTOR_SRC_ALPHA;
-    colorBlendAttachment.dstColorBlendFactor = VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA;
-    colorBlendAttachment.colorBlendOp = VK_BLEND_OP_ADD;
-    colorBlendAttachment.srcAlphaBlendFactor = VK_BLEND_FACTOR_SRC_ALPHA;
-    colorBlendAttachment.dstAlphaBlendFactor = VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA;
-    colorBlendAttachment.alphaBlendOp = VK_BLEND_OP_SUBTRACT;
-
-    VkPipelineColorBlendStateCreateInfo colorBlending{};
-    colorBlending.sType = VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO;
-    colorBlending.logicOpEnable = VK_FALSE;
-    colorBlending.logicOp = VK_LOGIC_OP_COPY;
-    colorBlending.attachmentCount = 1;
-    colorBlending.pAttachments = &colorBlendAttachment;
-    colorBlending.blendConstants[0] = 0.0f;
-    colorBlending.blendConstants[1] = 0.0f;
-    colorBlending.blendConstants[2] = 0.0f;
-    colorBlending.blendConstants[3] = 0.0f;
-
     VkGraphicsPipelineCreateInfo pipelineInfo{};
     pipelineInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
     pipelineInfo.stageCount = 2;
     pipelineInfo.pStages = shaderStages;
     pipelineInfo.pVertexInputState = &vertexInputInfo;
-    pipelineInfo.pInputAssemblyState = &inputAssembly;
-    pipelineInfo.pViewportState = &viewportState;
-    pipelineInfo.pRasterizationState = &rasterizer;
-    pipelineInfo.pMultisampleState = &multisampling;
-    pipelineInfo.pDepthStencilState = (depthTesting) ? depthStencilState : VK_NULL_HANDLE;
-    pipelineInfo.pColorBlendState = &colorBlending;
+    pipelineInfo.pInputAssemblyState = &m_inputAssemblyState;
+    pipelineInfo.pViewportState = &m_viewportState;
+    pipelineInfo.pRasterizationState = &m_rasterizationState;
+    pipelineInfo.pMultisampleState = &m_multiSampleState;
+    pipelineInfo.pDepthStencilState = (depthTesting) ? &m_depthStencilState : VK_NULL_HANDLE;
+    pipelineInfo.pColorBlendState = &m_colorBlendState;
     pipelineInfo.layout = layout;
     pipelineInfo.renderPass = m_framebuffer.getRenderPass();
     pipelineInfo.subpass = 0;
@@ -275,5 +268,35 @@ void VulkanPipeline::updateTextureDescriptorSets(unsigned int amount, std::vecto
 
     vkUpdateDescriptorSets(m_context.m_device, static_cast<uint32_t>(descriptorWrites.size()), descriptorWrites.data(),
                            0, nullptr);
+}
+
+void VulkanPipeline::setInputAssemblyState(VkPipelineInputAssemblyStateCreateInfo info)
+{
+    m_inputAssemblyState = info;
+}
+
+void VulkanPipeline::setviewportState(VkPipelineViewportStateCreateInfo info)
+{
+    m_viewportState = info;
+}
+
+void VulkanPipeline::setRasterizationState(VkPipelineRasterizationStateCreateInfo info)
+{
+    m_rasterizationState = info;
+}
+
+void VulkanPipeline::setMultiSampleState(VkPipelineMultisampleStateCreateInfo info)
+{
+    m_multiSampleState = info;
+}
+
+void VulkanPipeline::setDepthStencilState(VkPipelineDepthStencilStateCreateInfo info)
+{
+    m_depthStencilState = info;
+}
+
+void VulkanPipeline::setColorBlendState(VkPipelineColorBlendStateCreateInfo info)
+{
+    m_colorBlendState = info;
 }
 } // namespace Spark

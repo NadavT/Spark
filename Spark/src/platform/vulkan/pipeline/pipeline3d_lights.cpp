@@ -311,12 +311,13 @@ void VulkanPipeline3DLights::createGraphicsPipeline()
     depthStencil.front.writeMask = 0xff;
     depthStencil.front.reference = 1;
     depthStencil.back = depthStencil.front;
+    setDepthStencilState(depthStencil);
 
     VulkanPipeline::createGraphicsPipeline(vertexShader, fragmentColorShader, vertexInputInfo, m_pipelineColorLayout,
-                                           true, &depthStencil, &m_pipelineColor);
+                                           true, &m_pipelineColor);
 
     VulkanPipeline::createGraphicsPipeline(vertexShader, fragmentTextureShader, vertexInputInfo,
-                                           m_pipelineTextureLayout, true, &depthStencil, &m_pipelineTexture);
+                                           m_pipelineTextureLayout, true, &m_pipelineTexture);
 
     vkDestroyShaderModule(m_context.m_device, vertexShader, VK_NULL_HANDLE);
     vkDestroyShaderModule(m_context.m_device, fragmentColorShader, VK_NULL_HANDLE);
