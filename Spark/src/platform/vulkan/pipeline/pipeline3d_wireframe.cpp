@@ -129,7 +129,7 @@ void VulkanPipeline3DWireframe::createGraphicsPipeline()
     rasterizationState.depthClampEnable = VK_FALSE;
     rasterizationState.rasterizerDiscardEnable = VK_FALSE;
     rasterizationState.polygonMode = VK_POLYGON_MODE_LINE;
-    rasterizationState.lineWidth = 1.0f;
+    rasterizationState.lineWidth = 2.0f;
     rasterizationState.cullMode = VK_CULL_MODE_FRONT_BIT;
     rasterizationState.frontFace = VK_FRONT_FACE_CLOCKWISE;
     rasterizationState.depthBiasEnable = VK_FALSE;

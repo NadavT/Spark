@@ -1,4 +1,5 @@
 #pragma once
+#include "platform/vulkan/drawables/vulkan_drawable.h"
 #include "platform/vulkan/renderer.h"
 #include "platform/vulkan/resource/texture.h"
 #include "platform/vulkan/resource/texture_sampler.h"
@@ -8,7 +9,7 @@
 
 namespace Spark
 {
-class VulkanTexturedCube : public Cube
+class VulkanTexturedCube : public virtual Cube, public virtual VulkanDrawable
 {
   public:
     VulkanTexturedCube(VulkanRenderer &renderer, glm::vec3 position, const VulkanTexture &texture,
@@ -19,7 +20,7 @@ class VulkanTexturedCube : public Cube
     VulkanTexturedCube &operator=(const VulkanTexturedCube &other);
     VulkanTexturedCube &operator=(VulkanTexturedCube &&other) noexcept;
 
-    void fillCommandBuffer(VkCommandBuffer commandBuffer);
+    virtual void fillCommandBuffer(VkCommandBuffer commandBuffer);
 
     virtual const VulkanTexture &getTexture() const;
     virtual const VulkanTexture &getSpecularTexture() const;

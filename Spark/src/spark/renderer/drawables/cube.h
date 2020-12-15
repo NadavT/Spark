@@ -19,7 +19,7 @@ enum class CubeType
     TexturedCude,
     ColoredCube
 };
-class Cube : public Drawable
+class Cube : public virtual Drawable
 {
   public:
     SPARK_API virtual ~Cube() = default;

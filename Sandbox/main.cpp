@@ -114,6 +114,7 @@ class Sandbox3DLayer : public Spark::Layer3D
         , m_removeBoxIndex(0)
         , m_previousRemoveBoxIndex(0)
         , m_removeLightIndex(0)
+        , m_wireframe(false)
     {
         const Spark::Texture &texture = Spark::ResourceManager::loadTexture("cubeTexutre", "textures/container2.png");
         const Spark::Texture &specularTexture =
@@ -228,7 +229,7 @@ class Sandbox3DLayer : public Spark::Layer3D
 
     void generateOverlay()
     {
-        ImGui::SetNextWindowSize(ImVec2(350, 170 + 30.0f * m_pointLights.size()), ImGuiCond_Always);
+        ImGui::SetNextWindowSize(ImVec2(350, 190 + 30.0f * m_pointLights.size()), ImGuiCond_Always);
         ImGui::SetNextWindowPos(ImVec2(ImGui::GetIO().DisplaySize.x - 360, 10), ImGuiCond_Once);
         ImGui::Begin("3d editor", NULL, ImGuiWindowFlags_NoResize);
 
@@ -542,18 +543,24 @@ class Sandbox3DLayer : public Spark::Layer3D
             ImGui::End();
         }
 
+        if (ImGui::Checkbox("Wireframe", &m_wireframe))
+        {
+            setWireframe(m_wireframe);
+        }
+
         int index = 0;
         for (auto &pointLight : m_pointLights)
         {
-            if (ImGui::Button(("Switch light cube " + std::to_string(index)).c_str()))
+            bool lit = pointLight->isLit();
+            if (ImGui::Checkbox(("Light cube " + std::to_string(index)).c_str(), &lit))
             {
-                if (pointLight->isLit())
+                if (lit)
                 {
-                    pointLight->turnOff();
+                    pointLight->turnOn();
                 }
                 else
                 {
-                    pointLight->turnOn();
+                    pointLight->turnOff();
                 }
             }
             index++;
@@ -583,6 +590,7 @@ class Sandbox3DLayer : public Spark::Layer3D
     int m_removeLightIndex;
     int m_previousRemoveLightIndex;
     std::vector<std::shared_ptr<Spark::PointLight>> m_pointLights;
+    bool m_wireframe;
 };
 
 class Sandbox : public Spark::Application

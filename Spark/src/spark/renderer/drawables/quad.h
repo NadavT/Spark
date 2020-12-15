@@ -13,7 +13,7 @@
 
 namespace Spark
 {
-class Quad : public Drawable
+class Quad : public virtual Drawable
 {
   public:
     SPARK_API virtual ~Quad() = default;

@@ -29,6 +29,8 @@ class Layer3D : public Layer
     SPARK_API virtual void removePointLight(PointLight &pointLight);
     SPARK_API virtual void setSpotLight(glm::vec3 color);
 
+    SPARK_API virtual void setWireframe(bool state);
+
   private:
     std::unique_ptr<LayerRenderer> m_layer_renderer;
     Camera &m_camera;

@@ -62,15 +62,24 @@ SPARK_API void Layer3D::addPointLight(PointLight &pointLight)
 
 SPARK_API void Layer3D::removePointLight(PointLight &pointLight)
 {
+#ifdef SPARK_PLATFORM_VULKAN
     reinterpret_cast<VulkanLayerRenderer3DLights *>(m_layer_renderer.get())
         ->removePointLight(reinterpret_cast<VulkanPointLight &>(pointLight));
     m_layer_renderer->removeDrawable(pointLight.drawable.get());
+#endif
 }
 
 void Layer3D::setSpotLight(glm::vec3 direction)
 {
 #ifdef SPARK_PLATFORM_VULKAN
     reinterpret_cast<VulkanLayerRenderer3DLights *>(m_layer_renderer.get())->setSpotLight(direction);
+#endif
+}
+
+SPARK_API void Layer3D::setWireframe(bool state)
+{
+#ifdef SPARK_PLATFORM_VULKAN
+    reinterpret_cast<VulkanLayerRenderer3DLights *>(m_layer_renderer.get())->setWireframe(state);
 #endif
 }
 } // namespace Spark

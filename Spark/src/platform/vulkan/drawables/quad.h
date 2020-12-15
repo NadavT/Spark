@@ -1,15 +1,15 @@
 #pragma once
+#include "platform/vulkan/drawables/vulkan_drawable.h"
 #include "platform/vulkan/renderer.h"
 #include "platform/vulkan/resource/texture.h"
 #include "platform/vulkan/resource/texture_sampler.h"
 #include "platform/vulkan/vertex/vertex2d.h"
 
-
 #include "spark/renderer/drawables/quad.h"
 
 namespace Spark
 {
-class VulkanQuad : public Quad
+class VulkanQuad : public virtual Quad, public virtual VulkanDrawable
 {
   public:
     VulkanQuad(VulkanRenderer &renderer, glm::vec2 position, const VulkanTexture &texture,
@@ -20,7 +20,7 @@ class VulkanQuad : public Quad
     VulkanQuad &operator=(const VulkanQuad &other);
     VulkanQuad &operator=(VulkanQuad &&other) noexcept;
 
-    void fillCommandBuffer(VkCommandBuffer commandBuffer);
+    virtual void fillCommandBuffer(VkCommandBuffer commandBuffer);
 
     virtual const VulkanTexture &getTexture() const;
 

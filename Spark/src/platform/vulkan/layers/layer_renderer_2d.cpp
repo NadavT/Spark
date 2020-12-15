@@ -54,7 +54,7 @@ void VulkanLayerRenderer2D::OnAttach()
                                                    m_uniformTransformations);
     for (auto drawable : m_drawables)
     {
-        VulkanQuad *quad = reinterpret_cast<VulkanQuad *>(drawable.get());
+        VulkanQuad *quad = dynamic_cast<VulkanQuad *>(drawable.get());
         if (m_textureDescriptorOffset.find(quad->getTexture().getName()) == m_textureDescriptorOffset.end())
         {
             m_textureDescriptorOffset[quad->getTexture().getName()] = (unsigned int)textures.size();
@@ -121,7 +121,7 @@ void VulkanLayerRenderer2D::OnRender()
 
     for (size_t i = 0; i < m_drawables.size(); i++)
     {
-        VulkanQuad *quad = reinterpret_cast<VulkanQuad *>(m_drawables[i].get());
+        VulkanQuad *quad = dynamic_cast<VulkanQuad *>(m_drawables[i].get());
         void *data;
         struct Transformation2D transformation = {};
         transformation.transformMatrix = glm::mat4(quad->getTransformation());
@@ -140,7 +140,7 @@ void VulkanLayerRenderer2D::addDrawable(std::shared_ptr<Drawable> &drawable)
 {
     LayerRenderer::addDrawable(drawable);
 
-    VulkanQuad *quad = reinterpret_cast<VulkanQuad *>(drawable.get());
+    VulkanQuad *quad = dynamic_cast<VulkanQuad *>(drawable.get());
     if (m_isAttached)
     {
         if (m_uniformTransformations.size() < m_drawables.size())
@@ -187,7 +187,7 @@ void VulkanLayerRenderer2D::createCommandBuffers()
 
         for (size_t j = 0; j < m_drawables.size(); j++)
         {
-            VulkanQuad *quad = reinterpret_cast<VulkanQuad *>(m_drawables[j].get());
+            VulkanQuad *quad = dynamic_cast<VulkanQuad *>(m_drawables[j].get());
             m_pipeline->bind(commandBuffer, m_transformationDescriptorSets[j][i],
                              m_textureDescriptorSets[m_textureDescriptorOffset[quad->getTexture().getName()]][i]);
             quad->fillCommandBuffer(commandBuffer);

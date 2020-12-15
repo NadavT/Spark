@@ -35,7 +35,7 @@ std::shared_ptr<Drawable> createQuad(glm::vec2 position, const Texture &texture,
 #ifdef SPARK_PLATFORM_VULKAN
     VulkanRenderer &renderer = reinterpret_cast<VulkanRenderer &>(Application::GetApp().GetRenderer());
     const VulkanTexture &vulkanTexture = reinterpret_cast<const VulkanTexture &>(texture);
-    return std::make_unique<VulkanQuad>(renderer, position, vulkanTexture, scale);
+    return std::make_shared<VulkanQuad>(renderer, position, vulkanTexture, scale);
 #endif // SPARK_PLATFORM_VULKAN
 }
 } // namespace Spark
