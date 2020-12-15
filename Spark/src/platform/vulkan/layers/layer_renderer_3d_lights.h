@@ -31,7 +31,7 @@ class VulkanLayerRenderer3DLights : public LayerRenderer
     virtual void removePointLight(VulkanPointLight &pointLight);
     virtual void setSpotLight(glm::vec3 color);
 
-    virtual void setWireframe(bool state);
+    virtual void setWireframe(WireframeState state, glm::vec3 color);
 
   private:
     void createCommandBuffers();
@@ -74,6 +74,7 @@ class VulkanLayerRenderer3DLights : public LayerRenderer
     glm::vec3 m_spotLightColor;
     std::vector<VulkanPointLight *> m_pointLights;
 
-    bool m_wireframe;
+    WireframeState m_wireframe;
+    glm::vec3 m_wireframeColor;
 };
 } // namespace Spark

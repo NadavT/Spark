@@ -76,10 +76,10 @@ void Layer3D::setSpotLight(glm::vec3 direction)
 #endif
 }
 
-SPARK_API void Layer3D::setWireframe(bool state)
+SPARK_API void Layer3D::setWireframe(WireframeState state, glm::vec3 color)
 {
 #ifdef SPARK_PLATFORM_VULKAN
-    reinterpret_cast<VulkanLayerRenderer3DLights *>(m_layer_renderer.get())->setWireframe(state);
+    reinterpret_cast<VulkanLayerRenderer3DLights *>(m_layer_renderer.get())->setWireframe(state, color);
 #endif
 }
 } // namespace Spark

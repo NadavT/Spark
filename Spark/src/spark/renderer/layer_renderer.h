@@ -13,6 +13,13 @@ enum class LayerRendererType
     Layer3D
 };
 
+enum class WireframeState
+{
+    None,
+    Only,
+    Both
+};
+
 class LayerRenderer
 {
   public:

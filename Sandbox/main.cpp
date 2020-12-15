@@ -115,6 +115,10 @@ class Sandbox3DLayer : public Spark::Layer3D
         , m_previousRemoveBoxIndex(0)
         , m_removeLightIndex(0)
         , m_wireframe(false)
+        , m_wireframeOnly(false)
+        , m_wireframeColor{0, 0, 0}
+        , m_beforeWireframeColor{0, 0, 0}
+        , m_setWireframeColor(false)
     {
         const Spark::Texture &texture = Spark::ResourceManager::loadTexture("cubeTexutre", "textures/container2.png");
         const Spark::Texture &specularTexture =
@@ -545,7 +549,54 @@ class Sandbox3DLayer : public Spark::Layer3D
 
         if (ImGui::Checkbox("Wireframe", &m_wireframe))
         {
-            setWireframe(m_wireframe);
+            setWireframe((m_wireframe) ? (m_wireframeOnly) ? Spark::WireframeState::Only : Spark::WireframeState::Both
+                                       : Spark::WireframeState::None,
+                         {m_wireframeColor[0], m_wireframeColor[1], m_wireframeColor[2]});
+        }
+        if (m_wireframe)
+        {
+            ImGui::SameLine(110);
+            if (ImGui::Checkbox("Only", &m_wireframeOnly))
+            {
+                setWireframe((m_wireframeOnly) ? Spark::WireframeState::Only : Spark::WireframeState::Both,
+                             {m_wireframeColor[0], m_wireframeColor[1], m_wireframeColor[2]});
+            }
+        }
+        ImGui::SameLine(180);
+        if (ImGui::Button("set color"))
+        {
+            m_setWireframeColor = true;
+            m_beforeWireframeColor[0] = m_wireframeColor[0];
+            m_beforeWireframeColor[1] = m_wireframeColor[1];
+            m_beforeWireframeColor[2] = m_wireframeColor[2];
+        }
+        if (m_setWireframeColor)
+        {
+            ImGui::SetNextWindowSize(ImVec2(250, 100), ImGuiCond_Always);
+            ImGui::SetNextWindowPos(
+                ImVec2(ImGui::GetIO().DisplaySize.x / 2 - 210 / 2, ImGui::GetIO().DisplaySize.y / 2 - 35 / 2),
+                ImGuiCond_Once);
+            ImGui::Begin("wireframe color setter", NULL, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize);
+
+            ImGui::InputFloat3("color", m_wireframeColor);
+            if (ImGui::Button("set"))
+            {
+                setWireframe((m_wireframe)
+                                 ? (m_wireframeOnly) ? Spark::WireframeState::Only : Spark::WireframeState::Both
+                                 : Spark::WireframeState::None,
+                             {m_wireframeColor[0], m_wireframeColor[1], m_wireframeColor[2]});
+                m_setWireframeColor = false;
+            }
+            ImGui::SameLine(100);
+            if (ImGui::Button("cancel"))
+            {
+                m_wireframeColor[0] = m_beforeWireframeColor[0];
+                m_wireframeColor[1] = m_beforeWireframeColor[1];
+                m_wireframeColor[2] = m_beforeWireframeColor[2];
+                m_setWireframeColor = false;
+            }
+
+            ImGui::End();
         }
 
         int index = 0;
@@ -591,6 +642,10 @@ class Sandbox3DLayer : public Spark::Layer3D
     int m_previousRemoveLightIndex;
     std::vector<std::shared_ptr<Spark::PointLight>> m_pointLights;
     bool m_wireframe;
+    bool m_wireframeOnly;
+    float m_wireframeColor[3];
+    float m_beforeWireframeColor[3];
+    bool m_setWireframeColor;
 };
 
 class Sandbox : public Spark::Application

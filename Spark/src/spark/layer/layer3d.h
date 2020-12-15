@@ -11,6 +11,7 @@
 
 namespace Spark
 {
+
 class Layer3D : public Layer
 {
   public:
@@ -29,7 +30,7 @@ class Layer3D : public Layer
     SPARK_API virtual void removePointLight(PointLight &pointLight);
     SPARK_API virtual void setSpotLight(glm::vec3 color);
 
-    SPARK_API virtual void setWireframe(bool state);
+    SPARK_API virtual void setWireframe(WireframeState state, glm::vec3 color);
 
   private:
     std::unique_ptr<LayerRenderer> m_layer_renderer;
