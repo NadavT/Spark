@@ -42,6 +42,8 @@ VulkanLayerRenderer3DLights::VulkanLayerRenderer3DLights(VulkanRenderer &rendere
         renderer.createPipeline(VulkanPipelineType::Type3DLights, *m_framebuffer));
     m_outlinePipeline = reinterpret_cast<VulkanPipeline3DOutline *>(
         renderer.createPipeline(VulkanPipelineType::Type3DOutline, *m_framebuffer));
+    m_wireframePipeline = reinterpret_cast<VulkanPipeline3DWireframe *>(
+        renderer.createPipeline(VulkanPipelineType::Type3DWireframe, *m_framebuffer));
     m_commandBuffers.resize(renderer.getImagesAmount());
     for (int i = 0; i < m_commandBuffers.size(); i++)
     {
@@ -395,6 +397,7 @@ void VulkanLayerRenderer3DLights::createCommandBuffers()
         }
 
         struct Vulkan3DOutlinePushConsts outlinePushConsts = {};
+        struct Vulkan3DWireframePushConsts wireframePushConsts = {};
         VkClearAttachment clearAttachment = {};
         clearAttachment.aspectMask = VK_IMAGE_ASPECT_STENCIL_BIT;
         clearAttachment.clearValue = clearValues[1];
@@ -428,6 +431,9 @@ void VulkanLayerRenderer3DLights::createCommandBuffers()
                                             outlinePushConsts);
                     texturedCube->fillCommandBuffer(commandBuffer);
                 }
+                wireframePushConsts.color = {0, 1, 0};
+                m_wireframePipeline->bind(commandBuffer, m_transformationDescriptorSets[j][i], wireframePushConsts);
+                texturedCube->fillCommandBuffer(commandBuffer);
             }
             else if (cube->getType() == CubeType::ColoredCube)
             {

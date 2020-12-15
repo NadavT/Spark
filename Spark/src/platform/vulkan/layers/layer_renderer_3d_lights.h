@@ -4,6 +4,7 @@
 #include "platform/vulkan/framebuffer/framebuffer3d.h"
 #include "platform/vulkan/pipeline/pipeline3d_lights.h"
 #include "platform/vulkan/pipeline/pipeline3d_outline.h"
+#include "platform/vulkan/pipeline/pipeline3d_wireframe.h"
 #include "platform/vulkan/renderer.h"
 #include "spark/renderer/camera.h"
 #include "spark/renderer/layer_renderer.h"
@@ -38,6 +39,7 @@ class VulkanLayerRenderer3DLights : public LayerRenderer
     VulkanFramebuffer3D *m_framebuffer;
     VulkanPipeline3DLights *m_pipeline;
     VulkanPipeline3DOutline *m_outlinePipeline;
+    VulkanPipeline3DWireframe *m_wireframePipeline;
 
     std::vector<std::vector<VkBuffer>> m_uniformTransformations;
     std::vector<std::vector<VkDeviceMemory>> m_uniformTransformationsMemory;
