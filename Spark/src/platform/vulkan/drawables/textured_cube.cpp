@@ -46,14 +46,13 @@ const std::vector<uint32_t> cube_indices = {
 VulkanTexturedCube::VulkanTexturedCube(VulkanRenderer &renderer, glm::vec3 position, const VulkanTexture &texture,
                                        const VulkanTexture &specularTexture, glm::vec3 scale)
     : Cube(CubeType::TexturedCude, position, scale)
+    , VulkanTexturedDrawable(texture, specularTexture)
     , m_context(renderer.m_context)
     , m_renderer(renderer)
     , m_vertexBuffer(VK_NULL_HANDLE)
     , m_vertexBufferMemory(VK_NULL_HANDLE)
     , m_verticesOffset(0)
     , m_indicesOffset(0)
-    , m_texture(texture)
-    , m_specularTexture(specularTexture)
 {
     createVertex3DBuffer(m_context, m_vertexBuffer, m_vertexBufferMemory, m_verticesOffset, m_indicesOffset,
                          cube_vertices, cube_indices);
@@ -73,20 +72,18 @@ VulkanTexturedCube::~VulkanTexturedCube()
 
 VulkanTexturedCube::VulkanTexturedCube(const VulkanTexturedCube &other)
     : Cube(other)
+    , VulkanTexturedDrawable(other)
     , m_context(other.m_context)
     , m_renderer(other.m_renderer)
-    , m_texture(other.m_texture)
-    , m_specularTexture(other.m_specularTexture)
 {
     copyCube(other);
 }
 
 VulkanTexturedCube::VulkanTexturedCube(VulkanTexturedCube &&other) noexcept
     : Cube(other)
+    , VulkanTexturedDrawable(other)
     , m_context(other.m_context)
     , m_renderer(other.m_renderer)
-    , m_texture(other.m_texture)
-    , m_specularTexture(other.m_specularTexture)
 {
     moveCube(other);
 }
@@ -111,16 +108,6 @@ void VulkanTexturedCube::fillCommandBuffer(VkCommandBuffer commandBuffer)
     vkCmdBindVertexBuffers(commandBuffer, 0, 1, buff, offsets);
     vkCmdBindIndexBuffer(commandBuffer, m_vertexBuffer, m_indicesOffset, VK_INDEX_TYPE_UINT32);
     vkCmdDrawIndexed(commandBuffer, static_cast<uint32_t>(cube_indices.size()), 1, 0, 0, 0);
-}
-
-const VulkanTexture &VulkanTexturedCube::getTexture() const
-{
-    return m_texture;
-}
-
-const VulkanTexture &VulkanTexturedCube::getSpecularTexture() const
-{
-    return m_specularTexture;
 }
 
 void VulkanTexturedCube::highlight()

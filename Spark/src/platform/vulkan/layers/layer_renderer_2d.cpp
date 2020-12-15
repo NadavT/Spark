@@ -124,7 +124,7 @@ void VulkanLayerRenderer2D::OnRender()
         VulkanQuad *quad = dynamic_cast<VulkanQuad *>(m_drawables[i].get());
         void *data;
         struct Transformation2D transformation = {};
-        transformation.transformMatrix = glm::mat4(quad->getTransformation());
+        transformation.transformMatrix = quad->getTransformation();
         vkMapMemory(m_renderer.m_context.m_device, m_uniformTransformationsMemory[i][m_renderer.getCurrentImageIndex()],
                     0, sizeof(transformation), 0, &data);
         memcpy(data, &transformation, sizeof(transformation));

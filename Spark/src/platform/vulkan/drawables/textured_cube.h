@@ -1,15 +1,13 @@
 #pragma once
-#include "platform/vulkan/drawables/vulkan_drawable.h"
+#include "platform/vulkan/drawables/textured_drawable.h"
 #include "platform/vulkan/renderer.h"
-#include "platform/vulkan/resource/texture.h"
-#include "platform/vulkan/resource/texture_sampler.h"
 #include "platform/vulkan/vertex/vertex3d.h"
 
 #include "spark/renderer/drawables/cube.h"
 
 namespace Spark
 {
-class VulkanTexturedCube : public virtual Cube, public virtual VulkanDrawable
+class VulkanTexturedCube : public virtual Cube, public virtual VulkanTexturedDrawable
 {
   public:
     VulkanTexturedCube(VulkanRenderer &renderer, glm::vec3 position, const VulkanTexture &texture,
@@ -21,9 +19,6 @@ class VulkanTexturedCube : public virtual Cube, public virtual VulkanDrawable
     VulkanTexturedCube &operator=(VulkanTexturedCube &&other) noexcept;
 
     virtual void fillCommandBuffer(VkCommandBuffer commandBuffer);
-
-    virtual const VulkanTexture &getTexture() const;
-    virtual const VulkanTexture &getSpecularTexture() const;
 
     virtual void highlight();
     virtual void unhighlight();
@@ -39,7 +34,5 @@ class VulkanTexturedCube : public virtual Cube, public virtual VulkanDrawable
     VkDeviceMemory m_vertexBufferMemory;
     VkDeviceSize m_verticesOffset;
     VkDeviceSize m_indicesOffset;
-    const VulkanTexture &m_texture;
-    const VulkanTexture &m_specularTexture;
 };
 } // namespace Spark

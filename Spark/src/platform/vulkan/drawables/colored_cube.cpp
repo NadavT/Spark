@@ -46,13 +46,13 @@ const std::vector<uint32_t> cube_indices = {
 
 VulkanColoredCube::VulkanColoredCube(VulkanRenderer &renderer, glm::vec3 position, glm::vec3 color, glm::vec3 scale)
     : Cube(CubeType::ColoredCube, position, scale)
+    , VulkanColoredDrawable(color)
     , m_context(renderer.m_context)
     , m_renderer(renderer)
     , m_vertexBuffer(VK_NULL_HANDLE)
     , m_vertexBufferMemory(VK_NULL_HANDLE)
     , m_verticesOffset(0)
     , m_indicesOffset(0)
-    , m_color(color)
 {
     createVertex3DBuffer(m_context, m_vertexBuffer, m_vertexBufferMemory, m_verticesOffset, m_indicesOffset,
                          cube_vertices, cube_indices);
@@ -72,18 +72,18 @@ VulkanColoredCube::~VulkanColoredCube()
 
 VulkanColoredCube::VulkanColoredCube(const VulkanColoredCube &other)
     : Cube(other)
+    , VulkanColoredDrawable(other)
     , m_context(other.m_context)
     , m_renderer(other.m_renderer)
-    , m_color(other.m_color)
 {
     copyCube(other);
 }
 
 VulkanColoredCube::VulkanColoredCube(VulkanColoredCube &&other) noexcept
     : Cube(other)
+    , VulkanColoredDrawable(other)
     , m_context(other.m_context)
     , m_renderer(other.m_renderer)
-    , m_color(other.m_color)
 {
     moveCube(other);
 }
@@ -98,11 +98,6 @@ VulkanColoredCube &VulkanColoredCube::operator=(VulkanColoredCube &&other) noexc
 {
     moveCube(other);
     return *this;
-}
-
-const glm::vec3 &VulkanColoredCube::getColor() const
-{
-    return m_color;
 }
 
 void VulkanColoredCube::highlight()

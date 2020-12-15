@@ -21,6 +21,7 @@ class VulkanQuad : public virtual Quad, public virtual VulkanDrawable
     VulkanQuad &operator=(VulkanQuad &&other) noexcept;
 
     virtual void fillCommandBuffer(VkCommandBuffer commandBuffer);
+    virtual VulkanDrawableType getDrawableType() const;
 
     virtual const VulkanTexture &getTexture() const;
 

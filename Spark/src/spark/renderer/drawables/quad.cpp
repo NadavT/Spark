@@ -25,9 +25,9 @@ SPARK_API void Quad::scale(glm::vec2 scale)
     m_transformation = glm::scale(m_transformation, scale);
 }
 
-SPARK_API glm::mat3 Quad::getTransformation()
+SPARK_API glm::mat4 Quad::getTransformation()
 {
-    return m_transformation;
+    return glm::mat4(m_transformation);
 }
 
 std::shared_ptr<Drawable> createQuad(glm::vec2 position, const Texture &texture, glm::vec2 scale)

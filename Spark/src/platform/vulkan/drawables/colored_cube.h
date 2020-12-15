@@ -1,5 +1,5 @@
 #pragma once
-#include "platform/vulkan/drawables/vulkan_drawable.h"
+#include "platform/vulkan/drawables/colored_drawable.h"
 #include "platform/vulkan/renderer.h"
 #include "platform/vulkan/vertex/vertex3d.h"
 
@@ -7,7 +7,7 @@
 
 namespace Spark
 {
-class VulkanColoredCube : public virtual Cube, public virtual VulkanDrawable
+class VulkanColoredCube : public virtual Cube, public virtual VulkanColoredDrawable
 {
   public:
     VulkanColoredCube(VulkanRenderer &renderer, glm::vec3 position, glm::vec3 color, glm::vec3 scale = glm::vec3(1.0));
@@ -18,8 +18,6 @@ class VulkanColoredCube : public virtual Cube, public virtual VulkanDrawable
     VulkanColoredCube &operator=(VulkanColoredCube &&other) noexcept;
 
     virtual void fillCommandBuffer(VkCommandBuffer commandBuffer);
-
-    virtual const glm::vec3 &getColor() const;
 
     virtual void highlight();
     virtual void unhighlight();
@@ -35,6 +33,5 @@ class VulkanColoredCube : public virtual Cube, public virtual VulkanDrawable
     VkDeviceMemory m_vertexBufferMemory;
     VkDeviceSize m_verticesOffset;
     VkDeviceSize m_indicesOffset;
-    glm::vec3 m_color;
 };
 } // namespace Spark

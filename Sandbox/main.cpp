@@ -36,16 +36,16 @@ class SandboxLayer : public Spark::Layer2D
         switch (e.GetKeyCode())
         {
         case Spark::KeyCode::Left:
-            reinterpret_cast<Spark::Quad *>(m_quads.front().get())->move({-0.05, 0});
+            dynamic_cast<Spark::Quad *>(m_quads.front().get())->move({-0.05, 0});
             return true;
         case Spark::KeyCode::Right:
-            reinterpret_cast<Spark::Quad *>(m_quads.front().get())->move({0.05, 0});
+            dynamic_cast<Spark::Quad *>(m_quads.front().get())->move({0.05, 0});
             return true;
         case Spark::KeyCode::Down:
-            reinterpret_cast<Spark::Quad *>(m_quads.front().get())->move({0, 0.05});
+            dynamic_cast<Spark::Quad *>(m_quads.front().get())->move({0, 0.05});
             return true;
         case Spark::KeyCode::Up:
-            reinterpret_cast<Spark::Quad *>(m_quads.front().get())->move({0, -0.05});
+            dynamic_cast<Spark::Quad *>(m_quads.front().get())->move({0, -0.05});
             return true;
         case Spark::KeyCode::N:
             counter++;
@@ -58,22 +58,22 @@ class SandboxLayer : public Spark::Layer2D
             m_quads.pop_back();
             return true;
         case Spark::KeyCode::Z:
-            reinterpret_cast<Spark::Quad *>(m_quads.front().get())->scale(glm::vec2(0.95f));
+            dynamic_cast<Spark::Quad *>(m_quads.front().get())->scale(glm::vec2(0.95f));
             return true;
         case Spark::KeyCode::X:
-            reinterpret_cast<Spark::Quad *>(m_quads.front().get())->scale(glm::vec2(1.05f));
+            dynamic_cast<Spark::Quad *>(m_quads.front().get())->scale(glm::vec2(1.05f));
             return true;
         case Spark::KeyCode::C:
-            reinterpret_cast<Spark::Quad *>(m_quads.front().get())->scale(glm::vec2(0.95f, 1));
+            dynamic_cast<Spark::Quad *>(m_quads.front().get())->scale(glm::vec2(0.95f, 1));
             return true;
         case Spark::KeyCode::V:
-            reinterpret_cast<Spark::Quad *>(m_quads.front().get())->scale(glm::vec2(1.05f, 1));
+            dynamic_cast<Spark::Quad *>(m_quads.front().get())->scale(glm::vec2(1.05f, 1));
             return true;
         case Spark::KeyCode::F:
-            reinterpret_cast<Spark::Quad *>(m_quads.front().get())->scale(glm::vec2(1, 0.95f));
+            dynamic_cast<Spark::Quad *>(m_quads.front().get())->scale(glm::vec2(1, 0.95f));
             return true;
         case Spark::KeyCode::G:
-            reinterpret_cast<Spark::Quad *>(m_quads.front().get())->scale(glm::vec2(1, 1.05f));
+            dynamic_cast<Spark::Quad *>(m_quads.front().get())->scale(glm::vec2(1, 1.05f));
             return true;
         default:
             return false;
@@ -287,7 +287,7 @@ class Sandbox3DLayer : public Spark::Layer3D
             m_removingBox = true;
             if (m_cubes.size() > 0)
             {
-                reinterpret_cast<Spark::Cube *>(m_cubes[0].get())->highlight();
+                dynamic_cast<Spark::Cube *>(m_cubes[0].get())->highlight();
             }
         }
 
@@ -304,22 +304,22 @@ class Sandbox3DLayer : public Spark::Layer3D
             {
                 if (m_removeBoxIndex >= 0 && m_removeBoxIndex < m_cubes.size())
                 {
-                    reinterpret_cast<Spark::Cube *>(m_cubes[m_previousRemoveBoxIndex].get())->unhighlight();
-                    reinterpret_cast<Spark::Cube *>(m_cubes[m_removeBoxIndex].get())->highlight();
+                    dynamic_cast<Spark::Cube *>(m_cubes[m_previousRemoveBoxIndex].get())->unhighlight();
+                    dynamic_cast<Spark::Cube *>(m_cubes[m_removeBoxIndex].get())->highlight();
                     m_previousRemoveBoxIndex = m_removeBoxIndex;
                 }
                 else if (m_removeBoxIndex < 0)
                 {
                     m_removeBoxIndex = 0;
-                    reinterpret_cast<Spark::Cube *>(m_cubes[m_previousRemoveBoxIndex].get())->unhighlight();
-                    reinterpret_cast<Spark::Cube *>(m_cubes[m_removeBoxIndex].get())->highlight();
+                    dynamic_cast<Spark::Cube *>(m_cubes[m_previousRemoveBoxIndex].get())->unhighlight();
+                    dynamic_cast<Spark::Cube *>(m_cubes[m_removeBoxIndex].get())->highlight();
                     m_previousRemoveBoxIndex = m_removeBoxIndex;
                 }
                 else
                 {
                     m_removeBoxIndex = static_cast<int>(m_cubes.size()) - 1;
-                    reinterpret_cast<Spark::Cube *>(m_cubes[m_previousRemoveBoxIndex].get())->unhighlight();
-                    reinterpret_cast<Spark::Cube *>(m_cubes[m_removeBoxIndex].get())->highlight();
+                    dynamic_cast<Spark::Cube *>(m_cubes[m_previousRemoveBoxIndex].get())->unhighlight();
+                    dynamic_cast<Spark::Cube *>(m_cubes[m_removeBoxIndex].get())->highlight();
                     m_previousRemoveBoxIndex = m_removeBoxIndex;
                 }
             }
@@ -336,7 +336,7 @@ class Sandbox3DLayer : public Spark::Layer3D
             ImGui::SameLine(150);
             if (ImGui::Button("cancel"))
             {
-                reinterpret_cast<Spark::Cube *>(m_cubes[m_removeBoxIndex].get())->unhighlight();
+                dynamic_cast<Spark::Cube *>(m_cubes[m_removeBoxIndex].get())->unhighlight();
                 m_removeBoxIndex = 0;
                 m_previousRemoveBoxIndex = 0;
                 m_removingBox = false;
@@ -483,7 +483,7 @@ class Sandbox3DLayer : public Spark::Layer3D
             m_previousRemoveLightIndex = 0;
             if (m_pointLights.size() > 0)
             {
-                reinterpret_cast<Spark::Cube *>(m_pointLights[0].get()->drawable.get())->highlight();
+                dynamic_cast<Spark::Cube *>(m_pointLights[0].get()->drawable.get())->highlight();
             }
         }
 
@@ -500,28 +500,25 @@ class Sandbox3DLayer : public Spark::Layer3D
             {
                 if (m_removeLightIndex >= 0 && m_removeLightIndex < m_pointLights.size())
                 {
-                    reinterpret_cast<Spark::Cube *>(m_pointLights[m_previousRemoveLightIndex].get()->drawable.get())
+                    dynamic_cast<Spark::Cube *>(m_pointLights[m_previousRemoveLightIndex].get()->drawable.get())
                         ->unhighlight();
-                    reinterpret_cast<Spark::Cube *>(m_pointLights[m_removeLightIndex].get()->drawable.get())
-                        ->highlight();
+                    dynamic_cast<Spark::Cube *>(m_pointLights[m_removeLightIndex].get()->drawable.get())->highlight();
                     m_previousRemoveLightIndex = m_removeLightIndex;
                 }
                 else if (m_removeLightIndex < 0)
                 {
                     m_removeLightIndex = 0;
-                    reinterpret_cast<Spark::Cube *>(m_pointLights[m_previousRemoveLightIndex].get()->drawable.get())
+                    dynamic_cast<Spark::Cube *>(m_pointLights[m_previousRemoveLightIndex].get()->drawable.get())
                         ->unhighlight();
-                    reinterpret_cast<Spark::Cube *>(m_pointLights[m_removeLightIndex].get()->drawable.get())
-                        ->highlight();
+                    dynamic_cast<Spark::Cube *>(m_pointLights[m_removeLightIndex].get()->drawable.get())->highlight();
                     m_previousRemoveLightIndex = m_removeLightIndex;
                 }
                 else
                 {
                     m_removeLightIndex = static_cast<int>(m_pointLights.size()) - 1;
-                    reinterpret_cast<Spark::Cube *>(m_pointLights[m_previousRemoveLightIndex].get()->drawable.get())
+                    dynamic_cast<Spark::Cube *>(m_pointLights[m_previousRemoveLightIndex].get()->drawable.get())
                         ->unhighlight();
-                    reinterpret_cast<Spark::Cube *>(m_pointLights[m_removeLightIndex].get()->drawable.get())
-                        ->highlight();
+                    dynamic_cast<Spark::Cube *>(m_pointLights[m_removeLightIndex].get()->drawable.get())->highlight();
                     m_previousRemoveLightIndex = m_removeLightIndex;
                 }
             }
@@ -538,7 +535,7 @@ class Sandbox3DLayer : public Spark::Layer3D
             ImGui::SameLine(150);
             if (ImGui::Button("cancel"))
             {
-                reinterpret_cast<Spark::Cube *>(m_pointLights[m_removeLightIndex].get()->drawable.get())->unhighlight();
+                dynamic_cast<Spark::Cube *>(m_pointLights[m_removeLightIndex].get()->drawable.get())->unhighlight();
                 m_removeLightIndex = 0;
                 m_previousRemoveLightIndex = 0;
                 m_removingLightBox = false;

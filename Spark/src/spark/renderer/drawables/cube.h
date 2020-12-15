@@ -32,14 +32,6 @@ class Cube : public virtual Drawable
     SPARK_API virtual void scale(glm::vec3 scale);
     SPARK_API virtual glm::mat4 getTransformation();
 
-    SPARK_API virtual bool isHighlighted() const;
-    SPARK_API virtual glm::vec3 getHighlightColor() const;
-    SPARK_API virtual float getHighlightWidth() const;
-    SPARK_API virtual void highlight();
-    SPARK_API virtual void unhighlight();
-    SPARK_API virtual void setHighlightColor(glm::vec3 color);
-    SPARK_API virtual void setHighlightWidth(float width);
-
     virtual CubeType getType() const;
 
   protected:
@@ -49,9 +41,6 @@ class Cube : public virtual Drawable
     CubeType m_type;
     glm::vec3 m_position;
     glm::vec3 m_scale;
-    bool m_highlight;
-    glm::vec3 m_highlightColor;
-    float m_highlightWidth;
 };
 
 SPARK_API std::shared_ptr<Drawable> createCube(glm::vec3 position, const Texture &texture,

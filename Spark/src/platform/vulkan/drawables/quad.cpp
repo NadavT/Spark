@@ -79,6 +79,11 @@ void VulkanQuad::fillCommandBuffer(VkCommandBuffer commandBuffer)
     vkCmdDrawIndexed(commandBuffer, static_cast<uint32_t>(quad_indices.size()), 1, 0, 0, 0);
 }
 
+VulkanDrawableType VulkanQuad::getDrawableType() const
+{
+    return VulkanDrawableType::Textured;
+}
+
 const VulkanTexture &VulkanQuad::getTexture() const
 {
     return m_texture;
