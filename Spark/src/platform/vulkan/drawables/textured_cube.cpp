@@ -45,7 +45,7 @@ const std::vector<uint32_t> cube_indices = {
 
 VulkanTexturedCube::VulkanTexturedCube(VulkanRenderer &renderer, glm::vec3 position, const VulkanTexture &texture,
                                        const VulkanTexture &specularTexture, glm::vec3 scale)
-    : Cube(CubeType::TexturedCude, position, scale)
+    : Cube(position, scale)
     , VulkanTexturedDrawable(texture, specularTexture)
     , m_context(renderer.m_context)
     , m_renderer(renderer)

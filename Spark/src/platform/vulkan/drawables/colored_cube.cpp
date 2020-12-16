@@ -45,7 +45,7 @@ const std::vector<uint32_t> cube_indices = {
 };
 
 VulkanColoredCube::VulkanColoredCube(VulkanRenderer &renderer, glm::vec3 position, glm::vec3 color, glm::vec3 scale)
-    : Cube(CubeType::ColoredCube, position, scale)
+    : Cube(position, scale)
     , VulkanColoredDrawable(color)
     , m_context(renderer.m_context)
     , m_renderer(renderer)

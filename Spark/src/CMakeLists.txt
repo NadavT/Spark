@@ -14,6 +14,7 @@ set(SPARK_SOURCE
     "spark/renderer/drawables/quad.cpp"
     "spark/renderer/drawables/cube.cpp"
     "spark/renderer/drawables/point_light.cpp"
+    "spark/renderer/drawables/sphere.cpp"
     "spark/overlay/overlay.cpp"
     "spark/utils/file.cpp"
     "spark/resource/texture.cpp"

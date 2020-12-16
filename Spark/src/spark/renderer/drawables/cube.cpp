@@ -10,9 +10,8 @@
 
 namespace Spark
 {
-Cube::Cube(CubeType type, glm::vec3 position, glm::vec3 scale)
-    : m_type(type)
-    , m_position(position)
+Cube::Cube(glm::vec3 position, glm::vec3 scale)
+    : m_position(position)
     , m_scale(scale)
 {
 }
@@ -30,11 +29,6 @@ SPARK_API void Cube::scale(glm::vec3 scale)
 SPARK_API glm::mat4 Cube::getTransformation()
 {
     return glm::translate(glm::scale(glm::mat4(1), m_scale), m_position / m_scale);
-}
-
-CubeType Cube::getType() const
-{
-    return m_type;
 }
 
 std::shared_ptr<Drawable> createCube(glm::vec3 position, const Texture &texture, const Texture &specularTexture,
