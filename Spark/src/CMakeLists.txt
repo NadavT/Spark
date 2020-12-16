@@ -85,6 +85,7 @@ if(CMAKE_BUILD_TYPE STREQUAL "Debug")
 endif()
 if(MSVC)
     target_compile_definitions(spark PRIVATE IMGUI_API=__declspec\(dllexport\))
+    target_compile_options(spark PRIVATE /w44250)
 endif()
 target_compile_options(spark PRIVATE /W3)
 
