@@ -128,7 +128,8 @@ class Sandbox3DLayer : public Spark::Layer3D
         setDirLight({m_dirLightDirection[0], m_dirLightDirection[1], m_dirLightDirection[2]},
                     {m_dirLightColor[0], m_dirLightColor[1], m_dirLightColor[2]});
         m_pointLights.push_back(Spark::createPointLight(
-            {0, 0, -2.0f}, {0, 1, 0}, Spark::createCube({0, 0, -2.0f}, {0.3, 0.3f, 0.3f}, {0.3, 0.3f, 0.3f})));
+            {0, 0, -2.0f}, {0, 1, 0},
+            Spark::createSphere({0, 0, -2.0f}, {0.3f, 0.3f, 0.3f}, 36, 18, {0.3f, 0.3f, 0.3f})));
         addPointLight(*(m_pointLights.back()));
         setSpotLight({m_spotLightColor[0], m_spotLightColor[1], m_spotLightColor[2]});
     }

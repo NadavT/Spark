@@ -55,9 +55,11 @@ set(SPARK_VULKAN_SOURCE
     "platform/vulkan/drawables/colored_drawable.cpp"
     "platform/vulkan/drawables/textured_drawable.cpp"
     "platform/vulkan/drawables/textured_cube.cpp"
+   "platform/vulkan/drawables/textured_sphere.cpp"
     "platform/vulkan/drawables/colored_cube.cpp"
     "platform/vulkan/drawables/colored_sphere.cpp"
     "platform/vulkan/drawables/cube.cpp"
+    "platform/vulkan/drawables/sphere.cpp"
     "platform/vulkan/drawables/point_light.cpp"
     )
 
