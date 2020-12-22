@@ -375,7 +375,7 @@ class Sandbox3DLayer : public Spark::Layer3D
             ImGui::Begin("Dir light setter", NULL, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize);
 
             ImGui::InputFloat3("direction", m_dirLightDirection);
-            ImGui::InputFloat3("color", m_dirLightColor);
+            ImGui::ColorEdit3("color", m_dirLightColor);
             if (ImGui::Button("set"))
             {
                 setDirLight({m_dirLightDirection[0], m_dirLightDirection[1], m_dirLightDirection[2]},
@@ -417,7 +417,7 @@ class Sandbox3DLayer : public Spark::Layer3D
                 ImGuiCond_Once);
             ImGui::Begin("Spot light setter", NULL, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize);
 
-            ImGui::InputFloat3("color", m_spotLightColor);
+            ImGui::ColorEdit3("color", m_spotLightColor);
             if (ImGui::Button("set"))
             {
                 setSpotLight({m_spotLightColor[0], m_spotLightColor[1], m_spotLightColor[2]});
@@ -447,20 +447,20 @@ class Sandbox3DLayer : public Spark::Layer3D
             ImGui::Begin("Light adder", NULL, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize);
 
             ImGui::InputFloat3("location", m_nextLightsCords);
-            ImGui::InputFloat3("color", m_pointLightColor);
-            ImGui::Combo("type", &m_lightType, "Cube\0Sphere");
+            ImGui::ColorEdit3("color", m_pointLightColor);
+            ImGui::Combo("type", &m_lightType, "Sphere\0Cube");
             if (ImGui::Button("add"))
             {
                 std::shared_ptr<Spark::Drawable> drawable = NULL;
                 if (m_lightType == 0)
                 {
-                    drawable = Spark::createCube({m_nextLightsCords[0], m_nextLightsCords[1], m_nextLightsCords[2]},
-                                                 {0.3f, 0.3f, 0.3f}, {0.3f, 0.3f, 0.3f});
+                    drawable = Spark::createSphere({m_nextLightsCords[0], m_nextLightsCords[1], m_nextLightsCords[2]},
+                                                   {0.3f, 0.3f, 0.3f}, 36, 18, {0.3f, 0.3f, 0.3f});
                 }
                 else
                 {
-                    drawable = Spark::createSphere({m_nextLightsCords[0], m_nextLightsCords[1], m_nextLightsCords[2]},
-                                                   {0.3f, 0.3f, 0.3f}, 36, 18, {0.3f, 0.3f, 0.3f});
+                    drawable = Spark::createCube({m_nextLightsCords[0], m_nextLightsCords[1], m_nextLightsCords[2]},
+                                                 {0.3f, 0.3f, 0.3f}, {0.3f, 0.3f, 0.3f});
                 }
                 m_pointLights.push_back(Spark::createPointLight(
                     {m_nextLightsCords[0], m_nextLightsCords[1], m_nextLightsCords[2]},
@@ -584,7 +584,7 @@ class Sandbox3DLayer : public Spark::Layer3D
                 ImGuiCond_Once);
             ImGui::Begin("wireframe color setter", NULL, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize);
 
-            ImGui::InputFloat3("color", m_wireframeColor);
+            ImGui::ColorEdit3("color", m_wireframeColor);
             if (ImGui::Button("set"))
             {
                 setWireframe((m_wireframe)
