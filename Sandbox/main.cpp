@@ -103,8 +103,9 @@ class Sandbox3DLayer : public Spark::Layer3D
         , m_removingBox(false)
         , m_setDirLight(false)
         , m_setSpotLight(false)
-        , m_addingLightBox(false)
-        , m_removingLightBox(false)
+        , m_addingLight(false)
+        , m_removingLight(false)
+        , m_lightType(0)
         , m_nextCords{0, 0, 0}
         , m_nextLightsCords{0, 0, 0}
         , m_dirLightColor{1.0f, 1.0f, 1.0f}
@@ -412,7 +413,7 @@ class Sandbox3DLayer : public Spark::Layer3D
         {
             ImGui::SetNextWindowSize(ImVec2(250, 100), ImGuiCond_Always);
             ImGui::SetNextWindowPos(
-                ImVec2(ImGui::GetIO().DisplaySize.x / 2 - 210 / 2, ImGui::GetIO().DisplaySize.y / 2 - 35 / 2),
+                ImVec2(ImGui::GetIO().DisplaySize.x / 2 - 250 / 2, ImGui::GetIO().DisplaySize.y / 2 - 100 / 2),
                 ImGuiCond_Once);
             ImGui::Begin("Spot light setter", NULL, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize);
 
@@ -431,36 +432,46 @@ class Sandbox3DLayer : public Spark::Layer3D
             ImGui::End();
         }
 
-        if (ImGui::Button("add light box"))
+        if (ImGui::Button("add light"))
         {
-            SPARK_INFO("Adding light box");
-            m_addingLightBox = true;
+            SPARK_INFO("Adding light");
+            m_addingLight = true;
         }
 
-        if (m_addingLightBox)
+        if (m_addingLight)
         {
-            ImGui::SetNextWindowSize(ImVec2(200, 100), ImGuiCond_Always);
+            ImGui::SetNextWindowSize(ImVec2(220, 120), ImGuiCond_Always);
             ImGui::SetNextWindowPos(
-                ImVec2(ImGui::GetIO().DisplaySize.x / 2 - 195 / 2, ImGui::GetIO().DisplaySize.y / 2 - 35 / 2),
+                ImVec2(ImGui::GetIO().DisplaySize.x / 2 - 220 / 2, ImGui::GetIO().DisplaySize.y / 2 - 120 / 2),
                 ImGuiCond_Once);
-            ImGui::Begin("Light box adder", NULL, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize);
+            ImGui::Begin("Light adder", NULL, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize);
 
             ImGui::InputFloat3("location", m_nextLightsCords);
             ImGui::InputFloat3("color", m_pointLightColor);
+            ImGui::Combo("type", &m_lightType, "Cube\0Sphere");
             if (ImGui::Button("add"))
             {
+                std::shared_ptr<Spark::Drawable> drawable = NULL;
+                if (m_lightType == 0)
+                {
+                    drawable = Spark::createCube({m_nextLightsCords[0], m_nextLightsCords[1], m_nextLightsCords[2]},
+                                                 {0.3f, 0.3f, 0.3f}, {0.3f, 0.3f, 0.3f});
+                }
+                else
+                {
+                    drawable = Spark::createSphere({m_nextLightsCords[0], m_nextLightsCords[1], m_nextLightsCords[2]},
+                                                   {0.3f, 0.3f, 0.3f}, 36, 18, {0.3f, 0.3f, 0.3f});
+                }
                 m_pointLights.push_back(Spark::createPointLight(
                     {m_nextLightsCords[0], m_nextLightsCords[1], m_nextLightsCords[2]},
-                    {m_pointLightColor[0], m_pointLightColor[1], m_pointLightColor[2]},
-                    Spark::createCube({m_nextLightsCords[0], m_nextLightsCords[1], m_nextLightsCords[2]},
-                                      {0.3f, 0.3f, 0.3f}, {0.3f, 0.3f, 0.3f})));
+                    {m_pointLightColor[0], m_pointLightColor[1], m_pointLightColor[2]}, drawable));
                 addPointLight(*(m_pointLights.back()));
                 for (int i = 0; i < 3; i++)
                 {
                     m_nextLightsCords[i] = 0;
                     m_pointLightColor[i] = 1;
                 }
-                m_addingLightBox = false;
+                m_addingLight = false;
             }
             ImGui::SameLine(100);
             if (ImGui::Button("cancel"))
@@ -470,16 +481,16 @@ class Sandbox3DLayer : public Spark::Layer3D
                     m_nextLightsCords[i] = 0;
                     m_pointLightColor[i] = 1;
                 }
-                m_addingLightBox = false;
+                m_addingLight = false;
             }
 
             ImGui::End();
         }
 
-        if (ImGui::Button("remove light box"))
+        if (ImGui::Button("remove light"))
         {
-            SPARK_INFO("Removing light box");
-            m_removingLightBox = true;
+            SPARK_INFO("Removing light");
+            m_removingLight = true;
             m_removeLightIndex = 0;
             m_previousRemoveLightIndex = 0;
             if (m_pointLights.size() > 0)
@@ -488,13 +499,13 @@ class Sandbox3DLayer : public Spark::Layer3D
             }
         }
 
-        if (m_removingLightBox)
+        if (m_removingLight)
         {
             ImGui::SetNextWindowSize(ImVec2(220, 35), ImGuiCond_Always);
             ImGui::SetNextWindowPos(
                 ImVec2(ImGui::GetIO().DisplaySize.x / 2 - 210 / 2, ImGui::GetIO().DisplaySize.y / 2 - 35 / 2),
                 ImGuiCond_Once);
-            ImGui::Begin("Light box remover", NULL, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize);
+            ImGui::Begin("Light remover", NULL, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize);
 
             ImGui::PushItemWidth(75);
             if (ImGui::InputInt("", &m_removeLightIndex))
@@ -528,7 +539,7 @@ class Sandbox3DLayer : public Spark::Layer3D
                 m_pointLights.erase(m_pointLights.begin() + m_removeLightIndex);
                 m_removeLightIndex = 0;
                 m_previousRemoveLightIndex = 0;
-                m_removingLightBox = false;
+                m_removingLight = false;
             }
             ImGui::SameLine(150);
             if (ImGui::Button("cancel"))
@@ -536,7 +547,7 @@ class Sandbox3DLayer : public Spark::Layer3D
                 m_pointLights[m_removeLightIndex].get()->drawable.get()->unhighlight();
                 m_removeLightIndex = 0;
                 m_previousRemoveLightIndex = 0;
-                m_removingLightBox = false;
+                m_removingLight = false;
             }
 
             ImGui::End();
@@ -598,7 +609,7 @@ class Sandbox3DLayer : public Spark::Layer3D
         for (auto &pointLight : m_pointLights)
         {
             bool lit = pointLight->isLit();
-            if (ImGui::Checkbox(("Light cube " + std::to_string(index)).c_str(), &lit))
+            if (ImGui::Checkbox(("Light " + std::to_string(index)).c_str(), &lit))
             {
                 if (lit)
                 {
@@ -623,8 +634,9 @@ class Sandbox3DLayer : public Spark::Layer3D
     bool m_removingBox;
     bool m_setDirLight;
     bool m_setSpotLight;
-    bool m_addingLightBox;
-    bool m_removingLightBox;
+    bool m_addingLight;
+    bool m_removingLight;
+    int m_lightType;
     float m_nextCords[3];
     float m_nextLightsCords[3];
     float m_dirLightDirection[3];
