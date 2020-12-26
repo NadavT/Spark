@@ -298,7 +298,7 @@ void Sandbox3DLayer::generateDirLightSetter()
         }
     }
     ImGui::SameLine();
-    if (ImGui::Button("set"))
+    if (ImGui::Button("set dir light"))
     {
         SPARK_INFO("Setting dir light");
         ImGui::OpenPopup("Dir light setter");
@@ -340,7 +340,7 @@ void Sandbox3DLayer::generateSpotLightSetter()
         }
     }
     ImGui::SameLine();
-    if (ImGui::Button("set"))
+    if (ImGui::Button("set spot light"))
     {
         SPARK_INFO("Setting spot light");
         ImGui::OpenPopup("Spot light setter");
@@ -510,12 +510,16 @@ void Sandbox3DLayer::generateWireframeSetter()
     }
     if (ImGui::BeginPopup("Wireframe color setter"))
     {
-        ImGui::ColorEdit3("color", m_wireframeColor);
-        if (ImGui::Button("set"))
+        if (ImGui::ColorEdit3("color", m_wireframeColor))
         {
-
             setWireframe(static_cast<Spark::WireframeState>(m_wireframe),
                          {m_wireframeColor[0], m_wireframeColor[1], m_wireframeColor[2]});
+        }
+        if (ImGui::Button("set"))
+        {
+            m_beforeWireframeColor[0] = m_wireframeColor[0];
+            m_beforeWireframeColor[1] = m_wireframeColor[1];
+            m_beforeWireframeColor[2] = m_wireframeColor[2];
             ImGui::CloseCurrentPopup();
         }
         ImGui::SameLine();
@@ -524,10 +528,20 @@ void Sandbox3DLayer::generateWireframeSetter()
             m_wireframeColor[0] = m_beforeWireframeColor[0];
             m_wireframeColor[1] = m_beforeWireframeColor[1];
             m_wireframeColor[2] = m_beforeWireframeColor[2];
+            setWireframe(static_cast<Spark::WireframeState>(m_wireframe),
+                         {m_wireframeColor[0], m_wireframeColor[1], m_wireframeColor[2]});
             ImGui::CloseCurrentPopup();
         }
 
         ImGui::EndPopup();
+    }
+    else
+    {
+        m_wireframeColor[0] = m_beforeWireframeColor[0];
+        m_wireframeColor[1] = m_beforeWireframeColor[1];
+        m_wireframeColor[2] = m_beforeWireframeColor[2];
+        setWireframe(static_cast<Spark::WireframeState>(m_wireframe),
+                     {m_wireframeColor[0], m_wireframeColor[1], m_wireframeColor[2]});
     }
 }
 
