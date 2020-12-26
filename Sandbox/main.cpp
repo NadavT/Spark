@@ -235,9 +235,8 @@ class Sandbox3DLayer : public Spark::Layer3D
 
     void generateOverlay()
     {
-        ImGui::SetNextWindowSize(ImVec2(350, 190 + 30.0f * m_pointLights.size()), ImGuiCond_Always);
         ImGui::SetNextWindowPos(ImVec2(ImGui::GetIO().DisplaySize.x - 360, 10), ImGuiCond_Once);
-        ImGui::Begin("3d editor", NULL, ImGuiWindowFlags_NoResize);
+        ImGui::Begin("3d editor", NULL, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_AlwaysAutoResize);
 
         if (ImGui::Button("add box"))
         {
@@ -267,6 +266,7 @@ class Sandbox3DLayer : public Spark::Layer3D
                 for (int i = 0; i < 3; i++)
                 {
                     m_nextCords[i] = 0;
+                    5
                 }
                 m_addingBox = false;
             }
@@ -350,7 +350,7 @@ class Sandbox3DLayer : public Spark::Layer3D
         if (ImGui::Button("set dir light"))
         {
             SPARK_INFO("Setting dir light");
-            m_setDirLight = true;
+            ImGui::OpenPopup("Dir light setter");
         }
         ImGui::SameLine(130);
         if (ImGui::Button("dir light off"))
@@ -366,29 +366,23 @@ class Sandbox3DLayer : public Spark::Layer3D
                         {m_dirLightColor[0], m_dirLightColor[1], m_dirLightColor[2]});
         }
 
-        if (m_setDirLight)
+        if (ImGui::BeginPopup("Dir light setter"))
         {
-            ImGui::SetNextWindowSize(ImVec2(250, 100), ImGuiCond_Always);
-            ImGui::SetNextWindowPos(
-                ImVec2(ImGui::GetIO().DisplaySize.x / 2 - 210 / 2, ImGui::GetIO().DisplaySize.y / 2 - 35 / 2),
-                ImGuiCond_Once);
-            ImGui::Begin("Dir light setter", NULL, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize);
-
             ImGui::InputFloat3("direction", m_dirLightDirection);
             ImGui::ColorEdit3("color", m_dirLightColor);
             if (ImGui::Button("set"))
             {
                 setDirLight({m_dirLightDirection[0], m_dirLightDirection[1], m_dirLightDirection[2]},
                             {m_dirLightColor[0], m_dirLightColor[1], m_dirLightColor[2]});
-                m_setDirLight = false;
+                ImGui::CloseCurrentPopup();
             }
             ImGui::SameLine(100);
             if (ImGui::Button("cancel"))
             {
-                m_setDirLight = false;
+                ImGui::CloseCurrentPopup();
             }
 
-            ImGui::End();
+            ImGui::EndPopup();
         }
 
         if (ImGui::Button("set spot light"))
