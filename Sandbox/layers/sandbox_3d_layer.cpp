@@ -270,6 +270,15 @@ void Sandbox3DLayer::generateBoxRemover()
 
         ImGui::EndPopup();
     }
+    else
+    {
+        if (m_drawables.size() > m_removeBoxIndex)
+        {
+            m_drawables[m_removeBoxIndex].get()->unhighlight();
+        }
+        m_removeBoxIndex = 0;
+        m_previousRemoveBoxIndex = 0;
+    }
 }
 
 void Sandbox3DLayer::generateDirLightSetter()
@@ -425,6 +434,7 @@ void Sandbox3DLayer::generatePointLightRemover()
 
     if (ImGui::BeginPopup("Point light remover"))
     {
+        ImGui::SetNextItemWidth(100);
         if (ImGui::InputInt("", &m_removePointLightIndex))
         {
             if (m_removePointLightIndex >= 0 && m_removePointLightIndex < m_pointLights.size())
@@ -470,6 +480,15 @@ void Sandbox3DLayer::generatePointLightRemover()
         }
 
         ImGui::EndPopup();
+    }
+    else
+    {
+        if (m_pointLights.size() > m_removePointLightIndex)
+        {
+            m_pointLights[m_removePointLightIndex].get()->drawable.get()->unhighlight();
+        }
+        m_removePointLightIndex = 0;
+        m_previousRemoveLightIndex = 0;
     }
 }
 
