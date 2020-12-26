@@ -266,7 +266,6 @@ class Sandbox3DLayer : public Spark::Layer3D
                 for (int i = 0; i < 3; i++)
                 {
                     m_nextCords[i] = 0;
-                    5
                 }
                 m_addingBox = false;
             }
