@@ -27,6 +27,9 @@ class Layer
     SPARK_API virtual void OnRender()
     {
     }
+    SPARK_API virtual void generateOverlay()
+    {
+    }
 
     SPARK_API const char *getName() const;
 

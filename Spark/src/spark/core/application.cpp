@@ -146,6 +146,8 @@ void Application::Run()
 
         m_overlay->prepareOverlay();
         generateOverlay();
+        for (Layer *layer : m_layerStack)
+            layer->generateOverlay();
 
         Render();
 
