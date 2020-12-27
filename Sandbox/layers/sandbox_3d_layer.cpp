@@ -30,11 +30,13 @@ Sandbox3DLayer::Sandbox3DLayer()
     const Spark::Texture &specularTexture =
         Spark::ResourceManager::loadTexture("cubeTexutreSpecular", "textures/container2_specular.png");
     m_drawables.push_back(std::move(Spark::createCube({0, 0, 0}, texture, specularTexture)));
-    addDrawable(m_drawables[0]);
+    addDrawable(std::dynamic_pointer_cast<Spark::Drawable>(m_drawables[0]));
     setDirLight({m_dirLightDirection[0], m_dirLightDirection[1], m_dirLightDirection[2]},
                 {m_dirLightColor[0], m_dirLightColor[1], m_dirLightColor[2]});
-    m_pointLights.push_back(Spark::createPointLight(
-        {0, 0, -2.0f}, {0, 1, 0}, Spark::createSphere({0, 0, -2.0f}, {0.3f, 0.3f, 0.3f}, 36, 18, {0.3f, 0.3f, 0.3f})));
+    m_pointLights.push_back(
+        Spark::createPointLight({0, 0, -2.0f}, {0, 1, 0},
+                                std::dynamic_pointer_cast<Spark::Drawable>(Spark::createSphere(
+                                    {0, 0, -2.0f}, {0.3f, 0.3f, 0.3f}, 36, 18, {0.3f, 0.3f, 0.3f}))));
     addPointLight(*(m_pointLights.back()));
     setSpotLight({m_spotLightColor[0], m_spotLightColor[1], m_spotLightColor[2]});
 }
@@ -191,7 +193,7 @@ void Sandbox3DLayer::generateBoxAdder()
             const Spark::Texture *specularTexture = Spark::ResourceManager::getTexture("cubeTexutreSpecular");
             m_drawables.push_back(std::move(
                 Spark::createCube({m_nextCords[0], m_nextCords[1], m_nextCords[2]}, *texture, *specularTexture)));
-            addDrawable(m_drawables.back());
+            addDrawable(std::dynamic_pointer_cast<Spark::Drawable>(m_drawables.back()));
             ImGui::CloseCurrentPopup();
         }
         ImGui::SameLine();

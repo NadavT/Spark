@@ -28,7 +28,7 @@ class Sandbox3DLayer : public Spark::Layer3D
     void generatePointLightsFlicker();
 
   private:
-    std::vector<std::shared_ptr<Spark::Drawable>> m_drawables;
+    std::vector<std::shared_ptr<Spark::Drawable3D>> m_drawables;
     std::vector<std::shared_ptr<Spark::PointLight>> m_pointLights;
     Spark::Camera m_camera;
     bool m_focused;

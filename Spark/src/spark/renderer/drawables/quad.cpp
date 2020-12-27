@@ -14,7 +14,7 @@ Quad::Quad(glm::vec2 position, glm::vec2 scale)
 {
 }
 
-std::shared_ptr<Drawable> createQuad(glm::vec2 position, const Texture &texture, glm::vec2 scale)
+std::shared_ptr<Drawable2D> createQuad(glm::vec2 position, const Texture &texture, glm::vec2 scale)
 {
 #ifdef SPARK_PLATFORM_VULKAN
     VulkanRenderer &renderer = reinterpret_cast<VulkanRenderer &>(Application::GetApp().GetRenderer());

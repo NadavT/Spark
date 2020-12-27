@@ -19,8 +19,8 @@ Sphere::Sphere(glm::vec3 position, int sectors, int stacks, glm::vec3 scale)
 {
 }
 
-std::shared_ptr<Drawable> createSphere(glm::vec3 position, const Texture &texture, const Texture &specularTexture,
-                                       int sectors, int stacks, glm::vec3 scale)
+std::shared_ptr<Drawable3D> createSphere(glm::vec3 position, const Texture &texture, const Texture &specularTexture,
+                                         int sectors, int stacks, glm::vec3 scale)
 {
 #ifdef SPARK_PLATFORM_VULKAN
     VulkanRenderer &renderer = reinterpret_cast<VulkanRenderer &>(Application::GetApp().GetRenderer());
@@ -32,7 +32,7 @@ std::shared_ptr<Drawable> createSphere(glm::vec3 position, const Texture &textur
 #endif // SPARK_PLATFORM_VULKAN
 }
 
-std::shared_ptr<Drawable> createSphere(glm::vec3 position, glm::vec3 color, int sectors, int stacks, glm::vec3 scale)
+std::shared_ptr<Drawable3D> createSphere(glm::vec3 position, glm::vec3 color, int sectors, int stacks, glm::vec3 scale)
 {
 #ifdef SPARK_PLATFORM_VULKAN
     VulkanRenderer &renderer = reinterpret_cast<VulkanRenderer &>(Application::GetApp().GetRenderer());

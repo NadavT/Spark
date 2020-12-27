@@ -15,8 +15,8 @@ Cube::Cube(glm::vec3 position, glm::vec3 scale)
 {
 }
 
-std::shared_ptr<Drawable> createCube(glm::vec3 position, const Texture &texture, const Texture &specularTexture,
-                                     glm::vec3 scale)
+std::shared_ptr<Drawable3D> createCube(glm::vec3 position, const Texture &texture, const Texture &specularTexture,
+                                       glm::vec3 scale)
 {
 #ifdef SPARK_PLATFORM_VULKAN
     VulkanRenderer &renderer = reinterpret_cast<VulkanRenderer &>(Application::GetApp().GetRenderer());
@@ -26,7 +26,7 @@ std::shared_ptr<Drawable> createCube(glm::vec3 position, const Texture &texture,
 #endif // SPARK_PLATFORM_VULKAN
 }
 
-std::shared_ptr<Drawable> createCube(glm::vec3 position, glm::vec3 color, glm::vec3 scale)
+std::shared_ptr<Drawable3D> createCube(glm::vec3 position, glm::vec3 color, glm::vec3 scale)
 {
 #ifdef SPARK_PLATFORM_VULKAN
     VulkanRenderer &renderer = reinterpret_cast<VulkanRenderer &>(Application::GetApp().GetRenderer());

@@ -25,6 +25,7 @@
 //---------DRAWABLES--------
 #include "spark/renderer/drawables/cube.h"
 #include "spark/renderer/drawables/drawable.h"
+#include "spark/renderer/drawables/drawable2d.h"
+#include "spark/renderer/drawables/drawable3d.h"
 #include "spark/renderer/drawables/quad.h"
 #include "spark/renderer/drawables/sphere.h"
-
