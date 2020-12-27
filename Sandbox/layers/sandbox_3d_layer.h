@@ -33,6 +33,9 @@ class Sandbox3DLayer : public Spark::Layer3D
     Spark::Camera m_camera;
     bool m_focused;
     int m_lightType;
+    bool m_addingBox;
+    bool m_discardBox;
+    bool m_shouldAddBox;
     int m_removeBoxIndex;
     int m_previousRemoveBoxIndex;
     int m_removePointLightIndex;

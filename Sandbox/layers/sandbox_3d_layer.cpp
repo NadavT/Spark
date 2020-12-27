@@ -7,24 +7,22 @@ Sandbox3DLayer::Sandbox3DLayer()
     , m_pointLights()
     , m_focused(false)
     , m_lightType(0)
+    , m_addingBox(false)
+    , m_discardBox(false)
     , m_removeBoxIndex(0)
     , m_previousRemoveBoxIndex(0)
     , m_removePointLightIndex(0)
     , m_previousRemoveLightIndex(0)
     , m_dirLightOn(true)
     , m_spotLightOn(true)
-    , m_wireframe(0)
+    , m_wireframe(static_cast<int>(Spark::WireframeState::None))
     , m_nextCords{0, 0, 0}
     , m_dirLightDirection{-0.2f, -1.0f, -0.3f}
-    , m_beforeDirLightDirection(m_dirLightDirection)
     , m_dirLightColor{1, 1, 1}
-    , m_beforeDirLightColor(m_dirLightColor)
     , m_spotLightColor{1, 1, 1}
-    , m_beforeSpotLightColor(m_spotLightColor)
     , m_nextPointLightCords{0, 0, 0}
     , m_pointLightColor{1, 1, 1}
     , m_wireframeColor{0, 0, 0}
-    , m_beforeWireframeColor{0, 0, 0}
 {
     const Spark::Texture &texture = Spark::ResourceManager::loadTexture("cubeTexutre", "textures/container2.png");
     const Spark::Texture &specularTexture =
@@ -185,29 +183,37 @@ void Sandbox3DLayer::generateBoxAdder()
             Spark::createCube({m_nextCords[0], m_nextCords[1], m_nextCords[2]}, *texture, *specularTexture);
         m_drawables.push_back(newCube);
         addDrawable(std::dynamic_pointer_cast<Spark::Drawable>(m_drawables.back()));
-        ImGui::OpenPopup("Box adder");
+        m_addingBox = true;
+        m_discardBox = true;
     }
 
-    if (ImGui::BeginPopup("Box adder"))
+    if (m_addingBox)
     {
+        ImGui::SetNextWindowCollapsed(false, ImGuiCond_Once);
+        ImGui::Begin("Box adder", &m_addingBox, ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoResize);
         if (ImGui::InputFloat3("", m_nextCords.data()))
         {
             m_drawables.back()->setPosition({m_nextCords[0], m_nextCords[1], m_nextCords[2]});
         }
         ImGui::SameLine();
-        if (ImGui::Button("add"))
+        if (ImGui::Button("add") ||
+            (ImGui::IsWindowFocused() && ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_Enter))))
         {
-            ImGui::CloseCurrentPopup();
+            m_addingBox = false;
+            m_discardBox = false;
         }
-        ImGui::SameLine();
-        if (ImGui::Button("cancel"))
+        if (ImGui::IsWindowFocused() && ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_Escape)))
         {
-            removeDrawable(m_drawables.back().get());
-            m_drawables.pop_back();
-            ImGui::CloseCurrentPopup();
+            m_addingBox = false;
         }
 
-        ImGui::EndPopup();
+        ImGui::End();
+    }
+    else if (m_discardBox)
+    {
+        removeDrawable(m_drawables.back().get());
+        m_drawables.pop_back();
+        m_discardBox = false;
     }
 }
 
