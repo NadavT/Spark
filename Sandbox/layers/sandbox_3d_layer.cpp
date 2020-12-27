@@ -16,8 +16,11 @@ Sandbox3DLayer::Sandbox3DLayer()
     , m_wireframe(0)
     , m_nextCords{0, 0, 0}
     , m_dirLightDirection{-0.2f, -1.0f, -0.3f}
+    , m_beforeDirLightDirection(m_dirLightDirection)
     , m_dirLightColor{1, 1, 1}
+    , m_beforeDirLightColor(m_dirLightColor)
     , m_spotLightColor{1, 1, 1}
+    , m_beforeSpotLightColor(m_spotLightColor)
     , m_nextPointLightCords{0, 0, 0}
     , m_pointLightColor{1, 1, 1}
     , m_wireframeColor{0, 0, 0}
@@ -180,7 +183,7 @@ void Sandbox3DLayer::generateBoxAdder()
 
     if (ImGui::BeginPopup("Box adder"))
     {
-        ImGui::InputFloat3("", m_nextCords);
+        ImGui::InputFloat3("", m_nextCords.data());
         ImGui::SameLine();
         if (ImGui::Button("add"))
         {
@@ -189,19 +192,11 @@ void Sandbox3DLayer::generateBoxAdder()
             m_drawables.push_back(std::move(
                 Spark::createCube({m_nextCords[0], m_nextCords[1], m_nextCords[2]}, *texture, *specularTexture)));
             addDrawable(m_drawables.back());
-            for (int i = 0; i < 3; i++)
-            {
-                m_nextCords[i] = 0;
-            }
             ImGui::CloseCurrentPopup();
         }
         ImGui::SameLine();
         if (ImGui::Button("cancel"))
         {
-            for (int i = 0; i < 3; i++)
-            {
-                m_nextCords[i] = 0;
-            }
             ImGui::CloseCurrentPopup();
         }
 
@@ -214,6 +209,8 @@ void Sandbox3DLayer::generateBoxRemover()
     if (ImGui::Button("remove box"))
     {
         SPARK_INFO("Removing box");
+        m_removeBoxIndex = 0;
+        m_previousRemoveBoxIndex = 0;
         if (m_drawables.size() > 0)
         {
             m_drawables[0].get()->highlight();
@@ -252,7 +249,7 @@ void Sandbox3DLayer::generateBoxRemover()
         {
             removeDrawable(m_drawables[m_removeBoxIndex].get());
             m_drawables.erase(m_drawables.begin() + m_removeBoxIndex);
-            m_removeBoxIndex = 0;
+            m_removeBoxIndex = -1;
             m_previousRemoveBoxIndex = 0;
             ImGui::CloseCurrentPopup();
         }
@@ -263,20 +260,20 @@ void Sandbox3DLayer::generateBoxRemover()
             {
                 m_drawables[m_removeBoxIndex].get()->unhighlight();
             }
-            m_removeBoxIndex = 0;
+            m_removeBoxIndex = -1;
             m_previousRemoveBoxIndex = 0;
             ImGui::CloseCurrentPopup();
         }
 
         ImGui::EndPopup();
     }
-    else
+    else if (m_removeBoxIndex >= 0)
     {
         if (m_drawables.size() > m_removeBoxIndex)
         {
             m_drawables[m_removeBoxIndex].get()->unhighlight();
         }
-        m_removeBoxIndex = 0;
+        m_removeBoxIndex = -1;
         m_previousRemoveBoxIndex = 0;
     }
 }
@@ -301,22 +298,30 @@ void Sandbox3DLayer::generateDirLightSetter()
     if (ImGui::Button("set dir light"))
     {
         SPARK_INFO("Setting dir light");
+        m_beforeDirLightDirection = m_dirLightDirection;
+        m_beforeDirLightColor = m_dirLightColor;
         ImGui::OpenPopup("Dir light setter");
     }
 
     if (ImGui::BeginPopup("Dir light setter"))
     {
-        ImGui::InputFloat3("direction", m_dirLightDirection);
-        ImGui::ColorEdit3("color", m_dirLightColor);
-        if (ImGui::Button("set"))
+        ImGui::InputFloat3("direction", m_dirLightDirection.data());
+        if (ImGui::ColorEdit3("color", m_dirLightColor.data()))
         {
             setDirLight({m_dirLightDirection[0], m_dirLightDirection[1], m_dirLightDirection[2]},
                         {m_dirLightColor[0], m_dirLightColor[1], m_dirLightColor[2]});
+        }
+        if (ImGui::Button("set"))
+        {
             ImGui::CloseCurrentPopup();
         }
         ImGui::SameLine();
         if (ImGui::Button("cancel"))
         {
+            m_dirLightDirection = m_beforeDirLightDirection;
+            m_dirLightColor = m_beforeDirLightColor;
+            setDirLight({m_dirLightDirection[0], m_dirLightDirection[1], m_dirLightDirection[2]},
+                        {m_dirLightColor[0], m_dirLightColor[1], m_dirLightColor[2]});
             ImGui::CloseCurrentPopup();
         }
 
@@ -343,20 +348,25 @@ void Sandbox3DLayer::generateSpotLightSetter()
     if (ImGui::Button("set spot light"))
     {
         SPARK_INFO("Setting spot light");
+        m_beforeSpotLightColor = m_spotLightColor;
         ImGui::OpenPopup("Spot light setter");
     }
 
     if (ImGui::BeginPopup("Spot light setter"))
     {
-        ImGui::ColorEdit3("color", m_spotLightColor);
-        if (ImGui::Button("set"))
+        if (ImGui::ColorEdit3("color", m_spotLightColor.data()))
         {
             setSpotLight({m_spotLightColor[0], m_spotLightColor[1], m_spotLightColor[2]});
+        }
+        if (ImGui::Button("set"))
+        {
             ImGui::CloseCurrentPopup();
         }
         ImGui::SameLine();
         if (ImGui::Button("cancel"))
         {
+            m_spotLightColor = m_beforeSpotLightColor;
+            setSpotLight({m_spotLightColor[0], m_spotLightColor[1], m_spotLightColor[2]});
             ImGui::CloseCurrentPopup();
         }
 
@@ -374,8 +384,8 @@ void Sandbox3DLayer::generatePointLightAdder()
 
     if (ImGui::BeginPopup("Point light adder"))
     {
-        ImGui::InputFloat3("location", m_nextPointLightCords);
-        ImGui::ColorEdit3("color", m_pointLightColor);
+        ImGui::InputFloat3("location", m_nextPointLightCords.data());
+        ImGui::ColorEdit3("color", m_pointLightColor.data());
         ImGui::Combo("type", &m_lightType, "Sphere\0Cube\0");
         if (ImGui::Button("add"))
         {
@@ -396,21 +406,11 @@ void Sandbox3DLayer::generatePointLightAdder()
                 Spark::createPointLight({m_nextPointLightCords[0], m_nextPointLightCords[1], m_nextPointLightCords[2]},
                                         {m_pointLightColor[0], m_pointLightColor[1], m_pointLightColor[2]}, drawable));
             addPointLight(*(m_pointLights.back()));
-            for (int i = 0; i < 3; i++)
-            {
-                m_nextPointLightCords[i] = 0;
-                m_pointLightColor[i] = 1;
-            }
             ImGui::CloseCurrentPopup();
         }
         ImGui::SameLine();
         if (ImGui::Button("cancel"))
         {
-            for (int i = 0; i < 3; i++)
-            {
-                m_nextPointLightCords[i] = 0;
-                m_pointLightColor[i] = 1;
-            }
             ImGui::CloseCurrentPopup();
         }
 
@@ -463,7 +463,7 @@ void Sandbox3DLayer::generatePointLightRemover()
         {
             removePointLight(*(m_pointLights[m_removePointLightIndex].get()));
             m_pointLights.erase(m_pointLights.begin() + m_removePointLightIndex);
-            m_removePointLightIndex = 0;
+            m_removePointLightIndex = -1;
             m_previousRemoveLightIndex = 0;
             ImGui::CloseCurrentPopup();
         }
@@ -474,20 +474,20 @@ void Sandbox3DLayer::generatePointLightRemover()
             {
                 m_pointLights[m_removePointLightIndex].get()->drawable.get()->unhighlight();
             }
-            m_removePointLightIndex = 0;
+            m_removePointLightIndex = -1;
             m_previousRemoveLightIndex = 0;
             ImGui::CloseCurrentPopup();
         }
 
         ImGui::EndPopup();
     }
-    else
+    else if (m_removePointLightIndex >= 0)
     {
         if (m_pointLights.size() > m_removePointLightIndex)
         {
             m_pointLights[m_removePointLightIndex].get()->drawable.get()->unhighlight();
         }
-        m_removePointLightIndex = 0;
+        m_removePointLightIndex = -1;
         m_previousRemoveLightIndex = 0;
     }
 }
@@ -503,45 +503,30 @@ void Sandbox3DLayer::generateWireframeSetter()
     ImGui::SameLine();
     if (ImGui::Button("set color"))
     {
-        m_beforeWireframeColor[0] = m_wireframeColor[0];
-        m_beforeWireframeColor[1] = m_wireframeColor[1];
-        m_beforeWireframeColor[2] = m_wireframeColor[2];
+        m_beforeWireframeColor = m_wireframeColor;
         ImGui::OpenPopup("Wireframe color setter");
     }
     if (ImGui::BeginPopup("Wireframe color setter"))
     {
-        if (ImGui::ColorEdit3("color", m_wireframeColor))
+        if (ImGui::ColorEdit3("color", m_wireframeColor.data()))
         {
             setWireframe(static_cast<Spark::WireframeState>(m_wireframe),
                          {m_wireframeColor[0], m_wireframeColor[1], m_wireframeColor[2]});
         }
         if (ImGui::Button("set"))
         {
-            m_beforeWireframeColor[0] = m_wireframeColor[0];
-            m_beforeWireframeColor[1] = m_wireframeColor[1];
-            m_beforeWireframeColor[2] = m_wireframeColor[2];
             ImGui::CloseCurrentPopup();
         }
         ImGui::SameLine();
         if (ImGui::Button("cancel"))
         {
-            m_wireframeColor[0] = m_beforeWireframeColor[0];
-            m_wireframeColor[1] = m_beforeWireframeColor[1];
-            m_wireframeColor[2] = m_beforeWireframeColor[2];
+            m_wireframeColor = m_beforeWireframeColor;
             setWireframe(static_cast<Spark::WireframeState>(m_wireframe),
                          {m_wireframeColor[0], m_wireframeColor[1], m_wireframeColor[2]});
             ImGui::CloseCurrentPopup();
         }
 
         ImGui::EndPopup();
-    }
-    else
-    {
-        m_wireframeColor[0] = m_beforeWireframeColor[0];
-        m_wireframeColor[1] = m_beforeWireframeColor[1];
-        m_wireframeColor[2] = m_beforeWireframeColor[2];
-        setWireframe(static_cast<Spark::WireframeState>(m_wireframe),
-                     {m_wireframeColor[0], m_wireframeColor[1], m_wireframeColor[2]});
     }
 }
 
