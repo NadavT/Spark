@@ -495,7 +495,7 @@ void Sandbox3DLayer::generatePointLightRemover()
 void Sandbox3DLayer::generateWireframeSetter()
 {
     ImGui::SetNextItemWidth(100);
-    if (ImGui::Combo("type", &m_wireframe, "None\0Only\0Both\0"))
+    if (ImGui::Combo("##wireframe type", &m_wireframe, "None\0Only\0Both\0"))
     {
         setWireframe(static_cast<Spark::WireframeState>(m_wireframe),
                      {m_wireframeColor[0], m_wireframeColor[1], m_wireframeColor[2]});
