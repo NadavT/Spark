@@ -11,6 +11,9 @@ class Drawable3D : public virtual Drawable
 
     SPARK_API virtual void move(glm::vec3 position);
     SPARK_API virtual void scale(glm::vec3 scale);
+    SPARK_API virtual void setPosition(glm::vec3 position);
+    SPARK_API virtual void setScale(glm::vec3 scale);
+
     SPARK_API virtual glm::mat4 getTransformation();
 
   protected:

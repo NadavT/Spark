@@ -179,25 +179,31 @@ void Sandbox3DLayer::generateBoxAdder()
     if (ImGui::Button("add box"))
     {
         SPARK_INFO("Adding box");
+        const Spark::Texture *texture = Spark::ResourceManager::getTexture("cubeTexutre");
+        const Spark::Texture *specularTexture = Spark::ResourceManager::getTexture("cubeTexutreSpecular");
+        std::shared_ptr<Spark::Drawable3D> newCube =
+            Spark::createCube({m_nextCords[0], m_nextCords[1], m_nextCords[2]}, *texture, *specularTexture);
+        m_drawables.push_back(newCube);
+        addDrawable(std::dynamic_pointer_cast<Spark::Drawable>(m_drawables.back()));
         ImGui::OpenPopup("Box adder");
     }
 
     if (ImGui::BeginPopup("Box adder"))
     {
-        ImGui::InputFloat3("", m_nextCords.data());
+        if (ImGui::InputFloat3("", m_nextCords.data()))
+        {
+            m_drawables.back()->setPosition({m_nextCords[0], m_nextCords[1], m_nextCords[2]});
+        }
         ImGui::SameLine();
         if (ImGui::Button("add"))
         {
-            const Spark::Texture *texture = Spark::ResourceManager::getTexture("cubeTexutre");
-            const Spark::Texture *specularTexture = Spark::ResourceManager::getTexture("cubeTexutreSpecular");
-            m_drawables.push_back(std::move(
-                Spark::createCube({m_nextCords[0], m_nextCords[1], m_nextCords[2]}, *texture, *specularTexture)));
-            addDrawable(std::dynamic_pointer_cast<Spark::Drawable>(m_drawables.back()));
             ImGui::CloseCurrentPopup();
         }
         ImGui::SameLine();
         if (ImGui::Button("cancel"))
         {
+            removeDrawable(m_drawables.back().get());
+            m_drawables.pop_back();
             ImGui::CloseCurrentPopup();
         }
 

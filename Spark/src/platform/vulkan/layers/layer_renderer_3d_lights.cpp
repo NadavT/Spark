@@ -429,10 +429,6 @@ void VulkanLayerRenderer3DLights::createCommandBuffers()
                         m_materialDescriptorSets[j][i],
                         m_textureDescriptorSets[m_textureDescriptorOffset[texturedDrawable->getTexture().getName()]][i],
                         pushConsts);
-                    if (texturedDrawable->isHighlighted())
-                    {
-                        vkCmdClearAttachments(commandBuffer, 1, &clearAttachment, 1, &clearRect);
-                    }
                     texturedDrawable->fillCommandBuffer(commandBuffer);
                     if (texturedDrawable->isHighlighted())
                     {
@@ -457,10 +453,6 @@ void VulkanLayerRenderer3DLights::createCommandBuffers()
                     {
                         pushConsts.calcLight = true;
                         pushConsts.color = coloredDrawable->getColor();
-                    }
-                    if (coloredDrawable->isHighlighted())
-                    {
-                        vkCmdClearAttachments(commandBuffer, 1, &clearAttachment, 1, &clearRect);
                     }
                     m_pipeline->bind(commandBuffer, m_transformationDescriptorSets[j][i], m_lightsDescriptorSets[0][i],
                                      m_materialDescriptorSets[j][i], pushConsts);
