@@ -31,7 +31,7 @@ Sandbox3DLayer::Sandbox3DLayer()
     addDrawable(std::dynamic_pointer_cast<Spark::Drawable>(m_drawables[0]));
     setDirLight({m_dirLightDirection[0], m_dirLightDirection[1], m_dirLightDirection[2]},
                 {m_dirLightColor[0], m_dirLightColor[1], m_dirLightColor[2]});
-    std::shared_ptr<Spark::Drawable> sphere =
+    std::shared_ptr<Spark::Drawable3D> sphere =
         Spark::createSphere({0, 0, -2.0f}, {0.3f, 0.3f, 0.3f}, 36, 18, {0.3f, 0.3f, 0.3f});
     m_pointLights.push_back(Spark::createPointLight({0, 0, -2.0f}, {0, 1, 0}, sphere));
     addPointLight(*(m_pointLights.back()));
@@ -402,7 +402,7 @@ void Sandbox3DLayer::generatePointLightAdder()
         ImGui::Combo("type", &m_lightType, "Sphere\0Cube\0");
         if (ImGui::Button("add"))
         {
-            std::shared_ptr<Spark::Drawable> drawable = NULL;
+            std::shared_ptr<Spark::Drawable3D> drawable = NULL;
             if (m_lightType == 0)
             {
                 drawable =

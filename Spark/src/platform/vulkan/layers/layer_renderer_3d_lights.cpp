@@ -252,7 +252,7 @@ void VulkanLayerRenderer3DLights::OnRender()
             if (light->isLit())
             {
                 VulkanShaderPointLight pointLight = {};
-                pointLight.position = m_camera.getViewMatrix() * glm::vec4(light->position, 1.0f);
+                pointLight.position = m_camera.getViewMatrix() * glm::vec4(light->getPosition(), 1.0f);
                 pointLight.ambient = light->color * 0.0f;
                 pointLight.diffuse = light->color * 0.5f;
                 pointLight.specular = light->color;
@@ -441,9 +441,10 @@ void VulkanLayerRenderer3DLights::createCommandBuffers()
                 else if (drawable->getDrawableType() == VulkanDrawableType::Colored)
                 {
                     VulkanColoredDrawable *coloredDrawable = dynamic_cast<VulkanColoredDrawable *>(drawable);
-                    auto pointLight =
-                        std::find_if(m_pointLights.begin(), m_pointLights.end(),
-                                     [&drawable](const VulkanPointLight *x) { return x->drawable.get() == drawable; });
+                    auto pointLight = std::find_if(m_pointLights.begin(), m_pointLights.end(),
+                                                   [&drawable](const VulkanPointLight *x) {
+                                                       return x->drawable.get() == dynamic_cast<Drawable3D *>(drawable);
+                                                   });
                     if (pointLight != m_pointLights.end() && (*pointLight)->isLit())
                     {
                         pushConsts.calcLight = false;
