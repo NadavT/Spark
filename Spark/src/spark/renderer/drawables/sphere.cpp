@@ -13,26 +13,10 @@
 namespace Spark
 {
 Sphere::Sphere(glm::vec3 position, int sectors, int stacks, glm::vec3 scale)
-    : m_position(position)
+    : Drawable3D(position, scale)
     , m_sectors(sectors)
     , m_stacks(stacks)
-    , m_scale(scale)
 {
-}
-
-void Sphere::move(glm::vec3 position)
-{
-    m_position += position;
-}
-
-SPARK_API void Sphere::scale(glm::vec3 scale)
-{
-    m_scale *= scale;
-}
-
-SPARK_API glm::mat4 Sphere::getTransformation()
-{
-    return glm::translate(glm::scale(glm::mat4(1), m_scale), m_position / m_scale);
 }
 
 std::shared_ptr<Drawable> createSphere(glm::vec3 position, const Texture &texture, const Texture &specularTexture,

@@ -9,6 +9,7 @@ namespace Spark
 
 VulkanSphere::VulkanSphere(VulkanRenderer &renderer, glm::vec3 position, int sectors, int stacks, glm::vec3 scale)
     : Sphere(position, sectors, stacks, scale)
+    , Drawable3D(position, scale)
     , m_context(renderer.m_context)
     , m_renderer(renderer)
     , m_vertexBuffer(VK_NULL_HANDLE)
@@ -37,6 +38,7 @@ VulkanSphere::~VulkanSphere()
 
 VulkanSphere::VulkanSphere(const VulkanSphere &other)
     : Sphere(other)
+    , Drawable3D(other)
     , m_context(other.m_context)
     , m_renderer(other.m_renderer)
 {
@@ -45,6 +47,7 @@ VulkanSphere::VulkanSphere(const VulkanSphere &other)
 
 VulkanSphere::VulkanSphere(VulkanSphere &&other) noexcept
     : Sphere(other)
+    , Drawable3D(other)
     , m_context(other.m_context)
     , m_renderer(other.m_renderer)
 {

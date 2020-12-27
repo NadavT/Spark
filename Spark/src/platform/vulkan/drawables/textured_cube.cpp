@@ -11,6 +11,7 @@ VulkanTexturedCube::VulkanTexturedCube(VulkanRenderer &renderer, glm::vec3 posit
     : VulkanCube(renderer, position, scale)
     , VulkanTexturedDrawable(texture, specularTexture)
     , Cube(position, scale)
+    , Drawable3D(position, scale)
 {
 }
 } // namespace Spark

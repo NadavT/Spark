@@ -1,6 +1,6 @@
 #pragma once
 
-#include "drawable.h"
+#include "drawables/drawable.h"
 #include "spark/core/core.h"
 
 #include <vector>

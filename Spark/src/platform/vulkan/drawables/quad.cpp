@@ -15,6 +15,7 @@ const std::vector<uint32_t> quad_indices = {
 
 VulkanQuad::VulkanQuad(VulkanRenderer &renderer, glm::vec2 position, const VulkanTexture &texture, glm::vec2 scale)
     : Quad(position, scale)
+    , Drawable2D(position, scale)
     , m_context(renderer.m_context)
     , m_renderer(renderer)
     , m_vertexBuffer(VK_NULL_HANDLE)
@@ -41,6 +42,7 @@ VulkanQuad::~VulkanQuad()
 
 VulkanQuad::VulkanQuad(const VulkanQuad &other)
     : Quad(other)
+    , Drawable2D(other)
     , m_context(other.m_context)
     , m_renderer(other.m_renderer)
     , m_texture(other.m_texture)
@@ -50,6 +52,7 @@ VulkanQuad::VulkanQuad(const VulkanQuad &other)
 
 VulkanQuad::VulkanQuad(VulkanQuad &&other) noexcept
     : Quad(other)
+    , Drawable2D(other)
     , m_context(other.m_context)
     , m_renderer(other.m_renderer)
     , m_texture(other.m_texture)

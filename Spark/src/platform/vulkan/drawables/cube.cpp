@@ -46,6 +46,7 @@ const std::vector<uint32_t> cube_indices = {
 
 VulkanCube::VulkanCube(VulkanRenderer &renderer, glm::vec3 position, glm::vec3 scale)
     : Cube(position, scale)
+    , Drawable3D(position, scale)
     , m_context(renderer.m_context)
     , m_renderer(renderer)
     , m_vertexBuffer(VK_NULL_HANDLE)
@@ -71,6 +72,7 @@ VulkanCube::~VulkanCube()
 
 VulkanCube::VulkanCube(const VulkanCube &other)
     : Cube(other)
+    , Drawable3D(other)
     , m_context(other.m_context)
     , m_renderer(other.m_renderer)
 {
@@ -79,6 +81,7 @@ VulkanCube::VulkanCube(const VulkanCube &other)
 
 VulkanCube::VulkanCube(VulkanCube &&other) noexcept
     : Cube(other)
+    , Drawable3D(other)
     , m_context(other.m_context)
     , m_renderer(other.m_renderer)
 {

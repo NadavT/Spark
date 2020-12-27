@@ -1,6 +1,6 @@
 #pragma once
 
-#include "spark/renderer/drawable.h"
+#include "spark/renderer/drawables/drawable.h"
 
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE
 #define GLM_ENABLE_EXPERIMENTAL

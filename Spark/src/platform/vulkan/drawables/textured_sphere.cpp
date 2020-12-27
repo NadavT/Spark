@@ -12,6 +12,7 @@ VulkanTexturedSphere::VulkanTexturedSphere(VulkanRenderer &renderer, glm::vec3 p
     : VulkanSphere(renderer, position, sectors, stacks, scale)
     , VulkanTexturedDrawable(texture, specularTexture)
     , Sphere(position, sectors, stacks, scale)
+    , Drawable3D(position, scale)
 {
 }
 } // namespace Spark

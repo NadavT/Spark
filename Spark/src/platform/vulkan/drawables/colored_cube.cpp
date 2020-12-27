@@ -10,6 +10,7 @@ VulkanColoredCube::VulkanColoredCube(VulkanRenderer &renderer, glm::vec3 positio
     : VulkanCube(renderer, position, scale)
     , VulkanColoredDrawable(color)
     , Cube(position, scale)
+    , Drawable3D(position, scale)
 {
 }
 } // namespace Spark

@@ -3,7 +3,7 @@
 #include "platform/vulkan/renderer.h"
 
 #include "spark/core/application.h"
-#include "spark/renderer/drawable.h"
+#include "spark/renderer/drawables/drawable.h"
 
 namespace Spark
 {
