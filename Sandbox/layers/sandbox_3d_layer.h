@@ -35,7 +35,9 @@ class Sandbox3DLayer : public Spark::Layer3D
     int m_lightType;
     bool m_addingBox;
     bool m_discardBox;
-    bool m_shouldAddBox;
+    bool m_addingPointLight;
+    bool m_discardPointLight;
+    bool m_pickerExistLastFrame;
     int m_removeBoxIndex;
     int m_previousRemoveBoxIndex;
     int m_removePointLightIndex;

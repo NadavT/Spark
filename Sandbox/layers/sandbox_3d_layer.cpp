@@ -9,6 +9,8 @@ Sandbox3DLayer::Sandbox3DLayer()
     , m_lightType(0)
     , m_addingBox(false)
     , m_discardBox(false)
+    , m_addingPointLight(false)
+    , m_discardPointLight(false)
     , m_removeBoxIndex(0)
     , m_previousRemoveBoxIndex(0)
     , m_removePointLightIndex(0)
@@ -392,16 +394,36 @@ void Sandbox3DLayer::generatePointLightAdder()
     if (ImGui::Button("add point light"))
     {
         SPARK_INFO("Adding point light");
-        ImGui::OpenPopup("Point light adder");
+        std::shared_ptr<Spark::Drawable3D> drawable =
+            Spark::createSphere({m_nextPointLightCords[0], m_nextPointLightCords[1], m_nextPointLightCords[2]},
+                                {0.3f, 0.3f, 0.3f}, 36, 18, {0.3f, 0.3f, 0.3f});
+        m_pointLights.push_back(
+            Spark::createPointLight({m_nextPointLightCords[0], m_nextPointLightCords[1], m_nextPointLightCords[2]},
+                                    {m_pointLightColor[0], m_pointLightColor[1], m_pointLightColor[2]}, drawable));
+        addPointLight(*(m_pointLights.back()));
+        m_addingPointLight = true;
+        m_discardPointLight = true;
+        m_pickerExistLastFrame = false;
     }
 
-    if (ImGui::BeginPopup("Point light adder"))
+    if (m_addingPointLight)
     {
-        ImGui::InputFloat3("location", m_nextPointLightCords.data());
-        ImGui::ColorEdit3("color", m_pointLightColor.data());
-        ImGui::Combo("type", &m_lightType, "Sphere\0Cube\0");
-        if (ImGui::Button("add"))
+        ImGui::SetNextWindowCollapsed(false, ImGuiCond_Once);
+        ImGui::Begin("Point light adder", &m_addingPointLight,
+                     ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoResize);
+        if (ImGui::InputFloat3("location", m_nextPointLightCords.data()))
         {
+            m_pointLights.back()->setPosition(
+                {m_nextPointLightCords[0], m_nextPointLightCords[1], m_nextPointLightCords[2]});
+        }
+        if (ImGui::ColorEdit3("color##PointLight", m_pointLightColor.data()))
+        {
+            m_pointLights.back()->setColor({m_pointLightColor[0], m_pointLightColor[1], m_pointLightColor[2]});
+        }
+        if (ImGui::Combo("type", &m_lightType, "Sphere\0Cube\0"))
+        {
+            removePointLight(*(m_pointLights.back().get()));
+            m_pointLights.pop_back();
             std::shared_ptr<Spark::Drawable3D> drawable = NULL;
             if (m_lightType == 0)
             {
@@ -419,15 +441,30 @@ void Sandbox3DLayer::generatePointLightAdder()
                 Spark::createPointLight({m_nextPointLightCords[0], m_nextPointLightCords[1], m_nextPointLightCords[2]},
                                         {m_pointLightColor[0], m_pointLightColor[1], m_pointLightColor[2]}, drawable));
             addPointLight(*(m_pointLights.back()));
-            ImGui::CloseCurrentPopup();
+        }
+        if (ImGui::Button("add"))
+        {
+            m_addingPointLight = false;
+            m_discardPointLight = false;
         }
         ImGui::SameLine();
-        if (ImGui::Button("cancel"))
+        if (ImGui::IsWindowFocused() && !m_pickerExistLastFrame &&
+            ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_Escape)))
         {
-            ImGui::CloseCurrentPopup();
+            m_addingPointLight = false;
         }
 
-        ImGui::EndPopup();
+        ImGui::PushID("color##PointLight");
+        m_pickerExistLastFrame = ImGui::IsPopupOpen("picker");
+        ImGui::PopID();
+
+        ImGui::End();
+    }
+    else if (m_discardPointLight)
+    {
+        removePointLight(*(m_pointLights.back().get()));
+        m_pointLights.pop_back();
+        m_discardPointLight = false;
     }
 }
 
@@ -505,6 +542,27 @@ void Sandbox3DLayer::generatePointLightRemover()
     }
 }
 
+void Sandbox3DLayer::generatePointLightsFlicker()
+{
+    int index = 0;
+    for (auto &pointLight : m_pointLights)
+    {
+        bool lit = pointLight->isLit();
+        if (ImGui::Checkbox(("Point light " + std::to_string(index)).c_str(), &lit))
+        {
+            if (lit)
+            {
+                pointLight->turnOn();
+            }
+            else
+            {
+                pointLight->turnOff();
+            }
+        }
+        index++;
+    }
+}
+
 void Sandbox3DLayer::generateWireframeSetter()
 {
     ImGui::SetNextItemWidth(100);
@@ -540,26 +598,5 @@ void Sandbox3DLayer::generateWireframeSetter()
         }
 
         ImGui::EndPopup();
-    }
-}
-
-void Sandbox3DLayer::generatePointLightsFlicker()
-{
-    int index = 0;
-    for (auto &pointLight : m_pointLights)
-    {
-        bool lit = pointLight->isLit();
-        if (ImGui::Checkbox(("Point light " + std::to_string(index)).c_str(), &lit))
-        {
-            if (lit)
-            {
-                pointLight->turnOn();
-            }
-            else
-            {
-                pointLight->turnOff();
-            }
-        }
-        index++;
     }
 }

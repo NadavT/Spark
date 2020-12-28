@@ -25,4 +25,11 @@ void VulkanPointLight::turnOff()
     VulkanRenderer &renderer = reinterpret_cast<VulkanRenderer &>(Application::GetApp().GetRenderer());
     renderer.signalRecreationNeeded();
 }
+
+void VulkanPointLight::setColor(glm::vec3 color)
+{
+    PointLight::setColor(color);
+    VulkanRenderer &renderer = reinterpret_cast<VulkanRenderer &>(Application::GetApp().GetRenderer());
+    renderer.signalRecreationNeeded();
+}
 } // namespace Spark

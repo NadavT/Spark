@@ -10,7 +10,7 @@ namespace Spark
 
 PointLight::PointLight(glm::vec3 position, glm::vec3 color, std::shared_ptr<Drawable3D> &drawable, bool isLit)
     : m_position(position)
-    , color(color)
+    , m_color(color)
     , drawable(drawable)
     , m_isLit(isLit)
 {
@@ -23,7 +23,7 @@ void PointLight::turnOn()
 
 void PointLight::turnOff()
 {
-    m_isLit = true;
+    m_isLit = false;
 }
 
 bool PointLight::isLit()
@@ -31,15 +31,32 @@ bool PointLight::isLit()
     return m_isLit;
 }
 
-void PointLight::move(glm::vec3 position)
+glm::vec3 PointLight::getColor()
 {
-    m_position += position;
-    drawable->move(position);
+    return m_color;
 }
 
-void PointLight::setPosition(glm::vec3 position)
+void PointLight::setColor(glm::vec3 color)
+{
+    m_color = color;
+}
+
+void PointLight::move(glm::vec3 position, bool moveDrawable)
+{
+    m_position += position;
+    if (moveDrawable)
+    {
+        drawable->move(position);
+    }
+}
+
+void PointLight::setPosition(glm::vec3 position, bool moveDrawable)
 {
     m_position = position;
+    if (moveDrawable)
+    {
+        drawable->setPosition(position);
+    }
 }
 
 glm::vec3 PointLight::getPosition()

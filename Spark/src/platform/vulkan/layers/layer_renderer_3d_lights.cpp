@@ -253,9 +253,9 @@ void VulkanLayerRenderer3DLights::OnRender()
             {
                 VulkanShaderPointLight pointLight = {};
                 pointLight.position = m_camera.getViewMatrix() * glm::vec4(light->getPosition(), 1.0f);
-                pointLight.ambient = light->color * 0.0f;
-                pointLight.diffuse = light->color * 0.5f;
-                pointLight.specular = light->color;
+                pointLight.ambient = light->getColor() * 0.0f;
+                pointLight.diffuse = light->getColor() * 0.5f;
+                pointLight.specular = light->getColor();
                 pointLight.constant = 1.0f;
                 pointLight.linear = 0.09f;
                 pointLight.quadratic = 0.032f;
@@ -429,6 +429,10 @@ void VulkanLayerRenderer3DLights::createCommandBuffers()
                         m_materialDescriptorSets[j][i],
                         m_textureDescriptorSets[m_textureDescriptorOffset[texturedDrawable->getTexture().getName()]][i],
                         pushConsts);
+                    if (texturedDrawable->isHighlighted())
+                    {
+                        vkCmdClearAttachments(commandBuffer, 1, &clearAttachment, 1, &clearRect);
+                    }
                     texturedDrawable->fillCommandBuffer(commandBuffer);
                     if (texturedDrawable->isHighlighted())
                     {
@@ -448,12 +452,16 @@ void VulkanLayerRenderer3DLights::createCommandBuffers()
                     if (pointLight != m_pointLights.end() && (*pointLight)->isLit())
                     {
                         pushConsts.calcLight = false;
-                        pushConsts.color = (*pointLight)->color;
+                        pushConsts.color = (*pointLight)->getColor();
                     }
                     else
                     {
                         pushConsts.calcLight = true;
                         pushConsts.color = coloredDrawable->getColor();
+                    }
+                    if (coloredDrawable->isHighlighted())
+                    {
+                        vkCmdClearAttachments(commandBuffer, 1, &clearAttachment, 1, &clearRect);
                     }
                     m_pipeline->bind(commandBuffer, m_transformationDescriptorSets[j][i], m_lightsDescriptorSets[0][i],
                                      m_materialDescriptorSets[j][i], pushConsts);

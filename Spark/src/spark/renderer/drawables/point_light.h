@@ -19,11 +19,13 @@ struct PointLight
     SPARK_API virtual void turnOff();
     SPARK_API virtual bool isLit();
 
-    SPARK_API virtual void move(glm::vec3 position);
-    SPARK_API virtual void setPosition(glm::vec3 position);
+    SPARK_API virtual glm::vec3 getColor();
+    SPARK_API virtual void setColor(glm::vec3 color);
+
+    SPARK_API virtual void move(glm::vec3 position, bool moveDrawable = true);
+    SPARK_API virtual void setPosition(glm::vec3 position, bool moveDrawable = true);
     SPARK_API virtual glm::vec3 getPosition();
 
-    glm::vec3 color;
     std::shared_ptr<Drawable3D> drawable;
 
   protected:
@@ -32,6 +34,7 @@ struct PointLight
   private:
     bool m_isLit;
     glm::vec3 m_position;
+    glm::vec3 m_color;
 };
 
 SPARK_API std::shared_ptr<PointLight> createPointLight(glm::vec3 position, glm::vec3 color,
