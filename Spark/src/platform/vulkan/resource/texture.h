@@ -6,8 +6,7 @@
 #include "platform/vulkan/resource/texture_sampler.h"
 #include "platform/vulkan/vulkan_context.h"
 
-
-namespace Spark
+namespace Spark::Render
 {
 class VulkanTexture : public Texture
 {
@@ -22,4 +21,4 @@ class VulkanTexture : public Texture
     const VulkanTextureImage &m_image;
     const VulkanTextureSampler &m_sampler;
 };
-} // namespace Spark
+} // namespace Spark::Render

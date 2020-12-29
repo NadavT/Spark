@@ -4,7 +4,7 @@
 
 #include <glm/glm.hpp>
 
-namespace Spark
+namespace Spark::Render
 {
 struct PointLight
 {
@@ -39,4 +39,4 @@ struct PointLight
 
 SPARK_API std::shared_ptr<PointLight> createPointLight(glm::vec3 position, glm::vec3 color,
                                                        std::shared_ptr<Drawable3D> &drawable, bool isLit = true);
-} // namespace Spark
+} // namespace Spark::Render

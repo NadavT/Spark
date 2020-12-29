@@ -2,7 +2,7 @@
 
 #include "spark/core/log.h"
 
-namespace Spark
+namespace Spark::Render
 {
 VulkanPipeline::VulkanPipeline(VulkanContext &context, VulkanFramebuffer &framebuffer)
     : m_context(context)
@@ -299,4 +299,4 @@ void VulkanPipeline::setColorBlendState(VkPipelineColorBlendStateCreateInfo info
 {
     m_colorBlendState = info;
 }
-} // namespace Spark
+} // namespace Spark::Render

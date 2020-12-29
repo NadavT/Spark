@@ -3,7 +3,7 @@
 #include "platform/vulkan/framebuffer/framebuffer.h"
 #include "platform/vulkan/vulkan_context.h"
 
-namespace Spark
+namespace Spark::Render
 {
 enum class VulkanPipelineType
 {
@@ -65,4 +65,4 @@ class VulkanPipeline
     VkPipelineColorBlendAttachmentState m_colorBlendAttachment;
     VkPipelineColorBlendStateCreateInfo m_colorBlendState;
 };
-} // namespace Spark
+} // namespace Spark::Render

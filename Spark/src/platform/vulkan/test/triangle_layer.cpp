@@ -2,7 +2,7 @@
 
 #include "platform/vulkan/pipeline/pipeline2d.h"
 
-namespace Spark
+namespace Spark::Render
 {
 VulkanTriangleLayer::VulkanTriangleLayer(VulkanRenderer &renderer)
     : Layer("triangle layer")
@@ -89,4 +89,4 @@ void VulkanTriangleLayer::createCommandBuffers()
         i++;
     }
 }
-} // namespace Spark
+} // namespace Spark::Render

@@ -2,7 +2,7 @@
 
 #include "platform/vulkan/vulkan_context.h"
 
-namespace Spark
+namespace Spark::Render
 {
 enum class VulkanFramebufferType
 {
@@ -39,4 +39,4 @@ class VulkanFramebuffer
     std::vector<VkFramebuffer> m_swapChainFramebuffers;
     VkImageView m_renderTarget;
 };
-} // namespace Spark
+} // namespace Spark::Render

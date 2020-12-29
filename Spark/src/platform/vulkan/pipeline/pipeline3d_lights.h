@@ -3,7 +3,7 @@
 #include "platform/vulkan/pipeline/pipeline.h"
 #include "platform/vulkan/vertex/vertex3d.h"
 
-namespace Spark
+namespace Spark::Render
 {
 struct Transformation3DLights
 {
@@ -125,4 +125,4 @@ class VulkanPipeline3DLights : public VulkanPipeline
     VkPipeline m_pipelineColor;
     VkPipeline m_pipelineTexture;
 };
-} // namespace Spark
+} // namespace Spark::Render

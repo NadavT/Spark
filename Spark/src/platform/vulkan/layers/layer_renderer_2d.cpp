@@ -1,7 +1,7 @@
 #include "layer_renderer_2d.h"
 #include "platform/vulkan/drawables/quad.h"
 
-namespace Spark
+namespace Spark::Render
 {
 VulkanLayerRenderer2D::VulkanLayerRenderer2D(VulkanRenderer &renderer)
     : m_renderer(renderer)
@@ -202,4 +202,4 @@ void VulkanLayerRenderer2D::createCommandBuffers()
         i++;
     }
 }
-} // namespace Spark
+} // namespace Spark::Render

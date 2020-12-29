@@ -2,7 +2,7 @@
 #include "platform/vulkan/drawables/sphere.h"
 #include "platform/vulkan/drawables/textured_drawable.h"
 
-namespace Spark
+namespace Spark::Render
 {
 class VulkanTexturedSphere : public virtual VulkanSphere, public virtual VulkanTexturedDrawable
 {
@@ -11,4 +11,4 @@ class VulkanTexturedSphere : public virtual VulkanSphere, public virtual VulkanT
                          const VulkanTexture &texture, const VulkanTexture &specularTexture,
                          glm::vec3 scale = glm::vec3(1.0));
 };
-} // namespace Spark
+} // namespace Spark::Render

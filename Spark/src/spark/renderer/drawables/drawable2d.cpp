@@ -2,9 +2,8 @@
 
 #include <glm/gtx/matrix_transform_2d.hpp>
 
-namespace Spark
+namespace Spark::Render
 {
-
 Drawable2D::Drawable2D(glm::vec2 position, glm::vec2 scale)
     : Drawable()
     , m_position(position)
@@ -26,5 +25,4 @@ glm::mat4 Drawable2D::getTransformation()
 {
     return glm::mat4(glm::translate(glm::scale(glm::mat3(1), m_scale), m_position / m_scale));
 }
-
-} // namespace Spark
+} // namespace Spark::Render

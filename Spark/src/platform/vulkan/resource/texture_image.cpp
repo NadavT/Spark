@@ -4,7 +4,7 @@
 
 #include <stb_image.h>
 
-namespace Spark
+namespace Spark::Render
 {
 VulkanTextureImage::VulkanTextureImage(VulkanContext &context, const std::string &name, const std::string &path)
     : Resource(name, ResourceType::internal)
@@ -62,4 +62,4 @@ VkImageView VulkanTextureImage::getImageView() const
 {
     return m_textureImageView;
 }
-} // namespace Spark
+} // namespace Spark::Render

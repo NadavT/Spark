@@ -6,7 +6,7 @@
 
 #include "spark/renderer/drawables/cube.h"
 
-namespace Spark
+namespace Spark::Render
 {
 class VulkanCube : public virtual Cube, public virtual VulkanDrawable
 {
@@ -34,4 +34,4 @@ class VulkanCube : public virtual Cube, public virtual VulkanDrawable
     VkDeviceSize m_verticesOffset;
     VkDeviceSize m_indicesOffset;
 };
-} // namespace Spark
+} // namespace Spark::Render

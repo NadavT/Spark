@@ -4,7 +4,7 @@
 
 #include "platform/vulkan/pipeline/pipeline2d.h"
 
-namespace Spark
+namespace Spark::Render
 {
 VulkanLayer2D::VulkanLayer2D(VulkanRenderer &renderer)
     : Layer("2d layer")
@@ -68,4 +68,4 @@ bool VulkanLayer2D::handleKeyPressed(KeyPressedEvent &e)
         return false;
     }
 }
-} // namespace Spark
+} // namespace Spark::Render

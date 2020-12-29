@@ -7,7 +7,7 @@
 
 #include <memory>
 
-namespace Spark
+namespace Spark::Render
 {
 class Quad : public virtual Drawable2D
 {
@@ -24,4 +24,4 @@ class Quad : public virtual Drawable2D
 
 SPARK_API std::shared_ptr<Drawable2D> createQuad(glm::vec2 position, const Texture &texture,
                                                  glm::vec2 scale = glm::vec2(1.0));
-} // namespace Spark
+} // namespace Spark::Render

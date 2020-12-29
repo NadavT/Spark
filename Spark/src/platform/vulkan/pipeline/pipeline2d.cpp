@@ -4,8 +4,7 @@
 #include "spark/core/log.h"
 #include "spark/utils/file.h"
 
-
-namespace Spark
+namespace Spark::Render
 {
 const std::string VERTEX_2D_SHADER_PATH = "shaders/shader2d_vert.spv";
 const std::string FRAGMENT_2D_SHADER_PATH = "shaders/shader2d_frag.spv";
@@ -163,4 +162,4 @@ void VulkanPipeline2D::createGraphicsPipeline()
     vkDestroyShaderModule(m_context.m_device, vertexShader, VK_NULL_HANDLE);
     vkDestroyShaderModule(m_context.m_device, fragmentShader, VK_NULL_HANDLE);
 }
-} // namespace Spark
+} // namespace Spark::Render

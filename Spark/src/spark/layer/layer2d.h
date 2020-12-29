@@ -18,10 +18,10 @@ class Layer2D : public Layer
     SPARK_API virtual void OnDetach();
     SPARK_API virtual void OnRender();
 
-    SPARK_API virtual void addDrawable(std::shared_ptr<Drawable> &drawable);
-    SPARK_API virtual void removeDrawable(Drawable *drawable);
+    SPARK_API virtual void addDrawable(std::shared_ptr<Render::Drawable> &drawable);
+    SPARK_API virtual void removeDrawable(Render::Drawable *drawable);
 
   private:
-    std::unique_ptr<LayerRenderer> m_layer_renderer;
+    std::unique_ptr<Render::LayerRenderer> m_layer_renderer;
 };
 } // namespace Spark

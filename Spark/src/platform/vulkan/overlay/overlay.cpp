@@ -4,10 +4,9 @@
 #include "spark/core/log.h"
 #include "spark/event/event.h"
 
-
 #include <examples/imgui_impl_vulkan.h>
 
-namespace Spark
+namespace Spark::Render
 {
 static void check_vk_result(VkResult err)
 {
@@ -264,4 +263,4 @@ bool VulkanOverlay::onKeyTyped(KeyTypedEvent &e)
 
     return io.WantCaptureKeyboard;
 }
-} // namespace Spark
+} // namespace Spark::Render

@@ -10,7 +10,7 @@
 
 #endif // SPARK_PLATFORM_VULKAN
 
-namespace Spark
+namespace Spark::Render
 {
 Sphere::Sphere(glm::vec3 position, int sectors, int stacks, glm::vec3 scale)
     : Drawable3D(position, scale)
@@ -39,4 +39,4 @@ std::shared_ptr<Drawable3D> createSphere(glm::vec3 position, glm::vec3 color, in
     return std::make_shared<VulkanColoredSphere>(renderer, position, sectors, stacks, color, scale);
 #endif // SPARK_PLATFORM_VULKAN
 }
-} // namespace Spark
+} // namespace Spark::Render

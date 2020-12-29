@@ -4,7 +4,7 @@
 
 #include "spark/core/application.h"
 
-namespace Spark
+namespace Spark::Render
 {
 VulkanTexturedSphere::VulkanTexturedSphere(VulkanRenderer &renderer, glm::vec3 position, int sectors, int stacks,
                                            const VulkanTexture &texture, const VulkanTexture &specularTexture,
@@ -15,4 +15,4 @@ VulkanTexturedSphere::VulkanTexturedSphere(VulkanRenderer &renderer, glm::vec3 p
     , Drawable3D(position, scale)
 {
 }
-} // namespace Spark
+} // namespace Spark::Render

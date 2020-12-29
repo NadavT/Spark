@@ -9,13 +9,13 @@
 
 namespace Spark
 {
-Layer3D::Layer3D(const std::string &name, Camera &camera)
+Layer3D::Layer3D(const std::string &name, Render::Camera &camera)
     : Layer(name)
     , m_camera(camera)
 {
 #ifdef SPARK_PLATFORM_VULKAN
-    VulkanRenderer &renderer = reinterpret_cast<VulkanRenderer &>(Application::GetApp().GetRenderer());
-    m_layer_renderer = std::make_unique<VulkanLayerRenderer3DLights>(renderer, m_camera);
+    Render::VulkanRenderer &renderer = reinterpret_cast<Render::VulkanRenderer &>(Application::GetApp().GetRenderer());
+    m_layer_renderer = std::make_unique<Render::VulkanLayerRenderer3DLights>(renderer, m_camera);
 #endif // SPARK_PLATFORM_VULKAN
 }
 
@@ -34,12 +34,12 @@ void Layer3D::OnRender()
     m_layer_renderer->OnRender();
 }
 
-void Layer3D::addDrawable(std::shared_ptr<Drawable> &drawable)
+void Layer3D::addDrawable(std::shared_ptr<Render::Drawable> &drawable)
 {
     m_layer_renderer->addDrawable(drawable);
 }
 
-void Layer3D::removeDrawable(Drawable *drawable)
+void Layer3D::removeDrawable(Render::Drawable *drawable)
 {
     m_layer_renderer->removeDrawable(drawable);
 }
@@ -47,24 +47,24 @@ void Layer3D::removeDrawable(Drawable *drawable)
 void Layer3D::setDirLight(glm::vec3 direction, glm::vec3 color)
 {
 #ifdef SPARK_PLATFORM_VULKAN
-    reinterpret_cast<VulkanLayerRenderer3DLights *>(m_layer_renderer.get())->setDirLight(direction, color);
+    reinterpret_cast<Render::VulkanLayerRenderer3DLights *>(m_layer_renderer.get())->setDirLight(direction, color);
 #endif
 }
 
-SPARK_API void Layer3D::addPointLight(PointLight &pointLight)
+SPARK_API void Layer3D::addPointLight(Render::PointLight &pointLight)
 {
 #ifdef SPARK_PLATFORM_VULKAN
-    addDrawable(std::dynamic_pointer_cast<Drawable>(pointLight.drawable));
-    reinterpret_cast<VulkanLayerRenderer3DLights *>(m_layer_renderer.get())
-        ->addPointLight(reinterpret_cast<VulkanPointLight &>(pointLight));
+    addDrawable(std::dynamic_pointer_cast<Render::Drawable>(pointLight.drawable));
+    reinterpret_cast<Render::VulkanLayerRenderer3DLights *>(m_layer_renderer.get())
+        ->addPointLight(reinterpret_cast<Render::VulkanPointLight &>(pointLight));
 #endif
 }
 
-SPARK_API void Layer3D::removePointLight(PointLight &pointLight)
+SPARK_API void Layer3D::removePointLight(Render::PointLight &pointLight)
 {
 #ifdef SPARK_PLATFORM_VULKAN
-    reinterpret_cast<VulkanLayerRenderer3DLights *>(m_layer_renderer.get())
-        ->removePointLight(reinterpret_cast<VulkanPointLight &>(pointLight));
+    reinterpret_cast<Render::VulkanLayerRenderer3DLights *>(m_layer_renderer.get())
+        ->removePointLight(reinterpret_cast<Render::VulkanPointLight &>(pointLight));
     m_layer_renderer->removeDrawable(pointLight.drawable.get());
 #endif
 }
@@ -72,14 +72,14 @@ SPARK_API void Layer3D::removePointLight(PointLight &pointLight)
 void Layer3D::setSpotLight(glm::vec3 direction)
 {
 #ifdef SPARK_PLATFORM_VULKAN
-    reinterpret_cast<VulkanLayerRenderer3DLights *>(m_layer_renderer.get())->setSpotLight(direction);
+    reinterpret_cast<Render::VulkanLayerRenderer3DLights *>(m_layer_renderer.get())->setSpotLight(direction);
 #endif
 }
 
-SPARK_API void Layer3D::setWireframe(WireframeState state, glm::vec3 color)
+SPARK_API void Layer3D::setWireframe(Render::WireframeState state, glm::vec3 color)
 {
 #ifdef SPARK_PLATFORM_VULKAN
-    reinterpret_cast<VulkanLayerRenderer3DLights *>(m_layer_renderer.get())->setWireframe(state, color);
+    reinterpret_cast<Render::VulkanLayerRenderer3DLights *>(m_layer_renderer.get())->setWireframe(state, color);
 #endif
 }
 } // namespace Spark

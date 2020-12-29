@@ -3,7 +3,7 @@
 #include "platform/vulkan/pipeline/pipeline.h"
 #include "platform/vulkan/vertex/vertex2d.h"
 
-namespace Spark
+namespace Spark::Render
 {
 struct Transformation2D
 {
@@ -46,4 +46,4 @@ class VulkanPipeline2D : public VulkanPipeline
     VkDescriptorSetLayout m_transformationDescriptorSetLayout;
     VkDescriptorSetLayout m_textureDescriptorSetLayout;
 };
-} // namespace Spark
+} // namespace Spark::Render

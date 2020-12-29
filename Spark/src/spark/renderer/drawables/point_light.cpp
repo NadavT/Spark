@@ -5,7 +5,7 @@
     #include "platform/vulkan/renderer.h"
 #endif // SPARK_PLATFORM_VULKAN
 
-namespace Spark
+namespace Spark::Render
 {
 
 PointLight::PointLight(glm::vec3 position, glm::vec3 color, std::shared_ptr<Drawable3D> &drawable, bool isLit)
@@ -72,4 +72,4 @@ std::shared_ptr<PointLight> createPointLight(glm::vec3 position, glm::vec3 color
 #endif // SPARK_PLATFORM_VULKAN
 }
 
-} // namespace Spark
+} // namespace Spark::Render

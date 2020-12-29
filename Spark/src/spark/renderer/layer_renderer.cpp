@@ -2,7 +2,7 @@
 
 #include "spark/core/log.h"
 
-namespace Spark
+namespace Spark::Render
 {
 LayerRenderer::LayerRenderer()
     : m_drawables()
@@ -25,4 +25,4 @@ void LayerRenderer::removeDrawable(Drawable *drawable)
         m_drawables.erase(found_it);
     }
 }
-} // namespace Spark
+} // namespace Spark::Render

@@ -3,7 +3,7 @@
 #include "spark/core/log.h"
 #include "spark/utils/file.h"
 
-namespace Spark
+namespace Spark::Render
 {
 const std::string TRIANGLE_VERTEX_SHADER_PATH = "shaders/triangle_vert.spv";
 const std::string TRIANGLE_FRAGMENT_SHADER_PATH = "shaders/triangle_frag.spv";
@@ -55,4 +55,4 @@ void VulkanPipelineTriangle::recreate()
     vkDestroyShaderModule(m_context.m_device, vertexShader, VK_NULL_HANDLE);
     vkDestroyShaderModule(m_context.m_device, fragmentShader, VK_NULL_HANDLE);
 }
-} // namespace Spark
+} // namespace Spark::Render

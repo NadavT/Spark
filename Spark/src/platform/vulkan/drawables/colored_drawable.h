@@ -3,7 +3,7 @@
 
 #include <glm/glm.hpp>
 
-namespace Spark
+namespace Spark::Render
 {
 class VulkanColoredDrawable : public virtual VulkanDrawable
 {
@@ -23,4 +23,4 @@ class VulkanColoredDrawable : public virtual VulkanDrawable
     VulkanColoredDrawable &operator=(VulkanColoredDrawable &&other) noexcept;
     glm::vec3 m_color;
 };
-} // namespace Spark
+} // namespace Spark::Render

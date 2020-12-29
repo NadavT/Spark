@@ -6,7 +6,7 @@
 
 #include <algorithm>
 
-namespace Spark
+namespace Spark::Render
 {
 VulkanLayerRenderer3DLights::VulkanLayerRenderer3DLights(VulkanRenderer &renderer, Camera &camera)
     : m_renderer(renderer)
@@ -498,4 +498,4 @@ void VulkanLayerRenderer3DLights::createCommandBuffers()
         i++;
     }
 }
-} // namespace Spark
+} // namespace Spark::Render

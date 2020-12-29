@@ -5,7 +5,7 @@
 
 #include <vector>
 
-namespace Spark
+namespace Spark::Render
 {
 enum class LayerRendererType
 {
@@ -38,4 +38,4 @@ class LayerRenderer
   protected:
     std::vector<std::shared_ptr<Drawable>> m_drawables;
 };
-} // namespace Spark
+} // namespace Spark::Render

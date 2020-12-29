@@ -2,7 +2,7 @@
 
 #include "spark/renderer/drawables/point_light.h"
 
-namespace Spark
+namespace Spark::Render
 {
 struct VulkanPointLight : PointLight
 {
@@ -13,4 +13,4 @@ struct VulkanPointLight : PointLight
     virtual void setColor(glm::vec3 color);
 };
 
-} // namespace Spark
+} // namespace Spark::Render

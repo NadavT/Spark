@@ -7,10 +7,9 @@
 #include "spark/event/mouse_event.h"
 #include "spark/overlay/overlay.h"
 
-
 #include <vector>
 
-namespace Spark
+namespace Spark::Render
 {
 class VulkanOverlay : public Overlay
 {
@@ -42,4 +41,4 @@ class VulkanOverlay : public Overlay
 
     std::vector<VkCommandBuffer> m_commandBuffers;
 };
-} // namespace Spark
+} // namespace Spark::Render

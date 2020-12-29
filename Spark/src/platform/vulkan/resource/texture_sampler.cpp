@@ -2,7 +2,7 @@
 
 #include "spark/core/log.h"
 
-namespace Spark
+namespace Spark::Render
 {
 VulkanTextureSampler::VulkanTextureSampler(VulkanContext &context, const std::string &name)
     : Resource(name, ResourceType::internal)
@@ -37,4 +37,4 @@ VkSampler VulkanTextureSampler::getSampler() const
 {
     return m_textureSampler;
 }
-} // namespace Spark
+} // namespace Spark::Render

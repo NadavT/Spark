@@ -5,10 +5,9 @@
 #include "spark/renderer/camera.h"
 #include "spark/renderer/layer_renderer.h"
 
-
 #include <unordered_map>
 
-namespace Spark
+namespace Spark::Render
 {
 class VulkanLayerRenderer3D : public LayerRenderer
 {
@@ -45,4 +44,4 @@ class VulkanLayerRenderer3D : public LayerRenderer
 
     Camera &m_camera;
 };
-} // namespace Spark
+} // namespace Spark::Render

@@ -4,7 +4,7 @@
 #include "platform/vulkan/renderer.h"
 #include "spark/layer/layer.h"
 
-namespace Spark
+namespace Spark::Render
 {
 class VulkanTriangleLayer : public Layer
 {
@@ -26,4 +26,4 @@ class VulkanTriangleLayer : public Layer
 
     std::vector<VkCommandBuffer> m_commandBuffers;
 };
-} // namespace Spark
+} // namespace Spark::Render

@@ -5,9 +5,8 @@
 #include "spark/core/application.h"
 #include "spark/renderer/drawables/drawable.h"
 
-namespace Spark
+namespace Spark::Render
 {
-
 enum class VulkanDrawableType
 {
     Colored,
@@ -38,4 +37,4 @@ class VulkanDrawable : public virtual Drawable
   protected:
     VulkanDrawable() = default;
 };
-} // namespace Spark
+} // namespace Spark::Render

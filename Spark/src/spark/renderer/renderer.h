@@ -3,7 +3,7 @@
 #include "spark/core/core.h"
 #include "spark/core/window.h"
 
-namespace Spark
+namespace Spark::Render
 {
 class Renderer
 {
@@ -25,4 +25,4 @@ class Renderer
   public:
     static std::unique_ptr<Renderer> Create(const Window &window);
 };
-} // namespace Spark
+} // namespace Spark::Render

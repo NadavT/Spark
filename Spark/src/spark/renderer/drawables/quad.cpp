@@ -7,7 +7,7 @@
     #include "platform/vulkan/renderer.h"
 #endif // SPARK_PLATFORM_VULKAN
 
-namespace Spark
+namespace Spark::Render
 {
 Quad::Quad(glm::vec2 position, glm::vec2 scale)
     : Drawable2D(position, scale)
@@ -22,4 +22,4 @@ std::shared_ptr<Drawable2D> createQuad(glm::vec2 position, const Texture &textur
     return std::make_shared<VulkanQuad>(renderer, position, vulkanTexture, scale);
 #endif // SPARK_PLATFORM_VULKAN
 }
-} // namespace Spark
+} // namespace Spark::Render

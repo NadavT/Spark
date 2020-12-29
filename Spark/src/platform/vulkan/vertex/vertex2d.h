@@ -8,7 +8,7 @@
 #include <glm/glm.hpp>
 #include <glm/gtx/matrix_transform_2d.hpp>
 
-namespace Spark
+namespace Spark::Render
 {
 struct Vertex2D
 {
@@ -57,4 +57,4 @@ struct Vertex2D
 void createVertex2DBuffer(VulkanContext &context, VkBuffer &buffer, VkDeviceMemory &bufferMemory,
                           VkDeviceSize &verticesOffset, VkDeviceSize &indicesOffset,
                           const std::vector<Vertex2D> &bufferVertices, const std::vector<uint32_t> &bufferIndices);
-} // namespace Spark
+} // namespace Spark::Render

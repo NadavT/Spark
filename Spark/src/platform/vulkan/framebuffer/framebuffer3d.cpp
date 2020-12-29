@@ -1,6 +1,6 @@
 #include "framebuffer3d.h"
 
-namespace Spark
+namespace Spark::Render
 {
 VulkanFramebuffer3D::VulkanFramebuffer3D(VulkanContext &context, VkImageView renderTarget, bool clear, bool resolve)
     : VulkanFramebuffer(context, renderTarget, clear, resolve)
@@ -128,4 +128,4 @@ void VulkanFramebuffer3D::createSwapchainFramebuffers()
         }
     }
 }
-} // namespace Spark
+} // namespace Spark::Render

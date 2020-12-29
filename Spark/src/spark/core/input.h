@@ -6,6 +6,8 @@
 #include "spark/core/mouse_codes.h"
 #include "spark/core/window.h"
 
+#include <glm/glm.hpp>
+
 namespace Spark
 {
 class Input
@@ -20,7 +22,7 @@ class Input
     SPARK_API static bool IsKeyPressed(KeyCode key);
 
     SPARK_API static bool IsMouseButtonPressed(MouseCode button);
-    SPARK_API static std::pair<float, float> GetMousePosition();
+    SPARK_API static glm::vec2 GetMousePosition();
     SPARK_API static float GetMouseX();
     SPARK_API static float GetMouseY();
     SPARK_API static void BlockInput();
@@ -35,7 +37,7 @@ class Input
     virtual bool IsKeyPressedImpl(KeyCode key) = 0;
 
     virtual bool IsMouseButtonPressedImpl(MouseCode button) = 0;
-    virtual std::pair<float, float> GetMousePositionImpl() = 0;
+    virtual glm::vec2 GetMousePositionImpl() = 0;
     virtual float GetMouseXImpl() = 0;
     virtual float GetMouseYImpl() = 0;
     virtual void HideMouseImpl() = 0;

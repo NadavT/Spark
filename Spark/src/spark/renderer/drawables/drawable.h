@@ -4,7 +4,7 @@
 
 #include <glm/glm.hpp>
 
-namespace Spark
+namespace Spark::Render
 {
 class Drawable
 {
@@ -26,4 +26,4 @@ class Drawable
     glm::vec3 m_highlightColor;
     float m_highlightWidth;
 };
-} // namespace Spark
+} // namespace Spark::Render

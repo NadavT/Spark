@@ -7,7 +7,7 @@
 
 #include <memory>
 
-namespace Spark
+namespace Spark::Render
 {
 class Cube : public virtual Drawable3D
 {
@@ -25,4 +25,4 @@ class Cube : public virtual Drawable3D
 SPARK_API std::shared_ptr<Drawable3D> createCube(glm::vec3 position, const Texture &texture,
                                                  const Texture &specularTexture, glm::vec3 scale = glm::vec3(1.0));
 SPARK_API std::shared_ptr<Drawable3D> createCube(glm::vec3 position, glm::vec3, glm::vec3 scale = glm::vec3(1.0));
-} // namespace Spark
+} // namespace Spark::Render

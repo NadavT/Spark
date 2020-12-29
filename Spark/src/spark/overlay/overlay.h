@@ -4,7 +4,7 @@
 #include "spark/renderer/renderer.h"
 
 #ifndef IMGUI_API
-#define IMGUI_API SPARK_API
+    #define IMGUI_API SPARK_API
 #endif
 #include <imgui.h>
 
@@ -21,6 +21,6 @@ class Overlay : public Layer
     Overlay();
 
   public:
-    static std::unique_ptr<Overlay> Create(Renderer &renderer);
+    static std::unique_ptr<Overlay> Create(Render::Renderer &renderer);
 };
 } // namespace Spark

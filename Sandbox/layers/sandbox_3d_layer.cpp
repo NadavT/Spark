@@ -17,7 +17,7 @@ Sandbox3DLayer::Sandbox3DLayer()
     , m_previousRemoveLightIndex(0)
     , m_dirLightOn(true)
     , m_spotLightOn(true)
-    , m_wireframe(static_cast<int>(Spark::WireframeState::None))
+    , m_wireframe(static_cast<int>(Spark::Render::WireframeState::None))
     , m_nextCords{0, 0, 0}
     , m_dirLightDirection{-0.2f, -1.0f, -0.3f}
     , m_dirLightColor{1, 1, 1}
@@ -29,13 +29,13 @@ Sandbox3DLayer::Sandbox3DLayer()
     const Spark::Texture &texture = Spark::ResourceManager::loadTexture("cubeTexutre", "textures/container2.png");
     const Spark::Texture &specularTexture =
         Spark::ResourceManager::loadTexture("cubeTexutreSpecular", "textures/container2_specular.png");
-    m_drawables.push_back(std::move(Spark::createCube({0, 0, 0}, texture, specularTexture)));
-    addDrawable(std::dynamic_pointer_cast<Spark::Drawable>(m_drawables[0]));
+    m_drawables.push_back(std::move(Spark::Render::createCube({0, 0, 0}, texture, specularTexture)));
+    addDrawable(std::dynamic_pointer_cast<Spark::Render::Drawable>(m_drawables[0]));
     setDirLight({m_dirLightDirection[0], m_dirLightDirection[1], m_dirLightDirection[2]},
                 {m_dirLightColor[0], m_dirLightColor[1], m_dirLightColor[2]});
-    std::shared_ptr<Spark::Drawable3D> sphere =
-        Spark::createSphere({0, 0, -2.0f}, {0.3f, 0.3f, 0.3f}, 36, 18, {0.3f, 0.3f, 0.3f});
-    m_pointLights.push_back(Spark::createPointLight({0, 0, -2.0f}, {0, 1, 0}, sphere));
+    std::shared_ptr<Spark::Render::Drawable3D> sphere =
+        Spark::Render::createSphere({0, 0, -2.0f}, {0.3f, 0.3f, 0.3f}, 36, 18, {0.3f, 0.3f, 0.3f});
+    m_pointLights.push_back(Spark::Render::createPointLight({0, 0, -2.0f}, {0, 1, 0}, sphere));
     addPointLight(*(m_pointLights.back()));
     setSpotLight({m_spotLightColor[0], m_spotLightColor[1], m_spotLightColor[2]});
 }
@@ -64,27 +64,27 @@ void Sandbox3DLayer::OnUpdate(Spark::Time &diffTime)
 
     if (Spark::Input::IsKeyPressed(Spark::KeyCode::A))
     {
-        m_camera.moveDirection(Spark::CameraDirection::LEFT, diffTime);
+        m_camera.moveDirection(Spark::Render::CameraDirection::LEFT, diffTime);
     }
     if (Spark::Input::IsKeyPressed(Spark::KeyCode::D))
     {
-        m_camera.moveDirection(Spark::CameraDirection::RIGHT, diffTime);
+        m_camera.moveDirection(Spark::Render::CameraDirection::RIGHT, diffTime);
     }
     if (Spark::Input::IsKeyPressed(Spark::KeyCode::W))
     {
-        m_camera.moveDirection(Spark::CameraDirection::FORWARD, diffTime);
+        m_camera.moveDirection(Spark::Render::CameraDirection::FORWARD, diffTime);
     }
     if (Spark::Input::IsKeyPressed(Spark::KeyCode::S))
     {
-        m_camera.moveDirection(Spark::CameraDirection::BACKWARD, diffTime);
+        m_camera.moveDirection(Spark::Render::CameraDirection::BACKWARD, diffTime);
     }
     if (Spark::Input::IsKeyPressed(Spark::KeyCode::LeftShift))
     {
-        m_camera.moveDirection(Spark::CameraDirection::UP, diffTime);
+        m_camera.moveDirection(Spark::Render::CameraDirection::UP, diffTime);
     }
     if (Spark::Input::IsKeyPressed(Spark::KeyCode::LeftControl))
     {
-        m_camera.moveDirection(Spark::CameraDirection::DOWN, diffTime);
+        m_camera.moveDirection(Spark::Render::CameraDirection::DOWN, diffTime);
     }
 }
 
@@ -181,10 +181,10 @@ void Sandbox3DLayer::generateBoxAdder()
         SPARK_INFO("Adding box");
         const Spark::Texture *texture = Spark::ResourceManager::getTexture("cubeTexutre");
         const Spark::Texture *specularTexture = Spark::ResourceManager::getTexture("cubeTexutreSpecular");
-        std::shared_ptr<Spark::Drawable3D> newCube =
-            Spark::createCube({m_nextCords[0], m_nextCords[1], m_nextCords[2]}, *texture, *specularTexture);
+        std::shared_ptr<Spark::Render::Drawable3D> newCube =
+            Spark::Render::createCube({m_nextCords[0], m_nextCords[1], m_nextCords[2]}, *texture, *specularTexture);
         m_drawables.push_back(newCube);
-        addDrawable(std::dynamic_pointer_cast<Spark::Drawable>(m_drawables.back()));
+        addDrawable(std::dynamic_pointer_cast<Spark::Render::Drawable>(m_drawables.back()));
         m_addingBox = true;
         m_discardBox = true;
     }
@@ -394,12 +394,12 @@ void Sandbox3DLayer::generatePointLightAdder()
     if (ImGui::Button("add point light"))
     {
         SPARK_INFO("Adding point light");
-        std::shared_ptr<Spark::Drawable3D> drawable =
-            Spark::createSphere({m_nextPointLightCords[0], m_nextPointLightCords[1], m_nextPointLightCords[2]},
-                                {0.3f, 0.3f, 0.3f}, 36, 18, {0.3f, 0.3f, 0.3f});
-        m_pointLights.push_back(
-            Spark::createPointLight({m_nextPointLightCords[0], m_nextPointLightCords[1], m_nextPointLightCords[2]},
-                                    {m_pointLightColor[0], m_pointLightColor[1], m_pointLightColor[2]}, drawable));
+        std::shared_ptr<Spark::Render::Drawable3D> drawable =
+            Spark::Render::createSphere({m_nextPointLightCords[0], m_nextPointLightCords[1], m_nextPointLightCords[2]},
+                                        {0.3f, 0.3f, 0.3f}, 36, 18, {0.3f, 0.3f, 0.3f});
+        m_pointLights.push_back(Spark::Render::createPointLight(
+            {m_nextPointLightCords[0], m_nextPointLightCords[1], m_nextPointLightCords[2]},
+            {m_pointLightColor[0], m_pointLightColor[1], m_pointLightColor[2]}, drawable));
         addPointLight(*(m_pointLights.back()));
         m_addingPointLight = true;
         m_discardPointLight = true;
@@ -424,22 +424,22 @@ void Sandbox3DLayer::generatePointLightAdder()
         {
             removePointLight(*(m_pointLights.back().get()));
             m_pointLights.pop_back();
-            std::shared_ptr<Spark::Drawable3D> drawable = NULL;
+            std::shared_ptr<Spark::Render::Drawable3D> drawable = NULL;
             if (m_lightType == 0)
             {
-                drawable =
-                    Spark::createSphere({m_nextPointLightCords[0], m_nextPointLightCords[1], m_nextPointLightCords[2]},
-                                        {0.3f, 0.3f, 0.3f}, 36, 18, {0.3f, 0.3f, 0.3f});
+                drawable = Spark::Render::createSphere(
+                    {m_nextPointLightCords[0], m_nextPointLightCords[1], m_nextPointLightCords[2]}, {0.3f, 0.3f, 0.3f},
+                    36, 18, {0.3f, 0.3f, 0.3f});
             }
             else
             {
-                drawable =
-                    Spark::createCube({m_nextPointLightCords[0], m_nextPointLightCords[1], m_nextPointLightCords[2]},
-                                      {0.3f, 0.3f, 0.3f}, {0.3f, 0.3f, 0.3f});
+                drawable = Spark::Render::createCube(
+                    {m_nextPointLightCords[0], m_nextPointLightCords[1], m_nextPointLightCords[2]}, {0.3f, 0.3f, 0.3f},
+                    {0.3f, 0.3f, 0.3f});
             }
-            m_pointLights.push_back(
-                Spark::createPointLight({m_nextPointLightCords[0], m_nextPointLightCords[1], m_nextPointLightCords[2]},
-                                        {m_pointLightColor[0], m_pointLightColor[1], m_pointLightColor[2]}, drawable));
+            m_pointLights.push_back(Spark::Render::createPointLight(
+                {m_nextPointLightCords[0], m_nextPointLightCords[1], m_nextPointLightCords[2]},
+                {m_pointLightColor[0], m_pointLightColor[1], m_pointLightColor[2]}, drawable));
             addPointLight(*(m_pointLights.back()));
         }
         if (ImGui::Button("add"))
@@ -568,7 +568,7 @@ void Sandbox3DLayer::generateWireframeSetter()
     ImGui::SetNextItemWidth(100);
     if (ImGui::Combo("##wireframe type", &m_wireframe, "None\0Only\0Both\0"))
     {
-        setWireframe(static_cast<Spark::WireframeState>(m_wireframe),
+        setWireframe(static_cast<Spark::Render::WireframeState>(m_wireframe),
                      {m_wireframeColor[0], m_wireframeColor[1], m_wireframeColor[2]});
     }
     ImGui::SameLine();
@@ -581,7 +581,7 @@ void Sandbox3DLayer::generateWireframeSetter()
     {
         if (ImGui::ColorEdit3("color", m_wireframeColor.data()))
         {
-            setWireframe(static_cast<Spark::WireframeState>(m_wireframe),
+            setWireframe(static_cast<Spark::Render::WireframeState>(m_wireframe),
                          {m_wireframeColor[0], m_wireframeColor[1], m_wireframeColor[2]});
         }
         if (ImGui::Button("set"))
@@ -592,7 +592,7 @@ void Sandbox3DLayer::generateWireframeSetter()
         if (ImGui::Button("cancel"))
         {
             m_wireframeColor = m_beforeWireframeColor;
-            setWireframe(static_cast<Spark::WireframeState>(m_wireframe),
+            setWireframe(static_cast<Spark::Render::WireframeState>(m_wireframe),
                          {m_wireframeColor[0], m_wireframeColor[1], m_wireframeColor[2]});
             ImGui::CloseCurrentPopup();
         }

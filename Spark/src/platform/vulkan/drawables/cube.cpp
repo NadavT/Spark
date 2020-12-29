@@ -4,7 +4,7 @@
 
 #include "spark/core/application.h"
 
-namespace Spark
+namespace Spark::Render
 {
 
 const std::vector<Vertex3D> cube_vertices = {
@@ -124,4 +124,4 @@ void VulkanCube::moveCube(VulkanCube &other) noexcept
     m_verticesOffset = other.m_verticesOffset;
     m_indicesOffset = other.m_indicesOffset;
 }
-} // namespace Spark
+} // namespace Spark::Render

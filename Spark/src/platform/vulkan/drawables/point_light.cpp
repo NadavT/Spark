@@ -4,7 +4,7 @@
 
 #include "spark/core/application.h"
 
-namespace Spark
+namespace Spark::Render
 {
 VulkanPointLight::VulkanPointLight(glm::vec3 position, glm::vec3 color, std::shared_ptr<Drawable3D> &drawable,
                                    bool isLit)
@@ -32,4 +32,4 @@ void VulkanPointLight::setColor(glm::vec3 color)
     VulkanRenderer &renderer = reinterpret_cast<VulkanRenderer &>(Application::GetApp().GetRenderer());
     renderer.signalRecreationNeeded();
 }
-} // namespace Spark
+} // namespace Spark::Render

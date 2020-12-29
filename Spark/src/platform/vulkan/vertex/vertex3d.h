@@ -10,7 +10,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtx/hash.hpp>
 
-namespace Spark
+namespace Spark::Render
 {
 struct Vertex3D
 {
@@ -59,11 +59,11 @@ struct Vertex3D
 void createVertex3DBuffer(VulkanContext &context, VkBuffer &buffer, VkDeviceMemory &bufferMemory,
                           VkDeviceSize &verticesOffset, VkDeviceSize &indicesOffset,
                           const std::vector<Vertex3D> &bufferVertices, const std::vector<uint32_t> &bufferIndices);
-} // namespace Spark
+} // namespace Spark::Render
 
-template <> struct std::hash<Spark::Vertex3D>
+template <> struct std::hash<Spark::Render::Vertex3D>
 {
-    size_t operator()(Spark::Vertex3D const &vertex) const
+    size_t operator()(Spark::Render::Vertex3D const &vertex) const
     {
         return (std::hash<glm::vec3>()(vertex.pos)) ^ (std::hash<glm::vec2>()(vertex.texCoord) << 1);
     }

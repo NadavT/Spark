@@ -5,8 +5,7 @@
 #include "platform/vulkan/resource/texture_sampler.h"
 #include "platform/vulkan/vulkan_context.h"
 
-
-namespace Spark
+namespace Spark::Render
 {
 class VulkanTextureImage : public Resource
 {
@@ -22,4 +21,4 @@ class VulkanTextureImage : public Resource
     VkDeviceMemory m_textureImageMemory;
     VkImageView m_textureImageView;
 };
-} // namespace Spark
+} // namespace Spark::Render

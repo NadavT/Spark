@@ -4,10 +4,9 @@
 #include "platform/vulkan/renderer.h"
 #include "spark/renderer/layer_renderer.h"
 
-
 #include <unordered_map>
 
-namespace Spark
+namespace Spark::Render
 {
 class VulkanLayerRenderer2D : public LayerRenderer
 {
@@ -42,4 +41,4 @@ class VulkanLayerRenderer2D : public LayerRenderer
     bool m_isAttached;
     bool m_isRecreationNeeded;
 };
-} // namespace Spark
+} // namespace Spark::Render

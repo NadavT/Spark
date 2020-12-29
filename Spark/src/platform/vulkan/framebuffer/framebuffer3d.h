@@ -2,7 +2,7 @@
 
 #include "platform/vulkan/framebuffer/framebuffer.h"
 
-namespace Spark
+namespace Spark::Render
 {
 class VulkanFramebuffer3D : public VulkanFramebuffer
 {
@@ -28,4 +28,4 @@ class VulkanFramebuffer3D : public VulkanFramebuffer
     VkDeviceMemory m_depthImageMemory;
     VkImageView m_depthImageView;
 };
-} // namespace Spark
+} // namespace Spark::Render

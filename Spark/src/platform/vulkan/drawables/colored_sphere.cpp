@@ -4,7 +4,7 @@
 
 #include "spark/core/application.h"
 
-namespace Spark
+namespace Spark::Render
 {
 VulkanColoredSphere::VulkanColoredSphere(VulkanRenderer &renderer, glm::vec3 position, int sectors, int stacks,
                                          glm::vec3 color, glm::vec3 scale)
@@ -14,4 +14,4 @@ VulkanColoredSphere::VulkanColoredSphere(VulkanRenderer &renderer, glm::vec3 pos
     , Drawable3D(position, scale)
 {
 }
-} // namespace Spark
+} // namespace Spark::Render

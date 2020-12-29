@@ -6,7 +6,7 @@
 #include <vector>
 #include <vulkan/vulkan.h>
 
-namespace Spark
+namespace Spark::Render
 {
 struct QueueFamilyIndices
 {
@@ -113,4 +113,4 @@ class VulkanContext
 
     VkDescriptorPool m_descriptorPool;
 };
-} // namespace Spark
+} // namespace Spark::Render

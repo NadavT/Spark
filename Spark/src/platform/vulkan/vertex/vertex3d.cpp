@@ -1,6 +1,6 @@
 #include "vertex3d.h"
 
-namespace Spark
+namespace Spark::Render
 {
 void createVertex3DBuffer(VulkanContext &context, VkBuffer &buffer, VkDeviceMemory &bufferMemory,
                           VkDeviceSize &verticesOffset, VkDeviceSize &indicesOffset,
@@ -34,4 +34,4 @@ void createVertex3DBuffer(VulkanContext &context, VkBuffer &buffer, VkDeviceMemo
     vkDestroyBuffer(context.m_device, stagingBuffer, nullptr);
     vkFreeMemory(context.m_device, stagingBufferMemory, nullptr);
 }
-} // namespace Spark
+} // namespace Spark::Render

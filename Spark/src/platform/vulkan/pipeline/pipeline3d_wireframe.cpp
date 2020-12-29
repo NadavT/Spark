@@ -3,7 +3,7 @@
 #include "spark/core/log.h"
 #include "spark/utils/file.h"
 
-namespace Spark
+namespace Spark::Render
 {
 const std::string VERTEX_3D_WIREFRAME_SHADER_PATH = "shaders/shader3dWireframe_vert.spv";
 const std::string FRAGMENT_3D_WIREFRAME_SHADER_PATH = "shaders/shader3dWireframe_frag.spv";
@@ -150,4 +150,4 @@ void VulkanPipeline3DWireframe::createGraphicsPipeline()
     vkDestroyShaderModule(m_context.m_device, fragmentShader, VK_NULL_HANDLE);
 }
 
-} // namespace Spark
+} // namespace Spark::Render

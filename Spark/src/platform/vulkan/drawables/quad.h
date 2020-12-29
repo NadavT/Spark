@@ -7,7 +7,7 @@
 
 #include "spark/renderer/drawables/quad.h"
 
-namespace Spark
+namespace Spark::Render
 {
 class VulkanQuad : public virtual Quad, public virtual VulkanDrawable
 {
@@ -38,4 +38,4 @@ class VulkanQuad : public virtual Quad, public virtual VulkanDrawable
     VkDeviceSize m_indicesOffset;
     const VulkanTexture &m_texture;
 };
-} // namespace Spark
+} // namespace Spark::Render

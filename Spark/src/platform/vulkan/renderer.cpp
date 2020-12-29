@@ -10,7 +10,7 @@
 #include "platform/vulkan/pipeline/pipeline_triangle.h"
 #include "spark/core/log.h"
 
-namespace Spark
+namespace Spark::Render
 {
 static VkPipelineStageFlags wait_stage = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
 
@@ -613,4 +613,4 @@ void VulkanRenderer::fillResolveCommandBuffers()
         }
     }
 }
-} // namespace Spark
+} // namespace Spark::Render

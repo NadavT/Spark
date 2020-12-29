@@ -10,7 +10,7 @@
 
 #include "spark/event/keyboard_event.h"
 
-namespace Spark
+namespace Spark::Render
 {
 class VulkanLayer2D : public Layer
 {
@@ -34,4 +34,4 @@ class VulkanLayer2D : public Layer
     std::unique_ptr<VulkanQuad> m_quad;
     std::unique_ptr<VulkanQuad> m_quad2;
 };
-} // namespace Spark
+} // namespace Spark::Render

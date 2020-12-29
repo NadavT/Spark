@@ -11,7 +11,7 @@
 
 #include <unordered_map>
 
-namespace Spark
+namespace Spark::Render
 {
 class VulkanLayerRenderer3DLights : public LayerRenderer
 {
@@ -77,4 +77,4 @@ class VulkanLayerRenderer3DLights : public LayerRenderer
     WireframeState m_wireframe;
     glm::vec3 m_wireframeColor;
 };
-} // namespace Spark
+} // namespace Spark::Render

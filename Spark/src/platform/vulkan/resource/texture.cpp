@@ -1,6 +1,6 @@
 #include "texture.h"
 
-namespace Spark
+namespace Spark::Render
 {
 VulkanTexture::VulkanTexture(const std::string &name, const VulkanTextureImage &image,
                              const VulkanTextureSampler &sampler)
@@ -23,4 +23,4 @@ const VulkanTextureSampler &VulkanTexture::getSampler() const
 {
     return m_sampler;
 }
-} // namespace Spark
+} // namespace Spark::Render

@@ -2,9 +2,8 @@
 
 #include <glm/gtc/matrix_transform.hpp>
 
-namespace Spark
+namespace Spark::Render
 {
-
 Drawable3D::Drawable3D(glm::vec3 position, glm::vec3 scale)
     : Drawable()
     , m_position(position)
@@ -36,5 +35,4 @@ glm::mat4 Drawable3D::getTransformation()
 {
     return glm::translate(glm::scale(glm::mat4(1), m_scale), m_position / m_scale);
 }
-
-} // namespace Spark
+} // namespace Spark::Render

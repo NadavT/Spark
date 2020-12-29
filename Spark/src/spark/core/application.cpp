@@ -26,12 +26,13 @@ Application::Application()
     m_window = Window::Create();
     m_window->SetEventCallback(SPARK_BIND_EVENT_FN(Application::OnEvent));
 
-    m_renderer = Renderer::Create(GetWindow());
+    m_renderer = Render::Renderer::Create(GetWindow());
 
     Input::Init(*this);
     ResourceManager::Init();
 
-    m_testLayer = std::make_unique<VulkanTriangleLayer>(reinterpret_cast<VulkanRenderer &>(*m_renderer));
+    m_testLayer =
+        std::make_unique<Render::VulkanTriangleLayer>(reinterpret_cast<Render::VulkanRenderer &>(*m_renderer));
 
     m_overlay = Overlay::Create(*m_renderer);
     m_overlay->OnAttach();
@@ -195,7 +196,7 @@ const Window &Application::GetWindow() const
     return *m_window;
 }
 
-Renderer &Application::GetRenderer() const
+Render::Renderer &Application::GetRenderer() const
 {
     SPARK_CORE_ASSERT(m_app != nullptr, "Renderer wasn't initialized");
     return *m_renderer;

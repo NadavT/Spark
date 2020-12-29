@@ -4,7 +4,7 @@
 #include "platform/vulkan/renderer.h"
 #include "platform/vulkan/vertex/vertex3d.h"
 
-namespace Spark
+namespace Spark::Render
 {
 class VulkanTexturedCube : public virtual VulkanCube, public virtual VulkanTexturedDrawable
 {
@@ -12,4 +12,4 @@ class VulkanTexturedCube : public virtual VulkanCube, public virtual VulkanTextu
     VulkanTexturedCube(VulkanRenderer &renderer, glm::vec3 position, const VulkanTexture &texture,
                        const VulkanTexture &specularTexture, glm::vec3 scale = glm::vec3(1.0));
 };
-} // namespace Spark
+} // namespace Spark::Render

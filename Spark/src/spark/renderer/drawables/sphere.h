@@ -7,7 +7,7 @@
 
 #include <memory>
 
-namespace Spark
+namespace Spark::Render
 {
 class Sphere : public virtual Drawable3D
 {
@@ -30,4 +30,4 @@ SPARK_API std::shared_ptr<Drawable3D> createSphere(glm::vec3 position, const Tex
                                                    const Texture &specularTexture, glm::vec3 scale = glm::vec3(1.0));
 SPARK_API std::shared_ptr<Drawable3D> createSphere(glm::vec3 position, glm::vec3 color, int sectors = 36,
                                                    int stacks = 18, glm::vec3 scale = glm::vec3(1.0));
-} // namespace Spark
+} // namespace Spark::Render

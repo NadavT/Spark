@@ -21,23 +21,23 @@ bool WindowsInput::IsMouseButtonPressedImpl(MouseCode button)
     return state == GLFW_PRESS;
 }
 
-std::pair<float, float> WindowsInput::GetMousePositionImpl()
+glm::vec2 WindowsInput::GetMousePositionImpl()
 {
     double x, y;
     glfwGetCursorPos(static_cast<GLFWwindow *>(m_window.GetNativeWindow()), &x, &y);
-    return std::pair<float, float>(static_cast<float>(x), static_cast<float>(y));
+    return {static_cast<float>(x), static_cast<float>(y)};
 }
 
 float WindowsInput::GetMouseXImpl()
 {
     auto pos = GetMousePositionImpl();
-    return pos.first;
+    return pos.x;
 }
 
 float WindowsInput::GetMouseYImpl()
 {
     auto pos = GetMousePositionImpl();
-    return pos.second;
+    return pos.y;
 }
 
 void WindowsInput::HideMouseImpl()

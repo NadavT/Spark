@@ -2,7 +2,7 @@
 
 #include "drawable.h"
 
-namespace Spark
+namespace Spark::Render
 {
 class Drawable2D : public virtual Drawable
 {
@@ -20,4 +20,4 @@ class Drawable2D : public virtual Drawable
     glm::vec2 m_position;
     glm::vec2 m_scale;
 };
-} // namespace Spark
+} // namespace Spark::Render

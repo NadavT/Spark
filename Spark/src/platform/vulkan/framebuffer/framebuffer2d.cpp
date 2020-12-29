@@ -2,7 +2,7 @@
 
 #include <array>
 
-namespace Spark
+namespace Spark::Render
 {
 VulkanFramebuffer2D::VulkanFramebuffer2D(VulkanContext &context, VkImageView renderTarget, bool clear, bool resolve)
     : VulkanFramebuffer(context, renderTarget, clear, resolve)
@@ -74,4 +74,4 @@ void VulkanFramebuffer2D::createSwapchainFramebuffers()
         }
     }
 }
-} // namespace Spark
+} // namespace Spark::Render

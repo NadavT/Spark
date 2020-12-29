@@ -1,7 +1,7 @@
 #include "layer_renderer_3d.h"
 #include "platform/vulkan/drawables/textured_cube.h"
 
-namespace Spark
+namespace Spark::Render
 {
 VulkanLayerRenderer3D::VulkanLayerRenderer3D(VulkanRenderer &renderer, Camera &camera)
     : m_renderer(renderer)
@@ -212,4 +212,4 @@ void VulkanLayerRenderer3D::createCommandBuffers()
         i++;
     }
 }
-} // namespace Spark
+} // namespace Spark::Render

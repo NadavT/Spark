@@ -8,7 +8,7 @@
     #include "platform/vulkan/renderer.h"
 #endif // SPARK_PLATFORM_VULKAN
 
-namespace Spark
+namespace Spark::Render
 {
 Cube::Cube(glm::vec3 position, glm::vec3 scale)
     : Drawable3D(position, scale)
@@ -33,4 +33,4 @@ std::shared_ptr<Drawable3D> createCube(glm::vec3 position, glm::vec3 color, glm:
     return std::make_shared<VulkanColoredCube>(renderer, position, color, scale);
 #endif // SPARK_PLATFORM_VULKAN
 }
-} // namespace Spark
+} // namespace Spark::Render

@@ -3,7 +3,7 @@
 #include "spark/core/log.h"
 #include "spark/utils/file.h"
 
-namespace Spark
+namespace Spark::Render
 {
 const std::string VERTEX_3D_SHADER_PATH = "shaders/shader3dLights_vert.spv";
 const std::string FRAGMENT_3D_COLOR_SHADER_PATH = "shaders/shader3dLights_frag_color.spv";
@@ -429,4 +429,4 @@ void VulkanPipeline3DLights::updateTextureDescriptorSets(unsigned int amount,
                            0, nullptr);
 }
 
-} // namespace Spark
+} // namespace Spark::Render

@@ -7,4 +7,5 @@ set(SANDBOX_SOURCE
     )
 
 add_executable(sandbox ${SANDBOX_SOURCE})
+set_property(TARGET sandbox PROPERTY CXX_STANDARD 17)
 target_link_libraries(sandbox PRIVATE spark)

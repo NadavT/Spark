@@ -1,6 +1,6 @@
 #include "camera.h"
 
-namespace Spark
+namespace Spark::Render
 {
 Camera::Camera(glm::vec3 position, glm::vec3 up, float yaw, float pitch)
     : m_position(position)
@@ -99,4 +99,4 @@ void Camera::updateCameraVectors()
                                          // look up or down which results in slower movement.
     m_up = glm::normalize(glm::cross(m_right, m_front));
 }
-} // namespace Spark
+} // namespace Spark::Render

@@ -31,7 +31,7 @@ bool Input::IsMouseButtonPressed(MouseCode button)
     return !s_blockInput && s_input->IsMouseButtonPressedImpl(button);
 }
 
-std::pair<float, float> Input::GetMousePosition()
+glm::vec2 Input::GetMousePosition()
 {
     return s_input->GetMousePositionImpl();
 }

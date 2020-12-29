@@ -2,7 +2,7 @@
 
 #include "platform/vulkan/framebuffer/framebuffer.h"
 
-namespace Spark
+namespace Spark::Render
 {
 class VulkanFramebuffer2D : public VulkanFramebuffer
 {
@@ -18,4 +18,4 @@ class VulkanFramebuffer2D : public VulkanFramebuffer
     void createRenderPass();
     void createSwapchainFramebuffers();
 };
-} // namespace Spark
+} // namespace Spark::Render

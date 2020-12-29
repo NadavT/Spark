@@ -1,6 +1,6 @@
 #include "quad.h"
 
-namespace Spark
+namespace Spark::Render
 {
 const std::vector<Vertex2D> quad_vertices = {
     {{-0.5f, -0.5f}, {0.0f, 1.0f, 0.0f}, {0.0f, 0.0f}},
@@ -107,4 +107,4 @@ void VulkanQuad::moveQuad(VulkanQuad &other) noexcept
     m_verticesOffset = other.m_verticesOffset;
     m_indicesOffset = other.m_indicesOffset;
 }
-} // namespace Spark
+} // namespace Spark::Render

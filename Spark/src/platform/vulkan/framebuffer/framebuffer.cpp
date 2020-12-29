@@ -1,6 +1,6 @@
 #include "framebuffer.h"
 
-namespace Spark
+namespace Spark::Render
 {
 VulkanFramebuffer::VulkanFramebuffer(VulkanContext &context, VkImageView renderTarget, bool clear, bool resolve)
     : m_context(context)
@@ -136,4 +136,4 @@ std::vector<VkImageView> VulkanFramebuffer::getBasicFramebufferAttachments(VkIma
 
     return attachments;
 }
-} // namespace Spark
+} // namespace Spark::Render

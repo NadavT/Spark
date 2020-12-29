@@ -6,7 +6,7 @@
 
 #include "spark/renderer/drawables/sphere.h"
 
-namespace Spark
+namespace Spark::Render
 {
 class VulkanSphere : public virtual Sphere, public virtual VulkanDrawable
 {
@@ -39,4 +39,4 @@ class VulkanSphere : public virtual Sphere, public virtual VulkanDrawable
     std::vector<Vertex3D> m_vertices;
     std::vector<uint32_t> m_indices;
 };
-} // namespace Spark
+} // namespace Spark::Render

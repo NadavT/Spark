@@ -34,7 +34,7 @@ class Application
     SPARK_API virtual void generateOverlay();
 
     const Window &GetWindow() const;
-    Renderer &GetRenderer() const;
+    Render::Renderer &GetRenderer() const;
 
   private:
     void Render();
@@ -45,7 +45,7 @@ class Application
     static Application *m_app;
 
     std::unique_ptr<Window> m_window;
-    std::unique_ptr<Renderer> m_renderer;
+    std::unique_ptr<Render::Renderer> m_renderer;
     bool m_shouldClose = false;
     bool m_minimized = false;
     LayerStack m_layerStack;

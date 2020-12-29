@@ -3,7 +3,7 @@
 #include "platform/vulkan/resource/texture.h"
 #include "platform/vulkan/resource/texture_sampler.h"
 
-namespace Spark
+namespace Spark::Render
 {
 class VulkanTexturedDrawable : public virtual VulkanDrawable
 {
@@ -24,4 +24,4 @@ class VulkanTexturedDrawable : public virtual VulkanDrawable
     const VulkanTexture &m_texture;
     const VulkanTexture &m_specularTexture;
 };
-} // namespace Spark
+} // namespace Spark::Render

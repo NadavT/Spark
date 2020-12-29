@@ -1,5 +1,5 @@
 #include "colored_drawable.h"
-namespace Spark
+namespace Spark::Render
 {
 VulkanColoredDrawable::VulkanColoredDrawable(glm::vec3 color)
     : m_color(color)
@@ -41,4 +41,4 @@ VulkanDrawableType VulkanColoredDrawable::getDrawableType() const
 {
     return VulkanDrawableType::Colored;
 }
-} // namespace Spark
+} // namespace Spark::Render

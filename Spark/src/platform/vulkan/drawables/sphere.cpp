@@ -4,7 +4,7 @@
 
 #include "spark/core/application.h"
 
-namespace Spark
+namespace Spark::Render
 {
 
 VulkanSphere::VulkanSphere(VulkanRenderer &renderer, glm::vec3 position, int sectors, int stacks, glm::vec3 scale)
@@ -163,4 +163,4 @@ void VulkanSphere::moveSphere(VulkanSphere &other) noexcept
     m_verticesOffset = other.m_verticesOffset;
     m_indicesOffset = other.m_indicesOffset;
 }
-} // namespace Spark
+} // namespace Spark::Render

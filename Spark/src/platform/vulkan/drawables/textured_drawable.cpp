@@ -1,5 +1,5 @@
 #include "textured_drawable.h"
-namespace Spark
+namespace Spark::Render
 {
 VulkanTexturedDrawable::VulkanTexturedDrawable(const VulkanTexture &texture, const VulkanTexture &specularTexture)
     : m_texture(texture)
@@ -43,4 +43,4 @@ VulkanDrawableType VulkanTexturedDrawable::getDrawableType() const
 {
     return VulkanDrawableType::Textured;
 }
-} // namespace Spark
+} // namespace Spark::Render

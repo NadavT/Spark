@@ -11,7 +11,7 @@
 #include <array>
 #include <vector>
 
-namespace Spark
+namespace Spark::Render
 {
 class VulkanRenderer : public Renderer
 {
@@ -90,4 +90,4 @@ class VulkanRenderer : public Renderer
     std::vector<VkCommandBuffer> m_clearCommandBuffers;
     std::vector<VkCommandBuffer> m_resolveCommandBuffers;
 };
-} // namespace Spark
+} // namespace Spark::Render

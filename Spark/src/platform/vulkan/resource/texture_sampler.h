@@ -4,7 +4,7 @@
 
 #include "platform/vulkan/vulkan_context.h"
 
-namespace Spark
+namespace Spark::Render
 {
 class VulkanTextureSampler : public Resource
 {
@@ -18,4 +18,4 @@ class VulkanTextureSampler : public Resource
     VulkanContext &m_context;
     VkSampler m_textureSampler;
 };
-} // namespace Spark
+} // namespace Spark::Render

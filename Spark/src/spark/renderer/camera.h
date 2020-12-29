@@ -7,7 +7,7 @@
 
 #include "spark/core/time.h"
 
-namespace Spark
+namespace Spark::Render
 {
 enum class CameraDirection
 {
@@ -56,4 +56,4 @@ class Camera
     float m_sensitivity;
     float m_zoom;
 };
-} // namespace Spark
+} // namespace Spark::Render

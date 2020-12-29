@@ -17,7 +17,7 @@ const bool enableValidationLayers = false;
 
 const bool enableMultisampling = true;
 
-namespace Spark
+namespace Spark::Render
 {
 static VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
                                                     VkDebugUtilsMessageTypeFlagsEXT messageType,
@@ -958,4 +958,4 @@ void VulkanContext::copyBufferToImage(VkBuffer buffer, VkImage image, uint32_t w
 
     endSingleTimeCommands(commandBuffer);
 }
-} // namespace Spark
+} // namespace Spark::Render

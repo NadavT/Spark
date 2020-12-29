@@ -15,7 +15,7 @@ class WindowsInput : public Input
     virtual bool IsKeyPressedImpl(KeyCode key);
 
     virtual bool IsMouseButtonPressedImpl(MouseCode button);
-    virtual std::pair<float, float> GetMousePositionImpl();
+    virtual glm::vec2 GetMousePositionImpl();
     virtual float GetMouseXImpl();
     virtual float GetMouseYImpl();
     virtual void HideMouseImpl();

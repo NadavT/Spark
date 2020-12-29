@@ -14,5 +14,5 @@ class Sandbox2DLayer : public Spark::Layer2D
 
   private:
     int counter;
-    std::vector<std::shared_ptr<Spark::Drawable>> m_quads;
+    std::vector<std::shared_ptr<Spark::Render::Drawable>> m_quads;
 };

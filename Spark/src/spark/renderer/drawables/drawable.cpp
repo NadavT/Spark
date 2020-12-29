@@ -1,6 +1,6 @@
 #include "drawable.h"
 
-namespace Spark
+namespace Spark::Render
 {
 Drawable::Drawable()
     : m_highlight(false)
@@ -43,4 +43,4 @@ void Drawable::setHighlightWidth(float width)
 {
     m_highlightWidth = width;
 }
-} // namespace Spark
+} // namespace Spark::Render

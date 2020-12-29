@@ -3,9 +3,8 @@
 #include "platform/vulkan/pipeline/pipeline.h"
 #include "platform/vulkan/vertex/vertex3d.h"
 
-namespace Spark
+namespace Spark::Render
 {
-
 struct Transformation3DOutline
 {
     glm::mat4 model;
@@ -47,4 +46,4 @@ class VulkanPipeline3DOutline : public VulkanPipeline
     VkPipelineLayout m_pipelineLayout;
     VkDescriptorSetLayout m_transformationDescriptorSetLayout;
 };
-} // namespace Spark
+} // namespace Spark::Render

@@ -2,7 +2,7 @@
 
 #include "platform/vulkan/pipeline/pipeline.h"
 
-namespace Spark
+namespace Spark::Render
 {
 class VulkanPipelineTriangle : public VulkanPipeline
 {
@@ -16,4 +16,4 @@ class VulkanPipelineTriangle : public VulkanPipeline
   private:
     VkPipelineLayout m_pipelineLayout;
 };
-} // namespace Spark
+} // namespace Spark::Render
