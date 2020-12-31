@@ -19,8 +19,11 @@
 //----------INPUTS----------
 #include "spark/core/input.h"
 
-//---------DRAWABLES--------
+//---------RESOURCES--------
 #include "spark/resource/resource_manager.h"
+
+//----------OBJECTS---------
+#include "spark/objects/object.h"
 
 //---------DRAWABLES--------
 #include "spark/renderer/drawables/cube.h"
@@ -29,3 +32,9 @@
 #include "spark/renderer/drawables/drawable3d.h"
 #include "spark/renderer/drawables/quad.h"
 #include "spark/renderer/drawables/sphere.h"
+
+//---------PHYSICS----------
+#include "spark/physics/bounding/sphere_bounding.h"
+#include "spark/physics/object3d.h"
+#include "spark/physics/ray_casting.h"
+#include "spark/physics/sphere.h"

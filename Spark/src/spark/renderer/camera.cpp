@@ -28,14 +28,19 @@ Camera::Camera(float posX, float posY, float posZ, float upX, float upY, float u
     updateCameraVectors();
 }
 
-glm::mat4 Camera::getViewMatrix()
+glm::mat4 Camera::getViewMatrix() const
 {
     return glm::lookAt(m_position, m_position + m_front, m_up);
 }
 
-float Camera::getZoom()
+float Camera::getZoom() const
 {
     return m_zoom;
+}
+
+glm::vec3 Camera::getPosition() const
+{
+    return m_position;
 }
 
 void Camera::moveDirection(CameraDirection direction, Time deltaTime)

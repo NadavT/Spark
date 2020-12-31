@@ -165,10 +165,19 @@ bool Sandbox3DLayer::handleMousePressed(Spark::MouseButtonPressedEvent &e)
     switch (e.GetMouseButton())
     {
     case Spark::MouseCode::ButtonLeft:
-        Spark::Input::HideMouse();
-        m_focused = true;
-        io.ConfigFlags |= ImGuiConfigFlags_NoMouse;
-        return true;
+        if (!m_focused)
+        {
+            Spark::Input::HideMouse();
+            Spark::Physics::Ray3D test = Spark::Physics::getMouseRay(m_camera);
+            std::shared_ptr<Spark::Physics::Object3D> phySphere =
+                std::make_shared<Spark::Physics::Sphere>(m_pointLights.back()->getPosition(), 0.15f);
+            Spark::Object3D sphere = Spark::Object3D(m_pointLights.back()->drawable, phySphere);
+            const Spark::Physics::Object3DBounding &bounding = phySphere->getBoundingObject();
+            SPARK_INFO("Intersect: {}", Spark::Physics::isRayIntersects(test, bounding));
+            m_focused = true;
+            io.ConfigFlags |= ImGuiConfigFlags_NoMouse;
+            return true;
+        }
     default:
         return false;
     }
