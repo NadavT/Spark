@@ -10,12 +10,11 @@ namespace Spark
 class Object3D
 {
   public:
-    SPARK_API Object3D(std::shared_ptr<Render::Drawable3D> &drawable, std::shared_ptr<Physics::Object3D> &physicObject);
     SPARK_API virtual ~Object3D() = default;
 
-    inline virtual Render::Drawable3D &getDrawable() const
+    inline virtual std::shared_ptr<Render::Drawable3D> getDrawable()
     {
-        return *m_drawable;
+        return m_drawable;
     };
     inline virtual Physics::Object3D &getPhysicsObject() const
     {
@@ -27,8 +26,11 @@ class Object3D
     SPARK_API virtual void setPosition(glm::vec3 position);
     SPARK_API virtual void setScale(glm::vec3 scale);
 
+  protected:
+    SPARK_API Object3D(std::shared_ptr<Render::Drawable3D> &drawable, std::unique_ptr<Physics::Object3D> physicObject);
+
   private:
     std::shared_ptr<Render::Drawable3D> m_drawable;
-    std::shared_ptr<Physics::Object3D> m_physicsObject;
+    std::unique_ptr<Physics::Object3D> m_physicsObject;
 };
 } // namespace Spark

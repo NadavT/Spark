@@ -13,6 +13,8 @@ class Object3D
   public:
     SPARK_API virtual ~Object3D() = default;
 
+    SPARK_API virtual glm::vec3 getPosition() const;
+
     SPARK_API virtual void move(glm::vec3 position);
     SPARK_API virtual void scale(glm::vec3 scale) = 0;
     SPARK_API virtual void setPosition(glm::vec3 position);

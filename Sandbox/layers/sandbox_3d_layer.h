@@ -14,6 +14,9 @@ class Sandbox3DLayer : public Spark::Layer3D
     virtual void generateOverlay();
 
   private:
+    void run();
+    void pause();
+
     bool handleMouseMoved(Spark::MouseMovedEvent &e);
     bool handleKeyPressed(Spark::KeyPressedEvent &e);
     bool handleMousePressed(Spark::MouseButtonPressedEvent &e);
@@ -31,7 +34,7 @@ class Sandbox3DLayer : public Spark::Layer3D
     std::vector<std::shared_ptr<Spark::Render::Drawable3D>> m_drawables;
     std::vector<std::shared_ptr<Spark::Render::PointLight>> m_pointLights;
     Spark::Render::Camera m_camera;
-    bool m_focused;
+    bool m_inEditor;
     int m_lightType;
     bool m_addingBox;
     bool m_discardBox;

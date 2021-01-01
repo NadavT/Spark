@@ -6,9 +6,8 @@
 
 namespace Spark::Render
 {
-VulkanPointLight::VulkanPointLight(glm::vec3 position, glm::vec3 color, std::shared_ptr<Drawable3D> &drawable,
-                                   bool isLit)
-    : PointLight(position, color, drawable, isLit)
+VulkanPointLight::VulkanPointLight(glm::vec3 position, glm::vec3 color, std::unique_ptr<Object3D> object, bool isLit)
+    : PointLight(position, color, std::move(object), isLit)
 {
 }
 

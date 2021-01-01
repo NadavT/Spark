@@ -166,6 +166,7 @@ const Application &Application::GetApp()
 
 void Application::generateOverlay()
 {
+#ifdef TEST_LAYER
     ImGuiIO &io = ImGui::GetIO();
 
     ImGui::SetNextWindowPos(ImVec2(0, 0), ImGuiCond_Always);
@@ -188,6 +189,7 @@ void Application::generateOverlay()
 
     ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / io.Framerate, io.Framerate);
     ImGui::End();
+#endif
 }
 
 const Window &Application::GetWindow() const

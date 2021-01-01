@@ -54,7 +54,7 @@ void Layer3D::setDirLight(glm::vec3 direction, glm::vec3 color)
 SPARK_API void Layer3D::addPointLight(Render::PointLight &pointLight)
 {
 #ifdef SPARK_PLATFORM_VULKAN
-    addDrawable(std::dynamic_pointer_cast<Render::Drawable>(pointLight.drawable));
+    addDrawable(std::dynamic_pointer_cast<Render::Drawable>(pointLight.getDrawable()));
     reinterpret_cast<Render::VulkanLayerRenderer3DLights *>(m_layer_renderer.get())
         ->addPointLight(reinterpret_cast<Render::VulkanPointLight &>(pointLight));
 #endif
@@ -65,7 +65,7 @@ SPARK_API void Layer3D::removePointLight(Render::PointLight &pointLight)
 #ifdef SPARK_PLATFORM_VULKAN
     reinterpret_cast<Render::VulkanLayerRenderer3DLights *>(m_layer_renderer.get())
         ->removePointLight(reinterpret_cast<Render::VulkanPointLight &>(pointLight));
-    m_layer_renderer->removeDrawable(pointLight.drawable.get());
+    m_layer_renderer->removeDrawable(pointLight.getDrawable().get());
 #endif
 }
 

@@ -445,10 +445,10 @@ void VulkanLayerRenderer3DLights::createCommandBuffers()
                 else if (drawable->getDrawableType() == VulkanDrawableType::Colored)
                 {
                     VulkanColoredDrawable *coloredDrawable = dynamic_cast<VulkanColoredDrawable *>(drawable);
-                    auto pointLight = std::find_if(m_pointLights.begin(), m_pointLights.end(),
-                                                   [&drawable](const VulkanPointLight *x) {
-                                                       return x->drawable.get() == dynamic_cast<Drawable3D *>(drawable);
-                                                   });
+                    auto pointLight =
+                        std::find_if(m_pointLights.begin(), m_pointLights.end(), [&drawable](VulkanPointLight *x) {
+                            return x->getDrawable().get() == dynamic_cast<Drawable3D *>(drawable);
+                        });
                     if (pointLight != m_pointLights.end() && (*pointLight)->isLit())
                     {
                         pushConsts.calcLight = false;

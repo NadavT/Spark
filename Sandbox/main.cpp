@@ -9,14 +9,19 @@ class Sandbox : public Spark::Application
   public:
     Sandbox()
         : m_layer3d()
+#ifdef LAYER_2D
         , m_layer2d()
         , m_layer2DEnabled(false)
+#endif
     {
         m_layer3d = std::make_unique<Sandbox3DLayer>();
+#ifdef LAYER_2D
         m_layer2d = std::make_unique<Sandbox2DLayer>();
+#endif
         PushLayer(m_layer3d.get());
     }
 
+#ifdef LAYER_2D
     virtual void generateOverlay()
     {
         Spark::Application::generateOverlay();
@@ -40,6 +45,7 @@ class Sandbox : public Spark::Application
 
         ImGui::End();
     }
+#endif
 
     bool handleKeyPressed(Spark::KeyPressedEvent &e)
     {
@@ -55,8 +61,10 @@ class Sandbox : public Spark::Application
 
   private:
     std::unique_ptr<Sandbox3DLayer> m_layer3d;
+#ifdef LAYER_2D
     std::unique_ptr<Sandbox2DLayer> m_layer2d;
     bool m_layer2DEnabled;
+#endif
 };
 
 Spark::Application *Spark::CreateApplication()

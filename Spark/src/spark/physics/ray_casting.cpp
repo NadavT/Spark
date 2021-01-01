@@ -13,10 +13,39 @@ namespace Spark::Physics
 bool isRayIntersects(Ray3D ray, const Object3DBounding &objectBound)
 {
     SPARK_CORE_ASSERT(objectBound.getBoundingType() == Object3DBoundingType::Sphere, "Only sphere is supported");
+    return getRayDistanceFromObject(ray, objectBound) > 0;
+}
+
+SPARK_API float getRayDistanceFromObject(Ray3D ray, const Object3DBounding &objectBound)
+{
+    SPARK_CORE_ASSERT(objectBound.getBoundingType() == Object3DBoundingType::Sphere, "Only sphere is supported");
     const SphereBounding &sphereBound = static_cast<const SphereBounding &>(objectBound);
-    float b = glm::dot(ray.direction, ray.source - sphereBound.getPosition());
+    const float a = 1.0f;
+    float b = 2 * glm::dot(ray.direction, ray.source - sphereBound.getPosition());
     float c = glm::pow(glm::length(ray.source - sphereBound.getPosition()), 2) - glm::pow(sphereBound.getRadius(), 2);
-    return glm::pow(b, 2) - c >= 0;
+    float res = glm::pow(b, 2) - (4 * a * c);
+    if (res < 0)
+    {
+        return -1;
+    }
+
+    float sol1 = (-b + glm::sqrt(res)) / (2 * a);
+    float sol2 = (-b - glm::sqrt(res)) / (2 * a);
+
+    if (sol1 < 0 && sol2 < 0)
+    {
+        return -1;
+    }
+    else if (sol1 < 0)
+    {
+        return glm::length(sol2 * ray.direction);
+    }
+    else
+    {
+        float distance1 = glm::length(sol1 * ray.direction);
+        float distance2 = glm::length(sol2 * ray.direction);
+        return (distance1 < distance2) ? distance1 : distance2;
+    }
 }
 
 SPARK_API Ray3D getMouseRay(const Render::Camera &camera)

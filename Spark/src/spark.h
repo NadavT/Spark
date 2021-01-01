@@ -24,6 +24,7 @@
 
 //----------OBJECTS---------
 #include "spark/objects/object.h"
+#include "spark/objects/sphere.h"
 
 //---------DRAWABLES--------
 #include "spark/renderer/drawables/cube.h"

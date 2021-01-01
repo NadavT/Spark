@@ -25,6 +25,7 @@ set(SPARK_SOURCE
     "spark/renderer/drawables/sphere.cpp"
     "spark/overlay/overlay.cpp"
     "spark/objects/object.cpp"
+    "spark/objects/sphere.cpp"
     "spark/utils/file.cpp"
     "spark/resource/texture.cpp"
     "spark/resource/resource_manager.cpp"

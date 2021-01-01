@@ -2,9 +2,9 @@
 namespace Spark
 {
 SPARK_API Object3D::Object3D(std::shared_ptr<Render::Drawable3D> &drawable,
-                             std::shared_ptr<Physics::Object3D> &physicObject)
+                             std::unique_ptr<Physics::Object3D> physicObject)
     : m_drawable(drawable)
-    , m_physicsObject(physicObject)
+    , m_physicsObject(std::move(physicObject))
 {
 }
 
