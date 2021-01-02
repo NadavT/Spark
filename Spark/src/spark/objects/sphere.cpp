@@ -18,4 +18,15 @@ Sphere::Sphere(glm::vec3 position, float radius, const Texture &texture, const T
                std::make_unique<Physics::Sphere>(position, radius))
 {
 }
+
+std::unique_ptr<Object3D> createSphere(glm::vec3 position, float radius, glm::vec3 color, int sectors, int stacks)
+{
+    return std::make_unique<Sphere>(position, radius, color, sectors, stacks);
+}
+
+std::unique_ptr<Object3D> createSphere(glm::vec3 position, float radius, const Texture &texture,
+                                       const Texture &specularTexture, int sectors, int stacks)
+{
+    return std::make_unique<Sphere>(position, radius, texture, specularTexture, sectors, stacks);
+}
 } // namespace Spark

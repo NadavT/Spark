@@ -69,7 +69,7 @@ SPARK_API Object3D &PointLight::getObject()
     return *m_object;
 }
 
-SPARK_API Physics::Object3D &PointLight::getPhysicsObject()
+SPARK_API Physics::Object3D &PointLight::getPhysicsObject() const
 {
     return m_object->getPhysicsObject();
 }
@@ -79,11 +79,11 @@ SPARK_API std::shared_ptr<Drawable3D> PointLight::getDrawable()
     return m_object->getDrawable();
 }
 
-std::shared_ptr<PointLight> createPointLight(glm::vec3 position, glm::vec3 color, std::unique_ptr<Object3D> object,
+std::unique_ptr<PointLight> createPointLight(glm::vec3 position, glm::vec3 color, std::unique_ptr<Object3D> object,
                                              bool isLit)
 {
 #ifdef SPARK_PLATFORM_VULKAN
-    return std::make_shared<VulkanPointLight>(position, color, std::move(object), isLit);
+    return std::make_unique<VulkanPointLight>(position, color, std::move(object), isLit);
 #endif // SPARK_PLATFORM_VULKAN
 }
 

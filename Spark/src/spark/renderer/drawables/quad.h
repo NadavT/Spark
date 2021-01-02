@@ -22,6 +22,6 @@ class Quad : public virtual Drawable2D
     SPARK_API Quad(glm::vec2 position, glm::vec2 scale = glm::vec2(1.0));
 };
 
-SPARK_API std::shared_ptr<Drawable2D> createQuad(glm::vec2 position, const Texture &texture,
+SPARK_API std::unique_ptr<Drawable2D> createQuad(glm::vec2 position, const Texture &texture,
                                                  glm::vec2 scale = glm::vec2(1.0));
 } // namespace Spark::Render

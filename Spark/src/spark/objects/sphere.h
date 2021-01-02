@@ -14,4 +14,8 @@ class Sphere : public Object3D
                      int sectors = 36, int stacks = 18);
     SPARK_API virtual ~Sphere() = default;
 };
+SPARK_API std::unique_ptr<Object3D> createSphere(glm::vec3 position, float radius, glm::vec3 color, int sectors = 36,
+                                                 int stacks = 18);
+SPARK_API std::unique_ptr<Object3D> createSphere(glm::vec3 position, float radius, const Texture &texture,
+                                                 const Texture &specularTexture, int sectors = 36, int stacks = 18);
 } // namespace Spark

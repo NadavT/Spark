@@ -53,63 +53,67 @@ bool approximatelyEquals(float a, float b)
 
 bool isPointInTriangle(glm::vec3 point, glm::vec3 t0, glm::vec3 t1, glm::vec3 t2)
 {
-    glm::vec3 T21 = t1 - t0;
-    glm::vec3 T31 = t2 - t0;
+    glm::vec3 side0 = t1 - t0;
+    glm::vec3 side1 = t2 - t0;
     point = point - t0;
     float a = 0;
     float b = 0;
-    if (T21.x == 0 && T21.y == 0 && T21.z == 0)
+    if (side0.x == 0 && side0.y == 0 && side0.z == 0)
     {
-        b = (T31.x != 0) ? point.x / T31.x : ((T31.y != 0) ? point.y / T31.y : ((T31.z != 0) ? point.z / T31.z : 0));
+        b = (side1.x != 0) ? point.x / side1.x
+                           : ((side1.y != 0) ? point.y / side1.y : ((side1.z != 0) ? point.z / side1.z : 0));
     }
-    else if (T31.x == 0 && T31.y == 0 && T31.z == 0)
+    else if (side1.x == 0 && side1.y == 0 && side1.z == 0)
     {
-        b = (T21.x != 0) ? point.x / T21.x : ((T21.y != 0) ? point.y / T21.y : ((T21.z != 0) ? point.z / T21.z : 0));
+        b = (side0.x != 0) ? point.x / side0.x
+                           : ((side0.y != 0) ? point.y / side0.y : ((side0.z != 0) ? point.z / side0.z : 0));
     }
-    else if (T21.x == 0 && T21.y == 0)
+    else if (side0.x == 0 && side0.y == 0)
     {
-        if (T31.y == 0)
+        if (side1.y == 0)
         {
             if (point.y == 0)
             {
-                b = (T31.x != 0) ? (point.x / T31.x) : 0;
-                a = (point.z - b * T31.z) / T21.z;
+                b = (side1.x != 0) ? (point.x / side1.x) : 0;
+                a = (point.z - b * side1.z) / side0.z;
             }
         }
         else
         {
-            b = point.y / T31.y;
-            a = (point.z - b * T31.z) / T21.z;
+            b = point.y / side1.y;
+            a = (point.z - b * side1.z) / side0.z;
         }
     }
-    else if (T31.x == 0 && T31.y == 0)
+    else if (side1.x == 0 && side1.y == 0)
     {
-        if (T21.y == 0)
+        if (side0.y == 0)
         {
             if (point.y == 0)
             {
-                a = (T21.x != 0) ? (point.x / T21.x) : 0;
-                b = (point.z - a * T21.z) / T31.z;
+                a = (side0.x != 0) ? (point.x / side0.x) : 0;
+                b = (point.z - a * side0.z) / side1.z;
             }
         }
         else
         {
-            a = point.y / T21.y;
-            b = (point.z - a * T21.z) / T31.z;
+            a = point.y / side0.y;
+            b = (point.z - a * side0.z) / side1.z;
         }
     }
-    else if (T21.x == 0 && T31.x == 0)
+    else if (side0.x == 0 && side1.x == 0)
     {
-        b = (T21.y * point.z - T21.z * point.y) / (T21.y * T31.z - T21.z * T31.y);
-        a = (point.z - b * T31.z) / T21.z;
+        b = (side0.y * point.z - side0.z * point.y) / (side0.y * side1.z - side0.z * side1.y);
+        a = (point.z - b * side1.z) / side0.z;
     }
     else
     {
-        b = (T21.x * point.y - T21.y * point.x) / (T21.x * T31.y - T21.y * T31.x);
-        a = (point.y - b * T31.y) / T21.y;
+        b = (side0.x * point.y - side0.y * point.x) / (side0.x * side1.y - side0.y * side1.x);
+        a = (point.y - b * side1.y) / side0.y;
     }
-    return b >= 0 && b <= 1 && a >= 0 && a <= 1 && a + b <= 1 && approximatelyEquals(point.x, a * T21.x + b * T31.x) &&
-           approximatelyEquals(point.y, a * T21.y + b * T31.y) && approximatelyEquals(point.z, a * T21.z + b * T31.z);
+    return b >= 0 && b <= 1 && a >= 0 && a <= 1 && a + b <= 1 &&
+           approximatelyEquals(point.x, a * side0.x + b * side1.x) &&
+           approximatelyEquals(point.y, a * side0.y + b * side1.y) &&
+           approximatelyEquals(point.z, a * side0.z + b * side1.z);
 }
 
 float getRayDistanceFromObject(Ray3D ray, const BoxBounding &boxBound)

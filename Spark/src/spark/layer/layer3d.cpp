@@ -39,9 +39,19 @@ void Layer3D::addDrawable(std::shared_ptr<Render::Drawable> &drawable)
     m_layer_renderer->addDrawable(drawable);
 }
 
+void Layer3D::addObject(Object3D &object)
+{
+    addDrawable(std::dynamic_pointer_cast<Render::Drawable>(object.getDrawable()));
+}
+
 void Layer3D::removeDrawable(Render::Drawable *drawable)
 {
     m_layer_renderer->removeDrawable(drawable);
+}
+
+SPARK_API void Layer3D::removeObject(Object3D &object)
+{
+    removeDrawable(object.getDrawable().get());
 }
 
 void Layer3D::setDirLight(glm::vec3 direction, glm::vec3 color)

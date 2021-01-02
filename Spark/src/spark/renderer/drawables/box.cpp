@@ -15,22 +15,22 @@ Box::Box(glm::vec3 position, glm::vec3 scale)
 {
 }
 
-std::shared_ptr<Drawable3D> createCube(glm::vec3 position, const Texture &texture, const Texture &specularTexture,
-                                       glm::vec3 scale)
+std::unique_ptr<Drawable3D> createBox(glm::vec3 position, const Texture &texture, const Texture &specularTexture,
+                                      glm::vec3 scale)
 {
 #ifdef SPARK_PLATFORM_VULKAN
     VulkanRenderer &renderer = reinterpret_cast<VulkanRenderer &>(Application::GetApp().GetRenderer());
     const VulkanTexture &vulkanTexture = reinterpret_cast<const VulkanTexture &>(texture);
     const VulkanTexture &vulkanSpecularTexture = reinterpret_cast<const VulkanTexture &>(specularTexture);
-    return std::make_shared<VulkanTexturedBox>(renderer, position, vulkanTexture, vulkanSpecularTexture, scale);
+    return std::make_unique<VulkanTexturedBox>(renderer, position, vulkanTexture, vulkanSpecularTexture, scale);
 #endif // SPARK_PLATFORM_VULKAN
 }
 
-std::shared_ptr<Drawable3D> createCube(glm::vec3 position, glm::vec3 color, glm::vec3 scale)
+std::unique_ptr<Drawable3D> createBox(glm::vec3 position, glm::vec3 color, glm::vec3 scale)
 {
 #ifdef SPARK_PLATFORM_VULKAN
     VulkanRenderer &renderer = reinterpret_cast<VulkanRenderer &>(Application::GetApp().GetRenderer());
-    return std::make_shared<VulkanColoredCube>(renderer, position, color, scale);
+    return std::make_unique<VulkanColoredCube>(renderer, position, color, scale);
 #endif // SPARK_PLATFORM_VULKAN
 }
 } // namespace Spark::Render

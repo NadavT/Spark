@@ -22,7 +22,7 @@ class Sandbox3DLayer : public Spark::Layer3D
     bool handleMousePressed(Spark::MouseButtonPressedEvent &e);
 
     void generateBoxAdder();
-    void generateBoxRemover();
+    void generateBoxSetter();
     void generateDirLightSetter();
     void generateSpotLightSetter();
     void generatePointLightAdder();
@@ -31,13 +31,11 @@ class Sandbox3DLayer : public Spark::Layer3D
     void generatePointLightsSelector();
 
   private:
-    std::vector<std::shared_ptr<Spark::Render::Drawable3D>> m_drawables;
+    std::vector<std::shared_ptr<Spark::Object3D>> m_objects;
     std::vector<std::shared_ptr<Spark::Render::PointLight>> m_pointLights;
     Spark::Render::Camera m_camera;
     bool m_inEditor;
     int m_lightType;
-    bool m_addingBox;
-    bool m_discardBox;
     bool m_pickerExistLastFrame;
     int m_removeBoxIndex;
     int m_previousRemoveBoxIndex;
@@ -46,7 +44,7 @@ class Sandbox3DLayer : public Spark::Layer3D
     bool m_dirLightOn;
     bool m_spotLightOn;
     int m_wireframe;
-    std::array<float, 3> m_nextCords;
+    Spark::Object3D *m_objectToSet;
     std::array<float, 3> m_dirLightDirection;
     std::array<float, 3> m_beforeDirLightDirection;
     std::array<float, 3> m_dirLightColor;
