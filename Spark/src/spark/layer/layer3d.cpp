@@ -4,7 +4,7 @@
 
 #ifdef SPARK_PLATFORM_VULKAN
     #include "platform/vulkan/layers/layer_renderer_3d_lights.h"
-    #include "spark/renderer/drawables/cube.h"
+    #include "spark/renderer/drawables/box.h"
 #endif // SPARK_PLATFORM_VULKAN
 
 namespace Spark

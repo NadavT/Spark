@@ -1,4 +1,4 @@
-#include "cube.h"
+#include "box.h"
 
 #include "platform/vulkan/renderer.h"
 
@@ -44,8 +44,8 @@ const std::vector<uint32_t> cube_indices = {
     12, 13, 14, 14, 15, 12, 16, 17, 18, 18, 19, 16, 20, 21, 22, 22, 23, 20,
 };
 
-VulkanCube::VulkanCube(VulkanRenderer &renderer, glm::vec3 position, glm::vec3 scale)
-    : Cube(position, scale)
+VulkanBox::VulkanBox(VulkanRenderer &renderer, glm::vec3 position, glm::vec3 scale)
+    : Box(position, scale)
     , Drawable3D(position, scale)
     , m_context(renderer.m_context)
     , m_renderer(renderer)
@@ -58,7 +58,7 @@ VulkanCube::VulkanCube(VulkanRenderer &renderer, glm::vec3 position, glm::vec3 s
                          cube_vertices, cube_indices);
 }
 
-VulkanCube::~VulkanCube()
+VulkanBox::~VulkanBox()
 {
     if (m_vertexBuffer != VK_NULL_HANDLE)
     {
@@ -70,8 +70,8 @@ VulkanCube::~VulkanCube()
     }
 }
 
-VulkanCube::VulkanCube(const VulkanCube &other)
-    : Cube(other)
+VulkanBox::VulkanBox(const VulkanBox &other)
+    : Box(other)
     , Drawable3D(other)
     , m_context(other.m_context)
     , m_renderer(other.m_renderer)
@@ -79,8 +79,8 @@ VulkanCube::VulkanCube(const VulkanCube &other)
     copyCube(other);
 }
 
-VulkanCube::VulkanCube(VulkanCube &&other) noexcept
-    : Cube(other)
+VulkanBox::VulkanBox(VulkanBox &&other) noexcept
+    : Box(other)
     , Drawable3D(other)
     , m_context(other.m_context)
     , m_renderer(other.m_renderer)
@@ -88,19 +88,19 @@ VulkanCube::VulkanCube(VulkanCube &&other) noexcept
     moveCube(other);
 }
 
-VulkanCube &VulkanCube::operator=(const VulkanCube &other)
+VulkanBox &VulkanBox::operator=(const VulkanBox &other)
 {
     copyCube(other);
     return *this;
 }
 
-VulkanCube &VulkanCube::operator=(VulkanCube &&other) noexcept
+VulkanBox &VulkanBox::operator=(VulkanBox &&other) noexcept
 {
     moveCube(other);
     return *this;
 }
 
-void VulkanCube::fillCommandBuffer(VkCommandBuffer commandBuffer)
+void VulkanBox::fillCommandBuffer(VkCommandBuffer commandBuffer)
 {
     VkBuffer buff[] = {m_vertexBuffer};
     VkDeviceSize offsets[] = {m_verticesOffset};
@@ -110,12 +110,12 @@ void VulkanCube::fillCommandBuffer(VkCommandBuffer commandBuffer)
     vkCmdDrawIndexed(commandBuffer, static_cast<uint32_t>(cube_indices.size()), 1, 0, 0, 0);
 }
 
-void VulkanCube::copyCube(const VulkanCube &other)
+void VulkanBox::copyCube(const VulkanBox &other)
 {
     createVertex3DBuffer(m_context, m_vertexBuffer, m_vertexBufferMemory, m_verticesOffset, m_indicesOffset,
                          cube_vertices, cube_indices);
 }
-void VulkanCube::moveCube(VulkanCube &other) noexcept
+void VulkanBox::moveCube(VulkanBox &other) noexcept
 {
     m_vertexBuffer = other.m_vertexBuffer;
     other.m_vertexBuffer = VK_NULL_HANDLE;

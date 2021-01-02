@@ -20,6 +20,12 @@ SPARK_API void Object3D::scale(glm::vec3 scale)
     m_physicsObject->scale(scale);
 }
 
+SPARK_API void Object3D::rotate(float angle, glm::vec3 axis)
+{
+    m_drawable->rotate(angle, axis);
+    m_physicsObject->rotate(angle, axis);
+}
+
 SPARK_API void Object3D::setPosition(glm::vec3 position)
 {
     m_drawable->setPosition(position);
@@ -30,5 +36,11 @@ SPARK_API void Object3D::setScale(glm::vec3 scale)
 {
     m_drawable->setScale(scale);
     m_physicsObject->setScale(scale);
+}
+
+SPARK_API void Object3D::setRotation(float angle, glm::vec3 axis)
+{
+    m_drawable->setRotation(angle, axis);
+    m_physicsObject->setRotation(angle, axis);
 }
 } // namespace Spark

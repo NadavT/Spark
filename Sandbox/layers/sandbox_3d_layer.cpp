@@ -30,6 +30,9 @@ Sandbox3DLayer::Sandbox3DLayer()
     const Spark::Texture &specularTexture =
         Spark::ResourceManager::loadTexture("cubeTexutreSpecular", "textures/container2_specular.png");
     m_drawables.push_back(std::move(Spark::Render::createCube({0, 0, 0}, texture, specularTexture)));
+    // m_drawables[0]->move(glm::vec3(1, 1, 1));
+    // m_drawables[0]->scale(glm::vec3(2, 2, 2));
+    m_drawables[0]->rotate(glm::pi<float>() / 8, glm::vec3(1, 0, 0));
     addDrawable(std::dynamic_pointer_cast<Spark::Render::Drawable>(m_drawables[0]));
     setDirLight({m_dirLightDirection[0], m_dirLightDirection[1], m_dirLightDirection[2]},
                 {m_dirLightColor[0], m_dirLightColor[1], m_dirLightColor[2]});
@@ -63,6 +66,8 @@ void Sandbox3DLayer::OnUpdate(Spark::Time &diffTime)
     }
     else
     {
+        // m_drawables[0]->rotate((glm::pi<float>() / 4) * static_cast<float>(diffTime.GetSeconds()), glm::vec3(0, 0,
+        // 1));
         if (Spark::Input::IsKeyPressed(Spark::KeyCode::A))
         {
             m_camera.moveDirection(Spark::Render::CameraDirection::LEFT, diffTime);
@@ -218,9 +223,15 @@ bool Sandbox3DLayer::handleKeyPressed(Spark::KeyPressedEvent &e)
 
 bool Sandbox3DLayer::handleMousePressed(Spark::MouseButtonPressedEvent &e)
 {
+    Spark::Physics::Box box(glm::vec3(0, 0, 0), 1, 1, 1);
+    // box.move(glm::vec3(1, 1, 1));
+    // box.scale(glm::vec3(2, 2, 2));
+    box.rotate(glm::pi<float>() / 8, glm::vec3(1, 0, 0));
     switch (e.GetMouseButton())
     {
     case Spark::MouseCode::ButtonLeft:
+        SPARK_INFO("INTERSECT: {}", Spark::Physics::getRayDistanceFromObject(Spark::Physics::getMouseRay(m_camera),
+                                                                             box.getBoundingObject()));
         if (m_inEditor)
         {
             Spark::Render::PointLight *closestLight = nullptr;

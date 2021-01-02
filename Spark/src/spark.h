@@ -23,11 +23,12 @@
 #include "spark/resource/resource_manager.h"
 
 //----------OBJECTS---------
+#include "spark/objects/box.h"
 #include "spark/objects/object.h"
 #include "spark/objects/sphere.h"
 
 //---------DRAWABLES--------
-#include "spark/renderer/drawables/cube.h"
+#include "spark/renderer/drawables/box.h"
 #include "spark/renderer/drawables/drawable.h"
 #include "spark/renderer/drawables/drawable2d.h"
 #include "spark/renderer/drawables/drawable3d.h"
@@ -35,7 +36,7 @@
 #include "spark/renderer/drawables/sphere.h"
 
 //---------PHYSICS----------
-#include "spark/physics/bounding/sphere_bounding.h"
+#include "spark/physics/box.h"
 #include "spark/physics/object3d.h"
 #include "spark/physics/ray_casting.h"
 #include "spark/physics/sphere.h"

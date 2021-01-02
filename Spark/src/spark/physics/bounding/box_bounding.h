@@ -9,31 +9,38 @@ namespace Spark::Physics
 class BoxBounding : public Object3DBounding
 {
   public:
-    BoxBounding(glm::vec3 position, float width, float length, float height);
+    BoxBounding(glm::mat4 translation, glm::mat4 scale, glm::mat4 rotation);
     virtual ~BoxBounding() = default;
 
-    inline glm::vec3 getPosition() const
+    inline glm::mat4 getTranslation() const
     {
-        return m_position;
+        return m_translationMatrix;
     };
-    inline float getWidth() const
+    inline void setTranslation(glm::mat4 translation)
     {
-        return m_width;
+        m_translationMatrix = translation;
     };
-    inline float getLength() const
+    inline glm::mat4 getScale() const
     {
-        return m_length;
+        return m_scaleMatrix;
     };
-    inline float getHeight() const
+    inline void setScale(glm::mat4 scale)
     {
-        return m_height;
+        m_scaleMatrix = scale;
+    };
+    inline glm::mat4 getRotation() const
+    {
+        return m_rotationMatrix;
+    };
+    inline void setRotation(glm::mat4 rotation)
+    {
+        m_rotationMatrix = rotation;
     };
 
   private:
-    glm::vec3 m_position;
-    float m_width;
-    float m_length;
-    float m_height;
+    glm::mat4 m_translationMatrix;
+    glm::mat4 m_scaleMatrix;
+    glm::mat4 m_rotationMatrix;
 };
 
 } // namespace Spark::Physics

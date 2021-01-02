@@ -2,12 +2,11 @@
 
 namespace Spark::Physics
 {
-BoxBounding::BoxBounding(glm::vec3 position, float width, float length, float height)
+BoxBounding::BoxBounding(glm::mat4 translation, glm::mat4 scale, glm::mat4 rotation)
     : Object3DBounding(Object3DBoundingType::Box)
-    , m_position(position)
-    , m_width(width)
-    , m_length(length)
-    , m_height(height)
+    , m_translationMatrix(translation)
+    , m_scaleMatrix(scale)
+    , m_rotationMatrix(rotation)
 {
 }
 } // namespace Spark::Physics

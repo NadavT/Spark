@@ -4,27 +4,27 @@
 #include "platform/vulkan/renderer.h"
 #include "platform/vulkan/vertex/vertex3d.h"
 
-#include "spark/renderer/drawables/cube.h"
+#include "spark/renderer/drawables/box.h"
 
 namespace Spark::Render
 {
-class VulkanCube : public virtual Cube, public virtual VulkanDrawable
+class VulkanBox : public virtual Box, public virtual VulkanDrawable
 {
   public:
-    virtual ~VulkanCube();
-    VulkanCube(const VulkanCube &other);
-    VulkanCube(VulkanCube &&other) noexcept;
-    VulkanCube &operator=(const VulkanCube &other);
-    VulkanCube &operator=(VulkanCube &&other) noexcept;
+    virtual ~VulkanBox();
+    VulkanBox(const VulkanBox &other);
+    VulkanBox(VulkanBox &&other) noexcept;
+    VulkanBox &operator=(const VulkanBox &other);
+    VulkanBox &operator=(VulkanBox &&other) noexcept;
 
     virtual void fillCommandBuffer(VkCommandBuffer commandBuffer);
 
   protected:
-    VulkanCube(VulkanRenderer &renderer, glm::vec3 position, glm::vec3 scale = glm::vec3(1.0));
+    VulkanBox(VulkanRenderer &renderer, glm::vec3 position, glm::vec3 scale = glm::vec3(1.0));
 
   private:
-    void copyCube(const VulkanCube &other);
-    void moveCube(VulkanCube &other) noexcept;
+    void copyCube(const VulkanBox &other);
+    void moveCube(VulkanBox &other) noexcept;
 
   private:
     VulkanContext &m_context;

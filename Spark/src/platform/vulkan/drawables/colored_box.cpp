@@ -1,4 +1,4 @@
-#include "colored_cube.h"
+#include "colored_box.h"
 
 #include "platform/vulkan/renderer.h"
 
@@ -7,9 +7,9 @@
 namespace Spark::Render
 {
 VulkanColoredCube::VulkanColoredCube(VulkanRenderer &renderer, glm::vec3 position, glm::vec3 color, glm::vec3 scale)
-    : VulkanCube(renderer, position, scale)
+    : VulkanBox(renderer, position, scale)
     , VulkanColoredDrawable(color)
-    , Cube(position, scale)
+    , Box(position, scale)
     , Drawable3D(position, scale)
 {
 }
