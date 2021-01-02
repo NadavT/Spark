@@ -11,8 +11,6 @@ Sandbox3DLayer::Sandbox3DLayer()
     , m_lightType(0)
     , m_addingBox(false)
     , m_discardBox(false)
-    , m_addingPointLight(false)
-    , m_discardPointLight(false)
     , m_removeBoxIndex(0)
     , m_previousRemoveBoxIndex(0)
     , m_removePointLightIndex(0)
@@ -24,9 +22,9 @@ Sandbox3DLayer::Sandbox3DLayer()
     , m_dirLightDirection{-0.2f, -1.0f, -0.3f}
     , m_dirLightColor{1, 1, 1}
     , m_spotLightColor{1, 1, 1}
-    , m_nextPointLightCords{0, 0, 0}
-    , m_pointLightColor{1, 1, 1}
+    , m_pointLightToSet(nullptr)
     , m_wireframeColor{0, 0, 0}
+    , m_beforeWireframeColor{0, 0, 0}
 {
     const Spark::Texture &texture = Spark::ResourceManager::loadTexture("cubeTexutre", "textures/container2.png");
     const Spark::Texture &specularTexture =
@@ -107,7 +105,9 @@ void Sandbox3DLayer::generateOverlay()
     {
         ImGui::SetNextWindowPos(ImVec2(ImGui::GetIO().DisplaySize.x - 20, 20), ImGuiCond_Once, ImVec2(1, 0));
         ImGui::SetNextWindowSizeConstraints(ImVec2(250, 100), ImVec2(250, ImGui::GetIO().DisplaySize.y));
-        ImGui::Begin("3d editor", NULL, ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoResize);
+        ImGui::Begin("3d editor", NULL,
+                     ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoResize |
+                         ImGuiWindowFlags_NoFocusOnAppearing);
 
         if (ImGui::TreeNode("Objects editor:"))
         {
@@ -123,10 +123,10 @@ void Sandbox3DLayer::generateOverlay()
             generateDirLightSetter();
             generateSpotLightSetter();
             generatePointLightAdder();
-            generatePointLightRemover();
-            generatePointLightsFlicker();
+            generatePointLightsSelector();
             ImGui::TreePop();
         }
+        generatePointLightSetter();
 
         ImGui::Separator();
 
@@ -174,7 +174,6 @@ bool Sandbox3DLayer::handleMouseMoved(Spark::MouseMovedEvent &e)
 
 bool Sandbox3DLayer::handleKeyPressed(Spark::KeyPressedEvent &e)
 {
-    ImGuiIO &io = ImGui::GetIO();
     switch (e.GetKeyCode())
     {
     case Spark::KeyCode::Escape:
@@ -183,6 +182,11 @@ bool Sandbox3DLayer::handleKeyPressed(Spark::KeyPressedEvent &e)
             pause();
             return true;
         }
+        else if (m_pointLightToSet)
+        {
+            m_pointLightToSet->getDrawable()->unhighlight();
+            m_pointLightToSet = nullptr;
+        }
         return false;
     case Spark::KeyCode::Space:
         if (m_inEditor)
@@ -190,7 +194,23 @@ bool Sandbox3DLayer::handleKeyPressed(Spark::KeyPressedEvent &e)
             run();
             return true;
         }
+        else
+        {
+            pause();
+            return true;
+        }
+    case Spark::KeyCode::Delete:
+        if (m_inEditor && m_pointLightToSet)
+        {
+            removePointLight(*m_pointLightToSet);
+            m_pointLights.erase(std::find_if(
+                m_pointLights.begin(), m_pointLights.end(),
+                [&](std::shared_ptr<Spark::Render::PointLight> &p) { return p.get() == m_pointLightToSet; }));
+            m_pointLightToSet = nullptr;
+            return true;
+        }
         return false;
+
     default:
         return false;
     }
@@ -203,23 +223,27 @@ bool Sandbox3DLayer::handleMousePressed(Spark::MouseButtonPressedEvent &e)
     case Spark::MouseCode::ButtonLeft:
         if (m_inEditor)
         {
-            std::shared_ptr<Spark::Render::PointLight> *closestLight = nullptr;
+            Spark::Render::PointLight *closestLight = nullptr;
             float closest = std::numeric_limits<float>::max();
             for (auto &light : m_pointLights)
             {
-                light->getDrawable()->unhighlight();
                 const Spark::Physics::Object3DBounding &bounds = light->getPhysicsObject().getBoundingObject();
                 float distance =
                     Spark::Physics::getRayDistanceFromObject(Spark::Physics::getMouseRay(m_camera), bounds);
                 if (distance > 0 && distance < closest)
                 {
                     closest = distance;
-                    closestLight = &light;
+                    closestLight = light.get();
                 }
             }
             if (closestLight)
             {
-                (*closestLight)->getDrawable()->highlight();
+                if (m_pointLightToSet)
+                {
+                    m_pointLightToSet->getDrawable()->unhighlight();
+                }
+                m_pointLightToSet = closestLight;
+                m_pointLightToSet->getDrawable()->highlight();
             }
             return true;
         }
@@ -448,41 +472,53 @@ void Sandbox3DLayer::generatePointLightAdder()
     if (ImGui::Button("add point light"))
     {
         SPARK_INFO("Adding point light");
-        std::unique_ptr<Spark::Object3D> sphere = std::make_unique<Spark::Sphere>(
-            glm::vec3(m_nextPointLightCords[0], m_nextPointLightCords[1], m_nextPointLightCords[2]), 0.15f,
-            glm::vec3(0.3f, 0.3f, 0.3f));
-        m_pointLights.push_back(Spark::Render::createPointLight(
-            glm::vec3(m_nextPointLightCords[0], m_nextPointLightCords[1], m_nextPointLightCords[2]),
-            {m_pointLightColor[0], m_pointLightColor[1], m_pointLightColor[2]}, std::move(sphere)));
+        std::unique_ptr<Spark::Object3D> sphere =
+            std::make_unique<Spark::Sphere>(glm::vec3(0, 0, 0), 0.15f, glm::vec3(0.3f, 0.3f, 0.3f));
+        m_pointLights.push_back(
+            Spark::Render::createPointLight(glm::vec3(0, 0, 0), glm::vec3(1, 1, 1), std::move(sphere)));
         addPointLight(*(m_pointLights.back()));
-        m_addingPointLight = true;
-        m_discardPointLight = true;
-    }
-
-    if (m_addingPointLight)
-    {
-        ImGui::SetNextWindowCollapsed(false, ImGuiCond_Once);
-        ImGui::Begin("Point light adder", &m_addingPointLight,
-                     ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoResize);
-        if (ImGui::InputFloat3("location", m_nextPointLightCords.data()))
+        if (m_pointLightToSet)
         {
-            m_pointLights.back()->setPosition(
-                {m_nextPointLightCords[0], m_nextPointLightCords[1], m_nextPointLightCords[2]});
+            m_pointLightToSet->getDrawable()->unhighlight();
         }
-        if (ImGui::ColorEdit3("color##PointLight", m_pointLightColor.data()))
+        m_pointLightToSet = m_pointLights.back().get();
+        m_pointLightToSet->getDrawable()->highlight();
+    }
+}
+
+void Sandbox3DLayer::generatePointLightSetter()
+{
+    if (m_pointLightToSet)
+    {
+        std::array<float, 3> nextPointCords = {m_pointLightToSet->getPosition().x, m_pointLightToSet->getPosition().y,
+                                               m_pointLightToSet->getPosition().z};
+        std::array<float, 3> nextPointColor = {m_pointLightToSet->getColor().x, m_pointLightToSet->getColor().y,
+                                               m_pointLightToSet->getColor().z};
+        bool isLit = m_pointLightToSet->isLit();
+        ImGui::CaptureKeyboardFromApp(false);
+        ImGui::SetNextWindowCollapsed(false, ImGuiCond_Once);
+        ImGui::Begin("Point light setter", NULL,
+                     ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoNavInputs);
+        if (ImGui::InputFloat3("location", nextPointCords.data()))
         {
-            m_pointLights.back()->setColor({m_pointLightColor[0], m_pointLightColor[1], m_pointLightColor[2]});
+            m_pointLightToSet->setPosition({nextPointCords[0], nextPointCords[1], nextPointCords[2]});
+        }
+        if (ImGui::ColorEdit3("color##PointLight", nextPointColor.data()))
+        {
+            m_pointLightToSet->setColor({nextPointColor[0], nextPointColor[1], nextPointColor[2]});
         }
         if (ImGui::Combo("type", &m_lightType, "Sphere\0Cube\0"))
         {
-            removePointLight(*(m_pointLights.back().get()));
-            m_pointLights.pop_back();
+            removePointLight(*m_pointLightToSet);
+            m_pointLights.erase(std::find_if(
+                m_pointLights.begin(), m_pointLights.end(),
+                [&](std::shared_ptr<Spark::Render::PointLight> &p) { return p.get() == m_pointLightToSet; }));
             std::unique_ptr<Spark::Object3D> object = NULL;
             if (m_lightType == 0)
             {
-                object = std::make_unique<Spark::Sphere>(
-                    glm::vec3(m_nextPointLightCords[0], m_nextPointLightCords[1], m_nextPointLightCords[2]), 0.15f,
-                    glm::vec3(0.3f, 0.3f, 0.3f));
+                object =
+                    std::make_unique<Spark::Sphere>(glm::vec3(nextPointCords[0], nextPointCords[1], nextPointCords[2]),
+                                                    0.15f, glm::vec3(0.3f, 0.3f, 0.3f));
             }
             else
             {
@@ -493,117 +529,47 @@ void Sandbox3DLayer::generatePointLightAdder()
                 //     0.3f}, {0.3f, 0.3f, 0.3f});
             }
             m_pointLights.push_back(Spark::Render::createPointLight(
-                {m_nextPointLightCords[0], m_nextPointLightCords[1], m_nextPointLightCords[2]},
-                {m_pointLightColor[0], m_pointLightColor[1], m_pointLightColor[2]}, std::move(object)));
+                {nextPointCords[0], nextPointCords[1], nextPointCords[2]},
+                {nextPointColor[0], nextPointColor[1], nextPointColor[2]}, std::move(object)));
+            m_pointLightToSet = m_pointLights.back().get();
             object = NULL;
-            addPointLight(*(m_pointLights.back()));
+            addPointLight(*m_pointLightToSet);
         }
-        if (ImGui::Button("add"))
+        if (ImGui::Checkbox("lit", &isLit))
         {
-            m_addingPointLight = false;
-            m_discardPointLight = false;
+            if (isLit)
+            {
+                m_pointLightToSet->turnOn();
+            }
+            else
+            {
+                m_pointLightToSet->turnOff();
+            }
+        }
+
+        if (ImGui::Button("set"))
+        {
+            m_pointLightToSet->getDrawable()->unhighlight();
+            m_pointLightToSet = nullptr;
         }
 
         ImGui::End();
     }
-    else if (m_discardPointLight)
-    {
-        removePointLight(*(m_pointLights.back().get()));
-        m_pointLights.pop_back();
-        m_discardPointLight = false;
-    }
 }
 
-void Sandbox3DLayer::generatePointLightRemover()
-{
-    if (ImGui::Button("remove point light"))
-    {
-        SPARK_INFO("Removing point light");
-        m_removePointLightIndex = 0;
-        m_previousRemoveLightIndex = 0;
-        if (m_pointLights.size() > 0)
-        {
-            m_pointLights[0]->getDrawable()->highlight();
-        }
-        ImGui::OpenPopup("Point light remover");
-    }
-
-    if (ImGui::BeginPopup("Point light remover"))
-    {
-        ImGui::SetNextItemWidth(100);
-        if (ImGui::InputInt("", &m_removePointLightIndex))
-        {
-            if (m_removePointLightIndex >= 0 && m_removePointLightIndex < m_pointLights.size())
-            {
-                m_pointLights[m_previousRemoveLightIndex]->getDrawable()->unhighlight();
-                m_pointLights[m_removePointLightIndex]->getDrawable()->highlight();
-                m_previousRemoveLightIndex = m_removePointLightIndex;
-            }
-            else if (m_removePointLightIndex < 0)
-            {
-                m_removePointLightIndex = 0;
-                m_pointLights[m_previousRemoveLightIndex]->getDrawable()->unhighlight();
-                m_pointLights[m_removePointLightIndex]->getDrawable()->highlight();
-                m_previousRemoveLightIndex = m_removePointLightIndex;
-            }
-            else
-            {
-                m_removePointLightIndex = static_cast<int>(m_pointLights.size()) - 1;
-                m_pointLights[m_previousRemoveLightIndex]->getDrawable()->unhighlight();
-                m_pointLights[m_removePointLightIndex]->getDrawable()->highlight();
-                m_previousRemoveLightIndex = m_removePointLightIndex;
-            }
-        }
-        ImGui::SameLine();
-        if (ImGui::Button("remove"))
-        {
-            removePointLight(*(m_pointLights[m_removePointLightIndex].get()));
-            m_pointLights.erase(m_pointLights.begin() + m_removePointLightIndex);
-            m_removePointLightIndex = -1;
-            m_previousRemoveLightIndex = 0;
-            ImGui::CloseCurrentPopup();
-        }
-        ImGui::SameLine();
-        if (ImGui::Button("cancel"))
-        {
-            if (m_pointLights.size() > m_removePointLightIndex)
-            {
-                m_pointLights[m_removePointLightIndex]->getDrawable()->unhighlight();
-            }
-            m_removePointLightIndex = -1;
-            m_previousRemoveLightIndex = 0;
-            ImGui::CloseCurrentPopup();
-        }
-
-        ImGui::EndPopup();
-    }
-    else if (m_removePointLightIndex >= 0)
-    {
-        if (m_pointLights.size() > m_removePointLightIndex)
-        {
-            m_pointLights[m_removePointLightIndex]->getDrawable()->unhighlight();
-        }
-        m_removePointLightIndex = -1;
-        m_previousRemoveLightIndex = 0;
-    }
-}
-
-void Sandbox3DLayer::generatePointLightsFlicker()
+void Sandbox3DLayer::generatePointLightsSelector()
 {
     int index = 0;
     for (auto &pointLight : m_pointLights)
     {
-        bool lit = pointLight->isLit();
-        if (ImGui::Checkbox(("Point light " + std::to_string(index)).c_str(), &lit))
+        if (ImGui::Button(("set Point light " + std::to_string(index)).c_str()))
         {
-            if (lit)
+            if (m_pointLightToSet)
             {
-                pointLight->turnOn();
+                m_pointLightToSet->getDrawable()->unhighlight();
             }
-            else
-            {
-                pointLight->turnOff();
-            }
+            m_pointLightToSet = pointLight.get();
+            m_pointLightToSet->getDrawable()->highlight();
         }
         index++;
     }

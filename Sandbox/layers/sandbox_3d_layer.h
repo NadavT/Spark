@@ -26,9 +26,9 @@ class Sandbox3DLayer : public Spark::Layer3D
     void generateDirLightSetter();
     void generateSpotLightSetter();
     void generatePointLightAdder();
-    void generatePointLightRemover();
+    void generatePointLightSetter();
     void generateWireframeSetter();
-    void generatePointLightsFlicker();
+    void generatePointLightsSelector();
 
   private:
     std::vector<std::shared_ptr<Spark::Render::Drawable3D>> m_drawables;
@@ -38,8 +38,6 @@ class Sandbox3DLayer : public Spark::Layer3D
     int m_lightType;
     bool m_addingBox;
     bool m_discardBox;
-    bool m_addingPointLight;
-    bool m_discardPointLight;
     bool m_pickerExistLastFrame;
     int m_removeBoxIndex;
     int m_previousRemoveBoxIndex;
@@ -55,8 +53,7 @@ class Sandbox3DLayer : public Spark::Layer3D
     std::array<float, 3> m_beforeDirLightColor;
     std::array<float, 3> m_spotLightColor;
     std::array<float, 3> m_beforeSpotLightColor;
-    std::array<float, 3> m_nextPointLightCords;
-    std::array<float, 3> m_pointLightColor;
+    Spark::Render::PointLight *m_pointLightToSet;
     std::array<float, 3> m_wireframeColor;
     std::array<float, 3> m_beforeWireframeColor;
 };
