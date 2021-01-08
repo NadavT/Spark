@@ -20,8 +20,9 @@ float getRayDistanceFromObject(Ray3D ray, const SphereBounding &sphereBound)
 {
     const float a = 1.0f;
     float b = 2 * glm::dot(ray.direction, ray.source - sphereBound.getPosition());
-    float c = glm::pow(glm::length(ray.source - sphereBound.getPosition()), 2) - glm::pow(sphereBound.getRadius(), 2);
-    float res = glm::pow(b, 2) - (4 * a * c);
+    float c = static_cast<float>(glm::pow(glm::length(ray.source - sphereBound.getPosition()), 2) -
+                                 glm::pow(sphereBound.getRadius(), 2));
+    float res = static_cast<float>(glm::pow(b, 2) - (4 * a * c));
     if (res < 0)
     {
         return -1;

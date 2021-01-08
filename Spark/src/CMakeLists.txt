@@ -103,12 +103,16 @@ endif()
 if(MSVC)
     target_compile_definitions(spark PRIVATE IMGUI_API=__declspec\(dllexport\))
     target_compile_options(spark PRIVATE /w44250)
+    target_compile_options(spark PRIVATE /W3 /WX)
+else()
+    MESSAGE(FATAL_ERROR "Compiler isn't supported")
 endif()
-target_compile_options(spark PRIVATE /W3)
 
-add_custom_command(OUTPUT ${APP_EXECUTABLE_PATH}/shaders
-                    COMMAND ${CMAKE_COMMAND} -E make_directory ${PROJECT_BINARY_DIR}/shaders
+# Currently ninja has problems with clean if directories are a product
+add_custom_command(OUTPUT stamp
                     COMMAND ${CMAKE_COMMAND} -E make_directory ${APP_EXECUTABLE_PATH}/shaders
+                    COMMAND ${CMAKE_COMMAND} -E make_directory ${PROJECT_BINARY_DIR}/shaders
+                    COMMAND ${CMAKE_COMMAND} -E touch stamp
                     )
 file(GLOB shaders ${PROJECT_SOURCE_DIR}/src/platform/vulkan/shaders/*.vert ${PROJECT_SOURCE_DIR}/src/platform/vulkan/shaders/*.frag)
 foreach(shader ${shaders})
@@ -122,7 +126,8 @@ foreach(shader ${shaders})
         add_custom_command(OUTPUT ${APP_EXECUTABLE_PATH}/shaders/${shader_output_name}
                         COMMAND %VULKAN_SDK%/Bin/glslc.exe ${shader} -DCOLOR -o ${PROJECT_BINARY_DIR}/shaders/${shader_output_name}
                         COMMAND ${CMAKE_COMMAND} -E copy ${PROJECT_BINARY_DIR}/shaders/${shader_output_name} ${APP_EXECUTABLE_PATH}/shaders
-                        DEPENDS ${shader} ${APP_EXECUTABLE_PATH}/shaders
+                        BYPRODUCTS ${PROJECT_BINARY_DIR}/shaders/${shader_output_name}
+                        DEPENDS stamp
                         )
         add_custom_target(${shader_name}_color
                         DEPENDS ${APP_EXECUTABLE_PATH}/shaders/${shader_output_name}
@@ -133,7 +138,8 @@ foreach(shader ${shaders})
         add_custom_command(OUTPUT ${APP_EXECUTABLE_PATH}/shaders/${shader_output_name}
                         COMMAND %VULKAN_SDK%/Bin/glslc.exe ${shader} -DTEXTURE -o ${PROJECT_BINARY_DIR}/shaders/${shader_output_name}
                         COMMAND ${CMAKE_COMMAND} -E copy ${PROJECT_BINARY_DIR}/shaders/${shader_output_name} ${APP_EXECUTABLE_PATH}/shaders
-                        DEPENDS ${shader} ${APP_EXECUTABLE_PATH}/shaders
+                        BYPRODUCTS ${PROJECT_BINARY_DIR}/shaders/${shader_output_name}
+                        DEPENDS stamp
                         )
         add_custom_target(${shader_name}_texture
                         DEPENDS ${APP_EXECUTABLE_PATH}/shaders/${shader_output_name}
@@ -143,7 +149,8 @@ foreach(shader ${shaders})
         add_custom_command(OUTPUT ${APP_EXECUTABLE_PATH}/shaders/${shader_output_name}
                         COMMAND %VULKAN_SDK%/Bin/glslc.exe ${shader} -o ${PROJECT_BINARY_DIR}/shaders/${shader_output_name}
                         COMMAND ${CMAKE_COMMAND} -E copy ${PROJECT_BINARY_DIR}/shaders/${shader_output_name} ${APP_EXECUTABLE_PATH}/shaders
-                        DEPENDS ${shader} ${APP_EXECUTABLE_PATH}/shaders
+                        BYPRODUCTS ${PROJECT_BINARY_DIR}/shaders/${shader_output_name}
+                        DEPENDS stamp
                         )
         add_custom_target(${shader_name}
                         DEPENDS ${APP_EXECUTABLE_PATH}/shaders/${shader_output_name}
