@@ -13,3 +13,6 @@
 [submodule "Spark/vendor/stb"]
 	path = Spark/vendor/stb
 	url = https://github.com/nothings/stb.git
+[submodule "Spark/vendor/assimp"]
+	path = Spark/vendor/assimp
+	url = git@gitlab.com:nadavt/assimp.git
