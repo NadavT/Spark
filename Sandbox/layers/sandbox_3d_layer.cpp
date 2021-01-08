@@ -315,6 +315,8 @@ void Sandbox3DLayer::generateBoxSetter()
     {
         glm::vec3 position = m_objectToSet->getPhysicsObject().getPosition();
         std::array<float, 3> nextObjectCords = {position.x, position.y, position.z};
+        static float rotationDegree = 0;
+        static std::array<bool, 3> rotationAxis = {0, 0, 1};
         ImGui::CaptureKeyboardFromApp(false);
         ImGui::SetNextWindowCollapsed(false, ImGuiCond_Once);
         ImGui::Begin("Box setter", NULL,
@@ -323,6 +325,21 @@ void Sandbox3DLayer::generateBoxSetter()
         {
             m_objectToSet->setPosition({nextObjectCords[0], nextObjectCords[1], nextObjectCords[2]});
         }
+        ImGui::Separator();
+        ImGui::InputFloat("degree", &rotationDegree);
+        ImGui::Text("Axis:");
+        ImGui::SameLine();
+        ImGui::Checkbox("x", &rotationAxis[0]);
+        ImGui::SameLine();
+        ImGui::Checkbox("y", &rotationAxis[1]);
+        ImGui::SameLine();
+        ImGui::Checkbox("z", &rotationAxis[2]);
+        if (ImGui::Button("rotate"))
+        {
+            m_objectToSet->rotate(glm::radians(rotationDegree),
+                                  glm::vec3(rotationAxis[0], rotationAxis[1], rotationAxis[2]));
+        }
+        ImGui::Separator();
         if (ImGui::Button("set"))
         {
             m_objectToSet->getDrawable()->unhighlight();
