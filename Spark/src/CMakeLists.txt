@@ -29,6 +29,7 @@ set(SPARK_SOURCE
     "spark/objects/sphere.cpp"
     "spark/objects/box.cpp"
     "spark/utils/file.cpp"
+    "spark/resource/mesh.cpp"
     "spark/resource/texture.cpp"
     "spark/resource/resource_manager.cpp"
      )
@@ -57,6 +58,7 @@ set(SPARK_VULKAN_SOURCE
     "platform/vulkan/vertex/vertex3d.cpp"
     "platform/vulkan/test/triangle_layer.cpp"
     "platform/vulkan/test/layer2d.cpp"
+    "platform/vulkan/resource/mesh.cpp"
     "platform/vulkan/resource/texture.cpp"
     "platform/vulkan/resource/texture_sampler.cpp"
     "platform/vulkan/resource/texture_image.cpp"

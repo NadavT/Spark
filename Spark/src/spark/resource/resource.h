@@ -7,6 +7,7 @@ namespace Spark
 enum class ResourceType
 {
     texture,
+    model,
     internal
 };
 

@@ -10,7 +10,8 @@ namespace Spark::Render
 enum class VulkanDrawableType
 {
     Colored,
-    Textured
+    Textured,
+    Mesh
 };
 class VulkanDrawable : public virtual Drawable
 {
