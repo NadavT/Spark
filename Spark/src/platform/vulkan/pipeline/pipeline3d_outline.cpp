@@ -98,8 +98,8 @@ void VulkanPipeline3DOutline::createGraphicsPipeline()
     VkPipelineVertexInputStateCreateInfo vertexInputInfo{};
     vertexInputInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
 
-    auto bindingDescription = Vertex3D::getBindingDescription();
-    auto attributeDescriptions = Vertex3D::getAttributeDescriptions();
+    auto bindingDescription = vertex3DGetBindingDescription();
+    auto attributeDescriptions = vertex3DGetAttributeDescriptions();
 
     vertexInputInfo.vertexBindingDescriptionCount = 1;
     vertexInputInfo.vertexAttributeDescriptionCount = static_cast<uint32_t>(attributeDescriptions.size());

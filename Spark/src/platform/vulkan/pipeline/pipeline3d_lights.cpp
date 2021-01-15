@@ -257,8 +257,8 @@ void VulkanPipeline3DLights::createGraphicsPipeline()
     VkPipelineVertexInputStateCreateInfo vertexInputInfo{};
     vertexInputInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
 
-    auto bindingDescription = Vertex3D::getBindingDescription();
-    auto attributeDescriptions = Vertex3D::getAttributeDescriptions();
+    auto bindingDescription = vertex3DGetBindingDescription();
+    auto attributeDescriptions = vertex3DGetAttributeDescriptions();
 
     vertexInputInfo.vertexBindingDescriptionCount = 1;
     vertexInputInfo.vertexAttributeDescriptionCount = static_cast<uint32_t>(attributeDescriptions.size());
@@ -388,8 +388,6 @@ void VulkanPipeline3DLights::updateTextureDescriptorSets(unsigned int amount,
 {
     std::vector<std::vector<VkDescriptorImageInfo>> imageInfos;
     imageInfos.resize(amount * 2, std::vector<VkDescriptorImageInfo>(m_context.m_swapChainImages.size()));
-    std::vector<std::vector<VkDescriptorBufferInfo>> bufferInfos;
-    bufferInfos.resize(amount, std::vector<VkDescriptorBufferInfo>(m_context.m_swapChainImages.size()));
 
     std::vector<VkWriteDescriptorSet> descriptorWrites = {};
 
