@@ -22,22 +22,6 @@ VulkanPipeline::VulkanPipeline(VulkanContext &context, VulkanFramebuffer &frameb
     m_inputAssemblyState.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
     m_inputAssemblyState.primitiveRestartEnable = VK_FALSE;
 
-    m_viewport.x = 0.0f;
-    m_viewport.y = 0.0f;
-    m_viewport.width = (float)m_context.m_swapChainExtent.width;
-    m_viewport.height = (float)m_context.m_swapChainExtent.height;
-    m_viewport.minDepth = 0.0f;
-    m_viewport.maxDepth = 1.0f;
-
-    m_scissor.offset = {0, 0};
-    m_scissor.extent = m_context.m_swapChainExtent;
-
-    m_viewportState.sType = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO;
-    m_viewportState.viewportCount = 1;
-    m_viewportState.pViewports = &m_viewport;
-    m_viewportState.scissorCount = 1;
-    m_viewportState.pScissors = &m_scissor;
-
     m_rasterizationState.sType = VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO;
     m_rasterizationState.depthClampEnable = VK_FALSE;
     m_rasterizationState.rasterizerDiscardEnable = VK_FALSE;
@@ -46,10 +30,6 @@ VulkanPipeline::VulkanPipeline(VulkanContext &context, VulkanFramebuffer &frameb
     m_rasterizationState.cullMode = VK_CULL_MODE_FRONT_BIT;
     m_rasterizationState.frontFace = VK_FRONT_FACE_CLOCKWISE;
     m_rasterizationState.depthBiasEnable = VK_FALSE;
-
-    m_multiSampleState.sType = VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO;
-    m_multiSampleState.sampleShadingEnable = (m_context.m_msaaSamples != VK_SAMPLE_COUNT_1_BIT) ? VK_TRUE : VK_FALSE;
-    m_multiSampleState.rasterizationSamples = m_context.m_msaaSamples;
 
     m_depthStencilState.sType = VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO;
     m_depthStencilState.depthTestEnable = VK_TRUE;
@@ -77,6 +57,8 @@ VulkanPipeline::VulkanPipeline(VulkanContext &context, VulkanFramebuffer &frameb
     m_colorBlendState.blendConstants[1] = 0.0f;
     m_colorBlendState.blendConstants[2] = 0.0f;
     m_colorBlendState.blendConstants[3] = 0.0f;
+
+    recreate();
 }
 
 VulkanPipeline::~VulkanPipeline()
@@ -93,6 +75,26 @@ void VulkanPipeline::cleanup()
 void VulkanPipeline::recreate()
 {
     m_pipeline = VK_NULL_HANDLE;
+
+    m_multiSampleState.sType = VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO;
+    m_multiSampleState.sampleShadingEnable = (m_context.m_msaaSamples != VK_SAMPLE_COUNT_1_BIT) ? VK_TRUE : VK_FALSE;
+    m_multiSampleState.rasterizationSamples = m_context.m_msaaSamples;
+
+    m_viewport.x = 0.0f;
+    m_viewport.y = 0.0f;
+    m_viewport.width = (float)m_context.m_swapChainExtent.width;
+    m_viewport.height = (float)m_context.m_swapChainExtent.height;
+    m_viewport.minDepth = 0.0f;
+    m_viewport.maxDepth = 1.0f;
+
+    m_scissor.offset = {0, 0};
+    m_scissor.extent = m_context.m_swapChainExtent;
+
+    m_viewportState.sType = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO;
+    m_viewportState.viewportCount = 1;
+    m_viewportState.pViewports = &m_viewport;
+    m_viewportState.scissorCount = 1;
+    m_viewportState.pScissors = &m_scissor;
 }
 
 void VulkanPipeline::bind(VkCommandBuffer commandBuffer)
