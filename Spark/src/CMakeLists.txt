@@ -30,6 +30,7 @@ set(SPARK_SOURCE
     "spark/objects/box.cpp"
     "spark/utils/file.cpp"
     "spark/resource/mesh.cpp"
+    "spark/resource/model.cpp"
     "spark/resource/texture.cpp"
     "spark/resource/resource_manager.cpp"
      )
@@ -66,6 +67,7 @@ set(SPARK_VULKAN_SOURCE
     "platform/vulkan/layers/layer_renderer_2d.cpp"
     "platform/vulkan/layers/layer_renderer_3d.cpp"
     "platform/vulkan/layers/layer_renderer_3d_lights.cpp"
+    "platform/vulkan/layers/layer_renderer_3d_model.cpp"
     "platform/vulkan/drawables/quad.cpp"
     "platform/vulkan/drawables/colored_drawable.cpp"
     "platform/vulkan/drawables/textured_drawable.cpp"
@@ -76,6 +78,7 @@ set(SPARK_VULKAN_SOURCE
     "platform/vulkan/drawables/box.cpp"
     "platform/vulkan/drawables/sphere.cpp"
     "platform/vulkan/drawables/point_light.cpp"
+    "platform/vulkan/drawables/model.cpp"
     )
 
 set(SPARK_IMGUI_SOURCE
@@ -94,9 +97,9 @@ add_library(spark SHARED ${SPARK_SOURCE} ${SPARK_WINDOWS_SOURCE} ${SPARK_VULKAN_
 set_property(TARGET spark PROPERTY CXX_STANDARD 17)
 
 target_include_directories(spark PUBLIC ${PROJECT_SOURCE_DIR}/src ${PROJECT_SOURCE_DIR}/vendor/spdlog/include ${PROJECT_SOURCE_DIR}/vendor/glm ${PROJECT_SOURCE_DIR}/vendor/imgui)
-target_include_directories(spark PRIVATE ${PROJECT_SOURCE_DIR}/vendor/glfw/include Vulkan::Vulkan ${PROJECT_SOURCE_DIR}/src ${PROJECT_SOURCE_DIR}/vendor/stb)
+target_include_directories(spark PRIVATE ${PROJECT_SOURCE_DIR}/vendor/glfw/include Vulkan::Vulkan ${PROJECT_SOURCE_DIR}/src ${PROJECT_SOURCE_DIR}/vendor/stb ${PROJECT_SOURCE_DIR}/vendor/assimp/include)
 
-target_link_libraries(spark PRIVATE glfw Vulkan::Vulkan)
+target_link_libraries(spark PRIVATE glfw Vulkan::Vulkan assimp)
 
 target_compile_definitions(spark PUBLIC SPARK_DYNAMIC_LINK)
 target_compile_definitions(spark PRIVATE SPARK_BUILD_DLL SPARK_PLATFORM_VULKAN VK_USE_PLATFORM_WIN32_KHR NOMINMAX STB_IMAGE_IMPLEMENTATION)
@@ -130,7 +133,7 @@ foreach(shader ${shaders})
                         COMMAND %VULKAN_SDK%/Bin/glslc.exe ${shader} -DCOLOR -o ${PROJECT_BINARY_DIR}/shaders/${shader_output_name}
                         COMMAND ${CMAKE_COMMAND} -E copy ${PROJECT_BINARY_DIR}/shaders/${shader_output_name} ${APP_EXECUTABLE_PATH}/shaders
                         BYPRODUCTS ${PROJECT_BINARY_DIR}/shaders/${shader_output_name}
-                        DEPENDS stamp
+                        DEPENDS stamp ${shader}
                         )
         add_custom_target(${shader_name}_color
                         DEPENDS ${APP_EXECUTABLE_PATH}/shaders/${shader_output_name}
@@ -142,7 +145,7 @@ foreach(shader ${shaders})
                         COMMAND %VULKAN_SDK%/Bin/glslc.exe ${shader} -DTEXTURE -o ${PROJECT_BINARY_DIR}/shaders/${shader_output_name}
                         COMMAND ${CMAKE_COMMAND} -E copy ${PROJECT_BINARY_DIR}/shaders/${shader_output_name} ${APP_EXECUTABLE_PATH}/shaders
                         BYPRODUCTS ${PROJECT_BINARY_DIR}/shaders/${shader_output_name}
-                        DEPENDS stamp
+                        DEPENDS stamp ${shader}
                         )
         add_custom_target(${shader_name}_texture
                         DEPENDS ${APP_EXECUTABLE_PATH}/shaders/${shader_output_name}
@@ -153,7 +156,7 @@ foreach(shader ${shaders})
                         COMMAND %VULKAN_SDK%/Bin/glslc.exe ${shader} -o ${PROJECT_BINARY_DIR}/shaders/${shader_output_name}
                         COMMAND ${CMAKE_COMMAND} -E copy ${PROJECT_BINARY_DIR}/shaders/${shader_output_name} ${APP_EXECUTABLE_PATH}/shaders
                         BYPRODUCTS ${PROJECT_BINARY_DIR}/shaders/${shader_output_name}
-                        DEPENDS stamp
+                        DEPENDS stamp ${shader}
                         )
         add_custom_target(${shader_name}
                         DEPENDS ${APP_EXECUTABLE_PATH}/shaders/${shader_output_name}

@@ -2,6 +2,8 @@
 
 #include "drawable.h"
 
+#include "spark/resource/model.h"
+
 namespace Spark::Render
 {
 class Drawable3D : public virtual Drawable
@@ -27,4 +29,6 @@ class Drawable3D : public virtual Drawable
     glm::mat4 m_scaleMatrix;
     glm::mat4 m_rotationMatrix;
 };
+
+SPARK_API std::unique_ptr<Drawable3D> createModelDrawable(const Model &model, glm::vec3 position, glm::vec3 scale);
 } // namespace Spark::Render

@@ -2,6 +2,11 @@
 
 #include <glm/gtc/matrix_transform.hpp>
 
+#ifdef SPARK_PLATFORM_VULKAN
+    #include "platform/vulkan/drawables/model.h"
+    #include "platform/vulkan/renderer.h"
+#endif // SPARK_PLATFORM_VULKAN
+
 namespace Spark::Render
 {
 Drawable3D::Drawable3D(glm::vec3 position, glm::vec3 scale, float rotationAngle, glm::vec3 rotationAxis)
@@ -10,6 +15,11 @@ Drawable3D::Drawable3D(glm::vec3 position, glm::vec3 scale, float rotationAngle,
     , m_scaleMatrix(glm::scale(glm::mat4(1), scale))
     , m_rotationMatrix(glm::rotate(glm::mat4(1), rotationAngle, rotationAxis))
 {
+}
+
+std::unique_ptr<Drawable3D> createModelDrawable(const Model &model, glm::vec3 position, glm::vec3 scale)
+{
+    return std::make_unique<VulkanDrawableModel>(model, position, scale);
 }
 
 void Drawable3D::move(glm::vec3 position)

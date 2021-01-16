@@ -55,4 +55,22 @@ const Texture *ResourceManager::getTexture(const std::string &name)
 
     return reinterpret_cast<Texture *>(resource);
 }
+
+SPARK_API const Model &ResourceManager::loadModel(const std::string &name, const std::string &path)
+{
+    s_resources[name] = std::move(std::make_unique<Model>(name, path));
+    return *reinterpret_cast<Model *>(s_resources[name].get());
+}
+
+SPARK_API const Model *ResourceManager::getModel(const std::string &name)
+{
+    Resource *resource = getResource(name);
+    if (resource == nullptr || resource->getType() != ResourceType::model)
+    {
+        SPARK_CORE_WARN("Couldn't find requested texture: " + name);
+        return nullptr;
+    }
+
+    return reinterpret_cast<Model *>(resource);
+}
 } // namespace Spark

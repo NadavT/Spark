@@ -44,13 +44,15 @@ struct VulkanShaderSpotLightModel
     alignas(16) glm::vec3 diffuse;
     alignas(16) glm::vec3 specular;
 
-    float innerCutOff;
-    float outerCutOff;
+    alignas(4) float innerCutOff;
+    alignas(4) float outerCutOff;
 };
 
 struct MaterialModel
 {
-    alignas(16) glm::vec3 baseColor;
+    alignas(16) glm::vec3 baseColorDiffuse;
+    alignas(16) glm::vec3 baseColorSpecular;
+    alignas(16) glm::vec3 baseColorAmbient;
     alignas(4) int texturesAmount;
     alignas(4) int specularAmount;
     alignas(4) float shininess;
@@ -73,8 +75,6 @@ class VulkanPipeline3DModel : public VulkanPipeline
 
     virtual void bind(VkCommandBuffer commandBuffer, VkDescriptorSet transformationSet, VkDescriptorSet lightSet,
                       VkDescriptorSet materialSet, VkDescriptorSet textureSet, struct Vulkan3DModelConsts pushConsts);
-    virtual void bind(VkCommandBuffer commandBuffer, VkDescriptorSet transformationSet, VkDescriptorSet lightSet,
-                      VkDescriptorSet materialSet, struct Vulkan3DModelConsts pushConsts);
 
     VkDescriptorSetLayout getMVPDescriptorSetLayout();
     VkDescriptorSetLayout getLightsDescriptorSetLayout();

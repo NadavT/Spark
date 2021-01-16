@@ -55,18 +55,6 @@ void VulkanPipeline3DModel::bind(VkCommandBuffer commandBuffer, VkDescriptorSet 
                        &pushConsts);
 }
 
-void VulkanPipeline3DModel::bind(VkCommandBuffer commandBuffer, VkDescriptorSet transformationSet,
-                                 VkDescriptorSet lightSet, VkDescriptorSet materialSet,
-                                 struct Vulkan3DModelConsts pushConsts)
-{
-    const VkDescriptorSet descriptorSets[] = {transformationSet, lightSet, materialSet};
-    vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_pipelineLayout, 0, 3, descriptorSets, 0,
-                            nullptr);
-    vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_pipeline);
-    vkCmdPushConstants(commandBuffer, m_pipelineLayout, VK_SHADER_STAGE_ALL_GRAPHICS, 0, sizeof(pushConsts),
-                       &pushConsts);
-}
-
 VkDescriptorSetLayout VulkanPipeline3DModel::getMVPDescriptorSetLayout()
 {
     return m_transformationDescriptorSetLayout;
@@ -370,23 +358,52 @@ void VulkanPipeline3DModel::updateTextureDescriptorSets(std::vector<std::vector<
     {
         for (size_t j = 0; j < m_context.m_swapChainImages.size(); j++)
         {
-            std::vector<VkDescriptorImageInfo> info(m_context.m_swapChainImages.size());
+            std::vector<VkDescriptorImageInfo> info(MAX_TEXTURES);
             VkWriteDescriptorSet writeDescripotrSet = {};
-            for (size_t k = 0; k < textureImageViews[i].size(); k++)
+            if (textureImageViews[i].size() > 0)
             {
-                info[k].imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-                info[k].imageView = textureImageViews[i][j];
-                info[k].sampler = textureSamplers[i][j];
+                for (size_t k = 0; k < textureImageViews[i].size(); k++)
+                {
+                    info[k].imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+                    info[k].imageView = textureImageViews[i][k];
+                    info[k].sampler = textureSamplers[i][k];
+                }
+                for (size_t k = 0; k < MAX_TEXTURES - textureImageViews[i].size(); k++)
+                {
+                    info[textureImageViews[i].size() + k].imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+                    info[textureImageViews[i].size() + k].imageView = textureImageViews[i][0];
+                    info[textureImageViews[i].size() + k].sampler = textureSamplers[i][0];
+                }
+                imageInfos.push_back(info);
+                writeDescripotrSet.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+                writeDescripotrSet.dstSet = sets[offset + i][j];
+                writeDescripotrSet.dstBinding = 0;
+                writeDescripotrSet.dstArrayElement = 0;
+                writeDescripotrSet.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+                writeDescripotrSet.descriptorCount = MAX_TEXTURES;
+                writeDescripotrSet.pImageInfo = imageInfos.back().data();
+                descriptorWrites.push_back(writeDescripotrSet);
             }
-            imageInfos.push_back(info);
-            writeDescripotrSet.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-            writeDescripotrSet.dstSet = sets[offset + i][j];
-            writeDescripotrSet.dstBinding = 0;
-            writeDescripotrSet.dstArrayElement = 0;
-            writeDescripotrSet.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-            writeDescripotrSet.descriptorCount = static_cast<uint32_t>(textureImageViews[i].size());
-            writeDescripotrSet.pImageInfo = imageInfos.back().data();
-            descriptorWrites.push_back(writeDescripotrSet);
+
+            if (specularImageViews[i].size() > 0)
+            {
+                for (size_t k = 0; k < specularImageViews[i].size(); k++)
+                {
+                    info[k].imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+                    info[k].imageView = specularImageViews[i][k];
+                    info[k].sampler = specularSamplers[i][k];
+                }
+                for (size_t k = 0; k < MAX_TEXTURES - specularImageViews[i].size(); k++)
+                {
+                    info[specularImageViews[i].size() + k].imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+                    info[specularImageViews[i].size() + k].imageView = specularImageViews[i][0];
+                    info[specularImageViews[i].size() + k].sampler = specularSamplers[i][0];
+                }
+                imageInfos.push_back(info);
+                writeDescripotrSet.dstBinding = 1;
+                writeDescripotrSet.pImageInfo = imageInfos.back().data();
+                descriptorWrites.push_back(writeDescripotrSet);
+            }
         }
     }
 

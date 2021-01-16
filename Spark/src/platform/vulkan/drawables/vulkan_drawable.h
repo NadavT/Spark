@@ -11,7 +11,7 @@ enum class VulkanDrawableType
 {
     Colored,
     Textured,
-    Mesh
+    Model
 };
 class VulkanDrawable : public virtual Drawable
 {

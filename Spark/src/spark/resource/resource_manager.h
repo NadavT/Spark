@@ -5,6 +5,7 @@
 #include <memory>
 #include <unordered_map>
 
+#include "model.h"
 #include "texture.h"
 
 namespace Spark
@@ -22,6 +23,9 @@ class ResourceManager
 
     SPARK_API static const Texture &loadTexture(const std::string &name, const std::string &path);
     SPARK_API static const Texture *getTexture(const std::string &name);
+
+    SPARK_API static const Model &loadModel(const std::string &name, const std::string &path);
+    SPARK_API static const Model *getModel(const std::string &name);
 
   private:
     ResourceManager() = delete;

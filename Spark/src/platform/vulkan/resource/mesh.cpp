@@ -5,8 +5,9 @@
 namespace Spark::Render
 {
 VulkanMesh::VulkanMesh(VulkanRenderer &renderer, std::vector<Vertex3D> vertices, std::vector<unsigned int> indices,
-                       std::vector<const Texture *> &textures)
-    : Mesh(vertices, indices, textures)
+                       struct MeshBaseColor baseColor, float shininess, std::vector<const Texture *> &textures,
+                       std::vector<const Texture *> &specularTextures)
+    : Mesh(vertices, indices, baseColor, shininess, textures, specularTextures)
     , m_renderer(renderer)
     , m_vertexBuffer(VK_NULL_HANDLE)
     , m_vertexBufferMemory(VK_NULL_HANDLE)
@@ -61,11 +62,6 @@ VulkanMesh &VulkanMesh::operator=(VulkanMesh &&other) noexcept
 {
     moveMesh(other);
     return *this;
-}
-
-VulkanDrawableType VulkanMesh::getDrawableType() const
-{
-    return VulkanDrawableType::Mesh;
 }
 
 void VulkanMesh::fillCommandBuffer(VkCommandBuffer commandBuffer)

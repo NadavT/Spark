@@ -5,6 +5,7 @@
 #include "platform/vulkan/pipeline/pipeline2d.h"
 #include "platform/vulkan/pipeline/pipeline3d.h"
 #include "platform/vulkan/pipeline/pipeline3d_lights.h"
+#include "platform/vulkan/pipeline/pipeline3d_model.h"
 #include "platform/vulkan/pipeline/pipeline3d_outline.h"
 #include "platform/vulkan/pipeline/pipeline3d_wireframe.h"
 #include "platform/vulkan/pipeline/pipeline_triangle.h"
@@ -288,6 +289,9 @@ VulkanPipeline *VulkanRenderer::createPipeline(VulkanPipelineType type, VulkanFr
         return m_pipelines.back().get();
     case VulkanPipelineType::Type3DLights:
         m_pipelines.push_back(std::make_unique<VulkanPipeline3DLights>(m_context, framebuffer));
+        return m_pipelines.back().get();
+    case VulkanPipelineType::Type3DModel:
+        m_pipelines.push_back(std::make_unique<VulkanPipeline3DModel>(m_context, framebuffer));
         return m_pipelines.back().get();
     case VulkanPipelineType::Type3DOutline:
         m_pipelines.push_back(std::make_unique<VulkanPipeline3DOutline>(m_context, framebuffer));

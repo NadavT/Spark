@@ -64,7 +64,9 @@ spotLight;
 
 layout(set = 2, binding = 0) uniform Material
 {
-    vec3 baseColor;
+    vec3 baseColorDiffuse;
+    vec3 baseColorSpecular;
+    vec3 baseColorAmbient;
     int texturesAmount;
     int specularAmount;
     float shininess;
@@ -90,10 +92,10 @@ vec3 CalcDirLight(DirectionalLight light, vec3 normal, vec3 viewDir, vec3 color,
     vec3 reflectDir = reflect(-lightDir, normal);
     float spec = pow(max(dot(viewDir, reflectDir), 0.0), material.shininess);
     // combine results
-    vec3 ambient = light.ambient * color;
-    vec3 diffuse = light.diffuse * diff * color;
-    vec3 specular = light.specular * spec * specularColor;
-    return (ambient + diffuse + specular);
+    vec3 ambient = light.ambient * (material.baseColorAmbient + color);
+    vec3 diffuse = light.diffuse * diff * (material.baseColorDiffuse + color);
+    vec3 specular = light.specular * spec * (material.baseColorSpecular + specularColor);
+    return (ambient + diffuse);
 }
 
 vec3 CalcPointLight(PointLight light, vec3 normal, vec3 fragPos, vec3 viewDir, vec3 color, vec3 specularColor)
@@ -108,13 +110,13 @@ vec3 CalcPointLight(PointLight light, vec3 normal, vec3 fragPos, vec3 viewDir, v
     float distance = length(light.position - fragPos);
     float attenuation = 1.0 / (light.constant + light.linear * distance + light.quadratic * (distance * distance));
     // combine results
-    vec3 ambient = light.ambient * color;
-    vec3 diffuse = light.diffuse * diff * color;
-    vec3 specular = light.specular * spec * specularColor;
+    vec3 ambient = light.ambient * (material.baseColorAmbient + color);
+    vec3 diffuse = light.diffuse * diff * (material.baseColorDiffuse + color);
+    vec3 specular = light.specular * spec * (material.baseColorSpecular + specularColor);
     ambient *= attenuation;
     diffuse *= attenuation;
     specular *= attenuation;
-    return (ambient + diffuse + specular);
+    return (ambient + diffuse);
 }
 
 vec3 CalcSpotLight(SpotLight light, vec3 normal, vec3 fragPos, vec3 viewDir, vec3 color, vec3 specularColor)
@@ -131,12 +133,12 @@ vec3 CalcSpotLight(SpotLight light, vec3 normal, vec3 fragPos, vec3 viewDir, vec
     float epsilon = light.innerCutOff - light.outerCutOff;
     float intensity = clamp((theta - light.outerCutOff) / epsilon, 0.0, 1.0);
     // combine results
-    vec3 ambient = light.ambient * color;
-    vec3 diffuse = light.diffuse * diff * color;
-    vec3 specular = light.specular * spec * specularColor;
+    vec3 ambient = light.ambient * (material.baseColorAmbient + color);
+    vec3 diffuse = light.diffuse * diff * (material.baseColorDiffuse + color);
+    vec3 specular = light.specular * spec * (material.baseColorSpecular + specularColor);
     diffuse *= intensity;
     specular *= intensity;
-    return (ambient + diffuse + specular);
+    return (ambient + diffuse);
 }
 
 void main()
@@ -144,31 +146,32 @@ void main()
     vec3 normal = normalize(fragNormal);
     vec3 viewDir = normalize(-fragPos);
 
-    vec3 originalColor = material.baseColor;
-    vec3 specularColor = material.baseColor;
+    vec3 originalTexture = vec3(0);
+    vec3 originalSpecular = vec3(0);
     for (int i = 0; i < material.texturesAmount; i++)
     {
-        originalColor += vec3(texture(texSamplers[i], fragTexCoord));
+        originalTexture += vec3(texture(texSamplers[i], fragTexCoord));
     }
     for (int i = 0; i < material.texturesAmount; i++)
     {
-        specularColor += vec3(texture(specularSamplers[i], fragTexCoord));
+        originalSpecular += vec3(texture(specularSamplers[i], fragTexCoord));
     }
 
     if (pushConsts.calcLight)
     {
         vec3 finalColor = vec3(0);
-        finalColor += CalcDirLight(directionalLight.light, normal, viewDir, originalColor, specularColor);
+        finalColor += CalcDirLight(directionalLight.light, normal, viewDir, originalTexture, originalSpecular);
 
         for (int i = 0; i < pushConsts.numberOfPointLights; i++)
-            finalColor += CalcPointLight(pointLights.lights[i], normal, fragPos, viewDir, originalColor, specularColor);
+            finalColor +=
+                CalcPointLight(pointLights.lights[i], normal, fragPos, viewDir, originalTexture, originalSpecular);
 
-        finalColor += CalcSpotLight(spotLight.light, normal, fragPos, viewDir, originalColor, specularColor);
+        finalColor += CalcSpotLight(spotLight.light, normal, fragPos, viewDir, originalTexture, originalSpecular);
 
         outColor = vec4(finalColor, 1.0);
     }
     else
     {
-        outColor = vec4(originalColor, 1.0);
+        outColor = vec4(originalTexture, 1.0);
     }
 }
