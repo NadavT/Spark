@@ -118,7 +118,7 @@ void Model::processMesh(aiMesh *mesh, const aiScene *scene)
     baseColor.ambient = {color.r, color.g, color.b};
     float shininess = 0;
     float shininessStength = 0;
-    SPARK_CORE_ASSERT(material->Get(AI_MATKEY_SHININESS, shininessStength) == AI_SUCCESS, "Failed to get shininess");
+    material->Get(AI_MATKEY_SHININESS, shininess);
     if (material->Get(AI_MATKEY_SHININESS_STRENGTH, shininessStength) == AI_SUCCESS)
     {
         shininess *= shininessStength;
