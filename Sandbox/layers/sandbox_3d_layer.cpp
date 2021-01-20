@@ -29,9 +29,9 @@ Sandbox3DLayer::Sandbox3DLayer()
         Spark::ResourceManager::loadTexture("cubeTexutreSpecular", "textures/container2_specular.png");
     // m_objects.push_back(Spark::createBox({0, 0, 0}, 1, 1, 1, texture, specularTexture));
     // addObjectA(*m_objects.back());
-    const Spark::Model &model = Spark::ResourceManager::loadModel("modelTest", "model/backpack/backpack.obj");
-    addDrawable(
-        std::shared_ptr<Spark::Render::Drawable>(Spark::Render::createModelDrawable(model, {0, 0, 0}, {1, 1, 1})));
+    const Spark::Model &model = Spark::ResourceManager::loadModel("modelTest", "model/backpack/scene.gltf");
+    addDrawable(std::shared_ptr<Spark::Render::Drawable>(
+        Spark::Render::createModelDrawable(model, {0, 0, 0}, {0.05, 0.05, 0.05})));
     setDirLight({m_dirLightDirection[0], m_dirLightDirection[1], m_dirLightDirection[2]},
                 {m_dirLightColor[0], m_dirLightColor[1], m_dirLightColor[2]});
     glm::vec3 spherePos = {0, 0, -2.0f};

@@ -24,8 +24,8 @@ class Model : public Resource
   private:
 #ifdef SPARK_BUILD_DLL
     void loadModel(std::string path);
-    void processNode(aiNode *node, const aiScene *scene);
-    void processMesh(aiMesh *mesh, const aiScene *scene);
+    void processNode(aiNode *node, const aiScene *scene, aiMatrix4x4 transform);
+    void processMesh(aiMesh *mesh, const aiScene *scene, aiMatrix4x4 transform);
     std::vector<const Texture *> loadMaterialTextures(aiMaterial *mat, aiTextureType type);
 #endif
 

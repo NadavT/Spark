@@ -25,8 +25,8 @@ const std::vector<std::unique_ptr<Mesh>> &Model::getMeshes() const
 void Model::loadModel(std::string path)
 {
     Assimp::Importer importer;
-    const aiScene *scene =
-        importer.ReadFile(path, aiProcess_Triangulate | aiProcess_OptimizeMeshes | aiProcess_GenSmoothNormals);
+    const aiScene *scene = importer.ReadFile(path, aiProcess_Triangulate | aiProcess_FlipUVs |
+                                                       aiProcess_OptimizeMeshes | aiProcess_GenSmoothNormals);
     // check for errors
     SPARK_CORE_ASSERT(scene && !(scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE) && scene->mRootNode,
                       std::string("ASSIMP: ") + importer.GetErrorString())
@@ -34,27 +34,28 @@ void Model::loadModel(std::string path)
     m_directory = path.substr(0, path.find_last_of('/'));
 
     // process ASSIMP's root node recursively
-    processNode(scene->mRootNode, scene);
+    processNode(scene->mRootNode, scene, aiMatrix4x4());
 }
 
-void Model::processNode(aiNode *node, const aiScene *scene)
+void Model::processNode(aiNode *node, const aiScene *scene, aiMatrix4x4 transform)
 {
+    aiMatrix4x4 currTransform = transform * node->mTransformation;
     // process each mesh located at the current node
     for (unsigned int i = 0; i < node->mNumMeshes; i++)
     {
         // the node object only contains indices to index the actual objects in the scene.
         // the scene contains all the data, node is just to keep stuff organized (like relations between nodes).
         aiMesh *mesh = scene->mMeshes[node->mMeshes[i]];
-        processMesh(mesh, scene);
+        processMesh(mesh, scene, currTransform);
     }
     // after we've processed all of the meshes (if any) we then recursively process each of the children nodes
     for (unsigned int i = 0; i < node->mNumChildren; i++)
     {
-        processNode(node->mChildren[i], scene);
+        processNode(node->mChildren[i], scene, currTransform);
     }
 }
 
-void Model::processMesh(aiMesh *mesh, const aiScene *scene)
+void Model::processMesh(aiMesh *mesh, const aiScene *scene, aiMatrix4x4 transform)
 {
     // data to fill
     std::vector<Vertex3D> vertices;
@@ -64,9 +65,10 @@ void Model::processMesh(aiMesh *mesh, const aiScene *scene)
     for (unsigned int i = 0; i < mesh->mNumVertices; i++)
     {
         Vertex3D vertex;
-        vertex.pos.x = mesh->mVertices[i].x;
-        vertex.pos.y = mesh->mVertices[i].y;
-        vertex.pos.z = mesh->mVertices[i].z;
+        aiVector3D vertexPos = transform * mesh->mVertices[i];
+        vertex.pos.x = vertexPos.x;
+        vertex.pos.y = vertexPos.y;
+        vertex.pos.z = vertexPos.z;
         // normals
         if (mesh->HasNormals())
         {
@@ -75,7 +77,7 @@ void Model::processMesh(aiMesh *mesh, const aiScene *scene)
             vertex.normal.z = mesh->mNormals[i].z;
         }
         // texture coordinates
-        SPARK_CORE_ASSERT(mesh->GetNumUVChannels() == 1, "Only supporting models with one UV channel")
+        // SPARK_CORE_ASSERT(mesh->GetNumUVChannels() == 1, "Only supporting models with one UV channel")
         if (mesh->mTextureCoords[0]) // does the mesh contain texture coordinates?
         {
             vertex.texCoord.x = mesh->mTextureCoords[0][i].x;
@@ -109,13 +111,22 @@ void Model::processMesh(aiMesh *mesh, const aiScene *scene)
     aiMaterial *material = scene->mMaterials[mesh->mMaterialIndex];
 
     struct MeshBaseColor baseColor;
+    baseColor.diffuse = glm::vec3(0, 0, 0);
+    baseColor.specular = glm::vec3(0, 0, 0);
+    baseColor.ambient = glm::vec3(0, 0, 0);
     aiColor3D color(0, 0, 0);
-    SPARK_CORE_ASSERT(material->Get(AI_MATKEY_COLOR_DIFFUSE, color) == AI_SUCCESS, "Failed to get color");
-    baseColor.diffuse = {color.r, color.g, color.b};
-    SPARK_CORE_ASSERT(material->Get(AI_MATKEY_COLOR_SPECULAR, color) == AI_SUCCESS, "Failed to get color");
-    baseColor.specular = {color.r, color.g, color.b};
-    SPARK_CORE_ASSERT(material->Get(AI_MATKEY_COLOR_AMBIENT, color) == AI_SUCCESS, "Failed to get color");
-    baseColor.ambient = {color.r, color.g, color.b};
+    if (material->Get(AI_MATKEY_COLOR_DIFFUSE, color) == AI_SUCCESS)
+    {
+        baseColor.diffuse = {color.r, color.g, color.b};
+    };
+    if (material->Get(AI_MATKEY_COLOR_SPECULAR, color) == AI_SUCCESS)
+    {
+        baseColor.specular = {color.r, color.g, color.b};
+    }
+    if (material->Get(AI_MATKEY_COLOR_AMBIENT, color) == AI_SUCCESS)
+    {
+        baseColor.ambient = {color.r, color.g, color.b};
+    }
     float shininess = 0;
     float shininessStength = 0;
     material->Get(AI_MATKEY_SHININESS, shininess);
