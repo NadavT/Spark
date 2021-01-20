@@ -16,7 +16,7 @@ namespace Spark::Render
 class VulkanRenderer : public Renderer
 {
   public:
-    VulkanRenderer(const Window &window);
+    VulkanRenderer(const Window &window, VkSampleCountFlagBits msaaSamples = VK_SAMPLE_COUNT_1_BIT);
     virtual ~VulkanRenderer();
 
     VulkanContext &getContext();
@@ -39,6 +39,10 @@ class VulkanRenderer : public Renderer
     void recreateSwapchain();
 
     virtual void waitForIdle();
+
+    virtual unsigned int getMSAA() const;
+    virtual VkSampleCountFlagBits getVulkanMSAA() const;
+    virtual void setMSAA(unsigned int sampleAmount);
 
     void beginCommandBuffer(VkCommandBuffer commandBuffer, VkCommandBufferBeginInfo *info);
     void endCommandBuffer(VkCommandBuffer commandBuffer);

@@ -85,7 +85,7 @@ void VulkanOverlay::OnAttach()
     init_info.Allocator = VK_NULL_HANDLE;
     init_info.MinImageCount = m_renderer.getImagesAmount();
     init_info.ImageCount = m_renderer.getImagesAmount();
-    init_info.MSAASamples = m_renderer.m_context.m_msaaSamples;
+    init_info.MSAASamples = m_renderer.getVulkanMSAA();
     init_info.CheckVkResultFn = check_vk_result;
     ImGui_ImplVulkan_Init(&init_info, m_framebuffer->getRenderPass());
 
@@ -144,6 +144,11 @@ void VulkanOverlay::OnEvent(Event &e)
 
 void VulkanOverlay::OnRender()
 {
+    if (m_renderer.isRecreationNeeded())
+    {
+        OnDetach();
+        OnAttach();
+    }
     ImGui::Render();
     frameRender();
 }

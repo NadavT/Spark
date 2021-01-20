@@ -19,6 +19,9 @@ class Renderer
 
     virtual void waitForIdle(){};
 
+    SPARK_API virtual unsigned int getMSAA() const = 0;
+    SPARK_API virtual void setMSAA(unsigned int sampleAmount) = 0;
+
   protected:
     Renderer(){};
 

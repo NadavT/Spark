@@ -15,8 +15,6 @@ const bool enableValidationLayers = true;
 const bool enableValidationLayers = false;
 #endif
 
-const bool enableMultisampling = true;
-
 namespace Spark::Render
 {
 static VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
@@ -300,14 +298,7 @@ void VulkanContext::pickPhysicalDevice()
         if (isDeviceSuitable(device))
         {
             m_physicalDevice = device;
-            if (enableMultisampling)
-            {
-                m_msaaSamples = getMaxUsableSampleCount();
-            }
-            else
-            {
-                m_msaaSamples = VK_SAMPLE_COUNT_1_BIT;
-            }
+            m_msaaSamplesSupport = getMaxUsableSampleCount();
             break;
         }
     }

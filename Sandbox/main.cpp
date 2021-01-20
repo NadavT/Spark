@@ -13,6 +13,7 @@ class Sandbox : public Spark::Application
         , m_layer2d()
         , m_layer2DEnabled(false)
 #endif
+        , m_msaa(0)
     {
         m_layer3d = std::make_unique<Sandbox3DLayer>();
 #ifdef LAYER_2D
@@ -21,7 +22,6 @@ class Sandbox : public Spark::Application
         PushLayer(m_layer3d.get());
     }
 
-#ifdef LAYER_2D
     virtual void generateOverlay()
     {
         Spark::Application::generateOverlay();
@@ -30,7 +30,31 @@ class Sandbox : public Spark::Application
         ImGui::SetNextWindowPos(ImVec2(0, ImGui::GetIO().DisplaySize.y - 170), ImGuiCond_Always);
         ImGui::Begin("Sandbox", NULL,
                      ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove);
+        if (ImGui::Combo("msaa", &m_msaa, "1\0002\0004\0008\00016"))
+        {
+            switch (m_msaa)
+            {
+            case 0:
+                GetRenderer().setMSAA(1);
+                break;
+            case 1:
+                GetRenderer().setMSAA(2);
+                break;
+            case 2:
+                GetRenderer().setMSAA(4);
+                break;
+            case 3:
+                GetRenderer().setMSAA(8);
+                break;
+            case 4:
+                GetRenderer().setMSAA(16);
+                break;
+            default:
+                break;
+            }
+        }
 
+#ifdef LAYER_2D
         if (ImGui::Checkbox("2d layer", &m_layer2DEnabled))
         {
             if (m_layer2DEnabled)
@@ -42,10 +66,10 @@ class Sandbox : public Spark::Application
                 PopLayer(m_layer2d.get());
             }
         }
+#endif
 
         ImGui::End();
     }
-#endif
 
     bool handleKeyPressed(Spark::KeyPressedEvent &e)
     {
@@ -65,6 +89,7 @@ class Sandbox : public Spark::Application
     std::unique_ptr<Sandbox2DLayer> m_layer2d;
     bool m_layer2DEnabled;
 #endif
+    int m_msaa;
 };
 
 Spark::Application *Spark::CreateApplication()

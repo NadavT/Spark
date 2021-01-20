@@ -95,6 +95,7 @@ class VulkanContext
     VkSurfaceKHR m_surface;
 
     VkPhysicalDevice m_physicalDevice = VK_NULL_HANDLE;
+    VkSampleCountFlagBits m_msaaSamplesSupport = VK_SAMPLE_COUNT_1_BIT;
     VkSampleCountFlagBits m_msaaSamples = VK_SAMPLE_COUNT_1_BIT;
     VkDevice m_device;
     int maxDescriptorSetArrayLength;

@@ -15,7 +15,7 @@ namespace Spark::Render
 {
 static VkPipelineStageFlags wait_stage = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
 
-VulkanRenderer::VulkanRenderer(const Window &window)
+VulkanRenderer::VulkanRenderer(const Window &window, VkSampleCountFlagBits msaaSamples)
     : m_context(window)
     , m_width(window.GetWidth())
     , m_height(window.GetHeight())
@@ -33,6 +33,7 @@ VulkanRenderer::VulkanRenderer(const Window &window)
     , m_resolveFramebuffer(VK_NULL_HANDLE)
     , m_recreationNeeded(false)
 {
+    m_context.m_msaaSamples = msaaSamples;
     for (int i = 0; i < m_inFlightFences.size(); i++)
     {
         m_inFlightFences[i] = m_context.createFence();
@@ -42,11 +43,11 @@ VulkanRenderer::VulkanRenderer(const Window &window)
 
     if (m_context.m_msaaSamples != VK_SAMPLE_COUNT_1_BIT)
     {
-        m_resolveCommandBuffers.resize(getImagesAmount());
         createMultisamplesResources();
-        m_resolveFramebuffer = createFramebuffer(VulkanFramebufferType::Type2D, false, true);
-        createResolveCommandBuffers();
     }
+    m_resolveFramebuffer = createFramebuffer(VulkanFramebufferType::Type2D, false, true);
+    m_resolveCommandBuffers.resize(getImagesAmount());
+    createResolveCommandBuffers();
 
     m_clearCommandBuffers.resize(getImagesAmount());
     m_clearFramebuffer = createFramebuffer(VulkanFramebufferType::Type2D, true, false);
@@ -351,13 +352,10 @@ void VulkanRenderer::recreateSwapchain()
 
     vkResetCommandPool(m_context.m_device, m_context.m_commandPool, 0);
 
-    if (m_context.m_msaaSamples != VK_SAMPLE_COUNT_1_BIT)
+    cleanupMultisamplesResources();
+    for (VkCommandBuffer commandBuffer : m_resolveCommandBuffers)
     {
-        cleanupMultisamplesResources();
-        for (VkCommandBuffer commandBuffer : m_resolveCommandBuffers)
-        {
-            resetCommandBuffer(commandBuffer);
-        }
+        resetCommandBuffer(commandBuffer);
     }
 
     for (VkCommandBuffer commandBuffer : m_clearCommandBuffers)
@@ -393,6 +391,24 @@ void VulkanRenderer::waitForIdle()
 {
     VkResult result = vkDeviceWaitIdle(m_context.m_device);
     SPARK_CORE_ASSERT(result == VK_SUCCESS, "vkDeviceWaitIdle failed!");
+}
+
+unsigned int VulkanRenderer::getMSAA() const
+{
+    return static_cast<unsigned int>(m_context.m_msaaSamples);
+}
+
+VkSampleCountFlagBits VulkanRenderer::getVulkanMSAA() const
+{
+    return m_context.m_msaaSamples;
+}
+
+void VulkanRenderer::setMSAA(unsigned int sampleAmount)
+{
+    SPARK_CORE_ASSERT(static_cast<VkSampleCountFlagBits>(sampleAmount) <= m_context.m_msaaSamplesSupport,
+                      "Sample count isn't supported by the gpu");
+    m_context.m_msaaSamples = static_cast<VkSampleCountFlagBits>(sampleAmount);
+    recreateSwapchain();
 }
 
 void VulkanRenderer::beginCommandBuffer(VkCommandBuffer commandBuffer, VkCommandBufferBeginInfo *info)
@@ -539,16 +555,19 @@ void VulkanRenderer::cleanupMultisamplesResources()
     if (m_multisampleImageView != VK_NULL_HANDLE)
     {
         vkDestroyImageView(m_context.m_device, m_multisampleImageView, nullptr);
+        m_multisampleImageView = VK_NULL_HANDLE;
     }
 
     if (m_multisampleImage != VK_NULL_HANDLE)
     {
         vkDestroyImage(m_context.m_device, m_multisampleImage, nullptr);
+        m_multisampleImage = VK_NULL_HANDLE;
     }
 
     if (m_multisampleImageMemory != VK_NULL_HANDLE)
     {
         vkFreeMemory(m_context.m_device, m_multisampleImageMemory, nullptr);
+        m_multisampleImageMemory = VK_NULL_HANDLE;
     }
 }
 

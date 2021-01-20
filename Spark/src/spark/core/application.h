@@ -34,7 +34,7 @@ class Application
     SPARK_API virtual void generateOverlay();
 
     const Window &GetWindow() const;
-    Render::Renderer &GetRenderer() const;
+    SPARK_API Render::Renderer &GetRenderer() const;
 
   private:
     void Render();
