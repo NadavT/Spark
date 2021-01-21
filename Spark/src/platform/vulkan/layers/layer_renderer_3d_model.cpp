@@ -487,8 +487,12 @@ void VulkanLayerRenderer3DModel::createCommandBuffers()
                 for (size_t k = 0; k < drawable->getModel().getMeshes().size(); k++)
                 {
                     VulkanMesh *mesh = reinterpret_cast<VulkanMesh *>(drawable->getModel().getMeshes()[k].get());
-                    m_pipeline->bind(commandBuffer, m_transformationDescriptorSets[j][i], m_lightsDescriptorSets[0][i],
-                                     m_materialDescriptorSets[j][k][i], m_textureDescriptorSets[0][i], pushConsts);
+                    m_pipeline->bind(
+                        commandBuffer, m_transformationDescriptorSets[j][i], m_lightsDescriptorSets[0][i],
+                        m_materialDescriptorSets[j][k][i],
+                        m_textureDescriptorSets[m_textureDescriptorOffset[mesh->getTexturesID() +
+                                                                          mesh->getSpecularTexturesID()]][i],
+                        pushConsts);
                     if (drawable->isHighlighted())
                     {
                         vkCmdClearAttachments(commandBuffer, 1, &clearAttachment, 1, &clearRect);
