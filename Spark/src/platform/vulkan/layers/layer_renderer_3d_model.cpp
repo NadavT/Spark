@@ -271,9 +271,9 @@ void VulkanLayerRenderer3DModel::OnRender()
             const Mesh *mesh = drawable->getModel().getMeshes()[j].get();
             MaterialModel material = {};
             struct MeshBaseColor baseColor = mesh->getBaseColor();
-            material.baseColorDiffuse = glm::vec3(0, 0, 0);  // baseColor.diffuse;
-            material.baseColorSpecular = glm::vec3(0, 0, 0); // baseColor.specular;
-            material.baseColorAmbient = glm::vec3(0, 0, 0);  // baseColor.ambient;
+            material.baseColorDiffuse = baseColor.diffuse;
+            material.baseColorSpecular = baseColor.specular;
+            material.baseColorAmbient = baseColor.ambient;
             material.texturesAmount = static_cast<unsigned int>(mesh->getTextures().size());
             material.specularAmount = static_cast<unsigned int>(mesh->getSpecularTextures().size());
             material.shininess = mesh->getShininess();
