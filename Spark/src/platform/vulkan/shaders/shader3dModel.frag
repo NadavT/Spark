@@ -70,6 +70,7 @@ layout(set = 2, binding = 0) uniform Material
     int texturesAmount;
     int specularAmount;
     float shininess;
+    vec3 pureColor;
 }
 material;
 
@@ -172,6 +173,13 @@ void main()
     }
     else
     {
-        outColor = vec4(originalTexture, 1.0);
+        if (material.texturesAmount > 0)
+        {
+            outColor = vec4(originalTexture, 1.0);
+        }
+        else
+        {
+            outColor = vec4(material.pureColor, 1.0);
+        }
     }
 }

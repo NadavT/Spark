@@ -30,15 +30,15 @@ Sandbox3DLayer::Sandbox3DLayer()
     // m_objects.push_back(Spark::createBox({0, 0, 0}, 1, 1, 1, texture, specularTexture));
     // addObjectA(*m_objects.back());
     const Spark::Model &model = Spark::ResourceManager::loadModel("modelTest", "model/backpack/scene.gltf");
-    addDrawable(std::shared_ptr<Spark::Render::Drawable>(
-        Spark::Render::createModelDrawable(model, {0, 0, 0}, {0.05, 0.05, 0.05})));
+    m_objects.push_back(Spark::createModelObject(model, {0, 0, 0}, {0.005, 0.005, 0.005}));
+    addObject(*m_objects.back());
     setDirLight({m_dirLightDirection[0], m_dirLightDirection[1], m_dirLightDirection[2]},
                 {m_dirLightColor[0], m_dirLightColor[1], m_dirLightColor[2]});
     glm::vec3 spherePos = {0, 0, -2.0f};
-    // std::unique_ptr<Spark::Object3D> sphere = Spark::createSphere(spherePos, 0.15f, glm::vec3(0.3f, 0.3f, 0.3f));
-    // m_pointLights.push_back(Spark::Render::createPointLight(glm::vec3(0, 0, -2.0f), {0, 1, 0}, std::move(sphere)));
-    // m_objects.push_back(m_pointLights.back());
-    // addPointLight(*(m_pointLights.back()));
+    std::unique_ptr<Spark::Object3D> sphere = Spark::createSphere(spherePos, 0.15f, glm::vec3(0.3f, 0.3f, 0.3f));
+    m_pointLights.push_back(Spark::Render::createPointLight(glm::vec3(0, 0, -2.0f), {0, 1, 0}, std::move(sphere)));
+    m_objects.push_back(m_pointLights.back());
+    addPointLight(*(m_pointLights.back()));
     setSpotLight({m_spotLightColor[0], m_spotLightColor[1], m_spotLightColor[2]});
 }
 
@@ -309,6 +309,7 @@ void Sandbox3DLayer::generateBoxAdder()
         const Spark::Texture *specularTexture = Spark::ResourceManager::getTexture("cubeTexutreSpecular");
         m_objects.push_back(Spark::createBox(glm::vec3(0, 0, 0), 1, 1, 1, *texture, *specularTexture));
         addObject(*m_objects.back());
+        m_objectToSet = m_objects.back().get();
     }
 }
 

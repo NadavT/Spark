@@ -24,6 +24,7 @@
 
 //----------OBJECTS---------
 #include "spark/objects/box.h"
+#include "spark/objects/model.h"
 #include "spark/objects/object.h"
 #include "spark/objects/sphere.h"
 

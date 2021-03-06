@@ -56,6 +56,7 @@ struct MaterialModel
     alignas(4) int texturesAmount;
     alignas(4) int specularAmount;
     alignas(4) float shininess;
+    alignas(16) glm::vec3 pureColor;
 };
 
 struct Vulkan3DModelConsts
