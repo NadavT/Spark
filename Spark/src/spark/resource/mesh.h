@@ -26,6 +26,7 @@ class Mesh
     virtual float getShininess() const;
     virtual std::string getTexturesID() const;
     virtual std::string getSpecularTexturesID() const;
+    virtual const std::vector<Vertex3D> &getVertices() const;
 
   protected:
     Mesh(std::vector<Vertex3D> vertices, std::vector<unsigned int> indices, struct MeshBaseColor baseColor,

@@ -22,7 +22,7 @@ class Sandbox3DLayer : public Spark::Layer3D
     bool handleMousePressed(Spark::MouseButtonPressedEvent &e);
 
     void generateBoxAdder();
-    void generateBoxSetter();
+    void generateObjectSetter();
     void generateDirLightSetter();
     void generateSpotLightSetter();
     void generatePointLightAdder();

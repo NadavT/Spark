@@ -115,7 +115,7 @@ void Sandbox3DLayer::generateOverlay()
             generateBoxAdder();
             ImGui::TreePop();
         }
-        generateBoxSetter();
+        generateObjectSetter();
 
         ImGui::Separator();
 
@@ -152,6 +152,7 @@ void Sandbox3DLayer::run()
 {
     Spark::Input::HideMouse();
     ImGui::GetIO().ConfigFlags |= ImGuiConfigFlags_NoMouse;
+    ImGui::SetWindowFocus(NULL);
     m_inEditor = false;
 }
 
@@ -243,10 +244,6 @@ bool Sandbox3DLayer::handleKeyPressed(Spark::KeyPressedEvent &e)
 
 bool Sandbox3DLayer::handleMousePressed(Spark::MouseButtonPressedEvent &e)
 {
-    Spark::Physics::Box box(glm::vec3(0, 0, 0), 1, 1, 1);
-    box.move(glm::vec3(1, 1, 1));
-    box.scale(glm::vec3(2, 2, 2));
-    box.rotate(glm::pi<float>() / 8, glm::vec3(1, 0, 0));
     switch (e.GetMouseButton())
     {
     case Spark::MouseCode::ButtonLeft:
@@ -313,7 +310,7 @@ void Sandbox3DLayer::generateBoxAdder()
     }
 }
 
-void Sandbox3DLayer::generateBoxSetter()
+void Sandbox3DLayer::generateObjectSetter()
 {
     if (m_objectToSet)
     {
@@ -323,7 +320,7 @@ void Sandbox3DLayer::generateBoxSetter()
         static std::array<bool, 3> rotationAxis = {0, 0, 1};
         ImGui::CaptureKeyboardFromApp(false);
         ImGui::SetNextWindowCollapsed(false, ImGuiCond_Once);
-        ImGui::Begin("Box setter", NULL,
+        ImGui::Begin("Object setter", NULL,
                      ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoNavInputs);
         if (ImGui::InputFloat3("loaction", nextObjectCords.data()))
         {

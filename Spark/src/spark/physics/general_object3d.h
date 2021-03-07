@@ -9,6 +9,7 @@ class GeneralObject3D : public Object3D
 {
   public:
     SPARK_API GeneralObject3D(glm::vec3 position, glm::vec3 scale);
+    SPARK_API GeneralObject3D(const BoxBounding &boxBound);
     SPARK_API virtual ~GeneralObject3D() = default;
 
     SPARK_API virtual void move(glm::vec3 position);

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "spark/core/core.h"
+#include "spark/physics/bounding/box_bounding.h"
 
 #include "mesh.h"
 #include "resource.h"
@@ -20,6 +21,8 @@ class Model : public Resource
     SPARK_API virtual ~Model() = default;
 
     const std::vector<std::unique_ptr<Mesh>> &getMeshes() const;
+
+    SPARK_API virtual Physics::BoxBounding getBounds() const;
 
   private:
 #ifdef SPARK_BUILD_DLL

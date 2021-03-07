@@ -3,6 +3,7 @@
 #include "object3d_bounding.h"
 
 #include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
 
 namespace Spark::Physics
 {

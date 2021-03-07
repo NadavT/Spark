@@ -11,6 +11,13 @@ GeneralObject3D::GeneralObject3D(glm::vec3 position, glm::vec3 scale)
 {
 }
 
+GeneralObject3D::GeneralObject3D(const BoxBounding &boxBound)
+    : Object3D(boxBound.getTranslation() * glm::vec4(1))
+    , m_scaleMatrix(boxBound.getScale())
+    , m_bounding(boxBound)
+{
+}
+
 void GeneralObject3D::move(glm::vec3 position)
 {
     Object3D::move(position);

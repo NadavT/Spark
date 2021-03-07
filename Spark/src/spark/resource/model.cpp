@@ -22,6 +22,32 @@ const std::vector<std::unique_ptr<Mesh>> &Model::getMeshes() const
     return m_meshes;
 }
 
+Physics::BoxBounding Model::getBounds() const
+{
+    float minX = std::numeric_limits<float>::max();
+    float minY = std::numeric_limits<float>::max();
+    float minZ = std::numeric_limits<float>::max();
+    float maxX = std::numeric_limits<float>::min();
+    float maxY = std::numeric_limits<float>::min();
+    float maxZ = std::numeric_limits<float>::min();
+    for (const auto &mesh : m_meshes)
+    {
+        for (const auto &vertex : mesh->getVertices())
+        {
+            minX = std::min(vertex.pos.x, minX);
+            minY = std::min(vertex.pos.y, minY);
+            minZ = std::min(vertex.pos.z, minZ);
+            maxX = std::max(vertex.pos.x, maxX);
+            maxY = std::max(vertex.pos.y, maxY);
+            maxZ = std::max(vertex.pos.z, maxZ);
+        }
+    }
+
+    return Physics::BoxBounding(glm::translate(glm::mat4(1), glm::vec3(0, 0, 0)),
+                                glm::scale(glm::mat4(1), glm::vec3(maxX - minX, maxY - minY, maxZ - minZ)),
+                                glm::rotate(glm::mat4(1), 0.0f, glm::vec3(1, 0, 0)));
+}
+
 void Model::loadModel(std::string path)
 {
     Assimp::Importer importer;

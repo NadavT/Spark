@@ -70,4 +70,9 @@ std::string Mesh::getSpecularTexturesID() const
     }
     return id;
 }
+
+const std::vector<Vertex3D> &Mesh::getVertices() const
+{
+    return m_vertices;
+}
 } // namespace Spark
