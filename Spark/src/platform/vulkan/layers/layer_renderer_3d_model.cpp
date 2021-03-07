@@ -272,9 +272,6 @@ void VulkanLayerRenderer3DModel::OnRender()
         vkUnmapMemory(m_renderer.m_context.m_device,
                       m_uniformTransformationsMemory[i][m_renderer.getCurrentImageIndex()]);
 
-        transformation.model =
-            glm::scale(transformation.model, {1 + drawable->getHighlightWidth(), 1 + drawable->getHighlightWidth(),
-                                              1 + drawable->getHighlightWidth()});
         vkMapMemory(m_renderer.m_context.m_device,
                     m_uniformOutlineTransformationsMemory[i][m_renderer.getCurrentImageIndex()], 0,
                     sizeof(transformation), 0, &data);
@@ -419,62 +416,61 @@ void VulkanLayerRenderer3DModel::addDrawable(std::shared_ptr<Drawable> &drawable
                                          m_uniformOutlineTransformationsMemory);
             m_pipeline->createSingleTransformationDescriptorSet(m_outlineTransformationDescriptorSets,
                                                                 m_uniformOutlineTransformations.back());
-            if (vulkanDrawable->getDrawableType() == VulkanDrawableType::Textured)
+        }
+        if (vulkanDrawable->getDrawableType() == VulkanDrawableType::Textured)
+        {
+            VulkanTexturedDrawable *texturedDrawable = dynamic_cast<VulkanTexturedDrawable *>(vulkanDrawable);
+            if (m_textureDescriptorOffset.find(texturedDrawable->getTexture().getName()) ==
+                m_textureDescriptorOffset.end())
             {
-                VulkanTexturedDrawable *texturedDrawable = dynamic_cast<VulkanTexturedDrawable *>(vulkanDrawable);
-                if (m_textureDescriptorOffset.find(texturedDrawable->getTexture().getName()) ==
+                m_textureDescriptorOffset[texturedDrawable->getTexture().getName()] =
+                    (unsigned int)m_textureDescriptorOffset.size();
+                m_pipeline->createSingleTextureDescriptorSet(
+                    m_textureDescriptorSets, {texturedDrawable->getTexture().getImage().getImageView()},
+                    {texturedDrawable->getTexture().getSampler().getSampler()},
+                    {texturedDrawable->getSpecularTexture().getImage().getImageView()},
+                    {texturedDrawable->getSpecularTexture().getSampler().getSampler()});
+            }
+        }
+        else if (vulkanDrawable->getDrawableType() == VulkanDrawableType::Model)
+        {
+            VulkanDrawableModel *drawableModel = dynamic_cast<VulkanDrawableModel *>(vulkanDrawable);
+            for (auto &mesh : drawableModel->getModel().getMeshes())
+            {
+                if (m_textureDescriptorOffset.find(mesh->getTexturesID() + mesh->getSpecularTexturesID()) ==
                     m_textureDescriptorOffset.end())
                 {
-                    m_textureDescriptorOffset[texturedDrawable->getTexture().getName()] =
+                    std::vector<VkImageView> meshTextures;
+                    std::vector<VkSampler> meshSamplers;
+                    std::vector<VkImageView> meshSpecularTextures;
+                    std::vector<VkSampler> meshSpecularSamplers;
+                    m_textureDescriptorOffset[mesh->getTexturesID() + mesh->getSpecularTexturesID()] =
                         (unsigned int)m_textureDescriptorOffset.size();
-                    m_pipeline->createSingleTextureDescriptorSet(
-                        m_textureDescriptorSets, {texturedDrawable->getTexture().getImage().getImageView()},
-                        {texturedDrawable->getTexture().getSampler().getSampler()},
-                        {texturedDrawable->getSpecularTexture().getImage().getImageView()},
-                        {texturedDrawable->getSpecularTexture().getSampler().getSampler()});
-                }
-            }
-            else if (vulkanDrawable->getDrawableType() == VulkanDrawableType::Model)
-            {
-                VulkanDrawableModel *drawableModel = dynamic_cast<VulkanDrawableModel *>(vulkanDrawable);
-                for (auto &mesh : drawableModel->getModel().getMeshes())
-                {
-                    if (m_textureDescriptorOffset.find(mesh->getTexturesID() + mesh->getSpecularTexturesID()) ==
-                        m_textureDescriptorOffset.end())
+                    for (auto texture : mesh->getTextures())
                     {
-                        std::vector<VkImageView> meshTextures;
-                        std::vector<VkSampler> meshSamplers;
-                        std::vector<VkImageView> meshSpecularTextures;
-                        std::vector<VkSampler> meshSpecularSamplers;
-                        m_textureDescriptorOffset[mesh->getTexturesID() + mesh->getSpecularTexturesID()] =
-                            (unsigned int)m_textureDescriptorOffset.size();
-                        for (auto texture : mesh->getTextures())
-                        {
-                            const VulkanTexture *vulkanTexture = reinterpret_cast<const VulkanTexture *>(texture);
-                            meshTextures.push_back(vulkanTexture->getImage().getImageView());
-                            meshSamplers.push_back(vulkanTexture->getSampler().getSampler());
-                        }
-                        for (auto texture : mesh->getSpecularTextures())
-                        {
-                            const VulkanTexture *vulkanTexture = reinterpret_cast<const VulkanTexture *>(texture);
-                            meshSpecularTextures.push_back(vulkanTexture->getImage().getImageView());
-                            meshSpecularSamplers.push_back(vulkanTexture->getSampler().getSampler());
-                        }
-                        m_pipeline->createSingleTextureDescriptorSet(m_textureDescriptorSets, meshTextures,
-                                                                     meshSamplers, meshSpecularTextures,
-                                                                     meshSpecularSamplers);
+                        const VulkanTexture *vulkanTexture = reinterpret_cast<const VulkanTexture *>(texture);
+                        meshTextures.push_back(vulkanTexture->getImage().getImageView());
+                        meshSamplers.push_back(vulkanTexture->getSampler().getSampler());
                     }
+                    for (auto texture : mesh->getSpecularTextures())
+                    {
+                        const VulkanTexture *vulkanTexture = reinterpret_cast<const VulkanTexture *>(texture);
+                        meshSpecularTextures.push_back(vulkanTexture->getImage().getImageView());
+                        meshSpecularSamplers.push_back(vulkanTexture->getSampler().getSampler());
+                    }
+                    m_pipeline->createSingleTextureDescriptorSet(m_textureDescriptorSets, meshTextures, meshSamplers,
+                                                                 meshSpecularTextures, meshSpecularSamplers);
                 }
-                materialsAmount = static_cast<unsigned int>(drawableModel->getModel().getMeshes().size());
             }
-            m_uniformMaterialBuffers.push_back(std::vector<std::vector<VkBuffer>>());
-            m_uniformMaterialBuffersMemory.push_back(std::vector<std::vector<VkDeviceMemory>>());
-            m_renderer.createUniformBuffers(sizeof(MaterialModel), m_uniformMaterialBuffers.back(),
-                                            m_uniformMaterialBuffersMemory.back(), materialsAmount);
-            m_materialDescriptorSets.push_back(std::vector<std::vector<VkDescriptorSet>>());
-            m_pipeline->createMaterialDescriptorSets(materialsAmount, m_materialDescriptorSets.back(),
-                                                     m_uniformMaterialBuffers.back());
+            materialsAmount = static_cast<unsigned int>(drawableModel->getModel().getMeshes().size());
         }
+        m_uniformMaterialBuffers.push_back(std::vector<std::vector<VkBuffer>>());
+        m_uniformMaterialBuffersMemory.push_back(std::vector<std::vector<VkDeviceMemory>>());
+        m_renderer.createUniformBuffers(sizeof(MaterialModel), m_uniformMaterialBuffers.back(),
+                                        m_uniformMaterialBuffersMemory.back(), materialsAmount);
+        m_materialDescriptorSets.push_back(std::vector<std::vector<VkDescriptorSet>>());
+        m_pipeline->createMaterialDescriptorSets(materialsAmount, m_materialDescriptorSets.back(),
+                                                 m_uniformMaterialBuffers.back());
         m_isRecreationNeeded = true;
     }
 }
@@ -581,6 +577,7 @@ void VulkanLayerRenderer3DModel::createCommandBuffers()
                     if (texturedDrawable->isHighlighted())
                     {
                         outlinePushConsts.color = texturedDrawable->getHighlightColor();
+                        outlinePushConsts.lineWidth = texturedDrawable->getHighlightWidth();
                         m_outlinePipeline->bind(commandBuffer, m_outlineTransformationDescriptorSets[j][i],
                                                 outlinePushConsts);
                         texturedDrawable->fillCommandBuffer(commandBuffer);
@@ -611,6 +608,7 @@ void VulkanLayerRenderer3DModel::createCommandBuffers()
                     if (coloredDrawable->isHighlighted())
                     {
                         outlinePushConsts.color = coloredDrawable->getHighlightColor();
+                        outlinePushConsts.lineWidth = coloredDrawable->getHighlightWidth();
                         m_outlinePipeline->bind(commandBuffer, m_outlineTransformationDescriptorSets[j][i],
                                                 outlinePushConsts);
                         coloredDrawable->fillCommandBuffer(commandBuffer);
@@ -638,6 +636,7 @@ void VulkanLayerRenderer3DModel::createCommandBuffers()
                         if (modelDrawable->isHighlighted())
                         {
                             outlinePushConsts.color = modelDrawable->getHighlightColor();
+                            outlinePushConsts.lineWidth = modelDrawable->getHighlightWidth();
                             m_outlinePipeline->bind(commandBuffer, m_outlineTransformationDescriptorSets[j][i],
                                                     outlinePushConsts);
                             mesh->fillCommandBuffer(commandBuffer);

@@ -15,6 +15,7 @@ struct Transformation3DOutline
 struct Vulkan3DOutlinePushConsts
 {
     alignas(16) glm::vec3 color;
+    alignas(4) float lineWidth;
 };
 
 class VulkanPipeline3DOutline : public VulkanPipeline

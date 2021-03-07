@@ -5,7 +5,7 @@ namespace Spark::Render
 Drawable::Drawable()
     : m_highlight(false)
     , m_highlightColor{1.0f, 1.0f, 1.0f}
-    , m_highlightWidth(0.1f)
+    , m_highlightWidth(defaultHighlightWidth)
 {
 }
 

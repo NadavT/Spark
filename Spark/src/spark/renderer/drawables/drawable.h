@@ -8,6 +8,9 @@ namespace Spark::Render
 {
 class Drawable
 {
+  protected:
+    const float defaultHighlightWidth = 0.05f;
+
   public:
     SPARK_API virtual ~Drawable() = default;
     SPARK_API virtual glm::mat4 getTransformation() = 0;

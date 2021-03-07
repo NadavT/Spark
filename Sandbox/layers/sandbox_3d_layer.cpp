@@ -306,6 +306,10 @@ void Sandbox3DLayer::generateBoxAdder()
         const Spark::Texture *specularTexture = Spark::ResourceManager::getTexture("cubeTexutreSpecular");
         m_objects.push_back(Spark::createBox(glm::vec3(0, 0, 0), 1, 1, 1, *texture, *specularTexture));
         addObject(*m_objects.back());
+        if (m_objectToSet)
+        {
+            m_objectToSet->getDrawable()->unhighlight();
+        }
         m_objectToSet = m_objects.back().get();
     }
 }

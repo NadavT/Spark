@@ -23,5 +23,5 @@ layout(location = 2) in vec3 inNormal;
 
 void main()
 {
-    gl_Position = mvp.proj * mvp.view * mvp.model * vec4(inPosition, 1.0);
+    gl_Position = mvp.proj * mvp.view * mvp.model * vec4(inPosition + inNormal * pushConsts.lineWidth, 1.0);
 }

@@ -15,6 +15,7 @@ Drawable3D::Drawable3D(glm::vec3 position, glm::vec3 scale, float rotationAngle,
     , m_scaleMatrix(glm::scale(glm::mat4(1), scale))
     , m_rotationMatrix(glm::rotate(glm::mat4(1), rotationAngle, rotationAxis))
 {
+    setHighlightWidth(getHighlightWidth() / ((scale.x + scale.y + scale.z) / 3));
 }
 
 std::unique_ptr<Drawable3D> createModelDrawable(const Model &model, glm::vec3 position, glm::vec3 scale)
@@ -30,6 +31,7 @@ void Drawable3D::move(glm::vec3 position)
 void Drawable3D::scale(glm::vec3 scale)
 {
     m_scaleMatrix = glm::scale(m_scaleMatrix, scale);
+    setHighlightWidth(getHighlightWidth() / ((scale.x + scale.y + scale.z) / 3));
 }
 
 SPARK_API void Drawable3D::rotate(float angle, glm::vec3 axis)
@@ -45,6 +47,7 @@ SPARK_API void Drawable3D::setPosition(glm::vec3 position)
 SPARK_API void Drawable3D::setScale(glm::vec3 scale)
 {
     m_scaleMatrix = glm::scale(glm::mat4(1), scale);
+    setHighlightWidth(defaultHighlightWidth / ((scale.x + scale.y + scale.z) / 3));
 }
 
 SPARK_API void Drawable3D::setRotation(float angle, glm::vec3 axis)
