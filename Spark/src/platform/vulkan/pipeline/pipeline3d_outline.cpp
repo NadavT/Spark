@@ -8,9 +8,10 @@ namespace Spark::Render
 const std::string VERTEX_3D_OUTLINE_SHADER_PATH = "shaders/shader3dOutline_vert.spv";
 const std::string FRAGMENT_3D_OUTLINE_SHADER_PATH = "shaders/shader3dOutline_frag.spv";
 
-VulkanPipeline3DOutline::VulkanPipeline3DOutline(VulkanContext &context, VulkanFramebuffer &framebuffer)
+VulkanPipeline3DOutline::VulkanPipeline3DOutline(VulkanContext &context, VulkanFramebuffer &framebuffer, bool clean)
     : VulkanPipeline(context, framebuffer)
     , m_transformationDescriptorSetLayout(VK_NULL_HANDLE)
+    , m_clean(clean)
 {
     createDescriptorSetLayout();
     createGraphicsPipeline();
@@ -124,19 +125,26 @@ void VulkanPipeline3DOutline::createGraphicsPipeline()
                           VK_SUCCESS,
                       "failed to create pipeline layout!");
 
+    VkPipelineRasterizationStateCreateInfo rasterizationState = {};
+    rasterizationState.sType = VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO;
+    rasterizationState.depthClampEnable = VK_FALSE;
+    rasterizationState.rasterizerDiscardEnable = VK_FALSE;
+    rasterizationState.polygonMode = (m_clean) ? VK_POLYGON_MODE_FILL : VK_POLYGON_MODE_LINE;
+    rasterizationState.lineWidth = (m_clean) ? 1.0f : 2.0f;
+    rasterizationState.cullMode = VK_CULL_MODE_FRONT_BIT;
+    rasterizationState.frontFace = VK_FRONT_FACE_CLOCKWISE;
+    rasterizationState.depthBiasEnable = VK_FALSE;
+    setRasterizationState(rasterizationState);
+
     VkPipelineDepthStencilStateCreateInfo depthStencil{};
     depthStencil.sType = VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO;
-    depthStencil.depthTestEnable = VK_TRUE;
-    depthStencil.depthWriteEnable = VK_TRUE;
-    depthStencil.depthCompareOp = VK_COMPARE_OP_LESS;
-    depthStencil.depthBoundsTestEnable = VK_FALSE;
+    depthStencil.depthTestEnable = VK_FALSE;
     depthStencil.stencilTestEnable = VK_TRUE;
-    depthStencil.front.compareOp = VK_COMPARE_OP_NOT_EQUAL;
-    depthStencil.front.failOp = VK_STENCIL_OP_KEEP;
-    depthStencil.front.depthFailOp = VK_STENCIL_OP_KEEP;
-    depthStencil.front.passOp = VK_STENCIL_OP_REPLACE;
-    depthStencil.front.compareMask = 0xff;
-    depthStencil.front.writeMask = 0xff;
+    depthStencil.front.compareOp = (m_clean) ? VK_COMPARE_OP_NEVER : VK_COMPARE_OP_NOT_EQUAL;
+    depthStencil.front.failOp = (m_clean) ? VK_STENCIL_OP_ZERO : VK_STENCIL_OP_KEEP;
+    depthStencil.front.passOp = (m_clean) ? VK_STENCIL_OP_ZERO : VK_STENCIL_OP_REPLACE;
+    depthStencil.front.compareMask = 0x01;
+    depthStencil.front.writeMask = 0x01;
     depthStencil.front.reference = 1;
     depthStencil.back = depthStencil.front;
     setDepthStencilState(depthStencil);

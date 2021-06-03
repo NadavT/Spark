@@ -47,6 +47,8 @@ VulkanLayerRenderer3DModel::VulkanLayerRenderer3DModel(VulkanRenderer &renderer,
         renderer.createPipeline(VulkanPipelineType::Type3DModel, *m_framebuffer));
     m_outlinePipeline = reinterpret_cast<VulkanPipeline3DOutline *>(
         renderer.createPipeline(VulkanPipelineType::Type3DOutline, *m_framebuffer));
+    m_cleanOutlinePipeline = reinterpret_cast<VulkanPipeline3DOutline *>(
+        renderer.createPipeline(VulkanPipelineType::Type3DCleanOutline, *m_framebuffer));
     m_wireframePipeline = reinterpret_cast<VulkanPipeline3DWireframe *>(
         renderer.createPipeline(VulkanPipelineType::Type3DWireframe, *m_framebuffer));
     m_commandBuffers.resize(renderer.getImagesAmount());
@@ -68,6 +70,10 @@ VulkanLayerRenderer3DModel::~VulkanLayerRenderer3DModel()
         m_renderer.m_context.destroyCommandBuffer(m_commandBuffers[i]);
     }
 
+    m_renderer.destroyPipeline(m_wireframePipeline);
+    m_wireframePipeline = nullptr;
+    m_renderer.destroyPipeline(m_cleanOutlinePipeline);
+    m_cleanOutlinePipeline = nullptr;
     m_renderer.destroyPipeline(m_outlinePipeline);
     m_outlinePipeline = nullptr;
     m_renderer.destroyPipeline(m_pipeline);
@@ -272,6 +278,7 @@ void VulkanLayerRenderer3DModel::OnRender()
         vkUnmapMemory(m_renderer.m_context.m_device,
                       m_uniformTransformationsMemory[i][m_renderer.getCurrentImageIndex()]);
 
+        // transformation.model = glm::scale(transformation.model, glm::vec3(1.1, 1.1, 1.1));
         vkMapMemory(m_renderer.m_context.m_device,
                     m_uniformOutlineTransformationsMemory[i][m_renderer.getCurrentImageIndex()], 0,
                     sizeof(transformation), 0, &data);
@@ -557,6 +564,7 @@ void VulkanLayerRenderer3DModel::createCommandBuffers()
 
         if (m_wireframe != WireframeState::Only)
         {
+            vkCmdClearAttachments(commandBuffer, 1, &clearAttachment, 1, &clearRect);
             for (size_t j = 0; j < m_drawables.size(); j++)
             {
                 VulkanDrawable *drawable = dynamic_cast<VulkanDrawable *>(m_drawables[j].get());
@@ -569,10 +577,6 @@ void VulkanLayerRenderer3DModel::createCommandBuffers()
                         m_materialDescriptorSets[j][0][i],
                         m_textureDescriptorSets[m_textureDescriptorOffset[texturedDrawable->getTexture().getName()]][i],
                         pushConsts);
-                    if (texturedDrawable->isHighlighted())
-                    {
-                        vkCmdClearAttachments(commandBuffer, 1, &clearAttachment, 1, &clearRect);
-                    }
                     texturedDrawable->fillCommandBuffer(commandBuffer);
                     if (texturedDrawable->isHighlighted())
                     {
@@ -582,6 +586,9 @@ void VulkanLayerRenderer3DModel::createCommandBuffers()
                                                 outlinePushConsts);
                         texturedDrawable->fillCommandBuffer(commandBuffer);
                     }
+                    m_cleanOutlinePipeline->bind(commandBuffer, m_outlineTransformationDescriptorSets[j][i],
+                                                 outlinePushConsts);
+                    texturedDrawable->fillCommandBuffer(commandBuffer);
                 }
                 else if (drawable->getDrawableType() == VulkanDrawableType::Colored)
                 {
@@ -598,10 +605,6 @@ void VulkanLayerRenderer3DModel::createCommandBuffers()
                     {
                         pushConsts.calcLight = true;
                     }
-                    if (coloredDrawable->isHighlighted())
-                    {
-                        vkCmdClearAttachments(commandBuffer, 1, &clearAttachment, 1, &clearRect);
-                    }
                     m_pipeline->bind(commandBuffer, m_transformationDescriptorSets[j][i], m_lightsDescriptorSets[0][i],
                                      m_materialDescriptorSets[j][0][i], m_textureDescriptorSets[0][i], pushConsts);
                     coloredDrawable->fillCommandBuffer(commandBuffer);
@@ -613,6 +616,9 @@ void VulkanLayerRenderer3DModel::createCommandBuffers()
                                                 outlinePushConsts);
                         coloredDrawable->fillCommandBuffer(commandBuffer);
                     }
+                    m_cleanOutlinePipeline->bind(commandBuffer, m_outlineTransformationDescriptorSets[j][i],
+                                                 outlinePushConsts);
+                    coloredDrawable->fillCommandBuffer(commandBuffer);
                 }
                 else if (drawable->getDrawableType() == VulkanDrawableType::Model)
                 {
@@ -628,10 +634,6 @@ void VulkanLayerRenderer3DModel::createCommandBuffers()
                             m_textureDescriptorSets[m_textureDescriptorOffset[mesh->getTexturesID() +
                                                                               mesh->getSpecularTexturesID()]][i],
                             pushConsts);
-                        if (modelDrawable->isHighlighted())
-                        {
-                            vkCmdClearAttachments(commandBuffer, 1, &clearAttachment, 1, &clearRect);
-                        }
                         mesh->fillCommandBuffer(commandBuffer);
                         if (modelDrawable->isHighlighted())
                         {
@@ -641,6 +643,9 @@ void VulkanLayerRenderer3DModel::createCommandBuffers()
                                                     outlinePushConsts);
                             mesh->fillCommandBuffer(commandBuffer);
                         }
+                        m_cleanOutlinePipeline->bind(commandBuffer, m_outlineTransformationDescriptorSets[j][i],
+                                                     outlinePushConsts);
+                        mesh->fillCommandBuffer(commandBuffer);
                     }
                 }
                 else

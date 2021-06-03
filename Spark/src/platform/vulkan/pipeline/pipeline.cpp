@@ -136,6 +136,12 @@ void VulkanPipeline::createGraphicsPipeline(VkShaderModule vertexShader, VkShade
 
     VkPipelineShaderStageCreateInfo shaderStages[] = {vertShaderStageInfo, fragShaderStageInfo};
 
+    VkDynamicState dynamicStates[] = {VK_DYNAMIC_STATE_STENCIL_WRITE_MASK};
+
+    VkPipelineDynamicStateCreateInfo dynamicStateInfo{};
+    dynamicStateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO;
+    dynamicStateInfo.pDynamicStates = dynamicStates;
+
     VkGraphicsPipelineCreateInfo pipelineInfo{};
     pipelineInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
     pipelineInfo.stageCount = 2;
@@ -147,6 +153,7 @@ void VulkanPipeline::createGraphicsPipeline(VkShaderModule vertexShader, VkShade
     pipelineInfo.pMultisampleState = &m_multiSampleState;
     pipelineInfo.pDepthStencilState = (depthTesting) ? &m_depthStencilState : VK_NULL_HANDLE;
     pipelineInfo.pColorBlendState = &m_colorBlendState;
+    pipelineInfo.pDynamicState = &dynamicStateInfo;
     pipelineInfo.layout = layout;
     pipelineInfo.renderPass = m_framebuffer.getRenderPass();
     pipelineInfo.subpass = 0;

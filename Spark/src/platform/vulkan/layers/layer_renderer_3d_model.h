@@ -41,6 +41,7 @@ class VulkanLayerRenderer3DModel : public LayerRenderer
     VulkanFramebuffer3D *m_framebuffer;
     VulkanPipeline3DModel *m_pipeline;
     VulkanPipeline3DOutline *m_outlinePipeline;
+    VulkanPipeline3DOutline *m_cleanOutlinePipeline;
     VulkanPipeline3DWireframe *m_wireframePipeline;
 
     std::vector<std::vector<VkBuffer>> m_uniformTransformations;

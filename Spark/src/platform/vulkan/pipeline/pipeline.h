@@ -12,6 +12,7 @@ enum class VulkanPipelineType
     Type3DLights,
     Type3DModel,
     Type3DOutline,
+    Type3DCleanOutline,
     Type3DWireframe,
     TypeTriangle
 };

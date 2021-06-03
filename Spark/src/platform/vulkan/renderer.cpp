@@ -297,6 +297,9 @@ VulkanPipeline *VulkanRenderer::createPipeline(VulkanPipelineType type, VulkanFr
     case VulkanPipelineType::Type3DOutline:
         m_pipelines.push_back(std::make_unique<VulkanPipeline3DOutline>(m_context, framebuffer));
         return m_pipelines.back().get();
+    case VulkanPipelineType::Type3DCleanOutline:
+        m_pipelines.push_back(std::make_unique<VulkanPipeline3DOutline>(m_context, framebuffer, true));
+        return m_pipelines.back().get();
     case VulkanPipelineType::Type3DWireframe:
         m_pipelines.push_back(std::make_unique<VulkanPipeline3DWireframe>(m_context, framebuffer));
         return m_pipelines.back().get();

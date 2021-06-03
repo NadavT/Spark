@@ -19,7 +19,7 @@ Sandbox3DLayer::Sandbox3DLayer()
     , m_objectToSet(nullptr)
     , m_dirLightDirection{-0.2f, -1.0f, -0.3f}
     , m_dirLightColor{1, 1, 1}
-    , m_spotLightColor{1, 1, 1}
+    , m_spotLightColor{0, 0, 0}
     , m_pointLightToSet(nullptr)
     , m_wireframeColor{0, 0, 0}
     , m_beforeWireframeColor{0, 0, 0}
@@ -32,11 +32,18 @@ Sandbox3DLayer::Sandbox3DLayer()
     const Spark::Model &model = Spark::ResourceManager::loadModel("modelTest", "model/backpack/scene.gltf");
     m_objects.push_back(Spark::createModelObject(model, {0, 0, 0}, {0.005, 0.005, 0.005}));
     addObject(*m_objects.back());
+
+    m_objects.push_back(Spark::createBox(glm::vec3(0, 0, 0), 1, 1, 1, texture, specularTexture));
+    addObject(*m_objects.back());
+    m_objects.push_back(Spark::createBox(glm::vec3(0, 1, 0), 1, 1, 1, texture, specularTexture));
+    addObject(*m_objects.back());
+
     setDirLight({m_dirLightDirection[0], m_dirLightDirection[1], m_dirLightDirection[2]},
                 {m_dirLightColor[0], m_dirLightColor[1], m_dirLightColor[2]});
     glm::vec3 spherePos = {0, 0, -2.0f};
     std::unique_ptr<Spark::Object3D> sphere = Spark::createSphere(spherePos, 0.15f, glm::vec3(0.3f, 0.3f, 0.3f));
-    m_pointLights.push_back(Spark::Render::createPointLight(glm::vec3(0, 0, -2.0f), {0, 1, 0}, std::move(sphere)));
+    m_pointLights.push_back(
+        Spark::Render::createPointLight(glm::vec3(0, 0, -2.0f), {0, 1, 0}, std::move(sphere), false));
     m_objects.push_back(m_pointLights.back());
     addPointLight(*(m_pointLights.back()));
     setSpotLight({m_spotLightColor[0], m_spotLightColor[1], m_spotLightColor[2]});
