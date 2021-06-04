@@ -18,8 +18,6 @@ VulkanLayerRenderer3DModel::VulkanLayerRenderer3DModel(VulkanRenderer &renderer,
     , m_pipeline(nullptr)
     , m_uniformTransformations()
     , m_uniformTransformationsMemory()
-    , m_uniformOutlineTransformations()
-    , m_uniformOutlineTransformationsMemory()
     , m_uniformDirectionalLightBuffers()
     , m_uniformDirectionalLightBuffersMemory()
     , m_uniformPointLightBuffers()
@@ -89,14 +87,12 @@ void VulkanLayerRenderer3DModel::OnAttach()
     std::vector<std::vector<VkImageView>> specularTextures;
     std::vector<std::vector<VkSampler>> specularSamplers;
     unsigned int materialsAmount = 0;
-    m_renderer.createUniformBuffers(sizeof(Transformation3DModel), m_uniformTransformations,
-                                    m_uniformTransformationsMemory, (unsigned int)m_drawables.size());
+    m_renderer.createUniformBuffers(sizeof(Transformation3D), m_uniformTransformations, m_uniformTransformationsMemory,
+                                    (unsigned int)m_drawables.size());
     m_pipeline->createTransformationDescriptorSets((unsigned int)m_drawables.size(), m_transformationDescriptorSets,
                                                    m_uniformTransformations);
-    m_renderer.createUniformBuffers(sizeof(Transformation3DOutline), m_uniformOutlineTransformations,
-                                    m_uniformOutlineTransformationsMemory, (unsigned int)m_drawables.size());
     m_outlinePipeline->createTransformationDescriptorSets(
-        (unsigned int)m_drawables.size(), m_outlineTransformationDescriptorSets, m_uniformOutlineTransformations);
+        (unsigned int)m_drawables.size(), m_outlineTransformationDescriptorSets, m_uniformTransformations);
 
     m_renderer.createUniformBuffers(sizeof(VulkanShaderDirectionalLightModel), m_uniformDirectionalLightBuffers,
                                     m_uniformDirectionalLightBuffersMemory);
@@ -232,11 +228,6 @@ void VulkanLayerRenderer3DModel::OnDetach()
             vkDestroyBuffer(m_renderer.m_context.m_device, m_uniformTransformations[i][j], nullptr);
             vkFreeMemory(m_renderer.m_context.m_device, m_uniformTransformationsMemory[i][j], nullptr);
         }
-        for (size_t j = 0; j < m_uniformOutlineTransformations[i].size(); j++)
-        {
-            vkDestroyBuffer(m_renderer.m_context.m_device, m_uniformOutlineTransformations[i][j], nullptr);
-            vkFreeMemory(m_renderer.m_context.m_device, m_uniformOutlineTransformationsMemory[i][j], nullptr);
-        }
     }
 }
 
@@ -264,7 +255,7 @@ void VulkanLayerRenderer3DModel::OnRender()
     for (size_t i = 0; i < m_drawables.size(); i++)
     {
         VulkanDrawable *drawable = dynamic_cast<VulkanDrawable *>(m_drawables[i].get());
-        struct Transformation3DModel transformation = {};
+        struct Transformation3D transformation = {};
         transformation.model = drawable->getTransformation();
         transformation.view = m_camera.getViewMatrix();
         transformation.projection = glm::perspective(m_camera.getZoom(),
@@ -277,14 +268,6 @@ void VulkanLayerRenderer3DModel::OnRender()
         memcpy(data, &transformation, sizeof(transformation));
         vkUnmapMemory(m_renderer.m_context.m_device,
                       m_uniformTransformationsMemory[i][m_renderer.getCurrentImageIndex()]);
-
-        // transformation.model = glm::scale(transformation.model, glm::vec3(1.1, 1.1, 1.1));
-        vkMapMemory(m_renderer.m_context.m_device,
-                    m_uniformOutlineTransformationsMemory[i][m_renderer.getCurrentImageIndex()], 0,
-                    sizeof(transformation), 0, &data);
-        memcpy(data, &transformation, sizeof(transformation));
-        vkUnmapMemory(m_renderer.m_context.m_device,
-                      m_uniformOutlineTransformationsMemory[i][m_renderer.getCurrentImageIndex()]);
 
         if (drawable->getDrawableType() == VulkanDrawableType::Model)
         {
@@ -415,14 +398,12 @@ void VulkanLayerRenderer3DModel::addDrawable(std::shared_ptr<Drawable> &drawable
     {
         if (m_uniformTransformations.size() < m_drawables.size())
         {
-            m_renderer.addUniformBuffers(sizeof(Transformation3DModel), m_uniformTransformations,
+            m_renderer.addUniformBuffers(sizeof(Transformation3D), m_uniformTransformations,
                                          m_uniformTransformationsMemory);
             m_pipeline->createSingleTransformationDescriptorSet(m_transformationDescriptorSets,
                                                                 m_uniformTransformations.back());
-            m_renderer.addUniformBuffers(sizeof(Transformation3DOutline), m_uniformOutlineTransformations,
-                                         m_uniformOutlineTransformationsMemory);
             m_pipeline->createSingleTransformationDescriptorSet(m_outlineTransformationDescriptorSets,
-                                                                m_uniformOutlineTransformations.back());
+                                                                m_uniformTransformations.back());
         }
         if (vulkanDrawable->getDrawableType() == VulkanDrawableType::Textured)
         {

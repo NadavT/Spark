@@ -80,8 +80,7 @@ void VulkanPipeline3DModel::createTransformationDescriptorSets(
     std::vector<std::vector<VkBuffer>> transformationUniforms)
 {
     allocateDescriptorSets(drawablesAmount, m_transformationDescriptorSetLayout, transformationSets);
-    updateBufferDescriptorSets(drawablesAmount, transformationSets, transformationUniforms,
-                               sizeof(Transformation3DModel));
+    updateBufferDescriptorSets(drawablesAmount, transformationSets, transformationUniforms, sizeof(Transformation3D));
 }
 
 void VulkanPipeline3DModel::createLightDescriptorSets(std::vector<std::vector<VkDescriptorSet>> &lightSets,
@@ -116,7 +115,7 @@ void VulkanPipeline3DModel::createSingleTransformationDescriptorSet(
     std::vector<std::vector<VkDescriptorSet>> &transformationSets, std::vector<VkBuffer> transformationUniforms)
 {
     addDescriptorSets(m_transformationDescriptorSetLayout, transformationSets);
-    updateBufferDescriptorSets(1, transformationSets, {transformationUniforms}, sizeof(Transformation3DModel),
+    updateBufferDescriptorSets(1, transformationSets, {transformationUniforms}, sizeof(Transformation3D),
                                static_cast<unsigned int>(transformationSets.size() - 1));
 }
 

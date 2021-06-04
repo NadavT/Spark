@@ -1,17 +1,10 @@
 #pragma once
 
-#include "platform/vulkan/pipeline/pipeline.h"
+#include "platform/vulkan/pipeline/pipeline3d.h"
 #include "platform/vulkan/vertex/vertex3d.h"
 
 namespace Spark::Render
 {
-struct Transformation3DOutline
-{
-    glm::mat4 model;
-    glm::mat4 view;
-    glm::mat4 projection;
-};
-
 struct Vulkan3DOutlinePushConsts
 {
     alignas(16) glm::vec3 color;

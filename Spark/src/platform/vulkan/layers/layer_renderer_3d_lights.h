@@ -45,8 +45,6 @@ class VulkanLayerRenderer3DLights : public LayerRenderer
 
     std::vector<std::vector<VkBuffer>> m_uniformTransformations;
     std::vector<std::vector<VkDeviceMemory>> m_uniformTransformationsMemory;
-    std::vector<std::vector<VkBuffer>> m_uniformOutlineTransformations;
-    std::vector<std::vector<VkDeviceMemory>> m_uniformOutlineTransformationsMemory;
     std::vector<VkBuffer> m_uniformDirectionalLightBuffers;
     std::vector<VkDeviceMemory> m_uniformDirectionalLightBuffersMemory;
     std::vector<VkBuffer> m_uniformPointLightBuffers;
