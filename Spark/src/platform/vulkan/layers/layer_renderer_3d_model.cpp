@@ -378,14 +378,14 @@ void VulkanLayerRenderer3DModel::createCommandBuffers()
             {
                 VulkanDrawable *drawable = dynamic_cast<VulkanDrawable *>(m_drawables[j].get());
                 std::vector<const VulkanRenderPrimitive *> primitives = drawable->getRenderPrimitives();
-                if (drawable->getDrawableType() == VulkanDrawableType::Textured)
+                if (drawable->getDrawableType() == VulkanDrawableType::Textured ||
+                    drawable->getDrawableType() == VulkanDrawableType::Model)
                 {
                     VulkanTexturedDrawable *texturedDrawable = dynamic_cast<VulkanTexturedDrawable *>(drawable);
                     pushConsts.calcLight = true;
                     for (auto &primitive : drawable->getRenderPrimitives())
                     {
-                        drawPrimitive(drawable, primitive, commandBuffer, i, pushConsts,
-                                      m_textureDescriptorOffset[texturedDrawable->getTexture().getName()]);
+                        drawPrimitive(drawable, primitive, commandBuffer, i, pushConsts);
                     }
                 }
                 else if (drawable->getDrawableType() == VulkanDrawableType::Colored)
@@ -406,18 +406,6 @@ void VulkanLayerRenderer3DModel::createCommandBuffers()
                     for (auto &primitive : drawable->getRenderPrimitives())
                     {
                         drawPrimitive(drawable, primitive, commandBuffer, i, pushConsts);
-                    }
-                }
-                else if (drawable->getDrawableType() == VulkanDrawableType::Model)
-                {
-                    VulkanDrawableModel *modelDrawable = dynamic_cast<VulkanDrawableModel *>(m_drawables[j].get());
-                    pushConsts.calcLight = true;
-                    for (size_t k = 0; k < modelDrawable->getModel().getMeshes().size(); k++)
-                    {
-                        VulkanMesh *mesh =
-                            reinterpret_cast<VulkanMesh *>(modelDrawable->getModel().getMeshes()[k].get());
-                        drawPrimitive(drawable, mesh, commandBuffer, i, pushConsts,
-                                      m_textureDescriptorOffset[mesh->getTexturesID() + mesh->getSpecularTexturesID()]);
                     }
                 }
                 else
@@ -453,8 +441,7 @@ void VulkanLayerRenderer3DModel::createCommandBuffers()
 
 void VulkanLayerRenderer3DModel::drawPrimitive(const VulkanDrawable *drawable, const VulkanRenderPrimitive *primitive,
                                                VkCommandBuffer commandBuffer, size_t commandBufferIndex,
-                                               struct Vulkan3DModelConsts &pushConsts,
-                                               unsigned int textureDescriptorOffset)
+                                               struct Vulkan3DModelConsts &pushConsts)
 {
     struct Vulkan3DOutlinePushConsts outlinePushConsts = {};
     outlinePushConsts.color = drawable->getHighlightColor();
@@ -463,7 +450,7 @@ void VulkanLayerRenderer3DModel::drawPrimitive(const VulkanDrawable *drawable, c
     m_pipeline->bind(commandBuffer, m_transformationDescriptorSets[drawable][commandBufferIndex],
                      m_lightsDescriptorSets[0][commandBufferIndex],
                      m_materialDescriptorSets[primitive][commandBufferIndex],
-                     m_textureDescriptorSets[textureDescriptorOffset][commandBufferIndex], pushConsts);
+                     m_textureDescriptorSets[m_primitiveTextureOffset[primitive]][commandBufferIndex], pushConsts);
     primitive->fillCommandBuffer(commandBuffer);
 
     if (m_wireframe == WireframeState::Both)
@@ -567,7 +554,9 @@ void VulkanLayerRenderer3DModel::createResourcesForDrawables(std::vector<std::sh
         }
         else if (vulkanDrawable->getDrawableType() == VulkanDrawableType::Colored)
         {
-            createPrimitiveResources(vulkanDrawable->getRenderPrimitives()[0]);
+            const VulkanRenderPrimitive *primitive = vulkanDrawable->getRenderPrimitives()[0];
+            m_primitiveTextureOffset[primitive] = 0;
+            createPrimitiveResources(primitive);
         }
         else
         {
@@ -596,6 +585,7 @@ void VulkanLayerRenderer3DModel::createResourcesForTexutredDrawable(
     std::vector<std::vector<VkSampler>> &samplers, std::vector<std::vector<VkImageView>> &specularTextures,
     std::vector<std::vector<VkSampler>> &specularSamplers)
 {
+    const VulkanRenderPrimitive *primitive = drawable.getRenderPrimitives()[0];
     if (m_textureDescriptorOffset.find(drawable.getTexture().getName()) == m_textureDescriptorOffset.end())
     {
         m_textureDescriptorOffset[drawable.getTexture().getName()] = (unsigned int)textures.size();
@@ -604,7 +594,8 @@ void VulkanLayerRenderer3DModel::createResourcesForTexutredDrawable(
         specularTextures.push_back({drawable.getSpecularTexture().getImage().getImageView()});
         specularSamplers.push_back({drawable.getSpecularTexture().getSampler().getSampler()});
     }
-    createPrimitiveResources(drawable.getRenderPrimitives()[0]);
+    m_primitiveTextureOffset[primitive] = m_textureDescriptorOffset[drawable.getTexture().getName()];
+    createPrimitiveResources(primitive);
 }
 
 void VulkanLayerRenderer3DModel::createResourcesForModelDrawable(
@@ -614,6 +605,7 @@ void VulkanLayerRenderer3DModel::createResourcesForModelDrawable(
 {
     for (auto &mesh : drawable.getModel().getMeshes())
     {
+        const VulkanRenderPrimitive *primitive = reinterpret_cast<VulkanMesh *>(mesh.get());
         if (m_textureDescriptorOffset.find(mesh->getTexturesID() + mesh->getSpecularTexturesID()) ==
             m_textureDescriptorOffset.end())
         {
@@ -640,7 +632,9 @@ void VulkanLayerRenderer3DModel::createResourcesForModelDrawable(
             specularTextures.push_back(meshTextures);
             specularSamplers.push_back(meshSamplers);
         }
-        createPrimitiveResources(reinterpret_cast<VulkanMesh *>(mesh.get()));
+        m_primitiveTextureOffset[primitive] =
+            m_textureDescriptorOffset[mesh->getTexturesID() + mesh->getSpecularTexturesID()];
+        createPrimitiveResources(primitive);
     }
 }
 

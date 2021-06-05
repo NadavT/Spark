@@ -38,8 +38,8 @@ class VulkanLayerRenderer3DModel : public LayerRenderer
   private:
     void createCommandBuffers();
     void drawPrimitive(const VulkanDrawable *drawable, const VulkanRenderPrimitive *primitive,
-                       VkCommandBuffer commandBuffer, size_t commandBufferIndex, struct Vulkan3DModelConsts &pushConsts,
-                       unsigned int textureDescriptorOffset = 0);
+                       VkCommandBuffer commandBuffer, size_t commandBufferIndex,
+                       struct Vulkan3DModelConsts &pushConsts);
     void drawPrimitiveWireframe(const VulkanDrawable *drawable, const VulkanRenderPrimitive *primitive,
                                 VkCommandBuffer commandBuffer, size_t commandBufferIndex,
                                 struct Vulkan3DWireframePushConsts &pushConsts);
@@ -88,6 +88,7 @@ class VulkanLayerRenderer3DModel : public LayerRenderer
 
     std::vector<std::vector<VkDescriptorSet>> m_textureDescriptorSets;
     std::unordered_map<std::string, unsigned int> m_textureDescriptorOffset;
+    std::unordered_map<const VulkanRenderPrimitive *, unsigned int> m_primitiveTextureOffset;
 
     std::unordered_map<const VulkanRenderPrimitive *, std::vector<VkDescriptorSet> &> m_textureMapping;
 
