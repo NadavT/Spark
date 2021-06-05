@@ -111,35 +111,34 @@ void VulkanPipeline3DModel::createTextureDescriptorSets(std::vector<std::vector<
     updateTextureDescriptorSets(texturesSets, textureImageViews, textureSamplers, specularImageViews, specularSamplers);
 }
 
-void VulkanPipeline3DModel::createSingleTransformationDescriptorSet(
-    std::vector<std::vector<VkDescriptorSet>> &transformationSets, std::vector<VkBuffer> transformationUniforms)
+void VulkanPipeline3DModel::addTransformationDescriptorSets(
+    std::vector<std::vector<VkDescriptorSet>> &transformationSets,
+    std::vector<std::vector<VkBuffer>> transformationUniforms, unsigned int amount)
 {
-    addDescriptorSets(m_transformationDescriptorSetLayout, transformationSets);
-    updateBufferDescriptorSets(1, transformationSets, {transformationUniforms}, sizeof(Transformation3D),
-                               static_cast<unsigned int>(transformationSets.size() - 1));
+    addDescriptorSets(m_transformationDescriptorSetLayout, transformationSets, amount);
+    updateBufferDescriptorSets(amount, transformationSets, transformationUniforms, sizeof(Transformation3D),
+                               static_cast<unsigned int>(transformationSets.size() - amount));
 }
 
-void VulkanPipeline3DModel::createSingleMaterialDescriptorSet(std::vector<std::vector<VkDescriptorSet>> &materialSets,
-                                                              std::vector<VkBuffer> materialUniforms)
+void VulkanPipeline3DModel::addMaterialDescriptorSets(std::vector<std::vector<VkDescriptorSet>> &materialSets,
+                                                      std::vector<std::vector<VkBuffer>> materialUniforms,
+                                                      unsigned int amount)
 {
-    addDescriptorSets(m_materialDescriptorSetLayout, materialSets);
-    updateBufferDescriptorSets(1, materialSets, {materialUniforms}, sizeof(MaterialModel),
-                               static_cast<unsigned int>(materialSets.size() - 1));
+    addDescriptorSets(m_materialDescriptorSetLayout, materialSets, amount);
+    updateBufferDescriptorSets(amount, materialSets, materialUniforms, sizeof(MaterialModel),
+                               static_cast<unsigned int>(materialSets.size() - amount));
 }
 
-void VulkanPipeline3DModel::createSingleTextureDescriptorSet(std::vector<std::vector<VkDescriptorSet>> &textureSets,
-                                                             std::vector<VkImageView> textureImageView,
-                                                             std::vector<VkSampler> textureSampler,
-                                                             std::vector<VkImageView> specularImageView,
-                                                             std::vector<VkSampler> specularSampler)
+void VulkanPipeline3DModel::addTextureDescriptorSets(std::vector<std::vector<VkDescriptorSet>> &textureSets,
+                                                     std::vector<std::vector<VkImageView>> textureImageView,
+                                                     std::vector<std::vector<VkSampler>> textureSampler,
+                                                     std::vector<std::vector<VkImageView>> specularImageView,
+                                                     std::vector<std::vector<VkSampler>> specularSamplers,
+                                                     unsigned int amount)
 {
-    std::vector<std::vector<VkImageView>> imageViews = {textureImageView};
-    std::vector<std::vector<VkSampler>> samplers = {textureSampler};
-    std::vector<std::vector<VkImageView>> specularViews = {specularImageView};
-    std::vector<std::vector<VkSampler>> specularSamplers = {specularSampler};
-    addDescriptorSets(m_textureDescriptorSetLayout, textureSets);
-    updateTextureDescriptorSets(textureSets, imageViews, samplers, specularViews, specularSamplers,
-                                static_cast<unsigned int>(textureSets.size() - 1));
+    addDescriptorSets(m_textureDescriptorSetLayout, textureSets, amount);
+    updateTextureDescriptorSets(textureSets, textureImageView, textureSampler, specularImageView, specularSamplers,
+                                static_cast<unsigned int>(textureSets.size() - amount));
 }
 
 void VulkanPipeline3DModel::createDescriptorSetLayout()

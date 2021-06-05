@@ -1,6 +1,8 @@
 #pragma once
 
+#include "platform/vulkan/drawables/model.h"
 #include "platform/vulkan/drawables/point_light.h"
+#include "platform/vulkan/drawables/textured_drawable.h"
 #include "platform/vulkan/framebuffer/framebuffer3d.h"
 #include "platform/vulkan/pipeline/pipeline3d_model.h"
 #include "platform/vulkan/pipeline/pipeline3d_outline.h"
@@ -35,6 +37,17 @@ class VulkanLayerRenderer3DModel : public LayerRenderer
 
   private:
     void createCommandBuffers();
+    void createResourcesForDrawables(std::vector<std::shared_ptr<Drawable>> &drawables);
+    unsigned int getResourcesForTexutredDrawable(VulkanTexturedDrawable &drawable,
+                                                 std::vector<std::vector<VkImageView>> &textures,
+                                                 std::vector<std::vector<VkSampler>> &samplers,
+                                                 std::vector<std::vector<VkImageView>> &specularTextures,
+                                                 std::vector<std::vector<VkSampler>> &specularSamplers);
+    unsigned int getResourcesForModelDrawable(VulkanDrawableModel &drawable,
+                                              std::vector<std::vector<VkImageView>> &textures,
+                                              std::vector<std::vector<VkSampler>> &samplers,
+                                              std::vector<std::vector<VkImageView>> &specularTextures,
+                                              std::vector<std::vector<VkSampler>> &specularSamplers);
 
   private:
     VulkanRenderer &m_renderer;

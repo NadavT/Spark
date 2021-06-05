@@ -90,15 +90,16 @@ class VulkanPipeline3DModel : public VulkanPipeline
                                      std::vector<std::vector<VkImageView>> &specularImageViews,
                                      std::vector<std::vector<VkSampler>> &specularSamplers);
 
-    void createSingleTransformationDescriptorSet(std::vector<std::vector<VkDescriptorSet>> &transformationSets,
-                                                 std::vector<VkBuffer> transformationUniforms);
-    void createSingleMaterialDescriptorSet(std::vector<std::vector<VkDescriptorSet>> &materialSets,
-                                           std::vector<VkBuffer> materialUniforms);
-    void createSingleTextureDescriptorSet(std::vector<std::vector<VkDescriptorSet>> &textureSets,
-                                          std::vector<VkImageView> textureImageView,
-                                          std::vector<VkSampler> textureSampler,
-                                          std::vector<VkImageView> specularImageView,
-                                          std::vector<VkSampler> specularSampler);
+    void addTransformationDescriptorSets(std::vector<std::vector<VkDescriptorSet>> &transformationSets,
+                                         std::vector<std::vector<VkBuffer>> transformationUniforms,
+                                         unsigned int amount = 1);
+    void addMaterialDescriptorSets(std::vector<std::vector<VkDescriptorSet>> &materialSets,
+                                   std::vector<std::vector<VkBuffer>> materialUniforms, unsigned int amount = 1);
+    void addTextureDescriptorSets(std::vector<std::vector<VkDescriptorSet>> &textureSets,
+                                  std::vector<std::vector<VkImageView>> textureImageView,
+                                  std::vector<std::vector<VkSampler>> textureSampler,
+                                  std::vector<std::vector<VkImageView>> specularImageViews,
+                                  std::vector<std::vector<VkSampler>> specularSamplers, unsigned int amount = 1);
 
   private:
     void createDescriptorSetLayout();
