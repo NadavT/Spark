@@ -38,6 +38,7 @@ class VulkanLayerRenderer3DModel : public LayerRenderer
   private:
     void createCommandBuffers();
     void createResourcesForDrawables(std::vector<std::shared_ptr<Drawable>> &drawables);
+    void destroyResourcesForDrawable(Drawable *drawable);
     unsigned int getResourcesForTexutredDrawable(VulkanTexturedDrawable &drawable,
                                                  std::vector<std::vector<VkImageView>> &textures,
                                                  std::vector<std::vector<VkSampler>> &samplers,
@@ -59,18 +60,21 @@ class VulkanLayerRenderer3DModel : public LayerRenderer
 
     std::vector<std::vector<VkBuffer>> m_uniformTransformations;
     std::vector<std::vector<VkDeviceMemory>> m_uniformTransformationsMemory;
+    std::vector<std::vector<VkDescriptorSet>> m_transformationDescriptorSets;
+    std::vector<std::vector<VkDescriptorSet>> m_outlineTransformationDescriptorSets;
+
     std::vector<VkBuffer> m_uniformDirectionalLightBuffers;
     std::vector<VkDeviceMemory> m_uniformDirectionalLightBuffersMemory;
     std::vector<VkBuffer> m_uniformPointLightBuffers;
     std::vector<VkDeviceMemory> m_uniformPointLightBuffersMemory;
     std::vector<VkBuffer> m_uniformSpotLightBuffers;
     std::vector<VkDeviceMemory> m_uniformSpotLightBuffersMemory;
-    std::vector<std::vector<std::vector<VkBuffer>>> m_uniformMaterialBuffers;
-    std::vector<std::vector<std::vector<VkDeviceMemory>>> m_uniformMaterialBuffersMemory;
-    std::vector<std::vector<VkDescriptorSet>> m_transformationDescriptorSets;
-    std::vector<std::vector<VkDescriptorSet>> m_outlineTransformationDescriptorSets;
     std::vector<std::vector<VkDescriptorSet>> m_lightsDescriptorSets;
-    std::vector<std::vector<std::vector<VkDescriptorSet>>> m_materialDescriptorSets;
+
+    std::unordered_map<Drawable *, std::vector<std::vector<VkBuffer>>> m_uniformMaterialBuffers;
+    std::unordered_map<Drawable *, std::vector<std::vector<VkDeviceMemory>>> m_uniformMaterialBuffersMemory;
+    std::unordered_map<Drawable *, std::vector<std::vector<VkDescriptorSet>>> m_materialDescriptorSets;
+
     std::vector<std::vector<VkDescriptorSet>> m_textureDescriptorSets;
     std::unordered_map<std::string, unsigned int> m_textureDescriptorOffset;
 

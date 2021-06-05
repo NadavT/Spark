@@ -18,17 +18,20 @@ VulkanLayerRenderer3DModel::VulkanLayerRenderer3DModel(VulkanRenderer &renderer,
     , m_pipeline(nullptr)
     , m_uniformTransformations()
     , m_uniformTransformationsMemory()
+    , m_transformationDescriptorSets()
+    , m_outlineTransformationDescriptorSets()
     , m_uniformDirectionalLightBuffers()
     , m_uniformDirectionalLightBuffersMemory()
     , m_uniformPointLightBuffers()
     , m_uniformPointLightBuffersMemory()
     , m_uniformSpotLightBuffers()
     , m_uniformSpotLightBuffersMemory()
-    , m_transformationDescriptorSets()
-    , m_outlineTransformationDescriptorSets()
     , m_lightsDescriptorSets()
+    , m_uniformMaterialBuffers()
+    , m_uniformMaterialBuffersMemory()
     , m_materialDescriptorSets()
     , m_textureDescriptorSets()
+    , m_textureDescriptorOffset()
     , m_commandBuffers()
     , m_toBeRemoved()
     , m_isAttached(false)
@@ -146,28 +149,19 @@ void VulkanLayerRenderer3DModel::OnDetach()
         vkFreeDescriptorSets(m_renderer.m_context.m_device, m_renderer.m_context.m_descriptorPool,
                              (unsigned int)m_transformationDescriptorSets[i].size(),
                              m_transformationDescriptorSets[i].data());
-        for (size_t j = 0; j < m_uniformMaterialBuffers[i].size(); j++)
-        {
-            vkFreeDescriptorSets(m_renderer.m_context.m_device, m_renderer.m_context.m_descriptorPool,
-                                 (unsigned int)m_materialDescriptorSets[i][j].size(),
-                                 m_materialDescriptorSets[i][j].data());
-        }
         vkFreeDescriptorSets(m_renderer.m_context.m_device, m_renderer.m_context.m_descriptorPool,
                              (unsigned int)m_outlineTransformationDescriptorSets[i].size(),
                              m_outlineTransformationDescriptorSets[i].data());
-        for (size_t j = 0; j < m_uniformMaterialBuffers[i].size(); j++)
-        {
-            for (size_t k = 0; k < m_uniformMaterialBuffers[i][j].size(); k++)
-            {
-                vkDestroyBuffer(m_renderer.m_context.m_device, m_uniformMaterialBuffers[i][j][k], nullptr);
-                vkFreeMemory(m_renderer.m_context.m_device, m_uniformMaterialBuffersMemory[i][j][k], nullptr);
-            }
-        }
         for (size_t j = 0; j < m_uniformTransformations[i].size(); j++)
         {
             vkDestroyBuffer(m_renderer.m_context.m_device, m_uniformTransformations[i][j], nullptr);
             vkFreeMemory(m_renderer.m_context.m_device, m_uniformTransformationsMemory[i][j], nullptr);
         }
+    }
+
+    for (auto &drawable : m_drawables)
+    {
+        destroyResourcesForDrawable(drawable.get());
     }
 }
 
@@ -183,6 +177,7 @@ void VulkanLayerRenderer3DModel::OnRender()
         while (!m_toBeRemoved.empty())
         {
             LayerRenderer::removeDrawable(m_toBeRemoved.back());
+            destroyResourcesForDrawable(m_toBeRemoved.back());
             m_toBeRemoved.pop_back();
         }
 
@@ -224,11 +219,11 @@ void VulkanLayerRenderer3DModel::OnRender()
                 material.specularAmount = static_cast<unsigned int>(mesh->getSpecularTextures().size());
                 material.shininess = mesh->getShininess();
                 vkMapMemory(m_renderer.m_context.m_device,
-                            m_uniformMaterialBuffersMemory[i][j][m_renderer.getCurrentImageIndex()], 0,
+                            m_uniformMaterialBuffersMemory[drawable][j][m_renderer.getCurrentImageIndex()], 0,
                             sizeof(material), 0, &data);
                 memcpy(data, &material, sizeof(material));
                 vkUnmapMemory(m_renderer.m_context.m_device,
-                              m_uniformMaterialBuffersMemory[i][j][m_renderer.getCurrentImageIndex()]);
+                              m_uniformMaterialBuffersMemory[drawable][j][m_renderer.getCurrentImageIndex()]);
             }
         }
         else if (drawable->getDrawableType() == VulkanDrawableType::Textured)
@@ -241,11 +236,11 @@ void VulkanLayerRenderer3DModel::OnRender()
             material.specularAmount = 1;
             material.shininess = 32.0f;
             vkMapMemory(m_renderer.m_context.m_device,
-                        m_uniformMaterialBuffersMemory[i][0][m_renderer.getCurrentImageIndex()], 0, sizeof(material), 0,
-                        &data);
+                        m_uniformMaterialBuffersMemory[drawable][0][m_renderer.getCurrentImageIndex()], 0,
+                        sizeof(material), 0, &data);
             memcpy(data, &material, sizeof(material));
             vkUnmapMemory(m_renderer.m_context.m_device,
-                          m_uniformMaterialBuffersMemory[i][0][m_renderer.getCurrentImageIndex()]);
+                          m_uniformMaterialBuffersMemory[drawable][0][m_renderer.getCurrentImageIndex()]);
         }
         else if (drawable->getDrawableType() == VulkanDrawableType::Colored)
         {
@@ -269,11 +264,11 @@ void VulkanLayerRenderer3DModel::OnRender()
             material.specularAmount = 0;
             material.shininess = 32.0f;
             vkMapMemory(m_renderer.m_context.m_device,
-                        m_uniformMaterialBuffersMemory[i][0][m_renderer.getCurrentImageIndex()], 0, sizeof(material), 0,
-                        &data);
+                        m_uniformMaterialBuffersMemory[drawable][0][m_renderer.getCurrentImageIndex()], 0,
+                        sizeof(material), 0, &data);
             memcpy(data, &material, sizeof(material));
             vkUnmapMemory(m_renderer.m_context.m_device,
-                          m_uniformMaterialBuffersMemory[i][0][m_renderer.getCurrentImageIndex()]);
+                          m_uniformMaterialBuffersMemory[drawable][0][m_renderer.getCurrentImageIndex()]);
         }
     }
     VulkanShaderDirectionalLightModel dirLight = {};
@@ -440,7 +435,7 @@ void VulkanLayerRenderer3DModel::createCommandBuffers()
                     pushConsts.calcLight = true;
                     m_pipeline->bind(
                         commandBuffer, m_transformationDescriptorSets[j][i], m_lightsDescriptorSets[0][i],
-                        m_materialDescriptorSets[j][0][i],
+                        m_materialDescriptorSets[drawable][0][i],
                         m_textureDescriptorSets[m_textureDescriptorOffset[texturedDrawable->getTexture().getName()]][i],
                         pushConsts);
                     texturedDrawable->fillCommandBuffer(commandBuffer);
@@ -472,7 +467,8 @@ void VulkanLayerRenderer3DModel::createCommandBuffers()
                         pushConsts.calcLight = true;
                     }
                     m_pipeline->bind(commandBuffer, m_transformationDescriptorSets[j][i], m_lightsDescriptorSets[0][i],
-                                     m_materialDescriptorSets[j][0][i], m_textureDescriptorSets[0][i], pushConsts);
+                                     m_materialDescriptorSets[drawable][0][i], m_textureDescriptorSets[0][i],
+                                     pushConsts);
                     coloredDrawable->fillCommandBuffer(commandBuffer);
                     if (coloredDrawable->isHighlighted())
                     {
@@ -496,7 +492,7 @@ void VulkanLayerRenderer3DModel::createCommandBuffers()
                             reinterpret_cast<VulkanMesh *>(modelDrawable->getModel().getMeshes()[k].get());
                         m_pipeline->bind(
                             commandBuffer, m_transformationDescriptorSets[j][i], m_lightsDescriptorSets[0][i],
-                            m_materialDescriptorSets[j][k][i],
+                            m_materialDescriptorSets[drawable][k][i],
                             m_textureDescriptorSets[m_textureDescriptorOffset[mesh->getTexturesID() +
                                                                               mesh->getSpecularTexturesID()]][i],
                             pushConsts);
@@ -571,17 +567,44 @@ void VulkanLayerRenderer3DModel::createResourcesForDrawables(std::vector<std::sh
             materialsAmount =
                 getResourcesForModelDrawable(*drawableModel, textures, samplers, specularTextures, specularSamplers);
         }
-        m_uniformMaterialBuffers.push_back(std::vector<std::vector<VkBuffer>>());
-        m_uniformMaterialBuffersMemory.push_back(std::vector<std::vector<VkDeviceMemory>>());
-        m_renderer.createUniformBuffers(sizeof(MaterialModel), m_uniformMaterialBuffers.back(),
-                                        m_uniformMaterialBuffersMemory.back(), materialsAmount);
-        m_materialDescriptorSets.push_back(std::vector<std::vector<VkDescriptorSet>>());
-        m_pipeline->createMaterialDescriptorSets(materialsAmount, m_materialDescriptorSets.back(),
-                                                 m_uniformMaterialBuffers.back());
+        m_uniformMaterialBuffers[drawable.get()] = std::vector<std::vector<VkBuffer>>();
+        m_uniformMaterialBuffersMemory[drawable.get()] = std::vector<std::vector<VkDeviceMemory>>();
+        m_renderer.createUniformBuffers(sizeof(MaterialModel), m_uniformMaterialBuffers[drawable.get()],
+                                        m_uniformMaterialBuffersMemory[drawable.get()], materialsAmount);
+        m_materialDescriptorSets[drawable.get()] = std::vector<std::vector<VkDescriptorSet>>();
+        m_pipeline->createMaterialDescriptorSets(materialsAmount, m_materialDescriptorSets[drawable.get()],
+                                                 m_uniformMaterialBuffers[drawable.get()]);
     }
 
     m_pipeline->addTextureDescriptorSets(m_textureDescriptorSets, textures, samplers, specularTextures,
                                          specularSamplers, static_cast<unsigned int>(textures.size()));
+}
+
+void VulkanLayerRenderer3DModel::destroyResourcesForDrawable(Drawable *drawable)
+{
+    for (auto &drawableMaterialsDescriptors : m_materialDescriptorSets[drawable])
+    {
+        vkFreeDescriptorSets(m_renderer.m_context.m_device, m_renderer.m_context.m_descriptorPool,
+                             static_cast<unsigned int>(drawableMaterialsDescriptors.size()),
+                             drawableMaterialsDescriptors.data());
+    }
+    m_materialDescriptorSets.erase(drawable);
+    for (auto &meshBuffers : m_uniformMaterialBuffers[drawable])
+    {
+        for (auto &buffer : meshBuffers)
+        {
+            vkDestroyBuffer(m_renderer.m_context.m_device, buffer, nullptr);
+        }
+    }
+    m_uniformMaterialBuffers.erase(drawable);
+    for (auto &meshBuffersMemory : m_uniformMaterialBuffersMemory[drawable])
+    {
+        for (auto &bufferMemory : meshBuffersMemory)
+        {
+            vkFreeMemory(m_renderer.m_context.m_device, bufferMemory, nullptr);
+        }
+    }
+    m_uniformMaterialBuffersMemory.erase(drawable);
 }
 
 unsigned int VulkanLayerRenderer3DModel::getResourcesForTexutredDrawable(
