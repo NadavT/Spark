@@ -427,7 +427,7 @@ void VulkanLayerRenderer3DModel::createCommandBuffers()
             }
         }
 
-        if (m_wireframe == WireframeState::Both || m_wireframe == WireframeState::Only)
+        if (m_wireframe == WireframeState::Only)
         {
             struct Vulkan3DWireframePushConsts wireframePushConsts = {};
             wireframePushConsts.color = m_wireframeColor;
@@ -466,6 +466,15 @@ void VulkanLayerRenderer3DModel::drawPrimitive(const VulkanDrawable *drawable, c
                      m_textureDescriptorSets[textureDescriptorOffset][commandBufferIndex], pushConsts);
     primitive->fillCommandBuffer(commandBuffer);
 
+    if (m_wireframe == WireframeState::Both)
+    {
+        struct Vulkan3DWireframePushConsts wireframePushConsts = {};
+        wireframePushConsts.color = m_wireframeColor;
+        m_wireframePipeline->bind(commandBuffer, m_transformationDescriptorSets[drawable][commandBufferIndex],
+                                  wireframePushConsts);
+        primitive->fillCommandBuffer(commandBuffer);
+    }
+
     if (drawable->isHighlighted())
     {
         m_outlinePipeline->bind(commandBuffer, m_outlineTransformationDescriptorSets[drawable][commandBufferIndex],
@@ -483,7 +492,22 @@ void VulkanLayerRenderer3DModel::drawPrimitiveWireframe(const VulkanDrawable *dr
                                                         VkCommandBuffer commandBuffer, size_t commandBufferIndex,
                                                         struct Vulkan3DWireframePushConsts &pushConsts)
 {
+    struct Vulkan3DOutlinePushConsts outlinePushConsts = {};
+    outlinePushConsts.color = drawable->getHighlightColor();
+    outlinePushConsts.lineWidth = drawable->getHighlightWidth();
+
     m_wireframePipeline->bind(commandBuffer, m_transformationDescriptorSets[drawable][commandBufferIndex], pushConsts);
+    primitive->fillCommandBuffer(commandBuffer);
+
+    if (drawable->isHighlighted())
+    {
+        m_outlinePipeline->bind(commandBuffer, m_outlineTransformationDescriptorSets[drawable][commandBufferIndex],
+                                outlinePushConsts);
+        primitive->fillCommandBuffer(commandBuffer);
+    }
+
+    m_cleanOutlinePipeline->bind(commandBuffer, m_outlineTransformationDescriptorSets[drawable][commandBufferIndex],
+                                 outlinePushConsts);
     primitive->fillCommandBuffer(commandBuffer);
 }
 
