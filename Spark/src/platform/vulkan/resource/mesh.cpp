@@ -64,7 +64,7 @@ VulkanMesh &VulkanMesh::operator=(VulkanMesh &&other) noexcept
     return *this;
 }
 
-void VulkanMesh::fillCommandBuffer(VkCommandBuffer commandBuffer)
+void VulkanMesh::fillCommandBuffer(VkCommandBuffer commandBuffer) const
 {
     VkBuffer buff[] = {m_vertexBuffer};
     VkDeviceSize offsets[] = {m_verticesOffset};

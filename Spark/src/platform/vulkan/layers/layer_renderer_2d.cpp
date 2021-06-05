@@ -52,7 +52,7 @@ void VulkanLayerRenderer2D::OnAttach()
                                     (unsigned int)m_drawables.size());
     m_pipeline->createTransformationDescriptorSets((unsigned int)m_drawables.size(), m_transformationDescriptorSets,
                                                    m_uniformTransformations);
-    for (auto drawable : m_drawables)
+    for (auto &drawable : m_drawables)
     {
         VulkanQuad *quad = dynamic_cast<VulkanQuad *>(drawable.get());
         if (m_textureDescriptorOffset.find(quad->getTexture().getName()) == m_textureDescriptorOffset.end())

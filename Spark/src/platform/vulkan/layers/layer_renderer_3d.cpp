@@ -53,7 +53,7 @@ void VulkanLayerRenderer3D::OnAttach()
                                     (unsigned int)m_drawables.size());
     m_pipeline->createTransformationDescriptorSets((unsigned int)m_drawables.size(), m_transformationDescriptorSets,
                                                    m_uniformTransformations);
-    for (auto drawable : m_drawables)
+    for (auto &drawable : m_drawables)
     {
         VulkanTexturedBox *quad = dynamic_cast<VulkanTexturedBox *>(drawable.get());
         if (m_textureDescriptorOffset.find(quad->getTexture().getName()) == m_textureDescriptorOffset.end())

@@ -8,7 +8,7 @@
 
 namespace Spark::Render
 {
-class VulkanSphere : public virtual Sphere, public virtual VulkanDrawable
+class VulkanSphere : public virtual Sphere, public virtual VulkanDrawablePrimitive
 {
   public:
     virtual ~VulkanSphere();
@@ -17,7 +17,7 @@ class VulkanSphere : public virtual Sphere, public virtual VulkanDrawable
     VulkanSphere &operator=(const VulkanSphere &other);
     VulkanSphere &operator=(VulkanSphere &&other) noexcept;
 
-    virtual void fillCommandBuffer(VkCommandBuffer commandBuffer);
+    virtual void fillCommandBuffer(VkCommandBuffer commandBuffer) const;
 
   protected:
     VulkanSphere(VulkanRenderer &renderer, glm::vec3 position, int sectors, int stacks,

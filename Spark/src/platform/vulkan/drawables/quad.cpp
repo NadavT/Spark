@@ -72,7 +72,7 @@ VulkanQuad &VulkanQuad::operator=(VulkanQuad &&other) noexcept
     return *this;
 }
 
-void VulkanQuad::fillCommandBuffer(VkCommandBuffer commandBuffer)
+void VulkanQuad::fillCommandBuffer(VkCommandBuffer commandBuffer) const
 {
     VkBuffer buff[] = {m_vertexBuffer};
     VkDeviceSize offsets[] = {m_verticesOffset};

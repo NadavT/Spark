@@ -1,12 +1,13 @@
 #pragma once
 
+#include "platform/vulkan/drawables/render_primitive.h"
 #include "platform/vulkan/renderer.h"
 
 #include "spark/resource/mesh.h"
 
 namespace Spark::Render
 {
-class VulkanMesh : public Mesh
+class VulkanMesh : public Mesh, public VulkanRenderPrimitive
 {
   public:
     VulkanMesh(VulkanRenderer &renderer, std::vector<Vertex3D> vertices, std::vector<unsigned int> indices,
@@ -18,7 +19,7 @@ class VulkanMesh : public Mesh
     VulkanMesh &operator=(const VulkanMesh &other);
     VulkanMesh &operator=(VulkanMesh &&other) noexcept;
 
-    virtual void fillCommandBuffer(VkCommandBuffer commandBuffer);
+    virtual void fillCommandBuffer(VkCommandBuffer commandBuffer) const;
 
   private:
     void copyMesh(const VulkanMesh &other);

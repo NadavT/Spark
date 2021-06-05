@@ -92,7 +92,7 @@ void VulkanLayerRenderer3DLights::OnAttach()
     m_pipeline->createLightDescriptorSets(m_lightsDescriptorSets, m_uniformDirectionalLightBuffers,
                                           m_uniformPointLightBuffers, m_uniformSpotLightBuffers);
 
-    for (auto drawable : m_drawables)
+    for (auto &drawable : m_drawables)
     {
         VulkanDrawable *vulkanDrawable = dynamic_cast<VulkanDrawable *>(drawable.get());
         if (vulkanDrawable->getDrawableType() == VulkanDrawableType::Textured)
@@ -406,6 +406,7 @@ void VulkanLayerRenderer3DLights::createCommandBuffers()
                 if (drawable->getDrawableType() == VulkanDrawableType::Textured)
                 {
                     VulkanTexturedDrawable *texturedDrawable = dynamic_cast<VulkanTexturedDrawable *>(drawable);
+                    std::vector<const VulkanRenderPrimitive *> primitives = drawable->getRenderPrimitives();
                     pushConsts.calcLight = true;
                     m_pipeline->bind(
                         commandBuffer, m_transformationDescriptorSets[j][i], m_lightsDescriptorSets[0][i],
@@ -416,18 +417,25 @@ void VulkanLayerRenderer3DLights::createCommandBuffers()
                     {
                         vkCmdClearAttachments(commandBuffer, 1, &clearAttachment, 1, &clearRect);
                     }
-                    texturedDrawable->fillCommandBuffer(commandBuffer);
+                    for (auto &primitive : primitives)
+                    {
+                        primitive->fillCommandBuffer(commandBuffer);
+                    }
                     if (texturedDrawable->isHighlighted())
                     {
                         outlinePushConsts.color = texturedDrawable->getHighlightColor();
                         m_outlinePipeline->bind(commandBuffer, m_outlineTransformationDescriptorSets[j][i],
                                                 outlinePushConsts);
-                        texturedDrawable->fillCommandBuffer(commandBuffer);
+                        for (auto &primitive : primitives)
+                        {
+                            primitive->fillCommandBuffer(commandBuffer);
+                        }
                     }
                 }
                 else if (drawable->getDrawableType() == VulkanDrawableType::Colored)
                 {
                     VulkanColoredDrawable *coloredDrawable = dynamic_cast<VulkanColoredDrawable *>(drawable);
+                    std::vector<const VulkanRenderPrimitive *> primitives = drawable->getRenderPrimitives();
                     auto pointLight =
                         std::find_if(m_pointLights.begin(), m_pointLights.end(), [&drawable](VulkanPointLight *x) {
                             return x->getDrawable().get() == dynamic_cast<Drawable3D *>(drawable);
@@ -448,13 +456,19 @@ void VulkanLayerRenderer3DLights::createCommandBuffers()
                     }
                     m_pipeline->bind(commandBuffer, m_transformationDescriptorSets[j][i], m_lightsDescriptorSets[0][i],
                                      m_materialDescriptorSets[j][i], pushConsts);
-                    coloredDrawable->fillCommandBuffer(commandBuffer);
+                    for (auto &primitive : primitives)
+                    {
+                        primitive->fillCommandBuffer(commandBuffer);
+                    }
                     if (coloredDrawable->isHighlighted())
                     {
                         outlinePushConsts.color = coloredDrawable->getHighlightColor();
                         m_outlinePipeline->bind(commandBuffer, m_outlineTransformationDescriptorSets[j][i],
                                                 outlinePushConsts);
-                        coloredDrawable->fillCommandBuffer(commandBuffer);
+                        for (auto &primitive : primitives)
+                        {
+                            primitive->fillCommandBuffer(commandBuffer);
+                        }
                     }
                 }
             }
@@ -467,8 +481,12 @@ void VulkanLayerRenderer3DLights::createCommandBuffers()
             for (size_t j = 0; j < m_drawables.size(); j++)
             {
                 VulkanDrawable *drawable = dynamic_cast<VulkanDrawable *>(m_drawables[j].get());
+                std::vector<const VulkanRenderPrimitive *> primitives = drawable->getRenderPrimitives();
                 m_wireframePipeline->bind(commandBuffer, m_transformationDescriptorSets[j][i], wireframePushConsts);
-                drawable->fillCommandBuffer(commandBuffer);
+                for (auto &primitive : primitives)
+                {
+                    primitive->fillCommandBuffer(commandBuffer);
+                }
             }
         }
 

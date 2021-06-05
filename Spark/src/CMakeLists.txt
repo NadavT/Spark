@@ -74,13 +74,14 @@ set(SPARK_VULKAN_SOURCE
     "platform/vulkan/drawables/colored_drawable.cpp"
     "platform/vulkan/drawables/textured_drawable.cpp"
     "platform/vulkan/drawables/textured_box.cpp"
-   "platform/vulkan/drawables/textured_sphere.cpp"
+    "platform/vulkan/drawables/textured_sphere.cpp"
     "platform/vulkan/drawables/colored_box.cpp"
     "platform/vulkan/drawables/colored_sphere.cpp"
     "platform/vulkan/drawables/box.cpp"
     "platform/vulkan/drawables/sphere.cpp"
     "platform/vulkan/drawables/point_light.cpp"
     "platform/vulkan/drawables/model.cpp"
+    "platform/vulkan/drawables/vulkan_drawable.cpp"
     )
 
 set(SPARK_IMGUI_SOURCE

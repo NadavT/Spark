@@ -100,7 +100,7 @@ VulkanBox &VulkanBox::operator=(VulkanBox &&other) noexcept
     return *this;
 }
 
-void VulkanBox::fillCommandBuffer(VkCommandBuffer commandBuffer)
+void VulkanBox::fillCommandBuffer(VkCommandBuffer commandBuffer) const
 {
     VkBuffer buff[] = {m_vertexBuffer};
     VkDeviceSize offsets[] = {m_verticesOffset};

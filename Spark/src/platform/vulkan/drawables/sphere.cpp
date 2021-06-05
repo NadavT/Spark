@@ -66,7 +66,7 @@ VulkanSphere &VulkanSphere::operator=(VulkanSphere &&other) noexcept
     return *this;
 }
 
-void VulkanSphere::fillCommandBuffer(VkCommandBuffer commandBuffer)
+void VulkanSphere::fillCommandBuffer(VkCommandBuffer commandBuffer) const
 {
     VkBuffer buff[] = {m_vertexBuffer};
     VkDeviceSize offsets[] = {m_verticesOffset};

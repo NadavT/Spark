@@ -14,7 +14,7 @@ class VulkanDrawableModel : public virtual Drawable3D, public virtual VulkanDraw
     VulkanDrawableModel(const Model &model, glm::vec3 position, glm::vec3 scale);
     virtual ~VulkanDrawableModel() = default;
 
-    virtual void fillCommandBuffer(VkCommandBuffer commandBuffer);
+    virtual std::vector<const VulkanRenderPrimitive *> getRenderPrimitives() const;
     virtual VulkanDrawableType getDrawableType() const;
     virtual const Model &getModel() const;
 

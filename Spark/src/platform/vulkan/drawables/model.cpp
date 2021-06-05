@@ -1,5 +1,7 @@
 #include "model.h"
 
+#include "platform/vulkan/resource/mesh.h"
+
 #include "spark/core/log.h"
 
 namespace Spark::Render
@@ -10,9 +12,15 @@ VulkanDrawableModel::VulkanDrawableModel(const Model &model, glm::vec3 position,
 {
 }
 
-void VulkanDrawableModel::fillCommandBuffer(VkCommandBuffer commandBuffer)
+std::vector<const VulkanRenderPrimitive *> VulkanDrawableModel::getRenderPrimitives() const
 {
-    SPARK_CORE_ASSERT(false, "fillCommandBuffer should be called for model meshes and not model");
+    std::vector<const VulkanRenderPrimitive *> primitives;
+    for (auto &mesh : m_model.getMeshes())
+    {
+        SPARK_CORE_ASSERT(mesh != nullptr, "Model has an invalid(null) mesh");
+        primitives.push_back(reinterpret_cast<VulkanMesh *>(mesh.get()));
+    }
+    return primitives;
 }
 
 VulkanDrawableType VulkanDrawableModel::getDrawableType() const

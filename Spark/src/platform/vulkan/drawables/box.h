@@ -8,7 +8,7 @@
 
 namespace Spark::Render
 {
-class VulkanBox : public virtual Box, public virtual VulkanDrawable
+class VulkanBox : public virtual Box, public virtual VulkanDrawablePrimitive
 {
   public:
     virtual ~VulkanBox();
@@ -17,7 +17,7 @@ class VulkanBox : public virtual Box, public virtual VulkanDrawable
     VulkanBox &operator=(const VulkanBox &other);
     VulkanBox &operator=(VulkanBox &&other) noexcept;
 
-    virtual void fillCommandBuffer(VkCommandBuffer commandBuffer);
+    virtual void fillCommandBuffer(VkCommandBuffer commandBuffer) const;
 
   protected:
     VulkanBox(VulkanRenderer &renderer, glm::vec3 position, glm::vec3 scale = glm::vec3(1.0));

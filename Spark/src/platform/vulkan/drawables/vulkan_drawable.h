@@ -1,5 +1,6 @@
 #pragma once
 
+#include "platform/vulkan/drawables/render_primitive.h"
 #include "platform/vulkan/renderer.h"
 
 #include "spark/core/application.h"
@@ -18,8 +19,8 @@ class VulkanDrawable : public virtual Drawable
   public:
     virtual ~VulkanDrawable() = default;
 
-    virtual void fillCommandBuffer(VkCommandBuffer commandBuffer) = 0;
     virtual VulkanDrawableType getDrawableType() const = 0;
+    virtual std::vector<const VulkanRenderPrimitive *> getRenderPrimitives() const = 0;
 
     virtual void highlight()
     {
@@ -38,4 +39,16 @@ class VulkanDrawable : public virtual Drawable
   protected:
     VulkanDrawable() = default;
 };
+
+class VulkanDrawablePrimitive : public virtual VulkanDrawable, public VulkanRenderPrimitive
+{
+  public:
+    virtual ~VulkanDrawablePrimitive() = default;
+
+    virtual std::vector<const VulkanRenderPrimitive *> getRenderPrimitives() const;
+
+  protected:
+    VulkanDrawablePrimitive() = default;
+};
+
 } // namespace Spark::Render

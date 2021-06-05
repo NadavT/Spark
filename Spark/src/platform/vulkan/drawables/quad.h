@@ -1,4 +1,5 @@
 #pragma once
+#include "platform/vulkan/drawables/render_primitive.h"
 #include "platform/vulkan/drawables/vulkan_drawable.h"
 #include "platform/vulkan/renderer.h"
 #include "platform/vulkan/resource/texture.h"
@@ -9,7 +10,7 @@
 
 namespace Spark::Render
 {
-class VulkanQuad : public virtual Quad, public virtual VulkanDrawable
+class VulkanQuad : public virtual Quad, public virtual VulkanDrawablePrimitive
 {
   public:
     VulkanQuad(VulkanRenderer &renderer, glm::vec2 position, const VulkanTexture &texture,
@@ -20,7 +21,7 @@ class VulkanQuad : public virtual Quad, public virtual VulkanDrawable
     VulkanQuad &operator=(const VulkanQuad &other);
     VulkanQuad &operator=(VulkanQuad &&other) noexcept;
 
-    virtual void fillCommandBuffer(VkCommandBuffer commandBuffer);
+    virtual void fillCommandBuffer(VkCommandBuffer commandBuffer) const;
     virtual VulkanDrawableType getDrawableType() const;
 
     virtual const VulkanTexture &getTexture() const;

@@ -37,18 +37,29 @@ class VulkanLayerRenderer3DModel : public LayerRenderer
 
   private:
     void createCommandBuffers();
+    void drawPrimitive(const VulkanDrawable *drawable, const VulkanRenderPrimitive *primitive,
+                       VkCommandBuffer commandBuffer, size_t commandBufferIndex, struct Vulkan3DModelConsts &pushConsts,
+                       unsigned int textureDescriptorOffset = 0);
+    void drawPrimitiveWireframe(const VulkanDrawable *drawable, const VulkanRenderPrimitive *primitive,
+                                VkCommandBuffer commandBuffer, size_t commandBufferIndex,
+                                struct Vulkan3DWireframePushConsts &pushConsts);
+    void createResourcesForLights();
+    void destroyResourcesForLights();
     void createResourcesForDrawables(std::vector<std::shared_ptr<Drawable>> &drawables);
     void destroyResourcesForDrawable(Drawable *drawable);
-    unsigned int getResourcesForTexutredDrawable(VulkanTexturedDrawable &drawable,
-                                                 std::vector<std::vector<VkImageView>> &textures,
-                                                 std::vector<std::vector<VkSampler>> &samplers,
-                                                 std::vector<std::vector<VkImageView>> &specularTextures,
-                                                 std::vector<std::vector<VkSampler>> &specularSamplers);
-    unsigned int getResourcesForModelDrawable(VulkanDrawableModel &drawable,
-                                              std::vector<std::vector<VkImageView>> &textures,
-                                              std::vector<std::vector<VkSampler>> &samplers,
-                                              std::vector<std::vector<VkImageView>> &specularTextures,
-                                              std::vector<std::vector<VkSampler>> &specularSamplers);
+    void createResourcesForTexutredDrawable(VulkanTexturedDrawable &drawable,
+                                            std::vector<std::vector<VkImageView>> &textures,
+                                            std::vector<std::vector<VkSampler>> &samplers,
+                                            std::vector<std::vector<VkImageView>> &specularTextures,
+                                            std::vector<std::vector<VkSampler>> &specularSamplers);
+    void createResourcesForModelDrawable(VulkanDrawableModel &drawable, std::vector<std::vector<VkImageView>> &textures,
+                                         std::vector<std::vector<VkSampler>> &samplers,
+                                         std::vector<std::vector<VkImageView>> &specularTextures,
+                                         std::vector<std::vector<VkSampler>> &specularSamplers);
+    void createDrawableResources(const Drawable *drawable);
+    void destroyDrawableResources(const Drawable *drawable);
+    void createPrimitiveResources(const VulkanRenderPrimitive *primitive);
+    void destroyPrimitiveResources(const VulkanRenderPrimitive *primitive);
 
   private:
     VulkanRenderer &m_renderer;
@@ -58,10 +69,10 @@ class VulkanLayerRenderer3DModel : public LayerRenderer
     VulkanPipeline3DOutline *m_cleanOutlinePipeline;
     VulkanPipeline3DWireframe *m_wireframePipeline;
 
-    std::vector<std::vector<VkBuffer>> m_uniformTransformations;
-    std::vector<std::vector<VkDeviceMemory>> m_uniformTransformationsMemory;
-    std::vector<std::vector<VkDescriptorSet>> m_transformationDescriptorSets;
-    std::vector<std::vector<VkDescriptorSet>> m_outlineTransformationDescriptorSets;
+    std::unordered_map<const Drawable *, std::vector<VkBuffer>> m_uniformTransformations;
+    std::unordered_map<const Drawable *, std::vector<VkDeviceMemory>> m_uniformTransformationsMemory;
+    std::unordered_map<const Drawable *, std::vector<VkDescriptorSet>> m_transformationDescriptorSets;
+    std::unordered_map<const Drawable *, std::vector<VkDescriptorSet>> m_outlineTransformationDescriptorSets;
 
     std::vector<VkBuffer> m_uniformDirectionalLightBuffers;
     std::vector<VkDeviceMemory> m_uniformDirectionalLightBuffersMemory;
@@ -71,14 +82,17 @@ class VulkanLayerRenderer3DModel : public LayerRenderer
     std::vector<VkDeviceMemory> m_uniformSpotLightBuffersMemory;
     std::vector<std::vector<VkDescriptorSet>> m_lightsDescriptorSets;
 
-    std::unordered_map<Drawable *, std::vector<std::vector<VkBuffer>>> m_uniformMaterialBuffers;
-    std::unordered_map<Drawable *, std::vector<std::vector<VkDeviceMemory>>> m_uniformMaterialBuffersMemory;
-    std::unordered_map<Drawable *, std::vector<std::vector<VkDescriptorSet>>> m_materialDescriptorSets;
+    std::unordered_map<const VulkanRenderPrimitive *, std::vector<VkBuffer>> m_uniformMaterialBuffers;
+    std::unordered_map<const VulkanRenderPrimitive *, std::vector<VkDeviceMemory>> m_uniformMaterialBuffersMemory;
+    std::unordered_map<const VulkanRenderPrimitive *, std::vector<VkDescriptorSet>> m_materialDescriptorSets;
 
     std::vector<std::vector<VkDescriptorSet>> m_textureDescriptorSets;
     std::unordered_map<std::string, unsigned int> m_textureDescriptorOffset;
 
+    std::unordered_map<const VulkanRenderPrimitive *, std::vector<VkDescriptorSet> &> m_textureMapping;
+
     std::vector<VkCommandBuffer> m_commandBuffers;
+
     std::vector<Drawable *> m_toBeRemoved;
 
     bool m_isAttached;
