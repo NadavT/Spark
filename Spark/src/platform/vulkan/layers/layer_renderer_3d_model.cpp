@@ -363,39 +363,14 @@ void VulkanLayerRenderer3DModel::createCommandBuffers()
             {
                 VulkanDrawable *drawable = dynamic_cast<VulkanDrawable *>(m_drawables[j].get());
                 std::vector<const VulkanRenderPrimitive *> primitives = drawable->getRenderPrimitives();
-                if (drawable->getDrawableType() == VulkanDrawableType::Textured ||
-                    drawable->getDrawableType() == VulkanDrawableType::Model)
+                auto pointLight =
+                    std::find_if(m_pointLights.begin(), m_pointLights.end(), [&drawable](VulkanPointLight *x) {
+                        return x->getDrawable().get() == dynamic_cast<Drawable3D *>(drawable);
+                    });
+                pushConsts.calcLight = (pointLight != m_pointLights.end() && (*pointLight)->isLit()) ? false : true;
+                for (auto &primitive : drawable->getRenderPrimitives())
                 {
-                    VulkanTexturedDrawable *texturedDrawable = dynamic_cast<VulkanTexturedDrawable *>(drawable);
-                    pushConsts.calcLight = true;
-                    for (auto &primitive : drawable->getRenderPrimitives())
-                    {
-                        drawPrimitive(drawable, primitive, commandBuffer, i, pushConsts);
-                    }
-                }
-                else if (drawable->getDrawableType() == VulkanDrawableType::Colored)
-                {
-                    VulkanColoredDrawable *coloredDrawable = dynamic_cast<VulkanColoredDrawable *>(drawable);
-                    auto pointLight =
-                        std::find_if(m_pointLights.begin(), m_pointLights.end(), [&drawable](VulkanPointLight *x) {
-                            return x->getDrawable().get() == dynamic_cast<Drawable3D *>(drawable);
-                        });
-                    if (pointLight != m_pointLights.end() && (*pointLight)->isLit())
-                    {
-                        pushConsts.calcLight = false;
-                    }
-                    else
-                    {
-                        pushConsts.calcLight = true;
-                    }
-                    for (auto &primitive : drawable->getRenderPrimitives())
-                    {
-                        drawPrimitive(drawable, primitive, commandBuffer, i, pushConsts);
-                    }
-                }
-                else
-                {
-                    SPARK_CORE_ERROR("Drawable type not supported");
+                    drawPrimitive(drawable, primitive, commandBuffer, i, pushConsts);
                 }
             }
         }
