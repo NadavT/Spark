@@ -18,7 +18,7 @@ class Drawable3D : public virtual Drawable
     SPARK_API virtual void setScale(glm::vec3 scale);
     SPARK_API virtual void setRotation(float angle, glm::vec3 axis);
 
-    SPARK_API virtual glm::mat4 getTransformation();
+    SPARK_API virtual glm::mat4 getTransformation() const;
 
   protected:
     SPARK_API Drawable3D(glm::vec3 position, glm::vec3 scale, float rotationAngle = 0,

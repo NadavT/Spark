@@ -1,5 +1,6 @@
 #pragma once
 
+#include "platform/vulkan/drawables/colored_drawable.h"
 #include "platform/vulkan/drawables/model.h"
 #include "platform/vulkan/drawables/point_light.h"
 #include "platform/vulkan/drawables/textured_drawable.h"
@@ -37,14 +38,17 @@ class VulkanLayerRenderer3DModel : public LayerRenderer
 
   private:
     void createCommandBuffers();
+
     void drawPrimitive(const VulkanDrawable *drawable, const VulkanRenderPrimitive *primitive,
                        VkCommandBuffer commandBuffer, size_t commandBufferIndex,
                        struct Vulkan3DModelConsts &pushConsts);
     void drawPrimitiveWireframe(const VulkanDrawable *drawable, const VulkanRenderPrimitive *primitive,
                                 VkCommandBuffer commandBuffer, size_t commandBufferIndex,
                                 struct Vulkan3DWireframePushConsts &pushConsts);
+
     void createResourcesForLights();
     void destroyResourcesForLights();
+
     void createResourcesForDrawables(std::vector<std::shared_ptr<Drawable>> &drawables);
     void destroyResourcesForDrawable(Drawable *drawable);
     void createResourcesForTexutredDrawable(VulkanTexturedDrawable &drawable,
@@ -56,10 +60,21 @@ class VulkanLayerRenderer3DModel : public LayerRenderer
                                          std::vector<std::vector<VkSampler>> &samplers,
                                          std::vector<std::vector<VkImageView>> &specularTextures,
                                          std::vector<std::vector<VkSampler>> &specularSamplers);
+
     void createDrawableResources(const Drawable *drawable);
     void destroyDrawableResources(const Drawable *drawable);
     void createPrimitiveResources(const VulkanRenderPrimitive *primitive);
     void destroyPrimitiveResources(const VulkanRenderPrimitive *primitive);
+
+    void updateLightsData();
+    void updateDirLightData();
+    void updatePointLightsData();
+    void updateSpotLightData();
+
+    void updateDrawableData(const Drawable *drawable);
+    void updateColoredDrawableMaterialData(const VulkanColoredDrawable *drawable);
+    void updateTexturedDrawableMaterialData(const VulkanTexturedDrawable *drawable);
+    void updateModelDrawableMaterialData(const VulkanDrawableModel *drawable);
 
   private:
     VulkanRenderer &m_renderer;

@@ -13,7 +13,7 @@ class Drawable
 
   public:
     SPARK_API virtual ~Drawable() = default;
-    SPARK_API virtual glm::mat4 getTransformation() = 0;
+    SPARK_API virtual glm::mat4 getTransformation() const = 0;
 
     SPARK_API virtual bool isHighlighted() const;
     SPARK_API virtual glm::vec3 getHighlightColor() const;

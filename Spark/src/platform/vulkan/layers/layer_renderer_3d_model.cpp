@@ -122,143 +122,12 @@ void VulkanLayerRenderer3DModel::OnRender()
         m_isRecreationNeeded = false;
     }
 
-    void *data;
-
-    for (size_t i = 0; i < m_drawables.size(); i++)
+    for (auto &drawable : m_drawables)
     {
-        VulkanDrawable *drawable = dynamic_cast<VulkanDrawable *>(m_drawables[i].get());
-        struct Transformation3D transformation = {};
-        transformation.model = drawable->getTransformation();
-        transformation.view = m_camera.getViewMatrix();
-        transformation.projection = glm::perspective(m_camera.getZoom(),
-                                                     m_renderer.m_context.m_swapChainExtent.width /
-                                                         (float)m_renderer.m_context.m_swapChainExtent.height,
-                                                     0.1f, 100.0f);
-        transformation.projection[1][1] *= -1;
-        vkMapMemory(m_renderer.m_context.m_device,
-                    m_uniformTransformationsMemory[drawable][m_renderer.getCurrentImageIndex()], 0,
-                    sizeof(transformation), 0, &data);
-        memcpy(data, &transformation, sizeof(transformation));
-        vkUnmapMemory(m_renderer.m_context.m_device,
-                      m_uniformTransformationsMemory[drawable][m_renderer.getCurrentImageIndex()]);
-
-        if (drawable->getDrawableType() == VulkanDrawableType::Model)
-        {
-            VulkanDrawableModel *modelDrawable = dynamic_cast<VulkanDrawableModel *>(m_drawables[i].get());
-            for (size_t j = 0; j < modelDrawable->getModel().getMeshes().size(); j++)
-            {
-                const Mesh *mesh = modelDrawable->getModel().getMeshes()[j].get();
-                const VulkanRenderPrimitive *primitive = reinterpret_cast<const VulkanMesh *>(mesh);
-                MaterialModel material = {};
-                struct MeshBaseColor baseColor = mesh->getBaseColor();
-                material.baseColorDiffuse = baseColor.diffuse;
-                material.baseColorSpecular = baseColor.specular;
-                material.baseColorAmbient = baseColor.ambient;
-                material.texturesAmount = static_cast<unsigned int>(mesh->getTextures().size());
-                material.specularAmount = static_cast<unsigned int>(mesh->getSpecularTextures().size());
-                material.shininess = mesh->getShininess();
-                vkMapMemory(m_renderer.m_context.m_device,
-                            m_uniformMaterialBuffersMemory[primitive][m_renderer.getCurrentImageIndex()], 0,
-                            sizeof(material), 0, &data);
-                memcpy(data, &material, sizeof(material));
-                vkUnmapMemory(m_renderer.m_context.m_device,
-                              m_uniformMaterialBuffersMemory[primitive][m_renderer.getCurrentImageIndex()]);
-            }
-        }
-        else if (drawable->getDrawableType() == VulkanDrawableType::Textured)
-        {
-            MaterialModel material = {};
-            material.baseColorDiffuse = {0, 0, 0};
-            material.baseColorSpecular = {0, 0, 0};
-            material.baseColorAmbient = {0, 0, 0};
-            material.texturesAmount = 1;
-            material.specularAmount = 1;
-            material.shininess = 32.0f;
-            const VulkanRenderPrimitive *primitive = drawable->getRenderPrimitives()[0];
-            vkMapMemory(m_renderer.m_context.m_device,
-                        m_uniformMaterialBuffersMemory[primitive][m_renderer.getCurrentImageIndex()], 0,
-                        sizeof(material), 0, &data);
-            memcpy(data, &material, sizeof(material));
-            vkUnmapMemory(m_renderer.m_context.m_device,
-                          m_uniformMaterialBuffersMemory[primitive][m_renderer.getCurrentImageIndex()]);
-        }
-        else if (drawable->getDrawableType() == VulkanDrawableType::Colored)
-        {
-            VulkanColoredDrawable *coloredDrawable = dynamic_cast<VulkanColoredDrawable *>(m_drawables[i].get());
-            MaterialModel material = {};
-            auto pointLight =
-                std::find_if(m_pointLights.begin(), m_pointLights.end(), [&drawable](VulkanPointLight *x) {
-                    return x->getDrawable().get() == dynamic_cast<Drawable3D *>(drawable);
-                });
-            if (pointLight != m_pointLights.end() && (*pointLight)->isLit())
-            {
-                material.pureColor = (*pointLight)->getColor();
-            }
-            else
-            {
-                material.baseColorDiffuse = coloredDrawable->getColor();
-                material.baseColorSpecular = coloredDrawable->getColor();
-                material.baseColorAmbient = coloredDrawable->getColor();
-            }
-            material.texturesAmount = 0;
-            material.specularAmount = 0;
-            material.shininess = 32.0f;
-            const VulkanRenderPrimitive *primitive = drawable->getRenderPrimitives()[0];
-            vkMapMemory(m_renderer.m_context.m_device,
-                        m_uniformMaterialBuffersMemory[primitive][m_renderer.getCurrentImageIndex()], 0,
-                        sizeof(material), 0, &data);
-            memcpy(data, &material, sizeof(material));
-            vkUnmapMemory(m_renderer.m_context.m_device,
-                          m_uniformMaterialBuffersMemory[primitive][m_renderer.getCurrentImageIndex()]);
-        }
-    }
-    VulkanShaderDirectionalLightModel dirLight = {};
-    dirLight.direction = m_camera.getViewMatrix() * glm::vec4(m_dirLightDirection, 0.0f);
-    dirLight.ambient = m_dirLightColor * 0.3f;
-    dirLight.diffuse = m_dirLightColor * 0.4f;
-    dirLight.specular = m_dirLightColor * 0.3f;
-    vkMapMemory(m_renderer.m_context.m_device,
-                m_uniformDirectionalLightBuffersMemory[m_renderer.getCurrentImageIndex()], 0, sizeof(dirLight), 0,
-                &data);
-    memcpy(data, &dirLight, sizeof(dirLight));
-    vkUnmapMemory(m_renderer.m_context.m_device,
-                  m_uniformDirectionalLightBuffersMemory[m_renderer.getCurrentImageIndex()]);
-
-    int lightIndex = 0;
-    for (auto &light : m_pointLights)
-    {
-        if (light->isLit())
-        {
-            VulkanShaderPointLightModel pointLight = {};
-            pointLight.position = m_camera.getViewMatrix() * glm::vec4(light->getPosition(), 1.0f);
-            pointLight.ambient = light->getColor() * 0.0f;
-            pointLight.diffuse = light->getColor() * 0.5f;
-            pointLight.specular = light->getColor();
-            pointLight.constant = 1.0f;
-            pointLight.linear = 0.09f;
-            pointLight.quadratic = 0.032f;
-            vkMapMemory(m_renderer.m_context.m_device,
-                        m_uniformPointLightBuffersMemory[m_renderer.getCurrentImageIndex()],
-                        lightIndex * sizeof(pointLight), sizeof(pointLight), 0, &data);
-            memcpy(data, &pointLight, sizeof(pointLight));
-            vkUnmapMemory(m_renderer.m_context.m_device,
-                          m_uniformPointLightBuffersMemory[m_renderer.getCurrentImageIndex()]);
-            lightIndex++;
-        }
+        updateDrawableData(drawable.get());
     }
 
-    VulkanShaderSpotLightModel spotLight = {};
-    spotLight.position = glm::vec3(0);
-    spotLight.direction = glm::vec3(0.0f, 0.0f, -1.0f);
-    spotLight.ambient = m_spotLightColor * 0.2f;
-    spotLight.diffuse = m_spotLightColor * 0.5f;
-    spotLight.specular = m_spotLightColor;
-    spotLight.innerCutOff = glm::cos(glm::radians(12.5f));
-    spotLight.outerCutOff = glm::cos(glm::radians(14.5f));
-    vkMapMemory(m_renderer.m_context.m_device, m_uniformSpotLightBuffersMemory[m_renderer.getCurrentImageIndex()], 0,
-                sizeof(spotLight), 0, &data);
-    memcpy(data, &spotLight, sizeof(spotLight));
-    vkUnmapMemory(m_renderer.m_context.m_device, m_uniformSpotLightBuffersMemory[m_renderer.getCurrentImageIndex()]);
+    updateLightsData();
 
     VkCommandBuffer commandBuffer = m_commandBuffers[m_renderer.getCurrentImageIndex()];
     m_renderer.render(commandBuffer);
@@ -632,5 +501,180 @@ void VulkanLayerRenderer3DModel::destroyPrimitiveResources(const VulkanRenderPri
     m_renderer.destroyUniformBuffers(m_uniformMaterialBuffers[primitive], m_uniformMaterialBuffersMemory[primitive]);
     m_uniformMaterialBuffers.erase(primitive);
     m_uniformMaterialBuffersMemory.erase(primitive);
+}
+
+void VulkanLayerRenderer3DModel::updateLightsData()
+{
+    updateDirLightData();
+    updatePointLightsData();
+    updateSpotLightData();
+}
+
+void VulkanLayerRenderer3DModel::updateDirLightData()
+{
+    void *data = nullptr;
+    VulkanShaderDirectionalLightModel dirLight = {};
+    dirLight.direction = m_camera.getViewMatrix() * glm::vec4(m_dirLightDirection, 0.0f);
+    dirLight.ambient = m_dirLightColor * 0.3f;
+    dirLight.diffuse = m_dirLightColor * 0.4f;
+    dirLight.specular = m_dirLightColor * 0.3f;
+    vkMapMemory(m_renderer.m_context.m_device,
+                m_uniformDirectionalLightBuffersMemory[m_renderer.getCurrentImageIndex()], 0, sizeof(dirLight), 0,
+                &data);
+    memcpy(data, &dirLight, sizeof(dirLight));
+    vkUnmapMemory(m_renderer.m_context.m_device,
+                  m_uniformDirectionalLightBuffersMemory[m_renderer.getCurrentImageIndex()]);
+}
+
+void VulkanLayerRenderer3DModel::updatePointLightsData()
+{
+    void *data = nullptr;
+    int lightIndex = 0;
+    for (auto &light : m_pointLights)
+    {
+        if (light->isLit())
+        {
+            VulkanShaderPointLightModel pointLight = {};
+            pointLight.position = m_camera.getViewMatrix() * glm::vec4(light->getPosition(), 1.0f);
+            pointLight.ambient = light->getColor() * 0.0f;
+            pointLight.diffuse = light->getColor() * 0.5f;
+            pointLight.specular = light->getColor();
+            pointLight.constant = 1.0f;
+            pointLight.linear = 0.09f;
+            pointLight.quadratic = 0.032f;
+            vkMapMemory(m_renderer.m_context.m_device,
+                        m_uniformPointLightBuffersMemory[m_renderer.getCurrentImageIndex()],
+                        lightIndex * sizeof(pointLight), sizeof(pointLight), 0, &data);
+            memcpy(data, &pointLight, sizeof(pointLight));
+            vkUnmapMemory(m_renderer.m_context.m_device,
+                          m_uniformPointLightBuffersMemory[m_renderer.getCurrentImageIndex()]);
+            lightIndex++;
+        }
+    }
+}
+
+void VulkanLayerRenderer3DModel::updateSpotLightData()
+{
+    void *data = nullptr;
+    VulkanShaderSpotLightModel spotLight = {};
+    spotLight.position = glm::vec3(0);
+    spotLight.direction = glm::vec3(0.0f, 0.0f, -1.0f);
+    spotLight.ambient = m_spotLightColor * 0.2f;
+    spotLight.diffuse = m_spotLightColor * 0.5f;
+    spotLight.specular = m_spotLightColor;
+    spotLight.innerCutOff = glm::cos(glm::radians(12.5f));
+    spotLight.outerCutOff = glm::cos(glm::radians(14.5f));
+    vkMapMemory(m_renderer.m_context.m_device, m_uniformSpotLightBuffersMemory[m_renderer.getCurrentImageIndex()], 0,
+                sizeof(spotLight), 0, &data);
+    memcpy(data, &spotLight, sizeof(spotLight));
+    vkUnmapMemory(m_renderer.m_context.m_device, m_uniformSpotLightBuffersMemory[m_renderer.getCurrentImageIndex()]);
+}
+
+void VulkanLayerRenderer3DModel::updateDrawableData(const Drawable *drawable)
+{
+    void *data = nullptr;
+    const VulkanDrawable *vulkanDrawable = dynamic_cast<const VulkanDrawable *>(drawable);
+    SPARK_CORE_ASSERT(vulkanDrawable != nullptr, "Got a null drawble");
+
+    struct Transformation3D transformation = {};
+    transformation.model = drawable->getTransformation();
+    transformation.view = m_camera.getViewMatrix();
+    transformation.projection = glm::perspective(m_camera.getZoom(),
+                                                 m_renderer.m_context.m_swapChainExtent.width /
+                                                     (float)m_renderer.m_context.m_swapChainExtent.height,
+                                                 0.1f, 100.0f);
+    transformation.projection[1][1] *= -1;
+    vkMapMemory(m_renderer.m_context.m_device,
+                m_uniformTransformationsMemory[drawable][m_renderer.getCurrentImageIndex()], 0, sizeof(transformation),
+                0, &data);
+    memcpy(data, &transformation, sizeof(transformation));
+    vkUnmapMemory(m_renderer.m_context.m_device,
+                  m_uniformTransformationsMemory[drawable][m_renderer.getCurrentImageIndex()]);
+
+    if (vulkanDrawable->getDrawableType() == VulkanDrawableType::Colored)
+    {
+        updateColoredDrawableMaterialData(dynamic_cast<const VulkanColoredDrawable *>(vulkanDrawable));
+    }
+    else if (vulkanDrawable->getDrawableType() == VulkanDrawableType::Textured)
+    {
+        updateTexturedDrawableMaterialData(dynamic_cast<const VulkanTexturedDrawable *>(vulkanDrawable));
+    }
+    else if (vulkanDrawable->getDrawableType() == VulkanDrawableType::Model)
+    {
+        updateModelDrawableMaterialData(dynamic_cast<const VulkanDrawableModel *>(vulkanDrawable));
+    }
+}
+
+void VulkanLayerRenderer3DModel::updateColoredDrawableMaterialData(const VulkanColoredDrawable *drawable)
+{
+    void *data;
+    MaterialModel material = {};
+    auto pointLight = std::find_if(m_pointLights.begin(), m_pointLights.end(), [&drawable](VulkanPointLight *x) {
+        return x->getDrawable().get() == dynamic_cast<const Drawable3D *>(drawable);
+    });
+    if (pointLight != m_pointLights.end() && (*pointLight)->isLit())
+    {
+        material.pureColor = (*pointLight)->getColor();
+    }
+    else
+    {
+        material.baseColorDiffuse = drawable->getColor();
+        material.baseColorSpecular = drawable->getColor();
+        material.baseColorAmbient = drawable->getColor();
+    }
+    material.texturesAmount = 0;
+    material.specularAmount = 0;
+    material.shininess = 32.0f;
+    const VulkanRenderPrimitive *primitive = drawable->getRenderPrimitives()[0];
+    vkMapMemory(m_renderer.m_context.m_device,
+                m_uniformMaterialBuffersMemory[primitive][m_renderer.getCurrentImageIndex()], 0, sizeof(material), 0,
+                &data);
+    memcpy(data, &material, sizeof(material));
+    vkUnmapMemory(m_renderer.m_context.m_device,
+                  m_uniformMaterialBuffersMemory[primitive][m_renderer.getCurrentImageIndex()]);
+}
+
+void VulkanLayerRenderer3DModel::updateTexturedDrawableMaterialData(const VulkanTexturedDrawable *drawable)
+{
+    void *data = nullptr;
+    MaterialModel material = {};
+    material.baseColorDiffuse = {0, 0, 0};
+    material.baseColorSpecular = {0, 0, 0};
+    material.baseColorAmbient = {0, 0, 0};
+    material.texturesAmount = 1;
+    material.specularAmount = 1;
+    material.shininess = 32.0f;
+    const VulkanRenderPrimitive *primitive = drawable->getRenderPrimitives()[0];
+    vkMapMemory(m_renderer.m_context.m_device,
+                m_uniformMaterialBuffersMemory[primitive][m_renderer.getCurrentImageIndex()], 0, sizeof(material), 0,
+                &data);
+    memcpy(data, &material, sizeof(material));
+    vkUnmapMemory(m_renderer.m_context.m_device,
+                  m_uniformMaterialBuffersMemory[primitive][m_renderer.getCurrentImageIndex()]);
+}
+
+void VulkanLayerRenderer3DModel::updateModelDrawableMaterialData(const VulkanDrawableModel *drawable)
+{
+    void *data = nullptr;
+    MaterialModel material = {};
+    for (size_t j = 0; j < drawable->getModel().getMeshes().size(); j++)
+    {
+        const Mesh *mesh = drawable->getModel().getMeshes()[j].get();
+        const VulkanRenderPrimitive *primitive = reinterpret_cast<const VulkanMesh *>(mesh);
+        MaterialModel material = {};
+        struct MeshBaseColor baseColor = mesh->getBaseColor();
+        material.baseColorDiffuse = baseColor.diffuse;
+        material.baseColorSpecular = baseColor.specular;
+        material.baseColorAmbient = baseColor.ambient;
+        material.texturesAmount = static_cast<unsigned int>(mesh->getTextures().size());
+        material.specularAmount = static_cast<unsigned int>(mesh->getSpecularTextures().size());
+        material.shininess = mesh->getShininess();
+        vkMapMemory(m_renderer.m_context.m_device,
+                    m_uniformMaterialBuffersMemory[primitive][m_renderer.getCurrentImageIndex()], 0, sizeof(material),
+                    0, &data);
+        memcpy(data, &material, sizeof(material));
+        vkUnmapMemory(m_renderer.m_context.m_device,
+                      m_uniformMaterialBuffersMemory[primitive][m_renderer.getCurrentImageIndex()]);
+    }
 }
 } // namespace Spark::Render

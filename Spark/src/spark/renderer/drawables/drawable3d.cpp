@@ -55,7 +55,7 @@ SPARK_API void Drawable3D::setRotation(float angle, glm::vec3 axis)
     m_rotationMatrix = glm::rotate(glm::mat4(1), angle, axis);
 }
 
-glm::mat4 Drawable3D::getTransformation()
+glm::mat4 Drawable3D::getTransformation() const
 {
     return m_translationMatrix * m_rotationMatrix * m_scaleMatrix;
 }

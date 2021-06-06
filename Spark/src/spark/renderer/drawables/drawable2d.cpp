@@ -21,7 +21,7 @@ void Drawable2D::scale(glm::vec2 scale)
     m_scale *= scale;
 }
 
-glm::mat4 Drawable2D::getTransformation()
+glm::mat4 Drawable2D::getTransformation() const
 {
     return glm::mat4(glm::translate(glm::scale(glm::mat3(1), m_scale), m_position / m_scale));
 }
