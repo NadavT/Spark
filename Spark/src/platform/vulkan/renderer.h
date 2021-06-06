@@ -57,8 +57,10 @@ class VulkanRenderer : public Renderer
     void queuePresent(const VkPresentInfoKHR *info);
     void createUniformBuffers(VkDeviceSize size, std::vector<VkBuffer> &uniformBuffers,
                               std::vector<VkDeviceMemory> &uniformBuffersMemory);
+    std::pair<std::vector<VkBuffer>, std::vector<VkDeviceMemory>> createUniformBuffers(VkDeviceSize size);
     void createUniformBuffers(VkDeviceSize size, std::vector<std::vector<VkBuffer>> &uniformBuffers,
                               std::vector<std::vector<VkDeviceMemory>> &uniformBuffersMemory, unsigned int amount);
+    void destroyUniformBuffers(std::vector<VkBuffer> &uniform, std::vector<VkDeviceMemory> &memory);
     void addUniformBuffers(VkDeviceSize size, std::vector<std::vector<VkBuffer>> &uniformBuffers,
                            std::vector<std::vector<VkDeviceMemory>> &uniformBuffersMemory);
 

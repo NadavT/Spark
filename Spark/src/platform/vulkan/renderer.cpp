@@ -534,6 +534,35 @@ void VulkanRenderer::createUniformBuffers(VkDeviceSize size, std::vector<std::ve
     }
 }
 
+std::pair<std::vector<VkBuffer>, std::vector<VkDeviceMemory>> VulkanRenderer::createUniformBuffers(VkDeviceSize size)
+{
+    std::vector<VkBuffer> buffers;
+    std::vector<VkDeviceMemory> memory;
+
+    buffers.resize(m_context.m_swapChainImages.size());
+    memory.resize(m_context.m_swapChainImages.size());
+
+    for (size_t i = 0; i < m_context.m_swapChainImages.size(); i++)
+    {
+        m_context.createBuffer(size, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
+                               VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, buffers[i],
+                               memory[i]);
+    }
+
+    return std::make_pair(buffers, memory);
+}
+
+void VulkanRenderer::destroyUniformBuffers(std::vector<VkBuffer> &uniform, std::vector<VkDeviceMemory> &memory)
+{
+    for (size_t i = 0; i < uniform.size(); i++)
+    {
+        vkDestroyBuffer(m_context.m_device, uniform[i], nullptr);
+        vkFreeMemory(m_context.m_device, memory[i], nullptr);
+    }
+    uniform.clear();
+    memory.clear();
+}
+
 void VulkanRenderer::addUniformBuffers(VkDeviceSize size, std::vector<std::vector<VkBuffer>> &uniformBuffers,
                                        std::vector<std::vector<VkDeviceMemory>> &uniformBuffersMemory)
 {

@@ -78,6 +78,7 @@ class VulkanPipeline3DModel : public VulkanPipeline
     void createTransformationDescriptorSets(unsigned int drawablesAmount,
                                             std::vector<std::vector<VkDescriptorSet>> &transformationSets,
                                             std::vector<std::vector<VkBuffer>> transformationUniforms);
+    std::vector<VkDescriptorSet> createTransformationDescriptorSet(std::vector<VkBuffer> transformationUniforms);
     void createLightDescriptorSets(std::vector<std::vector<VkDescriptorSet>> &lightSets,
                                    std::vector<VkBuffer> &dirLightUniform, std::vector<VkBuffer> &pointLightsUniform,
                                    std::vector<VkBuffer> &spotLightUniform);
@@ -95,6 +96,7 @@ class VulkanPipeline3DModel : public VulkanPipeline
                                          unsigned int amount = 1);
     void addMaterialDescriptorSets(std::vector<std::vector<VkDescriptorSet>> &materialSets,
                                    std::vector<std::vector<VkBuffer>> materialUniforms, unsigned int amount = 1);
+    std::vector<VkDescriptorSet> createMaterialDescriptorSet(std::vector<VkBuffer> materialUniform);
     void addTextureDescriptorSets(std::vector<std::vector<VkDescriptorSet>> &textureSets,
                                   std::vector<std::vector<VkImageView>> textureImageView,
                                   std::vector<std::vector<VkSampler>> textureSampler,

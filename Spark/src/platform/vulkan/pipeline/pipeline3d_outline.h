@@ -28,6 +28,7 @@ class VulkanPipeline3DOutline : public VulkanPipeline
     void createTransformationDescriptorSets(unsigned int drawablesAmount,
                                             std::vector<std::vector<VkDescriptorSet>> &transformationSets,
                                             std::vector<std::vector<VkBuffer>> transformationUniforms);
+    std::vector<VkDescriptorSet> createTransformationDescriptorSet(std::vector<VkBuffer> transformationUniforms);
 
     void createSingleTransformationDescriptorSet(std::vector<std::vector<VkDescriptorSet>> &transformationSets,
                                                  std::vector<VkBuffer> transformationUniforms);

@@ -188,6 +188,32 @@ void VulkanPipeline::allocateDescriptorSets(unsigned int amount, VkDescriptorSet
     }
 }
 
+void VulkanPipeline::allocateDescriptorSet(VkDescriptorSetLayout layout, std::vector<VkDescriptorSet> &set)
+{
+    std::vector<VkDescriptorSetLayout> layouts(m_context.m_swapChainImages.size(), layout);
+    VkDescriptorSetAllocateInfo allocInfo = {};
+    set.resize(m_context.m_swapChainImages.size());
+    allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
+    allocInfo.descriptorPool = m_context.m_descriptorPool;
+    allocInfo.descriptorSetCount = static_cast<uint32_t>(m_context.m_swapChainImages.size());
+    allocInfo.pSetLayouts = layouts.data();
+
+    SPARK_CORE_ASSERT(vkAllocateDescriptorSets(m_context.m_device, &allocInfo, set.data()) == VK_SUCCESS,
+                      "Failed to allocate descriptor sets");
+}
+
+std::vector<VkDescriptorSet> VulkanPipeline::createDescriptorSet(VkDescriptorSetLayout layout)
+{
+    std::vector<VkDescriptorSet> set;
+    allocateDescriptorSet(layout, set);
+    return set;
+}
+
+void VulkanPipeline::destroyDescriptorSet(std::vector<VkDescriptorSet> &set)
+{
+    vkFreeDescriptorSets(m_context.m_device, m_context.m_descriptorPool, (unsigned int)set.size(), set.data());
+}
+
 void VulkanPipeline::addDescriptorSets(VkDescriptorSetLayout layout, std::vector<std::vector<VkDescriptorSet>> &sets,
                                        unsigned int amount)
 {
@@ -243,6 +269,13 @@ void VulkanPipeline::updateBufferDescriptorSets(unsigned int amount, std::vector
 
     vkUpdateDescriptorSets(m_context.m_device, static_cast<uint32_t>(descriptorWrites.size()), descriptorWrites.data(),
                            0, nullptr);
+}
+
+void VulkanPipeline::updateBufferDescriptorSet(std::vector<VkDescriptorSet> &set, std::vector<VkBuffer> uniform,
+                                               VkDeviceSize range)
+{
+    updateBufferDescriptorSets(1, std::vector<std::vector<VkDescriptorSet>>({set}),
+                               std::vector<std::vector<VkBuffer>>({uniform}), range);
 }
 
 void VulkanPipeline::updateTextureDescriptorSets(unsigned int amount, std::vector<std::vector<VkDescriptorSet>> &sets,

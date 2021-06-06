@@ -83,6 +83,16 @@ void VulkanPipeline3DModel::createTransformationDescriptorSets(
     updateBufferDescriptorSets(drawablesAmount, transformationSets, transformationUniforms, sizeof(Transformation3D));
 }
 
+std::vector<VkDescriptorSet> VulkanPipeline3DModel::createTransformationDescriptorSet(
+    std::vector<VkBuffer> transformationUniforms)
+{
+    std::vector<VkDescriptorSet> set = createDescriptorSet(m_transformationDescriptorSetLayout);
+
+    updateBufferDescriptorSet(set, transformationUniforms, sizeof(Transformation3D));
+
+    return set;
+}
+
 void VulkanPipeline3DModel::createLightDescriptorSets(std::vector<std::vector<VkDescriptorSet>> &lightSets,
                                                       std::vector<VkBuffer> &dirLightUniform,
                                                       std::vector<VkBuffer> &pointLightsUniform,
@@ -127,6 +137,15 @@ void VulkanPipeline3DModel::addMaterialDescriptorSets(std::vector<std::vector<Vk
     addDescriptorSets(m_materialDescriptorSetLayout, materialSets, amount);
     updateBufferDescriptorSets(amount, materialSets, materialUniforms, sizeof(MaterialModel),
                                static_cast<unsigned int>(materialSets.size() - amount));
+}
+
+std::vector<VkDescriptorSet> VulkanPipeline3DModel::createMaterialDescriptorSet(std::vector<VkBuffer> materialUniform)
+{
+    std::vector<VkDescriptorSet> set = createDescriptorSet(m_materialDescriptorSetLayout);
+
+    updateBufferDescriptorSet(set, materialUniform, sizeof(MaterialModel));
+
+    return set;
 }
 
 void VulkanPipeline3DModel::addTextureDescriptorSets(std::vector<std::vector<VkDescriptorSet>> &textureSets,

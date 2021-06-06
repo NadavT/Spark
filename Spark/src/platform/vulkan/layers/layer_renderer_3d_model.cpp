@@ -460,33 +460,27 @@ void VulkanLayerRenderer3DModel::drawPrimitiveWireframe(const VulkanDrawable *dr
 
 void VulkanLayerRenderer3DModel::createResourcesForLights()
 {
-    m_renderer.createUniformBuffers(sizeof(VulkanShaderDirectionalLightModel), m_uniformDirectionalLightBuffers,
-                                    m_uniformDirectionalLightBuffersMemory);
-    m_renderer.createUniformBuffers(sizeof(VulkanShaderPointLightModel) * MAX_POINT_LIGHTS, m_uniformPointLightBuffers,
-                                    m_uniformPointLightBuffersMemory);
-    m_renderer.createUniformBuffers(sizeof(VulkanShaderSpotLightModel), m_uniformSpotLightBuffers,
-                                    m_uniformSpotLightBuffersMemory);
+    std::tie(m_uniformDirectionalLightBuffers, m_uniformDirectionalLightBuffersMemory) =
+        m_renderer.createUniformBuffers(sizeof(VulkanShaderDirectionalLightModel));
+    std::tie(m_uniformPointLightBuffers, m_uniformPointLightBuffersMemory) =
+        m_renderer.createUniformBuffers(sizeof(VulkanShaderPointLightModel) * MAX_POINT_LIGHTS);
+    std::tie(m_uniformSpotLightBuffers, m_uniformSpotLightBuffersMemory) =
+        m_renderer.createUniformBuffers(sizeof(VulkanShaderSpotLightModel));
     m_pipeline->createLightDescriptorSets(m_lightsDescriptorSets, m_uniformDirectionalLightBuffers,
                                           m_uniformPointLightBuffers, m_uniformSpotLightBuffers);
 }
 
 void VulkanLayerRenderer3DModel::destroyResourcesForLights()
 {
-    for (size_t i = 0; i < m_lightsDescriptorSets.size(); i++)
+    for (auto &set : m_lightsDescriptorSets)
     {
-        vkFreeDescriptorSets(m_renderer.m_context.m_device, m_renderer.m_context.m_descriptorPool,
-                             (unsigned int)m_lightsDescriptorSets[i].size(), m_lightsDescriptorSets[i].data());
+        m_pipeline->destroyDescriptorSet(set);
     }
+    m_lightsDescriptorSets.clear();
 
-    for (size_t i = 0; i < m_uniformDirectionalLightBuffers.size(); i++)
-    {
-        vkDestroyBuffer(m_renderer.m_context.m_device, m_uniformSpotLightBuffers[i], nullptr);
-        vkFreeMemory(m_renderer.m_context.m_device, m_uniformSpotLightBuffersMemory[i], nullptr);
-        vkDestroyBuffer(m_renderer.m_context.m_device, m_uniformPointLightBuffers[i], nullptr);
-        vkFreeMemory(m_renderer.m_context.m_device, m_uniformPointLightBuffersMemory[i], nullptr);
-        vkDestroyBuffer(m_renderer.m_context.m_device, m_uniformDirectionalLightBuffers[i], nullptr);
-        vkFreeMemory(m_renderer.m_context.m_device, m_uniformDirectionalLightBuffersMemory[i], nullptr);
-    }
+    m_renderer.destroyUniformBuffers(m_uniformSpotLightBuffers, m_uniformSpotLightBuffersMemory);
+    m_renderer.destroyUniformBuffers(m_uniformPointLightBuffers, m_uniformPointLightBuffersMemory);
+    m_renderer.destroyUniformBuffers(m_uniformDirectionalLightBuffers, m_uniformDirectionalLightBuffersMemory);
 }
 
 void VulkanLayerRenderer3DModel::createResourcesForDrawables(std::vector<std::shared_ptr<Drawable>> &drawables)
@@ -600,71 +594,42 @@ void VulkanLayerRenderer3DModel::createResourcesForModelDrawable(
 
 void VulkanLayerRenderer3DModel::createDrawableResources(const Drawable *drawable)
 {
-    m_uniformTransformations[drawable] = std::vector<VkBuffer>();
-    m_uniformTransformationsMemory[drawable] = std::vector<VkDeviceMemory>();
-    m_renderer.createUniformBuffers(sizeof(Transformation3D), m_uniformTransformations[drawable],
-                                    m_uniformTransformationsMemory[drawable]);
+    std::tie(m_uniformTransformations[drawable], m_uniformTransformationsMemory[drawable]) =
+        m_renderer.createUniformBuffers(sizeof(Transformation3D));
 
-    std::vector<std::vector<VkDescriptorSet>> descriptorSets;
-    std::vector<std::vector<VkDescriptorSet>> outlineDescriptorSets;
-
-    m_pipeline->createTransformationDescriptorSets(
-        1, descriptorSets, std::vector<std::vector<VkBuffer>>({m_uniformTransformations[drawable]}));
-    m_outlinePipeline->createTransformationDescriptorSets(
-        1, outlineDescriptorSets, std::vector<std::vector<VkBuffer>>({m_uniformTransformations[drawable]}));
-
-    m_transformationDescriptorSets[drawable] = descriptorSets[0];
-    m_outlineTransformationDescriptorSets[drawable] = outlineDescriptorSets[0];
+    m_transformationDescriptorSets[drawable] =
+        m_pipeline->createTransformationDescriptorSet(m_uniformTransformations[drawable]);
+    m_outlineTransformationDescriptorSets[drawable] =
+        m_outlinePipeline->createTransformationDescriptorSet(m_uniformTransformations[drawable]);
 }
 
 void VulkanLayerRenderer3DModel::destroyDrawableResources(const Drawable *drawable)
 {
-    vkFreeDescriptorSets(m_renderer.m_context.m_device, m_renderer.m_context.m_descriptorPool,
-                         (unsigned int)m_transformationDescriptorSets[drawable].size(),
-                         m_transformationDescriptorSets[drawable].data());
+    m_pipeline->destroyDescriptorSet(m_transformationDescriptorSets[drawable]);
     m_transformationDescriptorSets.erase(drawable);
 
-    vkFreeDescriptorSets(m_renderer.m_context.m_device, m_renderer.m_context.m_descriptorPool,
-                         (unsigned int)m_outlineTransformationDescriptorSets[drawable].size(),
-                         m_outlineTransformationDescriptorSets[drawable].data());
+    m_pipeline->destroyDescriptorSet(m_outlineTransformationDescriptorSets[drawable]);
     m_outlineTransformationDescriptorSets.erase(drawable);
 
-    for (size_t i = 0; i < m_uniformTransformations[drawable].size(); i++)
-    {
-        vkDestroyBuffer(m_renderer.m_context.m_device, m_uniformTransformations[drawable][i], nullptr);
-        vkFreeMemory(m_renderer.m_context.m_device, m_uniformTransformationsMemory[drawable][i], nullptr);
-    }
+    m_renderer.destroyUniformBuffers(m_uniformTransformations[drawable], m_uniformTransformationsMemory[drawable]);
     m_uniformTransformations.erase(drawable);
     m_uniformTransformationsMemory.erase(drawable);
 }
 
 void VulkanLayerRenderer3DModel::createPrimitiveResources(const VulkanRenderPrimitive *primitive)
 {
-    m_uniformMaterialBuffers[primitive] = std::vector<VkBuffer>();
-    m_uniformMaterialBuffersMemory[primitive] = std::vector<VkDeviceMemory>();
-    m_renderer.createUniformBuffers(sizeof(MaterialModel), m_uniformMaterialBuffers[primitive],
-                                    m_uniformMaterialBuffersMemory[primitive]);
+    std::tie(m_uniformMaterialBuffers[primitive], m_uniformMaterialBuffersMemory[primitive]) =
+        m_renderer.createUniformBuffers(sizeof(MaterialModel));
 
-    std::vector<std::vector<VkDescriptorSet>> descriptorSets;
-
-    m_pipeline->addMaterialDescriptorSets(descriptorSets,
-                                          std::vector<std::vector<VkBuffer>>({m_uniformMaterialBuffers[primitive]}));
-
-    m_materialDescriptorSets[primitive] = descriptorSets[0];
+    m_materialDescriptorSets[primitive] = m_pipeline->createMaterialDescriptorSet(m_uniformMaterialBuffers[primitive]);
 }
 
 void VulkanLayerRenderer3DModel::destroyPrimitiveResources(const VulkanRenderPrimitive *primitive)
 {
-    vkFreeDescriptorSets(m_renderer.m_context.m_device, m_renderer.m_context.m_descriptorPool,
-                         (unsigned int)m_materialDescriptorSets[primitive].size(),
-                         m_materialDescriptorSets[primitive].data());
+    m_pipeline->destroyDescriptorSet(m_materialDescriptorSets[primitive]);
     m_materialDescriptorSets.erase(primitive);
 
-    for (size_t i = 0; i < m_uniformMaterialBuffers[primitive].size(); i++)
-    {
-        vkDestroyBuffer(m_renderer.m_context.m_device, m_uniformMaterialBuffers[primitive][i], nullptr);
-        vkFreeMemory(m_renderer.m_context.m_device, m_uniformMaterialBuffersMemory[primitive][i], nullptr);
-    }
+    m_renderer.destroyUniformBuffers(m_uniformMaterialBuffers[primitive], m_uniformMaterialBuffersMemory[primitive]);
     m_uniformMaterialBuffers.erase(primitive);
     m_uniformMaterialBuffersMemory.erase(primitive);
 }

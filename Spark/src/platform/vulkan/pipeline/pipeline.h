@@ -29,6 +29,8 @@ class VulkanPipeline
 
     virtual void bind(VkCommandBuffer commandBuffer);
 
+    void destroyDescriptorSet(std::vector<VkDescriptorSet> &set);
+
   protected:
     VulkanPipeline(VulkanContext &context, VulkanFramebuffer &framebuffer);
     VkShaderModule createShaderModule(const std::vector<char> &code);
@@ -37,11 +39,15 @@ class VulkanPipeline
                                 bool depthTesting = false, VkPipeline *pipeline = VK_NULL_HANDLE);
     void allocateDescriptorSets(unsigned int amount, VkDescriptorSetLayout layout,
                                 std::vector<std::vector<VkDescriptorSet>> &sets);
+    void allocateDescriptorSet(VkDescriptorSetLayout layout, std::vector<VkDescriptorSet> &set);
+    std::vector<VkDescriptorSet> createDescriptorSet(VkDescriptorSetLayout layout);
     void addDescriptorSets(VkDescriptorSetLayout layout, std::vector<std::vector<VkDescriptorSet>> &sets,
                            unsigned int amount = 1);
     void updateBufferDescriptorSets(unsigned int amount, std::vector<std::vector<VkDescriptorSet>> &sets,
                                     std::vector<std::vector<VkBuffer>> uniforms, VkDeviceSize range,
                                     unsigned int offset = 0);
+    void updateBufferDescriptorSet(std::vector<VkDescriptorSet> &set, std::vector<VkBuffer> uniform,
+                                   VkDeviceSize range);
     void updateTextureDescriptorSets(unsigned int amount, std::vector<std::vector<VkDescriptorSet>> &sets,
                                      std::vector<VkImageView> &textureImageViews,
                                      std::vector<VkSampler> &textureSamplers, unsigned int offset = 0);

@@ -61,6 +61,16 @@ void VulkanPipeline3DOutline::createTransformationDescriptorSets(
     updateBufferDescriptorSets(drawablesAmount, transformationSets, transformationUniforms, sizeof(Transformation3D));
 }
 
+std::vector<VkDescriptorSet> VulkanPipeline3DOutline::createTransformationDescriptorSet(
+    std::vector<VkBuffer> transformationUniforms)
+{
+    std::vector<VkDescriptorSet> transformationSet = createDescriptorSet(m_transformationDescriptorSetLayout);
+
+    updateBufferDescriptorSet(transformationSet, transformationUniforms, sizeof(Transformation3D));
+
+    return transformationSet;
+}
+
 void VulkanPipeline3DOutline::createSingleTransformationDescriptorSet(
     std::vector<std::vector<VkDescriptorSet>> &transformationSets, std::vector<VkBuffer> transformationUniforms)
 {
