@@ -87,11 +87,11 @@ void VulkanLayerRenderer3DModel::OnDetach()
 
     m_textureDescriptorOffset.clear();
     m_textureMapping.clear();
-    for (size_t i = 0; i < m_textureDescriptorSets.size(); i++)
+    for (auto &set : m_textureDescriptorSets)
     {
-        vkFreeDescriptorSets(m_renderer.m_context.m_device, m_renderer.m_context.m_descriptorPool,
-                             (unsigned int)m_textureDescriptorSets[i].size(), m_textureDescriptorSets[i].data());
+        m_pipeline->destroyDescriptorSet(set);
     }
+    m_textureDescriptorSets.clear();
 
     for (auto &drawable : m_drawables)
     {
