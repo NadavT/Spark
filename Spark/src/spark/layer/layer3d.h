@@ -34,6 +34,9 @@ class Layer3D : public Layer
 
     SPARK_API virtual void setWireframe(Render::WireframeState state, glm::vec3 color);
 
+    SPARK_API virtual bool getXrayHighlight() const;
+    SPARK_API virtual void setXrayHighlight(bool xRayHighlight);
+
   private:
     std::unique_ptr<Render::LayerRenderer> m_layer_renderer;
     Render::Camera &m_camera;

@@ -93,4 +93,18 @@ SPARK_API void Layer3D::setWireframe(Render::WireframeState state, glm::vec3 col
     reinterpret_cast<Render::VulkanLayerRenderer3DModel *>(m_layer_renderer.get())->setWireframe(state, color);
 #endif
 }
+
+SPARK_API bool Layer3D::getXrayHighlight() const
+{
+#ifdef SPARK_PLATFORM_VULKAN
+    return reinterpret_cast<Render::VulkanLayerRenderer3DModel *>(m_layer_renderer.get())->getXrayHighlight();
+#endif
+}
+
+SPARK_API void Layer3D::setXrayHighlight(bool xRayHighlight)
+{
+#ifdef SPARK_PLATFORM_VULKAN
+    reinterpret_cast<Render::VulkanLayerRenderer3DModel *>(m_layer_renderer.get())->setXrayHighlight(xRayHighlight);
+#endif
+}
 } // namespace Spark
