@@ -146,6 +146,14 @@ void Sandbox3DLayer::generateOverlay()
 
         ImGui::Separator();
 
+        if (ImGui::TreeNode("Highlight:"))
+        {
+            generateHighlightSetter();
+            ImGui::TreePop();
+        }
+
+        ImGui::Separator();
+
         if (ImGui::Button("Run"))
         {
             run();
@@ -601,5 +609,14 @@ void Sandbox3DLayer::generateWireframeSetter()
         }
 
         ImGui::EndPopup();
+    }
+}
+
+void Sandbox3DLayer::generateHighlightSetter()
+{
+    bool isXrayHighlight = getXrayHighlight();
+    if (ImGui::Checkbox("x-ray highlight", &isXrayHighlight))
+    {
+        setXrayHighlight(isXrayHighlight);
     }
 }

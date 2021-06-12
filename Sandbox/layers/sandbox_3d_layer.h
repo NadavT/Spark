@@ -28,6 +28,7 @@ class Sandbox3DLayer : public Spark::Layer3D
     void generatePointLightAdder();
     void generatePointLightSetter();
     void generateWireframeSetter();
+    void generateHighlightSetter();
     void generatePointLightsSelector();
 
   private:
