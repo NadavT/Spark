@@ -294,8 +294,8 @@ void VulkanPipeline3DModel::createGraphicsPipeline()
     depthStencil.front.depthFailOp = VK_STENCIL_OP_REPLACE;
     depthStencil.front.passOp = VK_STENCIL_OP_REPLACE;
     depthStencil.front.compareMask = 0x01;
-    depthStencil.front.writeMask = 0x01;
-    depthStencil.front.reference = 1;
+    depthStencil.front.writeMask = 0x02;
+    depthStencil.front.reference = 3;
     depthStencil.back = depthStencil.front;
     setDepthStencilState(depthStencil);
 

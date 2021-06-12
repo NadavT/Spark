@@ -152,9 +152,9 @@ void VulkanPipeline3DOutline::createGraphicsPipeline()
     depthStencil.front.compareOp = (m_clean) ? VK_COMPARE_OP_NEVER : VK_COMPARE_OP_NOT_EQUAL;
     depthStencil.front.failOp = (m_clean) ? VK_STENCIL_OP_ZERO : VK_STENCIL_OP_KEEP;
     depthStencil.front.passOp = (m_clean) ? VK_STENCIL_OP_ZERO : VK_STENCIL_OP_REPLACE;
-    depthStencil.front.compareMask = 0x01;
-    depthStencil.front.writeMask = 0x01;
-    depthStencil.front.reference = 1;
+    depthStencil.front.compareMask = 0x02;
+    depthStencil.front.writeMask = (m_clean) ? 0x03 : 0x01;
+    depthStencil.front.reference = 3;
     depthStencil.back = depthStencil.front;
     setDepthStencilState(depthStencil);
 
