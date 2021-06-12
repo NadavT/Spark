@@ -9,12 +9,13 @@ const std::string VERTEX_3D_SHADER_PATH = "shaders/shader3dModel_vert.spv";
 const std::string FRAGMENT_3D_MODEL_SHADER_PATH = "shaders/shader3dModel_frag.spv";
 #define MAX_TEXTURES 25
 
-VulkanPipeline3DModel::VulkanPipeline3DModel(VulkanContext &context, VulkanFramebuffer &framebuffer)
+VulkanPipeline3DModel::VulkanPipeline3DModel(VulkanContext &context, VulkanFramebuffer &framebuffer, bool xRayHighlight)
     : VulkanPipeline(context, framebuffer)
     , m_transformationDescriptorSetLayout(VK_NULL_HANDLE)
     , m_lightsDescriptorSetLayout(VK_NULL_HANDLE)
     , m_materialDescriptorSetLayout(VK_NULL_HANDLE)
     , m_textureDescriptorSetLayout(VK_NULL_HANDLE)
+    , m_xRayHighlight(xRayHighlight)
 {
     createDescriptorSetLayout();
     createGraphicsPipeline();
@@ -160,6 +161,11 @@ void VulkanPipeline3DModel::addTextureDescriptorSets(std::vector<std::vector<VkD
                                 static_cast<unsigned int>(textureSets.size() - amount));
 }
 
+void VulkanPipeline3DModel::setXrayHighlight(bool xRay)
+{
+    m_xRayHighlight = xRay;
+}
+
 void VulkanPipeline3DModel::createDescriptorSetLayout()
 {
     VkDescriptorSetLayoutBinding transformationLayoutBinding = {};
@@ -289,9 +295,9 @@ void VulkanPipeline3DModel::createGraphicsPipeline()
     depthStencil.depthCompareOp = VK_COMPARE_OP_LESS;
     depthStencil.depthBoundsTestEnable = VK_FALSE;
     depthStencil.stencilTestEnable = VK_TRUE;
-    depthStencil.front.compareOp = VK_COMPARE_OP_NOT_EQUAL;
+    depthStencil.front.compareOp = (m_xRayHighlight) ? VK_COMPARE_OP_NOT_EQUAL : VK_COMPARE_OP_ALWAYS;
     depthStencil.front.failOp = VK_STENCIL_OP_KEEP;
-    depthStencil.front.depthFailOp = VK_STENCIL_OP_REPLACE;
+    depthStencil.front.depthFailOp = (m_xRayHighlight) ? VK_STENCIL_OP_REPLACE : VK_STENCIL_OP_KEEP;
     depthStencil.front.passOp = VK_STENCIL_OP_REPLACE;
     depthStencil.front.compareMask = 0x01;
     depthStencil.front.writeMask = 0x02;

@@ -61,7 +61,7 @@ struct Vulkan3DModelConsts
 class VulkanPipeline3DModel : public VulkanPipeline
 {
   public:
-    VulkanPipeline3DModel(VulkanContext &context, VulkanFramebuffer &framebuffer);
+    VulkanPipeline3DModel(VulkanContext &context, VulkanFramebuffer &framebuffer, bool xRayHighlight = true);
     virtual ~VulkanPipeline3DModel();
 
     virtual void cleanup();
@@ -103,6 +103,8 @@ class VulkanPipeline3DModel : public VulkanPipeline
                                   std::vector<std::vector<VkImageView>> specularImageViews,
                                   std::vector<std::vector<VkSampler>> specularSamplers, unsigned int amount = 1);
 
+    void setXrayHighlight(bool xRay);
+
   private:
     void createDescriptorSetLayout();
     void createGraphicsPipeline();
@@ -121,5 +123,6 @@ class VulkanPipeline3DModel : public VulkanPipeline
     VkDescriptorSetLayout m_lightsDescriptorSetLayout;
     VkDescriptorSetLayout m_materialDescriptorSetLayout;
     VkDescriptorSetLayout m_textureDescriptorSetLayout;
+    bool m_xRayHighlight;
 };
 } // namespace Spark::Render

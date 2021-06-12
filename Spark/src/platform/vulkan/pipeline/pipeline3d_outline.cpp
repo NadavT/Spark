@@ -8,10 +8,12 @@ namespace Spark::Render
 const std::string VERTEX_3D_OUTLINE_SHADER_PATH = "shaders/shader3dOutline_vert.spv";
 const std::string FRAGMENT_3D_OUTLINE_SHADER_PATH = "shaders/shader3dOutline_frag.spv";
 
-VulkanPipeline3DOutline::VulkanPipeline3DOutline(VulkanContext &context, VulkanFramebuffer &framebuffer, bool clean)
+VulkanPipeline3DOutline::VulkanPipeline3DOutline(VulkanContext &context, VulkanFramebuffer &framebuffer, bool clean,
+                                                 bool xRay)
     : VulkanPipeline(context, framebuffer)
     , m_transformationDescriptorSetLayout(VK_NULL_HANDLE)
     , m_clean(clean)
+    , m_xRay(xRay)
 {
     createDescriptorSetLayout();
     createGraphicsPipeline();
@@ -77,6 +79,11 @@ void VulkanPipeline3DOutline::createSingleTransformationDescriptorSet(
     addDescriptorSets(m_transformationDescriptorSetLayout, transformationSets);
     updateBufferDescriptorSets(1, transformationSets, {transformationUniforms}, sizeof(Transformation3D),
                                static_cast<unsigned int>(transformationSets.size() - 1));
+}
+
+void VulkanPipeline3DOutline::setXray(bool xRay)
+{
+    m_xRay = xRay;
 }
 
 void VulkanPipeline3DOutline::createDescriptorSetLayout()
@@ -147,7 +154,10 @@ void VulkanPipeline3DOutline::createGraphicsPipeline()
 
     VkPipelineDepthStencilStateCreateInfo depthStencil{};
     depthStencil.sType = VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO;
-    depthStencil.depthTestEnable = VK_FALSE;
+    depthStencil.depthTestEnable = (m_xRay) ? VK_FALSE : VK_TRUE;
+    depthStencil.depthWriteEnable = (m_xRay) ? VK_FALSE : VK_TRUE;
+    depthStencil.depthCompareOp = VK_COMPARE_OP_LESS;
+    depthStencil.depthBoundsTestEnable = VK_FALSE;
     depthStencil.stencilTestEnable = VK_TRUE;
     depthStencil.front.compareOp = (m_clean) ? VK_COMPARE_OP_NEVER : VK_COMPARE_OP_NOT_EQUAL;
     depthStencil.front.failOp = (m_clean) ? VK_STENCIL_OP_ZERO : VK_STENCIL_OP_KEEP;

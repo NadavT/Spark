@@ -14,7 +14,8 @@ struct Vulkan3DOutlinePushConsts
 class VulkanPipeline3DOutline : public VulkanPipeline
 {
   public:
-    VulkanPipeline3DOutline(VulkanContext &context, VulkanFramebuffer &framebuffer, bool clean = false);
+    VulkanPipeline3DOutline(VulkanContext &context, VulkanFramebuffer &framebuffer, bool clean = false,
+                            bool xRay = true);
     virtual ~VulkanPipeline3DOutline();
 
     virtual void cleanup();
@@ -33,6 +34,8 @@ class VulkanPipeline3DOutline : public VulkanPipeline
     void createSingleTransformationDescriptorSet(std::vector<std::vector<VkDescriptorSet>> &transformationSets,
                                                  std::vector<VkBuffer> transformationUniforms);
 
+    void setXray(bool xRay);
+
   private:
     void createDescriptorSetLayout();
     void createGraphicsPipeline();
@@ -41,5 +44,6 @@ class VulkanPipeline3DOutline : public VulkanPipeline
     VkPipelineLayout m_pipelineLayout;
     VkDescriptorSetLayout m_transformationDescriptorSetLayout;
     bool m_clean;
+    bool m_xRay;
 };
 } // namespace Spark::Render
