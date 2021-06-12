@@ -19,7 +19,7 @@ namespace Spark::Render
 class VulkanLayerRenderer3DModel : public LayerRenderer
 {
   public:
-    VulkanLayerRenderer3DModel(VulkanRenderer &renderer, Camera &camera);
+    VulkanLayerRenderer3DModel(VulkanRenderer &renderer, Camera &camera, bool xRayHighlight = true);
     virtual ~VulkanLayerRenderer3DModel();
 
     virtual void OnAttach();
@@ -35,6 +35,9 @@ class VulkanLayerRenderer3DModel : public LayerRenderer
     virtual void setSpotLight(glm::vec3 color);
 
     virtual void setWireframe(WireframeState state, glm::vec3 color);
+
+    bool getXrayHighlight() const;
+    void setXrayHighlight(bool xRay);
 
   private:
     void createCommandBuffers();
@@ -122,5 +125,7 @@ class VulkanLayerRenderer3DModel : public LayerRenderer
 
     WireframeState m_wireframe;
     glm::vec3 m_wireframeColor;
+
+    bool m_xRayHighlight;
 };
 } // namespace Spark::Render

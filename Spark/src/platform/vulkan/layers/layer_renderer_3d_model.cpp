@@ -12,7 +12,7 @@
 
 namespace Spark::Render
 {
-VulkanLayerRenderer3DModel::VulkanLayerRenderer3DModel(VulkanRenderer &renderer, Camera &camera)
+VulkanLayerRenderer3DModel::VulkanLayerRenderer3DModel(VulkanRenderer &renderer, Camera &camera, bool xRayHighlight)
     : m_renderer(renderer)
     , m_framebuffer(nullptr)
     , m_pipeline(nullptr)
@@ -27,6 +27,7 @@ VulkanLayerRenderer3DModel::VulkanLayerRenderer3DModel(VulkanRenderer &renderer,
     , m_spotLightColor({1.0f, 1.0f, 1.0f})
     , m_wireframe(WireframeState::None)
     , m_wireframeColor({0.0f, 0.0f, 0.0f})
+    , m_xRayHighlight(xRayHighlight)
 {
     m_framebuffer = reinterpret_cast<VulkanFramebuffer3D *>(renderer.createFramebuffer(VulkanFramebufferType::Type3D));
     m_pipeline = reinterpret_cast<VulkanPipeline3DModel *>(
@@ -184,6 +185,19 @@ void VulkanLayerRenderer3DModel::setWireframe(WireframeState state, glm::vec3 co
     m_wireframe = state;
     m_wireframeColor = color;
     m_isRecreationNeeded = true;
+}
+
+bool VulkanLayerRenderer3DModel::getXrayHighlight() const
+{
+    return m_xRayHighlight;
+}
+
+void VulkanLayerRenderer3DModel::setXrayHighlight(bool xRay)
+{
+    m_xRayHighlight = xRay;
+    m_pipeline->setXrayHighlight(xRay);
+    m_outlinePipeline->setXray(xRay);
+    m_renderer.recreateSwapchain();
 }
 
 void VulkanLayerRenderer3DModel::createCommandBuffers()
