@@ -268,9 +268,8 @@ bool Sandbox3DLayer::handleMousePressed(Spark::MouseButtonPressedEvent &e)
             float closest = std::numeric_limits<float>::max();
             for (auto &object : m_objects)
             {
-                const Spark::Physics::Object3DBounding &bounds = object->getPhysicsObject().getBoundingObject();
-                float distance =
-                    Spark::Physics::getRayDistanceFromObject(Spark::Physics::getMouseRay(m_camera), bounds);
+                float distance = Spark::Physics::getRayDistanceFromObject(Spark::Physics::getMouseRay(m_camera),
+                                                                          object->getPhysicsObject());
                 if (distance > 0 && distance < closest)
                 {
                     closest = distance;
