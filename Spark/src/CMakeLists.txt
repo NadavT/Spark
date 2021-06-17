@@ -1,7 +1,7 @@
 project(spark)
 
 # Declare spark library
-add_library(spark SHARED ${SPARK_SOURCE})
+add_library(spark SHARED)
 
 # Add sources to spark
 add_subdirectory(spark)
