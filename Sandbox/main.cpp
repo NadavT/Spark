@@ -29,7 +29,8 @@ class Sandbox : public Spark::Application
         ImGui::SetNextWindowSize(ImVec2(350, 170), ImGuiCond_Always);
         ImGui::SetNextWindowPos(ImVec2(0, ImGui::GetIO().DisplaySize.y - 170), ImGuiCond_Always);
         ImGui::Begin("Sandbox", NULL,
-                     ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove);
+                     ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove |
+                         ImGuiWindowFlags_NoNavInputs);
         if (ImGui::Combo("msaa", &m_msaa, "1\0002\0004\0008\00016"))
         {
             switch (m_msaa)

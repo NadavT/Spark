@@ -115,7 +115,7 @@ void Sandbox3DLayer::generateOverlay()
         ImGui::SetNextWindowSizeConstraints(ImVec2(250, 100), ImVec2(250, ImGui::GetIO().DisplaySize.y));
         ImGui::Begin("3d editor", NULL,
                      ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoResize |
-                         ImGuiWindowFlags_NoFocusOnAppearing);
+                         ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoNavInputs);
 
         if (ImGui::TreeNode("Objects editor:"))
         {
