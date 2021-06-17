@@ -39,10 +39,9 @@ target_include_directories(spark PUBLIC
                            ${PROJECT_SOURCE_DIR}/glm
                           )
 
-# Add stb and Cimg to project
+# Add stb to project
 target_include_directories(spark PRIVATE
                            ${PROJECT_SOURCE_DIR}/stb
-                           ${PROJECT_SOURCE_DIR}/Cimg
                           )
 target_compile_definitions(spark PRIVATE STB_IMAGE_IMPLEMENTATION)
 
