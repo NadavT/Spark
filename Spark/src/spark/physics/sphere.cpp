@@ -43,4 +43,9 @@ const Object3DBounding &Sphere::getBoundingObject() const
 {
     return m_bounding;
 }
+
+ObjectType Sphere::getObjectType() const
+{
+    return ObjectType::Simple;
+}
 } // namespace Spark::Physics

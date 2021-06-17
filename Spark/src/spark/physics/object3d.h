@@ -8,6 +8,12 @@
 
 namespace Spark::Physics
 {
+enum class ObjectType
+{
+    Simple,
+    Complex
+};
+
 class Object3D
 {
   public:
@@ -23,6 +29,8 @@ class Object3D
     SPARK_API virtual void setRotation(float angle, glm::vec3 axis);
 
     SPARK_API virtual const Object3DBounding &getBoundingObject() const = 0;
+
+    virtual ObjectType getObjectType() const = 0;
 
   protected:
     SPARK_API Object3D(glm::vec3 position);

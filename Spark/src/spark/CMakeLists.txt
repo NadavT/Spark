@@ -14,7 +14,7 @@ target_sources(spark
     PRIVATE "physics/ray_casting.cpp"
     PRIVATE "physics/sphere.cpp"
     PRIVATE "physics/box.cpp"
-    PRIVATE "physics/general_object3d.cpp"
+    PRIVATE "physics/complex_object3d.cpp"
     PRIVATE "physics/bounding/box_bounding.cpp"
     PRIVATE "physics/bounding/object3d_bounding.cpp"
     PRIVATE "physics/bounding/sphere_bounding.cpp"
