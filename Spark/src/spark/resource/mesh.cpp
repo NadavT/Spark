@@ -75,4 +75,29 @@ const std::vector<Vertex3D> &Mesh::getVertices() const
 {
     return m_vertices;
 }
+
+const std::vector<unsigned int> &Mesh::getIndices() const
+{
+    return m_indices;
+}
+
+std::vector<std::array<Vertex3D, 3>> Mesh::getFaces() const
+{
+    std::vector<std::array<Vertex3D, 3>> faces;
+    std::array<Vertex3D, 3> currFace;
+    unsigned int currOffset = 0;
+
+    for (auto &indice : m_indices)
+    {
+        currFace[currOffset] = m_vertices[indice];
+        currOffset++;
+        if (currOffset >= 3)
+        {
+            faces.push_back(currFace);
+            currOffset = 0;
+        }
+    }
+
+    return faces;
+}
 } // namespace Spark
