@@ -3,6 +3,7 @@
 #include "spark/vertex/vertex3d.h"
 #include "texture.h"
 
+#include <array>
 #include <string>
 #include <vector>
 
@@ -27,6 +28,9 @@ class Mesh
     virtual std::string getTexturesID() const;
     virtual std::string getSpecularTexturesID() const;
     virtual const std::vector<Vertex3D> &getVertices() const;
+    virtual const std::vector<unsigned int> &getIndices() const;
+
+    virtual std::vector<std::array<Vertex3D, 3>> getFaces() const;
 
   protected:
     Mesh(std::vector<Vertex3D> vertices, std::vector<unsigned int> indices, struct MeshBaseColor baseColor,
