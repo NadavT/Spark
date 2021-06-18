@@ -237,7 +237,6 @@ float getRayDistanceFromObject(Ray3D ray, const Object3D &object)
     case ObjectType::Simple:
         return getRayDistanceFromObject(ray, object.getBoundingObject());
     case ObjectType::Complex:
-        // return getRayDistanceFromObject(ray, object.getBoundingObject());
         return getRayDistanceFromObject(ray, reinterpret_cast<const ComplexObject3D &>(object));
     default:
         SPARK_CORE_ASSERT(false, "Not supporting given object for ray casting");
