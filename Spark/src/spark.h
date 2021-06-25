@@ -24,12 +24,14 @@
 
 //----------OBJECTS---------
 #include "spark/objects/box.h"
+#include "spark/objects/cylinder.h"
 #include "spark/objects/model.h"
 #include "spark/objects/object.h"
 #include "spark/objects/sphere.h"
 
 //---------DRAWABLES--------
 #include "spark/renderer/drawables/box.h"
+#include "spark/renderer/drawables/cylinder.h"
 #include "spark/renderer/drawables/drawable.h"
 #include "spark/renderer/drawables/drawable2d.h"
 #include "spark/renderer/drawables/drawable3d.h"
