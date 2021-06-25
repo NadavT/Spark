@@ -79,22 +79,31 @@ void VulkanCylinder::fillCommandBuffer(VkCommandBuffer commandBuffer) const
 
 void VulkanCylinder::fillVeticesAndIndices()
 {
-    float radius = 0.5f;
+    float radius;
 
-    float x, y, z, xy;               // vertex position
-    float nx, ny, nz;                // normals
-    float lengthInv = 1.0f / radius; // Inverted length
-    float s, t;                      // texCoord
+    float x, y, z;    // vertex position
+    float nx, ny, nz; // normals
+    float s, t;       // texCoord
 
     float sectorStep = 2 * glm::pi<float>() / m_sectors;
-    float stackStep = glm::pi<float>() / m_stacks;
-    float sectorAngle, stackAngle;
+    float sectorAngle;
+
+    // compute the normal vector at 0 degree first
+    // tanA = (baseRadius-topRadius) / height
+    float zAngle = glm::atan((m_baseRadius - m_topRadius) / 2, m_height);
+    float nx0 = glm::cos(zAngle);
+    float ny0 = 0;
+    float nz0 = glm::sin(zAngle);
+
+    // Create base and top center vertices
+    m_vertices.push_back({{0, 0, m_height * -0.5f}, {0.5f, 0.5f}, {0, 0, -1}});
+    m_vertices.push_back({{0, 0, m_height * 0.5f}, {0.5f, 0.5f}, {0, 0, 1}});
 
     for (int i = 0; i <= m_stacks; ++i)
     {
-        stackAngle = glm::pi<float>() / 2 - i * stackStep; // starting from pi/2 to -pi/2
-        xy = radius * glm::cos(stackAngle);                // r * cos(u)
-        z = radius * glm::sin(stackAngle);                 // r * sin(u)
+        // Get current stack radius
+        radius = (m_baseRadius / 2) + (float)i / m_stacks * ((m_topRadius - m_baseRadius) / 2);
+        z = -(m_height * 0.5f) + (float)i / m_stacks * m_height; // vertex position z
 
         // add (sectorCount+1) vertices per stack
         // the first and last vertices have same position and normal, but different tex coords
@@ -103,49 +112,71 @@ void VulkanCylinder::fillVeticesAndIndices()
             sectorAngle = j * sectorStep; // starting from 0 to 2pi
 
             // vertex position
-            x = xy * glm::cos(sectorAngle); // r * cos(u) * cos(v)
-            y = xy * glm::sin(sectorAngle); // r * cos(u) * sin(v)
+            x = radius * glm::cos(sectorAngle);
+            y = radius * glm::sin(sectorAngle);
 
             // normalized vertex normal
-            nx = x * lengthInv;
-            ny = y * lengthInv;
-            nz = z * lengthInv;
+            nx = glm::cos(sectorAngle) * nx0 - glm::sin(sectorAngle) * ny0;
+            ny = glm::sin(sectorAngle) * nx0 + glm::cos(sectorAngle) * ny0;
+            nz = nz0;
 
             // vertex tex coord between [0, 1]
             s = (float)j / m_sectors;
-            t = (float)i / m_stacks;
+            t = 1.0f - (float)i / m_stacks; // We are going from bottom to top
 
             m_vertices.push_back({{x, y, z}, {s, t}, {nx, ny, nz}});
         }
     }
 
-    // indices
-    //  k1--k1+1
-    //  |  / |
-    //  | /  |
-    //  k2--k2+1
+    // Indices for base
+    for (int i = 0; i < m_sectors; ++i)
+    {
+        if (i < (m_sectors - 1))
+        {
+            m_indices.push_back(0);
+            m_indices.push_back(i + 3);
+            m_indices.push_back(i + 2);
+        }
+        else
+        {
+            m_indices.push_back(0);
+            m_indices.push_back(2);
+            m_indices.push_back(i + 2);
+        }
+    }
+    // Indices for top
+    for (int i = 0; i < m_sectors; ++i)
+    {
+        if (i < (m_sectors - 1))
+        {
+            m_indices.push_back(1);
+            m_indices.push_back(static_cast<uint32_t>(m_vertices.size()) - 2 - i);
+            m_indices.push_back(static_cast<uint32_t>(m_vertices.size()) - 1 - i);
+        }
+        else
+        {
+            m_indices.push_back(1);
+            m_indices.push_back(static_cast<uint32_t>(m_vertices.size()) - 2);
+            m_indices.push_back(static_cast<uint32_t>(m_vertices.size()) - 1 - i);
+        }
+    }
+    // Indices for sides
     unsigned int k1, k2;
     for (int i = 0; i < m_stacks; ++i)
     {
-        k1 = i * (m_sectors + 1); // beginning of current stack
-        k2 = k1 + m_sectors + 1;  // beginning of next stack
+        k1 = 2 + i * (m_sectors + 1); // bebinning of current stack
+        k2 = k1 + m_sectors + 1;      // beginning of next stack
 
         for (int j = 0; j < m_sectors; ++j, ++k1, ++k2)
         {
-            // 2 triangles per sector excluding 1st and last stacks
-            if (i != 0)
-            {
-                m_indices.push_back(k1);     // k1---k2---k1+1
-                m_indices.push_back(k2);     // k1---k2---k1+1
-                m_indices.push_back(k1 + 1); // k1---k2---k1+1
-            }
+            // 2 trianles per sector
+            m_indices.push_back(k1);
+            m_indices.push_back(k1 + 1);
+            m_indices.push_back(k2);
 
-            if (i != (m_stacks - 1))
-            {
-                m_indices.push_back(k1 + 1); // k1+1---k2---k2+1
-                m_indices.push_back(k2);     // k1+1---k2---k2+1
-                m_indices.push_back(k2 + 1); // k1+1---k2---k2+1
-            }
+            m_indices.push_back(k2);
+            m_indices.push_back(k1 + 1);
+            m_indices.push_back(k2 + 1);
         }
     }
 }
