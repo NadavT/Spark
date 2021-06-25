@@ -31,8 +31,8 @@ std::unique_ptr<Drawable3D> createCylinder(glm::vec3 position, const Texture &te
     VulkanRenderer &renderer = reinterpret_cast<VulkanRenderer &>(Application::GetApp().GetRenderer());
     const VulkanTexture &vulkanTexture = reinterpret_cast<const VulkanTexture &>(texture);
     const VulkanTexture &vulkanSpecularTexture = reinterpret_cast<const VulkanTexture &>(specularTexture);
-    return std::make_unique<VulkanTexturedCylinder>(renderer, position, sectors, stacks, vulkanTexture,
-                                                    vulkanSpecularTexture, scale);
+    return std::make_unique<VulkanTexturedCylinder>(renderer, position, baseRadius, topRadius, height, sectors, stacks,
+                                                    vulkanTexture, vulkanSpecularTexture, scale);
 #endif // SPARK_PLATFORM_VULKAN
 }
 
@@ -41,7 +41,8 @@ std::unique_ptr<Drawable3D> createCylinder(glm::vec3 position, glm::vec3 color, 
 {
 #ifdef SPARK_PLATFORM_VULKAN
     VulkanRenderer &renderer = reinterpret_cast<VulkanRenderer &>(Application::GetApp().GetRenderer());
-    return std::make_unique<VulkanColoredCylinder>(renderer, position, sectors, stacks, color, scale);
+    return std::make_unique<VulkanColoredCylinder>(renderer, position, baseRadius, topRadius, height, sectors, stacks,
+                                                   color, scale);
 #endif // SPARK_PLATFORM_VULKAN
 }
 } // namespace Spark::Render
