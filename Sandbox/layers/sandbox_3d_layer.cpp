@@ -30,12 +30,15 @@ Sandbox3DLayer::Sandbox3DLayer()
     // m_objects.push_back(Spark::createBox({0, 0, 0}, 1, 1, 1, texture, specularTexture));
     // addObjectA(*m_objects.back());
     const Spark::Model &model = Spark::ResourceManager::loadModel("modelTest", "model/backpack/scene.gltf");
-    m_objects.push_back(Spark::createModelObject(model, {0, 0, 0}, {0.005, 0.005, 0.005}));
-    addObject(*m_objects.back());
+    // m_objects.push_back(Spark::createModelObject(model, {0, 0, 0}, {0.005, 0.005, 0.005}));
+    // addObject(*m_objects.back());
 
     m_objects.push_back(Spark::createBox(glm::vec3(0, 0, 0), 1, 1, 1, texture, specularTexture));
     addObject(*m_objects.back());
-    m_objects.push_back(Spark::createBox(glm::vec3(0, 1, 0), 1, 1, 1, texture, specularTexture));
+    // m_objects.push_back(Spark::createBox(glm::vec3(0, 1, 0), 1, 1, 1, texture, specularTexture));
+    // addObject(*m_objects.back());
+
+    m_objects.push_back(Spark::createCylinder(glm::vec3(1, 0, 0), 1, 0, 1, {0, 0, 1}));
     addObject(*m_objects.back());
 
     setDirLight({m_dirLightDirection[0], m_dirLightDirection[1], m_dirLightDirection[2]},
