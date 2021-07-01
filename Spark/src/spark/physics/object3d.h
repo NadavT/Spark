@@ -6,6 +6,8 @@
 
 #include <glm/glm.hpp>
 
+#include <vector>
+
 namespace Spark::Physics
 {
 enum class ObjectType
@@ -32,11 +34,23 @@ class Object3D
 
     virtual ObjectType getObjectType() const = 0;
 
+    virtual void setParent(Object3D *parent);
+    virtual void removeParent();
+
+    virtual Object3D *getParent() const;
+    virtual const std::vector<Object3D *> &getChilds() const;
+
   protected:
     SPARK_API Object3D(glm::vec3 position);
+    virtual void addChild(Object3D *child);
+    virtual void removeChild(Object3D *child);
+    virtual void clearChilds();
 
   protected:
     glm::vec3 m_position;
+    glm::mat4 m_scaleMatrix;
     glm::mat4 m_rotationMatrix;
+    Object3D *m_parent;
+    std::vector<Object3D *> m_childs;
 };
 } // namespace Spark::Physics

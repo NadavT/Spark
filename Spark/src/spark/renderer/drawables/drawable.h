@@ -4,6 +4,8 @@
 
 #include <glm/glm.hpp>
 
+#include <vector>
+
 namespace Spark::Render
 {
 class Drawable
@@ -23,10 +25,23 @@ class Drawable
     SPARK_API virtual void setHighlightColor(glm::vec3 color);
     SPARK_API virtual void setHighlightWidth(float width);
 
+    virtual void setParent(Drawable *parent);
+    virtual void removeParent();
+
+    virtual Drawable *getParent() const;
+    virtual const std::vector<Drawable *> &getChilds() const;
+
   protected:
     Drawable();
+    virtual void addChild(Drawable *child);
+    virtual void removeChild(Drawable *child);
+    virtual void clearChilds();
+
+  protected:
     bool m_highlight;
     glm::vec3 m_highlightColor;
     float m_highlightWidth;
+    Drawable *m_parent;
+    std::vector<Drawable *> m_childs;
 };
 } // namespace Spark::Render

@@ -57,6 +57,13 @@ SPARK_API void Drawable3D::setRotation(float angle, glm::vec3 axis)
 
 glm::mat4 Drawable3D::getTransformation() const
 {
-    return m_translationMatrix * m_rotationMatrix * m_scaleMatrix;
+    if (m_parent)
+    {
+        return m_parent->getTransformation() * m_translationMatrix * m_rotationMatrix * m_scaleMatrix;
+    }
+    else
+    {
+        return m_translationMatrix * m_rotationMatrix * m_scaleMatrix;
+    }
 }
 } // namespace Spark::Render
