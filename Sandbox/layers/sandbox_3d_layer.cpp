@@ -38,8 +38,12 @@ Sandbox3DLayer::Sandbox3DLayer()
     // m_objects.push_back(Spark::createBox(glm::vec3(0, 1, 0), 1, 1, 1, texture, specularTexture));
     // addObject(*m_objects.back());
 
-    m_objects.push_back(Spark::createCylinder(glm::vec3(1, 0, 0), 1, 0, 1, {0, 0, 1}));
+    m_objects.push_back(Spark::createCylinder(glm::vec3(0, 0, 0), 0.5, 0.5, 2, {0, 0, 1}));
     addObject(*m_objects.back());
+    Spark::Object3D *arrowBody = m_objects.back().get();
+    m_objects.push_back(Spark::createCylinder(glm::vec3(0, 0, 1.5f), 1, 0, 1, {0, 0, 1}));
+    addObject(*m_objects.back());
+    m_objects.back()->setParent(arrowBody);
 
     setDirLight({m_dirLightDirection[0], m_dirLightDirection[1], m_dirLightDirection[2]},
                 {m_dirLightColor[0], m_dirLightColor[1], m_dirLightColor[2]});
@@ -281,6 +285,10 @@ bool Sandbox3DLayer::handleMousePressed(Spark::MouseButtonPressedEvent &e)
             }
             if (closestObject)
             {
+                while (closestObject->getParent())
+                {
+                    closestObject = closestObject->getParent();
+                }
                 if (m_objectToSet)
                 {
                     m_objectToSet->getDrawable()->unhighlight();
