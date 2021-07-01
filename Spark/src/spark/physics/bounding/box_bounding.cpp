@@ -9,4 +9,9 @@ BoxBounding::BoxBounding(glm::mat4 translation, glm::mat4 scale, glm::mat4 rotat
     , m_rotationMatrix(rotation)
 {
 }
+
+glm::mat4 BoxBounding::getTransformation() const
+{
+    return m_translationMatrix * m_rotationMatrix * m_scaleMatrix;
+}
 } // namespace Spark::Physics

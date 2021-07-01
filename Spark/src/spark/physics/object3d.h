@@ -24,11 +24,13 @@ class Object3D
     SPARK_API virtual glm::vec3 getPosition() const;
 
     SPARK_API virtual void move(glm::vec3 position);
-    SPARK_API virtual void scale(glm::vec3 scale) = 0;
+    SPARK_API virtual void scale(glm::vec3 scale);
     SPARK_API virtual void rotate(float angle, glm::vec3 axis);
     SPARK_API virtual void setPosition(glm::vec3 position);
-    SPARK_API virtual void setScale(glm::vec3 scale) = 0;
+    SPARK_API virtual void setScale(glm::vec3 scale);
     SPARK_API virtual void setRotation(float angle, glm::vec3 axis);
+
+    SPARK_API virtual glm::mat4 getTransformation() const;
 
     SPARK_API virtual const Object3DBounding &getBoundingObject() const = 0;
 

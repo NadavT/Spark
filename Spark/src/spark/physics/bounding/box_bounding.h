@@ -37,6 +37,7 @@ class BoxBounding : public Object3DBounding
     {
         m_rotationMatrix = rotation;
     };
+    SPARK_API virtual glm::mat4 getTransformation() const;
 
   private:
     glm::mat4 m_translationMatrix;

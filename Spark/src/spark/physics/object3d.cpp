@@ -8,6 +8,7 @@ namespace Spark::Physics
 {
 Object3D::Object3D(glm::vec3 position)
     : m_position(position)
+    , m_scaleMatrix(glm::mat4(1))
     , m_rotationMatrix(glm::mat4(1))
     , m_parent(nullptr)
     , m_childs()
@@ -24,6 +25,11 @@ void Object3D::move(glm::vec3 position)
     m_position += position;
 }
 
+void Object3D::scale(glm::vec3 scale)
+{
+    m_scaleMatrix = glm::scale(m_scaleMatrix, scale);
+}
+
 void Object3D::rotate(float angle, glm::vec3 axis)
 {
     m_rotationMatrix = glm::rotate(m_rotationMatrix, angle, axis);
@@ -34,10 +40,29 @@ void Object3D::setPosition(glm::vec3 position)
     m_position = position;
 }
 
-SPARK_API void Object3D::setRotation(float angle, glm::vec3 axis)
+void Object3D::setScale(glm::vec3 scale)
+{
+    m_scaleMatrix = glm::scale(glm::mat4(1), scale);
+}
+
+void Object3D::setRotation(float angle, glm::vec3 axis)
 {
     m_rotationMatrix = glm::rotate(m_rotationMatrix, angle, axis);
 }
+
+glm::mat4 Object3D::getTransformation() const
+{
+    if (m_parent)
+    {
+        return m_parent->getTransformation() * glm::translate(glm::mat4(1), m_position) * m_rotationMatrix *
+               m_scaleMatrix;
+    }
+    else
+    {
+        return glm::translate(glm::mat4(1), m_position) * m_rotationMatrix * m_scaleMatrix;
+    }
+}
+
 void Object3D::setParent(Object3D *parent)
 {
     if (m_parent)

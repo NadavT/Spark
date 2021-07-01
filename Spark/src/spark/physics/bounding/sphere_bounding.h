@@ -31,6 +31,7 @@ class SphereBounding : public Object3DBounding
     {
         m_radius = radius;
     };
+    SPARK_API virtual glm::mat4 getTransformation() const;
 
   private:
     glm::vec3 m_position;

@@ -2,6 +2,8 @@
 
 #include "spark/core/core.h"
 
+#include <glm/glm.hpp>
+
 namespace Spark::Physics
 {
 enum class Object3DBoundingType
@@ -17,6 +19,8 @@ class Object3DBounding
     {
         return m_type;
     }
+
+    SPARK_API virtual glm::mat4 getTransformation() const = 0;
 
   protected:
     SPARK_API Object3DBounding(Object3DBoundingType type);
