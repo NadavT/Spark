@@ -12,9 +12,9 @@
 
 namespace Spark::Physics
 {
-bool isRayIntersects(Ray3D ray, const Object3DBounding &objectBound)
+bool isRayIntersects(Ray3D ray, const Object3DBounding &objectBound, glm::mat4 transformation)
 {
-    return getRayDistanceFromObject(ray, objectBound) > 0;
+    return getRayDistanceFromObject(ray, objectBound, transformation) > 0;
 }
 
 bool isRayIntersects(Ray3D ray, const Object3D &object)
@@ -22,12 +22,13 @@ bool isRayIntersects(Ray3D ray, const Object3D &object)
     return getRayDistanceFromObject(ray, object) > 0;
 }
 
-float getRayDistanceFromObject(Ray3D ray, const SphereBounding &sphereBound)
+float getRayDistanceFromObject(Ray3D ray, const SphereBounding &sphereBound, glm::mat4 transformation)
 {
     const float a = 1.0f;
-    float b = 2 * glm::dot(ray.direction, ray.source - sphereBound.getPosition());
-    float c = static_cast<float>(glm::pow(glm::length(ray.source - sphereBound.getPosition()), 2) -
-                                 glm::pow(sphereBound.getRadius(), 2));
+    glm::vec3 position = glm::vec3(transformation * glm::vec4(0, 0, 0, 1));
+    float b = 2 * glm::dot(ray.direction, ray.source - position);
+    float c =
+        static_cast<float>(glm::pow(glm::length(ray.source - position), 2) - glm::pow(sphereBound.getRadius(), 2));
     float res = static_cast<float>(glm::pow(b, 2) - (4 * a * c));
     if (res < 0)
     {
@@ -123,9 +124,8 @@ bool isPointInTriangle(glm::vec3 point, glm::vec3 t0, glm::vec3 t1, glm::vec3 t2
            approximatelyEquals(point.z, a * side0.z + b * side1.z);
 }
 
-float getRayDistanceFromObject(Ray3D ray, const BoxBounding &boxBound)
+float getRayDistanceFromObject(Ray3D ray, const BoxBounding &boxBound, glm::mat4 transformation)
 {
-    glm::mat4 transformation = boxBound.getTranslation() * boxBound.getRotation() * boxBound.getScale();
     glm::vec3 v0 = transformation * glm::vec4(-0.5f, -0.5f, -0.5f, 1.0f);
     glm::vec3 v1 = transformation * glm::vec4(-0.5f, 0.5f, -0.5f, 1.0f);
     glm::vec3 v2 = transformation * glm::vec4(0.5f, 0.5f, -0.5f, 1.0f);
@@ -199,7 +199,7 @@ float getRayDistanceFromFace(Ray3D ray, std::array<Vertex3D, 3> face, glm::mat4 
 
 float getRayDistanceFromObject(Ray3D ray, const ComplexObject3D &object)
 {
-    glm::mat4 transformation = object.getTranslation() * object.getRotation() * object.getScale();
+    glm::mat4 transformation = object.getTransformation();
     float distance = -1;
     for (auto &mesh : object.getMeshes())
     {
@@ -216,14 +216,14 @@ float getRayDistanceFromObject(Ray3D ray, const ComplexObject3D &object)
     return distance;
 }
 
-float getRayDistanceFromObject(Ray3D ray, const Object3DBounding &objectBound)
+float getRayDistanceFromObject(Ray3D ray, const Object3DBounding &objectBound, glm::mat4 transformation)
 {
     switch (objectBound.getBoundingType())
     {
     case Object3DBoundingType::Sphere:
-        return getRayDistanceFromObject(ray, static_cast<const SphereBounding &>(objectBound));
+        return getRayDistanceFromObject(ray, static_cast<const SphereBounding &>(objectBound), transformation);
     case Object3DBoundingType::Box:
-        return getRayDistanceFromObject(ray, static_cast<const BoxBounding &>(objectBound));
+        return getRayDistanceFromObject(ray, static_cast<const BoxBounding &>(objectBound), transformation);
     default:
         SPARK_CORE_ASSERT(false, "Not supporting given bound object for ray casting");
         return -1;
@@ -235,7 +235,8 @@ float getRayDistanceFromObject(Ray3D ray, const Object3D &object)
     switch (object.getObjectType())
     {
     case ObjectType::Simple:
-        return getRayDistanceFromObject(ray, object.getBoundingObject());
+        return getRayDistanceFromObject(ray, object.getBoundingObject(),
+                                        object.getTransformation() * object.getBoundingObject().getTransformation());
     case ObjectType::Complex:
         return getRayDistanceFromObject(ray, reinterpret_cast<const ComplexObject3D &>(object));
     default:

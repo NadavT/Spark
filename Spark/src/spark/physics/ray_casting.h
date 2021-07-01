@@ -14,9 +14,9 @@ struct Ray3D
     glm::vec3 source;
 };
 
-SPARK_API bool isRayIntersects(Ray3D ray, const Object3DBounding &objectBound);
+SPARK_API bool isRayIntersects(Ray3D ray, const Object3DBounding &objectBound, glm::mat4 transformation);
 SPARK_API bool isRayIntersects(Ray3D ray, const Object3D &object);
-SPARK_API float getRayDistanceFromObject(Ray3D ray, const Object3DBounding &objectBound);
+SPARK_API float getRayDistanceFromObject(Ray3D ray, const Object3DBounding &objectBound, glm::mat4 transformation);
 SPARK_API float getRayDistanceFromObject(Ray3D ray, const Object3D &object);
 SPARK_API Ray3D getMouseRay(const Render::Camera &camera);
 } // namespace Spark::Physics
