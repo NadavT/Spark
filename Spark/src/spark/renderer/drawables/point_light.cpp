@@ -9,7 +9,8 @@ namespace Spark::Render
 {
 
 PointLight::PointLight(glm::vec3 position, glm::vec3 color, std::unique_ptr<Object3D> object, bool isLit)
-    : m_position(position)
+    : Object3D()
+    , m_position(position)
     , m_color(color)
     , m_isLit(isLit)
     , m_object(std::move(object))
