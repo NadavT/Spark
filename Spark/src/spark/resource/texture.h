@@ -6,6 +6,8 @@
 
 #include <memory>
 
+#define BLANK_TEXTURE_NAME "SPARK_CORE_BLANK_TEXTURE"
+
 namespace Spark
 {
 class Texture : public Resource

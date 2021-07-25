@@ -2,12 +2,17 @@
 
 #include "spark/core/log.h"
 
+static const char *blank_texture_path = "textures/blank.png";
+
 namespace Spark
 {
 std::unordered_map<std::string, std::unique_ptr<Resource>> ResourceManager::s_resources;
 
 void ResourceManager::Init()
 {
+#ifdef LOAD_BLANK_TEXTURE
+    loadTexture(BLANK_TEXTURE_NAME, blank_texture_path);
+#endif
 }
 
 void ResourceManager::Cleanup()

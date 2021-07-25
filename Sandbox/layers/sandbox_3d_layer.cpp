@@ -29,12 +29,12 @@ Sandbox3DLayer::Sandbox3DLayer()
         Spark::ResourceManager::loadTexture("cubeTexutreSpecular", "textures/container2_specular.png");
     // m_objects.push_back(Spark::createBox({0, 0, 0}, 1, 1, 1, texture, specularTexture));
     // addObjectA(*m_objects.back());
-    const Spark::Model &model = Spark::ResourceManager::loadModel("modelTest", "model/backpack/scene.gltf");
+    // const Spark::Model &model = Spark::ResourceManager::loadModel("modelTest", "model/backpack/scene.gltf");
     // m_objects.push_back(Spark::createModelObject(model, {0, 0, 0}, {0.005, 0.005, 0.005}));
     // addObject(*m_objects.back());
 
-    m_objects.push_back(Spark::createBox(glm::vec3(0, 0, 0), 1, 1, 1, texture, specularTexture));
-    addObject(*m_objects.back());
+    // m_objects.push_back(Spark::createBox(glm::vec3(0, 0, 0), 1, 1, 1, texture, specularTexture));
+    // addObject(*m_objects.back());
     // m_objects.push_back(Spark::createBox(glm::vec3(0, 1, 0), 1, 1, 1, texture, specularTexture));
     // addObject(*m_objects.back());
 
@@ -44,6 +44,14 @@ Sandbox3DLayer::Sandbox3DLayer()
     m_objects.push_back(Spark::createCylinder(glm::vec3(0, 0, 1.5f), 1, 0, 1, {0, 0, 1}));
     addObject(*m_objects.back());
     m_objects.back()->setParent(arrowBody);
+
+    m_objects.push_back(Spark::createCylinder(glm::vec3(0, 0, 0), 0.5, 0.5, 2, {1, 0, 0}));
+    addObject(*m_objects.back());
+    arrowBody = m_objects.back().get();
+    m_objects.push_back(Spark::createCylinder(glm::vec3(0, 0, 1.5f), 1, 0, 1, {1, 0, 0}));
+    addObject(*m_objects.back());
+    m_objects.back()->setParent(arrowBody);
+    arrowBody->rotate(glm::radians(90.0f), {1, 0, 0});
 
     setDirLight({m_dirLightDirection[0], m_dirLightDirection[1], m_dirLightDirection[2]},
                 {m_dirLightColor[0], m_dirLightColor[1], m_dirLightColor[2]});

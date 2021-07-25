@@ -3,6 +3,7 @@ project(spark)
 # Find and link Vulkan to spark
 find_package(Vulkan REQUIRED)
 target_compile_definitions(spark PRIVATE SPARK_PLATFORM_VULKAN)
+target_compile_definitions(spark PRIVATE LOAD_BLANK_TEXTURE)
 target_link_libraries(spark PRIVATE Vulkan::Vulkan)
 
 # Spark Vulkan platform sources

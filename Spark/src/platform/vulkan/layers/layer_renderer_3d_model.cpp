@@ -7,6 +7,7 @@
 #include "platform/vulkan/resource/texture.h"
 
 #include "spark/core/log.h"
+#include "spark/resource/resource_manager.h"
 
 #include <algorithm>
 
@@ -373,6 +374,18 @@ void VulkanLayerRenderer3DModel::createResourcesForDrawables(std::vector<std::sh
     std::vector<std::vector<VkImageView>> specularTextures;
     std::vector<std::vector<VkSampler>> specularSamplers;
 
+    if (m_textureDescriptorOffset.find(BLANK_TEXTURE_NAME) == m_textureDescriptorOffset.end())
+    {
+        const VulkanTexture *blankTexture =
+            dynamic_cast<const VulkanTexture *>(ResourceManager::getTexture(BLANK_TEXTURE_NAME));
+        SPARK_CORE_ASSERT(blankTexture != nullptr, "No blank texture, can't create reesources for drawables");
+        m_textureDescriptorOffset[BLANK_TEXTURE_NAME] = (unsigned int)textures.size();
+        textures.push_back({blankTexture->getImage().getImageView()});
+        samplers.push_back({blankTexture->getSampler().getSampler()});
+        specularTextures.push_back({blankTexture->getImage().getImageView()});
+        specularSamplers.push_back({blankTexture->getSampler().getSampler()});
+    }
+
     for (auto &drawable : drawables)
     {
         VulkanDrawable *vulkanDrawable = dynamic_cast<VulkanDrawable *>(drawable.get());
@@ -392,7 +405,7 @@ void VulkanLayerRenderer3DModel::createResourcesForDrawables(std::vector<std::sh
         else if (vulkanDrawable->getDrawableType() == VulkanDrawableType::Colored)
         {
             const VulkanRenderPrimitive *primitive = vulkanDrawable->getRenderPrimitives()[0];
-            m_primitiveTextureOffset[primitive] = 0;
+            m_primitiveTextureOffset[primitive] = m_textureDescriptorOffset[BLANK_TEXTURE_NAME];
             createPrimitiveResources(primitive);
         }
         else
@@ -401,6 +414,7 @@ void VulkanLayerRenderer3DModel::createResourcesForDrawables(std::vector<std::sh
             SPARK_DEBUG_BREAK();
         }
     }
+
     m_pipeline->addTextureDescriptorSets(m_textureDescriptorSets, textures, samplers, specularTextures,
                                          specularSamplers, static_cast<unsigned int>(textures.size()));
 }
