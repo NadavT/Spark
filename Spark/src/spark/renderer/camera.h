@@ -33,8 +33,8 @@ class Camera
     SPARK_API Camera(float posX, float posY, float posZ, float upX, float upY, float upZ, float yaw, float pitch);
 
     glm::mat4 getViewMatrix() const;
-    float getZoom() const;
-    glm::vec3 getPosition() const;
+    SPARK_API float getZoom() const;
+    SPARK_API glm::vec3 getPosition() const;
 
     SPARK_API void moveDirection(CameraDirection direction, Time deltaTime);
     SPARK_API void moveAngle(float yaw, float pitch, bool constrainPitch = true);

@@ -2,10 +2,12 @@
 
 #include <spark.h>
 
+#include "editor_3d_layer.h"
+
 class Sandbox3DLayer : public Spark::Layer3D
 {
   public:
-    Sandbox3DLayer();
+    Sandbox3DLayer(Spark::Application &app);
 
     virtual void OnAttach();
     virtual void OnDetach();
@@ -32,6 +34,8 @@ class Sandbox3DLayer : public Spark::Layer3D
     void generatePointLightsSelector();
 
   private:
+    Spark::Application &m_app;
+    Editor3DLayer m_editorLayer;
     std::vector<std::shared_ptr<Spark::Object3D>> m_objects;
     std::vector<std::shared_ptr<Spark::Render::PointLight>> m_pointLights;
     Spark::Render::Camera m_camera;

@@ -2,9 +2,11 @@
 
 #include <limits>
 
-Sandbox3DLayer::Sandbox3DLayer()
+Sandbox3DLayer::Sandbox3DLayer(Spark::Application &app)
     : m_camera({10.0f, 0.0f, 0.0f})
     , Spark::Layer3D("Sandbox 3d layer", m_camera)
+    , m_app(app)
+    , m_editorLayer(m_camera)
     , m_objects()
     , m_pointLights()
     , m_inEditor(true)
@@ -33,25 +35,25 @@ Sandbox3DLayer::Sandbox3DLayer()
     // m_objects.push_back(Spark::createModelObject(model, {0, 0, 0}, {0.005, 0.005, 0.005}));
     // addObject(*m_objects.back());
 
-    // m_objects.push_back(Spark::createBox(glm::vec3(0, 0, 0), 1, 1, 1, texture, specularTexture));
-    // addObject(*m_objects.back());
-    // m_objects.push_back(Spark::createBox(glm::vec3(0, 1, 0), 1, 1, 1, texture, specularTexture));
-    // addObject(*m_objects.back());
+    m_objects.push_back(Spark::createBox(glm::vec3(0, 0, 0), 1, 1, 1, texture, specularTexture));
+    addObject(*m_objects.back());
+    m_objects.push_back(Spark::createBox(glm::vec3(0, 1, 0), 1, 1, 1, texture, specularTexture));
+    addObject(*m_objects.back());
 
-    m_objects.push_back(Spark::createCylinder(glm::vec3(0, 0, 0), 0.5, 0.5, 2, {0, 0, 1}));
-    addObject(*m_objects.back());
-    Spark::Object3D *arrowBody = m_objects.back().get();
-    m_objects.push_back(Spark::createCylinder(glm::vec3(0, 0, 1.5f), 1, 0, 1, {0, 0, 1}));
-    addObject(*m_objects.back());
-    m_objects.back()->setParent(arrowBody);
+    // m_objects.push_back(Spark::createCylinder(glm::vec3(0, 0, 0), 0.5, 0.5, 2, {0, 0, 1}));
+    // addObject(*m_objects.back());
+    // Spark::Object3D *arrowBody = m_objects.back().get();
+    // m_objects.push_back(Spark::createCylinder(glm::vec3(0, 0, 1.5f), 1, 0, 1, {0, 0, 1}));
+    // addObject(*m_objects.back());
+    // m_objects.back()->setParent(arrowBody);
 
-    m_objects.push_back(Spark::createCylinder(glm::vec3(0, 0, 0), 0.5, 0.5, 2, {1, 0, 0}));
-    addObject(*m_objects.back());
-    arrowBody = m_objects.back().get();
-    m_objects.push_back(Spark::createCylinder(glm::vec3(0, 0, 1.5f), 1, 0, 1, {1, 0, 0}));
-    addObject(*m_objects.back());
-    m_objects.back()->setParent(arrowBody);
-    arrowBody->rotate(glm::radians(90.0f), {1, 0, 0});
+    // m_objects.push_back(Spark::createCylinder(glm::vec3(0, 0, 0), 0.5, 0.5, 2, {1, 0, 0}));
+    // addObject(*m_objects.back());
+    // arrowBody = m_objects.back().get();
+    // m_objects.push_back(Spark::createCylinder(glm::vec3(0, 0, 1.5f), 1, 0, 1, {1, 0, 0}));
+    // addObject(*m_objects.back());
+    // m_objects.back()->setParent(arrowBody);
+    // arrowBody->rotate(glm::radians(90.0f), {1, 0, 0});
 
     setDirLight({m_dirLightDirection[0], m_dirLightDirection[1], m_dirLightDirection[2]},
                 {m_dirLightColor[0], m_dirLightColor[1], m_dirLightColor[2]});
@@ -220,13 +222,20 @@ bool Sandbox3DLayer::handleKeyPressed(Spark::KeyPressedEvent &e)
             {
                 m_pointLightToSet->getDrawable()->unhighlight();
                 m_pointLightToSet = nullptr;
+                m_app.PopLayer(&m_editorLayer);
             }
-            if (m_objectToSet)
+            else if (m_objectToSet)
             {
                 m_objectToSet->getDrawable()->unhighlight();
                 m_objectToSet = nullptr;
+                m_app.PopLayer(&m_editorLayer);
             }
-            return false;
+            else
+            {
+                return false;
+            }
+
+            return true;
         case Spark::KeyCode::Space:
             if (m_inEditor)
             {
@@ -252,6 +261,7 @@ bool Sandbox3DLayer::handleKeyPressed(Spark::KeyPressedEvent &e)
                             return p.get() == m_pointLightToSet;
                         }));
                     m_pointLightToSet = nullptr;
+                    m_app.PopLayer(&m_editorLayer);
                     return true;
                 }
                 else if (m_objectToSet)
@@ -261,6 +271,7 @@ bool Sandbox3DLayer::handleKeyPressed(Spark::KeyPressedEvent &e)
                         std::find_if(m_objects.begin(), m_objects.end(),
                                      [&](std::shared_ptr<Spark::Object3D> &p) { return p.get() == m_objectToSet; }));
                     m_objectToSet = nullptr;
+                    m_app.PopLayer(&m_editorLayer);
                     return true;
                 }
             }
@@ -301,13 +312,16 @@ bool Sandbox3DLayer::handleMousePressed(Spark::MouseButtonPressedEvent &e)
                 {
                     m_objectToSet->getDrawable()->unhighlight();
                     m_objectToSet = nullptr;
+                    m_app.PopLayer(&m_editorLayer);
                 }
                 if (m_pointLightToSet)
                 {
                     m_pointLightToSet->getDrawable()->unhighlight();
                     m_pointLightToSet = nullptr;
+                    m_app.PopLayer(&m_editorLayer);
                 }
                 closestObject->getDrawable()->highlight();
+                m_editorLayer.setObjectPosition(closestObject->getPhysicsObject().getPosition());
                 auto isLight = std::find_if(m_pointLights.begin(), m_pointLights.end(),
                                             [&](std::shared_ptr<Spark::Render::PointLight> &p) {
                                                 return p.get() == closestObject;
@@ -322,6 +336,8 @@ bool Sandbox3DLayer::handleMousePressed(Spark::MouseButtonPressedEvent &e)
                     m_objectToSet = closestObject;
                     m_objectToSet->getDrawable()->highlight();
                 }
+
+                m_app.PushLayer(&m_editorLayer);
             }
             return true;
         }
