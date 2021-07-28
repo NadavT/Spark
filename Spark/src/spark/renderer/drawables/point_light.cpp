@@ -15,16 +15,19 @@ PointLight::PointLight(glm::vec3 position, glm::vec3 color, std::unique_ptr<Obje
     , m_isLit(isLit)
     , m_object(std::move(object))
 {
+    m_object->getDrawable()->setCalculateLight(!m_isLit);
 }
 
 void PointLight::turnOn()
 {
     m_isLit = true;
+    m_object->getDrawable()->setCalculateLight(!m_isLit);
 }
 
 void PointLight::turnOff()
 {
     m_isLit = false;
+    m_object->getDrawable()->setCalculateLight(!m_isLit);
 }
 
 bool PointLight::isLit()

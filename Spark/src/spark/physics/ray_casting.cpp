@@ -260,4 +260,43 @@ Ray3D getMouseRay(const Render::Camera &camera)
     worldRay = glm::normalize(worldRay);
     return {worldRay, camera.getPosition()};
 }
+
+glm::vec3 getClosestPointToRayFromRay(Ray3D fromRay, Ray3D toRay)
+{
+    glm::vec3 normal = glm::normalize(glm::cross(fromRay.direction, toRay.direction));
+    if (approximatelyEquals(normal.x, 0) && approximatelyEquals(normal.y, 0) && approximatelyEquals(normal.z, 0))
+    {
+        return fromRay.source;
+    }
+
+    float distance = glm::abs(glm::dot((fromRay.source - toRay.source), normal));
+
+    float X = toRay.source.x - fromRay.source.x - distance * normal.x;
+    float Y = toRay.source.y - fromRay.source.y - distance * normal.y;
+    float Z = toRay.source.z - fromRay.source.z - distance * normal.z;
+    float t1 = 0;
+
+    if (!approximatelyEquals(fromRay.direction.x * toRay.direction.y - fromRay.direction.y * toRay.direction.x, 0))
+    {
+        t1 = (toRay.direction.y * X - toRay.direction.x * Y) /
+             (fromRay.direction.x * toRay.direction.y - fromRay.direction.y * toRay.direction.x);
+    }
+    else if (!approximatelyEquals(fromRay.direction.x * toRay.direction.z - fromRay.direction.z * toRay.direction.x, 0))
+    {
+        t1 = (toRay.direction.z * X - toRay.direction.x * Z) /
+             (fromRay.direction.x * toRay.direction.z - fromRay.direction.z * toRay.direction.x);
+    }
+    else if (!approximatelyEquals(fromRay.direction.y * toRay.direction.z - fromRay.direction.z * toRay.direction.y, 0))
+    {
+        t1 = (toRay.direction.z * Y - toRay.direction.y * Z) /
+             (fromRay.direction.y * toRay.direction.z - fromRay.direction.z * toRay.direction.y);
+    }
+    else
+    {
+        SPARK_CORE_ERROR("Can't calculate getClosestPointToRayFromRay");
+        SPARK_DEBUG_BREAK();
+    }
+
+    return fromRay.source + fromRay.direction * t1;
+}
 } // namespace Spark::Physics

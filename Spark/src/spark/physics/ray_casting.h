@@ -18,5 +18,6 @@ SPARK_API bool isRayIntersects(Ray3D ray, const Object3DBounding &objectBound, g
 SPARK_API bool isRayIntersects(Ray3D ray, const Object3D &object);
 SPARK_API float getRayDistanceFromObject(Ray3D ray, const Object3DBounding &objectBound, glm::mat4 transformation);
 SPARK_API float getRayDistanceFromObject(Ray3D ray, const Object3D &object);
+SPARK_API glm::vec3 getClosestPointToRayFromRay(Ray3D fromRay, Ray3D toRay);
 SPARK_API Ray3D getMouseRay(const Render::Camera &camera);
 } // namespace Spark::Physics

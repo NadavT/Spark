@@ -33,6 +33,9 @@ class Sandbox3DLayer : public Spark::Layer3D
     void generateHighlightSetter();
     void generatePointLightsSelector();
 
+    void addEditor(Spark::Object3D &object);
+    void removeEditor();
+
   private:
     Spark::Application &m_app;
     Editor3DLayer m_editorLayer;

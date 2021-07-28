@@ -22,16 +22,19 @@ Layer3D::Layer3D(const std::string &name, Render::Camera &camera)
 
 void Layer3D::OnAttach()
 {
+    Layer::OnAttach();
     m_layer_renderer->OnAttach();
 }
 
 void Layer3D::OnDetach()
 {
+    Layer::OnDetach();
     m_layer_renderer->OnDetach();
 }
 
 void Layer3D::OnRender()
 {
+    Layer::OnRender();
     m_layer_renderer->OnRender();
 }
 

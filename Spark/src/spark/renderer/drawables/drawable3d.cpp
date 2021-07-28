@@ -15,6 +15,7 @@ Drawable3D::Drawable3D(glm::vec3 position, glm::vec3 scale, float rotationAngle,
     , m_scaleMatrix(glm::scale(glm::mat4(1), scale))
     , m_rotationMatrix(glm::rotate(glm::mat4(1), rotationAngle, rotationAxis))
     , m_relTransform(glm::mat4(1))
+    , m_calcLight(true)
 {
     setHighlightWidth(getHighlightWidth() / ((scale.x + scale.y + scale.z) / 3));
 }
@@ -62,6 +63,16 @@ void Drawable3D::setAsRelativeTransform()
     m_translationMatrix = glm::mat4(1);
     m_rotationMatrix = glm::mat4(1);
     m_scaleMatrix = glm::mat4(1);
+}
+
+void Drawable3D::setCalculateLight(bool calcLight)
+{
+    m_calcLight = calcLight;
+}
+
+bool Drawable3D::isCalculateLight() const
+{
+    return m_calcLight;
 }
 
 glm::mat4 Drawable3D::getTransformation() const

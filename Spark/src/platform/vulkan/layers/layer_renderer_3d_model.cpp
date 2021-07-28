@@ -246,12 +246,9 @@ void VulkanLayerRenderer3DModel::createCommandBuffers()
             for (size_t j = 0; j < m_drawables.size(); j++)
             {
                 VulkanDrawable *drawable = dynamic_cast<VulkanDrawable *>(m_drawables[j].get());
+                Drawable3D *drawable3D = dynamic_cast<Drawable3D *>(m_drawables[j].get());
                 std::vector<const VulkanRenderPrimitive *> primitives = drawable->getRenderPrimitives();
-                auto pointLight =
-                    std::find_if(m_pointLights.begin(), m_pointLights.end(), [&drawable](VulkanPointLight *x) {
-                        return x->getDrawable().get() == dynamic_cast<Drawable3D *>(drawable);
-                    });
-                pushConsts.calcLight = (pointLight != m_pointLights.end() && (*pointLight)->isLit()) ? false : true;
+                pushConsts.calcLight = drawable3D->isCalculateLight();
                 for (auto &primitive : drawable->getRenderPrimitives())
                 {
                     drawPrimitive(drawable, primitive, commandBuffer, i, pushConsts);
@@ -646,6 +643,7 @@ void VulkanLayerRenderer3DModel::updateColoredDrawableMaterialData(const VulkanC
     }
     else
     {
+        material.pureColor = drawable->getColor();
         material.baseColorDiffuse = drawable->getColor();
         material.baseColorSpecular = drawable->getColor();
         material.baseColorAmbient = drawable->getColor();

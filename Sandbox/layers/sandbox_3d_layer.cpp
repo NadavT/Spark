@@ -222,19 +222,18 @@ bool Sandbox3DLayer::handleKeyPressed(Spark::KeyPressedEvent &e)
             {
                 m_pointLightToSet->getDrawable()->unhighlight();
                 m_pointLightToSet = nullptr;
-                m_app.PopLayer(&m_editorLayer);
             }
             else if (m_objectToSet)
             {
                 m_objectToSet->getDrawable()->unhighlight();
                 m_objectToSet = nullptr;
-                m_app.PopLayer(&m_editorLayer);
             }
             else
             {
                 return false;
             }
 
+            removeEditor();
             return true;
         case Spark::KeyCode::Space:
             if (m_inEditor)
@@ -261,7 +260,7 @@ bool Sandbox3DLayer::handleKeyPressed(Spark::KeyPressedEvent &e)
                             return p.get() == m_pointLightToSet;
                         }));
                     m_pointLightToSet = nullptr;
-                    m_app.PopLayer(&m_editorLayer);
+                    removeEditor();
                     return true;
                 }
                 else if (m_objectToSet)
@@ -271,7 +270,7 @@ bool Sandbox3DLayer::handleKeyPressed(Spark::KeyPressedEvent &e)
                         std::find_if(m_objects.begin(), m_objects.end(),
                                      [&](std::shared_ptr<Spark::Object3D> &p) { return p.get() == m_objectToSet; }));
                     m_objectToSet = nullptr;
-                    m_app.PopLayer(&m_editorLayer);
+                    removeEditor();
                     return true;
                 }
             }
@@ -321,7 +320,6 @@ bool Sandbox3DLayer::handleMousePressed(Spark::MouseButtonPressedEvent &e)
                     m_app.PopLayer(&m_editorLayer);
                 }
                 closestObject->getDrawable()->highlight();
-                m_editorLayer.setObjectPosition(closestObject->getPhysicsObject().getPosition());
                 auto isLight = std::find_if(m_pointLights.begin(), m_pointLights.end(),
                                             [&](std::shared_ptr<Spark::Render::PointLight> &p) {
                                                 return p.get() == closestObject;
@@ -337,7 +335,7 @@ bool Sandbox3DLayer::handleMousePressed(Spark::MouseButtonPressedEvent &e)
                     m_objectToSet->getDrawable()->highlight();
                 }
 
-                m_app.PushLayer(&m_editorLayer);
+                addEditor(*closestObject);
             }
             return true;
         }
@@ -608,6 +606,22 @@ void Sandbox3DLayer::generatePointLightsSelector()
     }
 }
 
+void Sandbox3DLayer::addEditor(Spark::Object3D &object)
+{
+    m_editorLayer.setObjectToEdit(object);
+    if (!m_editorLayer.isAttached())
+    {
+        m_app.PushLayer(&m_editorLayer);
+    }
+}
+
+void Sandbox3DLayer::removeEditor()
+{
+    if (m_editorLayer.isAttached())
+    {
+        m_app.PopLayer(&m_editorLayer);
+    }
+}
 void Sandbox3DLayer::generateWireframeSetter()
 {
     ImGui::SetNextItemWidth(100);

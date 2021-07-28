@@ -20,6 +20,9 @@ class Drawable3D : public virtual Drawable
 
     SPARK_API virtual void setAsRelativeTransform();
 
+    SPARK_API virtual void setCalculateLight(bool calcLight);
+    SPARK_API virtual bool isCalculateLight() const;
+
     SPARK_API virtual glm::mat4 getTransformation() const;
 
   protected:
@@ -32,6 +35,8 @@ class Drawable3D : public virtual Drawable
     glm::mat4 m_rotationMatrix;
 
     glm::mat4 m_relTransform;
+
+    bool m_calcLight;
 };
 
 SPARK_API std::unique_ptr<Drawable3D> createModelDrawable(const Model &model, glm::vec3 position, glm::vec3 scale);
