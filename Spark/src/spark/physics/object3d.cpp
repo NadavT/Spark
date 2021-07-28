@@ -10,6 +10,7 @@ Object3D::Object3D(glm::vec3 position)
     : m_position(position)
     , m_scaleMatrix(glm::mat4(1))
     , m_rotationMatrix(glm::mat4(1))
+    , m_relTransform(glm::mat4(1))
     , m_parent(nullptr)
     , m_childs()
 {
@@ -17,7 +18,7 @@ Object3D::Object3D(glm::vec3 position)
 
 glm::vec3 Object3D::getPosition() const
 {
-    return m_position;
+    return glm::translate(m_relTransform, m_position) * glm::vec4(0, 0, 0, 1);
 }
 
 void Object3D::move(glm::vec3 position)
@@ -50,16 +51,24 @@ void Object3D::setRotation(float angle, glm::vec3 axis)
     m_rotationMatrix = glm::rotate(m_rotationMatrix, angle, axis);
 }
 
+void Object3D::setAsRelativeTransform()
+{
+    m_relTransform = glm::translate(glm::mat4(1), m_position) * m_rotationMatrix * m_scaleMatrix * m_relTransform;
+    m_position = glm::vec3(0);
+    m_rotationMatrix = glm::mat4(1);
+    m_scaleMatrix = glm::mat4(1);
+}
+
 glm::mat4 Object3D::getTransformation() const
 {
     if (m_parent)
     {
         return m_parent->getTransformation() * glm::translate(glm::mat4(1), m_position) * m_rotationMatrix *
-               m_scaleMatrix;
+               m_scaleMatrix * m_relTransform;
     }
     else
     {
-        return glm::translate(glm::mat4(1), m_position) * m_rotationMatrix * m_scaleMatrix;
+        return glm::translate(glm::mat4(1), m_position) * m_rotationMatrix * m_scaleMatrix * m_relTransform;
     }
 }
 

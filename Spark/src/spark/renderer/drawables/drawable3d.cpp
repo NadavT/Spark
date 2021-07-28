@@ -14,6 +14,7 @@ Drawable3D::Drawable3D(glm::vec3 position, glm::vec3 scale, float rotationAngle,
     , m_translationMatrix(glm::translate(glm::mat4(1), position))
     , m_scaleMatrix(glm::scale(glm::mat4(1), scale))
     , m_rotationMatrix(glm::rotate(glm::mat4(1), rotationAngle, rotationAxis))
+    , m_relTransform(glm::mat4(1))
 {
     setHighlightWidth(getHighlightWidth() / ((scale.x + scale.y + scale.z) / 3));
 }
@@ -34,36 +35,44 @@ void Drawable3D::scale(glm::vec3 scale)
     setHighlightWidth(getHighlightWidth() / ((scale.x + scale.y + scale.z) / 3));
 }
 
-SPARK_API void Drawable3D::rotate(float angle, glm::vec3 axis)
+void Drawable3D::rotate(float angle, glm::vec3 axis)
 {
     m_rotationMatrix = glm::rotate(m_rotationMatrix, angle, axis);
 }
 
-SPARK_API void Drawable3D::setPosition(glm::vec3 position)
+void Drawable3D::setPosition(glm::vec3 position)
 {
     m_translationMatrix = glm::translate(glm::mat4(1), position);
 }
 
-SPARK_API void Drawable3D::setScale(glm::vec3 scale)
+void Drawable3D::setScale(glm::vec3 scale)
 {
     m_scaleMatrix = glm::scale(glm::mat4(1), scale);
     setHighlightWidth(defaultHighlightWidth / ((scale.x + scale.y + scale.z) / 3));
 }
 
-SPARK_API void Drawable3D::setRotation(float angle, glm::vec3 axis)
+void Drawable3D::setRotation(float angle, glm::vec3 axis)
 {
     m_rotationMatrix = glm::rotate(glm::mat4(1), angle, axis);
+}
+
+void Drawable3D::setAsRelativeTransform()
+{
+    m_relTransform = m_translationMatrix * m_rotationMatrix * m_scaleMatrix * m_relTransform;
+    m_translationMatrix = glm::mat4(1);
+    m_rotationMatrix = glm::mat4(1);
+    m_scaleMatrix = glm::mat4(1);
 }
 
 glm::mat4 Drawable3D::getTransformation() const
 {
     if (m_parent)
     {
-        return m_parent->getTransformation() * m_translationMatrix * m_rotationMatrix * m_scaleMatrix;
+        return m_parent->getTransformation() * m_translationMatrix * m_rotationMatrix * m_scaleMatrix * m_relTransform;
     }
     else
     {
-        return m_translationMatrix * m_rotationMatrix * m_scaleMatrix;
+        return m_translationMatrix * m_rotationMatrix * m_scaleMatrix * m_relTransform;
     }
 }
 } // namespace Spark::Render

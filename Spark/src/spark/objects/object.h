@@ -22,6 +22,8 @@ class Object3D
     SPARK_API virtual void setScale(glm::vec3 scale);
     SPARK_API virtual void setRotation(float angle, glm::vec3 axis);
 
+    SPARK_API virtual void setAsRelativeTransform();
+
     SPARK_API virtual void setParent(Object3D *parent);
     SPARK_API virtual void removeParent();
 

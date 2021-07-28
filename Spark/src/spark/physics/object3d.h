@@ -30,6 +30,8 @@ class Object3D
     SPARK_API virtual void setScale(glm::vec3 scale);
     SPARK_API virtual void setRotation(float angle, glm::vec3 axis);
 
+    SPARK_API virtual void setAsRelativeTransform();
+
     SPARK_API virtual glm::mat4 getTransformation() const;
 
     SPARK_API virtual const Object3DBounding &getBoundingObject() const = 0;
@@ -52,6 +54,7 @@ class Object3D
     glm::vec3 m_position;
     glm::mat4 m_scaleMatrix;
     glm::mat4 m_rotationMatrix;
+    glm::mat4 m_relTransform;
     Object3D *m_parent;
     std::vector<Object3D *> m_childs;
 };

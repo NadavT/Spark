@@ -58,6 +58,12 @@ void Object3D::setRotation(float angle, glm::vec3 axis)
     m_physicsObject->setRotation(angle, axis);
 }
 
+void Object3D::setAsRelativeTransform()
+{
+    m_drawable->setAsRelativeTransform();
+    m_physicsObject->setAsRelativeTransform();
+}
+
 void Object3D::setParent(Object3D *parent)
 {
     if (m_parent)
