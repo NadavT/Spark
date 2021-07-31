@@ -53,12 +53,12 @@ void Layer3D::removeDrawable(Render::Drawable *drawable)
     m_layer_renderer->removeDrawable(drawable);
 }
 
-SPARK_API void Layer3D::removeObject(Object3D &object)
+void Layer3D::removeObject(Object3D &object)
 {
-    object.setParent(nullptr);
+    object.removeParent();
     for (auto &child : object.getChilds())
     {
-        child->setParent(nullptr);
+        child->removeParent();
     }
 
     removeDrawable(object.getDrawable().get());

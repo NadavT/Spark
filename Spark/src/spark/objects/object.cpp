@@ -74,7 +74,6 @@ void Object3D::setParent(Object3D *parent)
     m_parent = parent;
     if (parent)
     {
-        parent->addChild(this);
         m_drawable->setParent(parent->getDrawable().get());
         m_physicsObject->setParent(&parent->getPhysicsObject());
     }
@@ -101,19 +100,27 @@ Object3D *Object3D::getParent() const
     return m_parent;
 }
 
-const std::vector<Object3D *> &Object3D::getChilds() const
+std::vector<Object3D *> Object3D::getChilds() const
 {
-    return m_childs;
+    std::vector<Object3D *> childs;
+    for (auto &child : m_childs)
+    {
+        childs.push_back(child.get());
+    }
+
+    return childs;
 }
 
-void Object3D::addChild(Object3D *child)
+void Object3D::addChild(std::shared_ptr<Object3D> &child)
 {
     m_childs.push_back(child);
+    child->setParent(this);
 }
 
 void Object3D::removeChild(Object3D *child)
 {
-    auto found_it = std::find(m_childs.begin(), m_childs.end(), child);
+    auto found_it = std::find_if(m_childs.begin(), m_childs.end(),
+                                 [&](std::shared_ptr<Object3D> const &p) { return p.get() == child; });
 
     SPARK_CORE_ASSERT(found_it != m_childs.end(), "Tried to remove a child which isn't a child of this parent");
     if (found_it != m_childs.end())

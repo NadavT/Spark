@@ -69,7 +69,7 @@ std::shared_ptr<Spark::Object3D> Editor3DLayer::createArrow(glm::vec3 color)
     addObject(*arrowBody);
     std::shared_ptr<Spark::Object3D> arrowHead = Spark::createCylinder(glm::vec3(0, 0, 1.25f), 0.5f, 0, 0.5f, color);
     addObject(*arrowHead);
-    arrowHead->setParent(arrowBody.get());
+    arrowBody->addChild(arrowHead);
     arrowHead->getDrawable()->setCalculateLight(false);
     arrowBody->move({0, 0, 1});
     arrowBody->setAsRelativeTransform();

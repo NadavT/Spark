@@ -24,23 +24,23 @@ class Object3D
 
     SPARK_API virtual void setAsRelativeTransform();
 
-    SPARK_API virtual void setParent(Object3D *parent);
-    SPARK_API virtual void removeParent();
+    virtual void addChild(std::shared_ptr<Object3D> &child);
+    virtual void removeChild(Object3D *child);
+    virtual void clearChilds();
+    virtual void removeParent();
 
     SPARK_API virtual Object3D *getParent() const;
-    SPARK_API virtual const std::vector<Object3D *> &getChilds() const;
+    SPARK_API virtual std::vector<Object3D *> getChilds() const;
 
   protected:
     SPARK_API Object3D(std::shared_ptr<Render::Drawable3D> drawable, std::unique_ptr<Physics::Object3D> physicObject);
     SPARK_API Object3D() = default;
-    virtual void addChild(Object3D *child);
-    virtual void removeChild(Object3D *child);
-    virtual void clearChilds();
+    virtual void setParent(Object3D *parent);
 
   private:
     std::shared_ptr<Render::Drawable3D> m_drawable;
     std::unique_ptr<Physics::Object3D> m_physicsObject;
     Object3D *m_parent;
-    std::vector<Object3D *> m_childs;
+    std::vector<std::shared_ptr<Object3D>> m_childs;
 };
 } // namespace Spark
