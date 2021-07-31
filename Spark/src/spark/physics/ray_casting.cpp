@@ -232,17 +232,37 @@ float getRayDistanceFromObject(Ray3D ray, const Object3DBounding &objectBound, g
 
 float getRayDistanceFromObject(Ray3D ray, const Object3D &object)
 {
+    float shortestDistance;
     switch (object.getObjectType())
     {
     case ObjectType::Simple:
-        return getRayDistanceFromObject(ray, object.getBoundingObject(),
-                                        object.getTransformation() * object.getBoundingObject().getTransformation());
+        shortestDistance =
+            getRayDistanceFromObject(ray, object.getBoundingObject(),
+                                     object.getTransformation() * object.getBoundingObject().getTransformation());
+        break;
     case ObjectType::Complex:
-        return getRayDistanceFromObject(ray, reinterpret_cast<const ComplexObject3D &>(object));
+        shortestDistance = getRayDistanceFromObject(ray, reinterpret_cast<const ComplexObject3D &>(object));
+        break;
     default:
         SPARK_CORE_ASSERT(false, "Not supporting given object for ray casting");
         return -1;
     }
+
+    for (auto &child : object.getChilds())
+    {
+        SPARK_CORE_ASSERT(child != nullptr, "Broken object {0}:Got a null child from object",
+                          static_cast<const void *>(&object));
+        float childDistance = getRayDistanceFromObject(ray, *child);
+        if (childDistance != -1)
+        {
+            if (shortestDistance == -1 || childDistance < shortestDistance)
+            {
+                shortestDistance = childDistance;
+            }
+        }
+    }
+
+    return shortestDistance;
 }
 
 Ray3D getMouseRay(const Render::Camera &camera)
