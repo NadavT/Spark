@@ -18,7 +18,7 @@ Object3D::Object3D(glm::vec3 position)
 
 glm::vec3 Object3D::getPosition() const
 {
-    return glm::translate(m_relTransform, m_position) * glm::vec4(0, 0, 0, 1);
+    return m_position;
 }
 
 void Object3D::move(glm::vec3 position)

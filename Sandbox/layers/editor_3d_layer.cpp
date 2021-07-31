@@ -37,7 +37,9 @@ void Editor3DLayer::OnDetach()
 void Editor3DLayer::OnUpdate(Spark::Time &diffTime)
 {
     Layer3D::OnUpdate(diffTime);
-    float relative = glm::distance(m_camera.getPosition(), m_xArrow->getPhysicsObject().getPosition());
+    auto distanceVector = m_camera.getPosition() - m_xArrow->getPhysicsObject().getPosition();
+    auto planeNormal = glm::normalize(m_camera.getFront());
+    float relative = glm::abs(glm::dot(distanceVector, planeNormal));
     m_xArrow->setScale({relative * 0.05, relative * 0.05, relative * 0.05});
     m_yArrow->setScale({relative * 0.05, relative * 0.05, relative * 0.05});
     m_zArrow->setScale({relative * 0.05, relative * 0.05, relative * 0.05});
