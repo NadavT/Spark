@@ -86,17 +86,23 @@ bool Editor3DLayer::handleMouseMoved(Spark::MouseMovedEvent &e)
         switch (m_selectedAxis)
         {
         case Axis::X:
-            newPosition = Spark::Physics::getClosestPointToRayFromRay({{1, 0, 0}, {0, 0, 0}}, mouseRay).x;
+            newPosition = Spark::Physics::getClosestPointToRayFromRay(
+                              {{1, 0, 0}, m_xArrow->getPhysicsObject().getPosition()}, mouseRay)
+                              .x;
             m_objectToEdit->move({newPosition - m_originalAxisPosition, 0, 0});
             m_originalAxisPosition = newPosition;
             break;
         case Axis::Y:
-            newPosition = Spark::Physics::getClosestPointToRayFromRay({{0, 1, 0}, {0, 0, 0}}, mouseRay).y;
+            newPosition = Spark::Physics::getClosestPointToRayFromRay(
+                              {{0, 1, 0}, m_yArrow->getPhysicsObject().getPosition()}, mouseRay)
+                              .y;
             m_objectToEdit->move({0, newPosition - m_originalAxisPosition, 0});
             m_originalAxisPosition = newPosition;
             break;
         case Axis::Z:
-            newPosition = Spark::Physics::getClosestPointToRayFromRay({{0, 0, 1}, {0, 0, 0}}, mouseRay).z;
+            newPosition = Spark::Physics::getClosestPointToRayFromRay(
+                              {{0, 0, 1}, m_zArrow->getPhysicsObject().getPosition()}, mouseRay)
+                              .z;
             m_objectToEdit->move({0, 0, newPosition - m_originalAxisPosition});
             m_originalAxisPosition = newPosition;
             break;
@@ -139,16 +145,19 @@ bool Editor3DLayer::handleMousePressed(Spark::MouseButtonPressedEvent &e)
             switch (m_selectedAxis)
             {
             case Axis::X:
-                m_originalAxisPosition =
-                    Spark::Physics::getClosestPointToRayFromRay({{1, 0, 0}, {0, 0, 0}}, mouseRay).x;
+                m_originalAxisPosition = Spark::Physics::getClosestPointToRayFromRay(
+                                             {{1, 0, 0}, m_xArrow->getPhysicsObject().getPosition()}, mouseRay)
+                                             .x;
                 break;
             case Axis::Y:
-                m_originalAxisPosition =
-                    Spark::Physics::getClosestPointToRayFromRay({{0, 1, 0}, {0, 0, 0}}, mouseRay).y;
+                m_originalAxisPosition = Spark::Physics::getClosestPointToRayFromRay(
+                                             {{0, 1, 0}, m_yArrow->getPhysicsObject().getPosition()}, mouseRay)
+                                             .y;
                 break;
             case Axis::Z:
-                m_originalAxisPosition =
-                    Spark::Physics::getClosestPointToRayFromRay({{0, 0, 1}, {0, 0, 0}}, mouseRay).z;
+                m_originalAxisPosition = Spark::Physics::getClosestPointToRayFromRay(
+                                             {{0, 0, 1}, m_zArrow->getPhysicsObject().getPosition()}, mouseRay)
+                                             .z;
                 break;
             }
             SPARK_INFO("Selected ray axis {0}, position: {1}", m_selectedAxis, m_originalAxisPosition);
