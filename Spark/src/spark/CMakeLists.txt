@@ -33,6 +33,7 @@ target_sources(spark
     PRIVATE "overlay/overlay.cpp"
     PRIVATE "objects/object.cpp"
     PRIVATE "objects/sphere.cpp"
+    PRIVATE "objects/pipe.cpp"
     PRIVATE "objects/cylinder.cpp"
     PRIVATE "objects/box.cpp"
     PRIVATE "objects/model.cpp"
