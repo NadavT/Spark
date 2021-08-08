@@ -1,4 +1,5 @@
-#pragma once
+#ifndef SPARK_RESOURCE_MESH_H
+#define SPARK_RESOURCE_MESH_H
 
 #include "spark/vertex/vertex3d.h"
 #include "texture.h"
@@ -48,3 +49,5 @@ std::unique_ptr<Mesh> createMesh(std::vector<Vertex3D> vertices, std::vector<uns
                                  std::vector<const Texture *> &textures,
                                  std::vector<const Texture *> &specularTextures);
 } // namespace Spark
+
+#endif /* SPARK_RESOURCE_MESH_H */

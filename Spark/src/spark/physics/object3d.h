@@ -1,4 +1,5 @@
-#pragma once
+#ifndef SPARK_PHYSICS_OBJECT3D_H
+#define SPARK_PHYSICS_OBJECT3D_H
 
 #include "spark/core/core.h"
 
@@ -59,3 +60,5 @@ class Object3D
     std::vector<Object3D *> m_childs;
 };
 } // namespace Spark::Physics
+
+#endif /* SPARK_PHYSICS_OBJECT3D_H */

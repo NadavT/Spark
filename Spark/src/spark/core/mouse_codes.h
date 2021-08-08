@@ -1,4 +1,7 @@
-#pragma once
+#ifndef SPARK_MOUSE_CODES_H
+#define SPARK_MOUSE_CODES_H
+
+#include <iostream>
 
 namespace Spark
 {
@@ -26,3 +29,5 @@ inline std::ostream &operator<<(std::ostream &stream, MouseCode mouseCode)
     return stream;
 }
 } // namespace Spark
+
+#endif /* SPARK_MOUSE_CODES_H */

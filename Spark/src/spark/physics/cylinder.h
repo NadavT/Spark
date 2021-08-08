@@ -1,4 +1,5 @@
-#pragma once
+#ifndef SPARK_PHYSICS_CYLINDER_H
+#define SPARK_PHYSICS_CYLINDER_H
 
 #include "bounding/box_bounding.h"
 #include "object3d.h"
@@ -19,3 +20,5 @@ class Cylinder : public Object3D
     BoxBounding m_bounding;
 };
 } // namespace Spark::Physics
+
+#endif /* SPARK_PHYSICS_CYLINDER_H */

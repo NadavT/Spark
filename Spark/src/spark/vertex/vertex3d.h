@@ -1,4 +1,5 @@
-#pragma once
+#ifndef SPARK_VERTEX3D_H
+#define SPARK_VERTEX3D_H
 #include <array>
 #include <vector>
 
@@ -30,3 +31,5 @@ template <> struct std::hash<Spark::Vertex3D>
         return (std::hash<glm::vec3>()(vertex.pos)) ^ (std::hash<glm::vec2>()(vertex.texCoord) << 1);
     }
 };
+
+#endif /* SPARK_VERTEX3D_H */

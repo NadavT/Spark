@@ -10,9 +10,9 @@ namespace Spark::Render
 
 PointLight::PointLight(glm::vec3 position, glm::vec3 color, std::unique_ptr<Object3D> object, bool isLit)
     : Object3D()
+    , m_isLit(isLit)
     , m_position(position)
     , m_color(color)
-    , m_isLit(isLit)
     , m_object(std::move(object))
 {
     m_object->getDrawable()->setCalculateLight(!m_isLit);
@@ -45,22 +45,16 @@ void PointLight::setColor(glm::vec3 color)
     m_color = color;
 }
 
-void PointLight::move(glm::vec3 position, bool moveObject)
+void PointLight::move(glm::vec3 position)
 {
     m_position += position;
-    if (moveObject)
-    {
-        m_object->move(position);
-    }
+    m_object->move(position);
 }
 
-void PointLight::setPosition(glm::vec3 position, bool moveObject)
+void PointLight::setPosition(glm::vec3 position)
 {
     m_position = position;
-    if (moveObject)
-    {
-        m_object->setPosition(position);
-    }
+    m_object->setPosition(position);
 }
 
 glm::vec3 PointLight::getPosition()
@@ -78,7 +72,7 @@ SPARK_API Physics::Object3D &PointLight::getPhysicsObject() const
     return m_object->getPhysicsObject();
 }
 
-SPARK_API std::shared_ptr<Drawable3D> PointLight::getDrawable()
+SPARK_API std::shared_ptr<Drawable3D> &PointLight::getDrawable()
 {
     return m_object->getDrawable();
 }

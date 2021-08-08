@@ -11,12 +11,12 @@ enum class Axis
 class Editor3DLayer : public Spark::Layer3D
 {
   public:
-    Editor3DLayer(Spark::Render::Camera &camera);
+    explicit Editor3DLayer(Spark::Render::Camera &camera);
 
-    virtual void OnAttach();
-    virtual void OnDetach();
-    virtual void OnUpdate(Spark::Time &diffTime);
-    virtual void OnEvent(Spark::Event &e);
+    void OnAttach() override;
+    void OnDetach() override;
+    void OnUpdate(Spark::Time &diffTime) override;
+    void OnEvent(Spark::Event &e) override;
 
     void setObjectToEdit(Spark::Object3D &object);
 

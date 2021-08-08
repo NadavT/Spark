@@ -1,4 +1,5 @@
-#pragma once
+#ifndef SPARK_INPUT_H
+#define SPARK_INPUT_H
 
 #include "spark/core/application.h"
 #include "spark/core/core.h"
@@ -44,3 +45,5 @@ class Input
     virtual void UnHideMouseImpl() = 0;
 };
 } // namespace Spark
+
+#endif /* SPARK_INPUT_H */

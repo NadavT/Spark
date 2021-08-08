@@ -1,4 +1,5 @@
-#pragma once
+#ifndef SPARK_RENDER_CYLINDER_H
+#define SPARK_RENDER_CYLINDER_H
 
 #include "spark/core/core.h"
 
@@ -38,3 +39,5 @@ SPARK_API std::unique_ptr<Drawable3D> createCylinder(glm::vec3 position, glm::ve
                                                      float topRadius, float height, int sectors = 36, int stacks = 1,
                                                      glm::vec3 scale = glm::vec3(1.0));
 } // namespace Spark::Render
+
+#endif /* SPARK_RENDER_CYLINDER_H */

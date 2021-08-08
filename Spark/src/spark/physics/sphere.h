@@ -1,4 +1,5 @@
-#pragma once
+#ifndef SPARK_PHYSICS_SPHERE_H
+#define SPARK_PHYSICS_SPHERE_H
 
 #include "bounding/sphere_bounding.h"
 #include "object3d.h"
@@ -23,3 +24,5 @@ class Sphere : public Object3D
     SphereBounding m_bounding;
 };
 } // namespace Spark::Physics
+
+#endif /* SPARK_PHYSICS_SPHERE_H */

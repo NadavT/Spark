@@ -1,4 +1,5 @@
-#pragma once
+#ifndef SPARK_WINDOW_H
+#define SPARK_WINDOW_H
 
 #include "spark/core/core.h"
 #include "spark/core/time.h"
@@ -43,3 +44,5 @@ class Window
     static std::unique_ptr<Window> Create(const WindowProperties &properties = WindowProperties());
 };
 } // namespace Spark
+
+#endif /* SPARK_WINDOW_H */

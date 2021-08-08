@@ -1,4 +1,5 @@
-#pragma once
+#ifndef SPARK_PHYSICS_BOX_BOUNDING_H
+#define SPARK_PHYSICS_BOX_BOUNDING_H
 
 #include "object3d_bounding.h"
 
@@ -46,3 +47,5 @@ class BoxBounding : public Object3DBounding
 };
 
 } // namespace Spark::Physics
+
+#endif /* SPARK_PHYSICS_BOX_BOUNDING_H */

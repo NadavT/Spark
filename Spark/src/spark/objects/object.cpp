@@ -4,7 +4,7 @@
 
 namespace Spark
 {
-std::shared_ptr<Render::Drawable3D> Object3D::getDrawable()
+std::shared_ptr<Render::Drawable3D> &Object3D::getDrawable()
 {
     return m_drawable;
 }

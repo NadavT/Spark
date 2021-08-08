@@ -1,4 +1,5 @@
-#pragma once
+#ifndef SPARK_LAYER_3D_H
+#define SPARK_LAYER_3D_H
 
 #include "layer.h"
 
@@ -42,3 +43,5 @@ class Layer3D : public Layer
     Render::Camera &m_camera;
 };
 } // namespace Spark
+
+#endif /* SPARK_LAYER_3D_H */

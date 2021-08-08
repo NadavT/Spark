@@ -5,6 +5,7 @@ Editor3DLayer::Editor3DLayer(Spark::Render::Camera &camera)
     , m_camera(camera)
     , m_objectToEdit(nullptr)
     , m_selectedArrow(nullptr)
+    , m_selectedAxis(Axis::X)
     , m_originalAxisPosition(0)
 {
 
@@ -119,7 +120,6 @@ bool Editor3DLayer::handleKeyPressed(Spark::KeyPressedEvent &e)
 
 bool Editor3DLayer::handleMousePressed(Spark::MouseButtonPressedEvent &e)
 {
-    Spark::Object3D *closestObject = nullptr;
     float closest = std::numeric_limits<float>::max();
     int currentAxis = static_cast<int>(Axis::X);
     switch (e.GetMouseButton())

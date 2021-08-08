@@ -1,4 +1,5 @@
-#pragma once
+#ifndef SPARK_APPLICATION_H
+#define SPARK_APPLICATION_H
 
 #include "spark/core/core.h"
 #include "spark/core/layer_stack.h"
@@ -58,3 +59,5 @@ class Application
 
 Application *CreateApplication();
 } // namespace Spark
+
+#endif /* SPARK_APPLICATION_H */

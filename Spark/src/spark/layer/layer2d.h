@@ -1,4 +1,5 @@
-#pragma once
+#ifndef SPARK_LAYER2D_H
+#define SPARK_LAYER2D_H
 
 #include "layer.h"
 
@@ -25,3 +26,5 @@ class Layer2D : public Layer
     std::unique_ptr<Render::LayerRenderer> m_layer_renderer;
 };
 } // namespace Spark
+
+#endif /* SPARK_LAYER2D_H */

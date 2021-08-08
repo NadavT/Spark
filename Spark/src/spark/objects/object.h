@@ -1,4 +1,5 @@
-#pragma once
+#ifndef SPARK_OBJECT_H
+#define SPARK_OBJECT_H
 
 #include "spark/core/core.h"
 
@@ -12,7 +13,7 @@ class Object3D
   public:
     SPARK_API virtual ~Object3D() = default;
 
-    SPARK_API virtual std::shared_ptr<Render::Drawable3D> getDrawable();
+    SPARK_API virtual std::shared_ptr<Render::Drawable3D> &getDrawable();
     SPARK_API virtual Physics::Object3D &getPhysicsObject() const;
 
     SPARK_API virtual void move(glm::vec3 position);
@@ -44,3 +45,5 @@ class Object3D
     std::vector<std::shared_ptr<Object3D>> m_childs;
 };
 } // namespace Spark
+
+#endif /* SPARK_OBJECT_H */

@@ -1,4 +1,5 @@
-#pragma once
+#ifndef SPARK_PHYSICS_COMPLEX_OBJECT3D_H
+#define SPARK_PHYSICS_COMPLEX_OBJECT3D_H
 
 #include "bounding/box_bounding.h"
 #include "object3d.h"
@@ -27,3 +28,5 @@ class ComplexObject3D : public Object3D
     BoxBounding m_bounding;
 };
 } // namespace Spark::Physics
+
+#endif /* SPARK_PHYSICS_COMPLEX_OBJECT3D_H */

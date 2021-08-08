@@ -1,4 +1,5 @@
-#pragma once
+#ifndef SPARK_PIPE_H
+#define SPARK_PIPE_H
 
 #include "object.h"
 
@@ -20,3 +21,5 @@ SPARK_API std::unique_ptr<Object3D> createPipe(std::vector<glm::vec3> positions,
 SPARK_API std::unique_ptr<Object3D> createPipe(std::vector<glm::vec3> positions, float radius, const Texture &texture,
                                                const Texture &specularTexture, int sectors = 36, int stacks = 1);
 } // namespace Spark
+
+#endif /* SPARK_PIPE_H */

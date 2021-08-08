@@ -1,4 +1,5 @@
-#pragma once
+#ifndef SPARK_RENDER_DRAWABLE3D_H
+#define SPARK_RENDER_DRAWABLE3D_H
 
 #include "drawable.h"
 
@@ -26,8 +27,11 @@ class Drawable3D : public virtual Drawable
     SPARK_API virtual glm::mat4 getTransformation() const;
 
   protected:
-    SPARK_API Drawable3D(glm::vec3 position, glm::vec3 scale, float rotationAngle = 0,
-                         glm::vec3 rotationAxis = {1, 0, 0});
+    Drawable3D(glm::vec3 position, glm::vec3 scale, float rotationAngle = 0, glm::vec3 rotationAxis = {1, 0, 0});
+    Drawable3D(const Drawable3D &other) = default;
+    Drawable3D(Drawable3D &&other) noexcept = default;
+    Drawable3D &operator=(const Drawable3D &other) = default;
+    Drawable3D &operator=(Drawable3D &&other) noexcept = default;
 
   private:
     glm::mat4 m_translationMatrix;
@@ -41,3 +45,5 @@ class Drawable3D : public virtual Drawable
 
 SPARK_API std::unique_ptr<Drawable3D> createModelDrawable(const Model &model, glm::vec3 position, glm::vec3 scale);
 } // namespace Spark::Render
+
+#endif /* SPARK_RENDER_DRAWABLE3D_H */

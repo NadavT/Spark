@@ -1,4 +1,5 @@
-#pragma once
+#ifndef SPARK_RESOURCE_RESOURCE_MANAGER_H
+#define SPARK_RESOURCE_RESOURCE_MANAGER_H
 
 #include "spark/core/core.h"
 
@@ -35,3 +36,5 @@ class ResourceManager
     static std::unordered_map<std::string, std::unique_ptr<Resource>> s_resources;
 };
 } // namespace Spark
+
+#endif /* SPARK_RESOURCE_RESOURCE_MANAGER_H */

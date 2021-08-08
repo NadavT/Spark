@@ -151,8 +151,6 @@ void Application::Run()
             layer->generateOverlay();
 
         Render();
-
-        Time frameTime = getCurrentTime() - m_lastFrameTime;
     }
 
     m_renderer->waitForIdle();

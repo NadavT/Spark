@@ -1,4 +1,5 @@
-#pragma once
+#ifndef SPARK_RESOURCE_TEXTURE_H
+#define SPARK_RESOURCE_TEXTURE_H
 
 #include "spark/core/core.h"
 
@@ -19,3 +20,5 @@ class Texture : public Resource
 
 SPARK_API std::unique_ptr<Texture> createTexture(const std::string &name, const std::string &path);
 } // namespace Spark
+
+#endif /* SPARK_RESOURCE_TEXTURE_H */

@@ -1,4 +1,5 @@
-#pragma once
+#ifndef SPARK_H
+#define SPARK_H
 
 //-----------CORE-----------
 #include "spark/core/application.h"
@@ -43,3 +44,5 @@
 #include "spark/physics/object3d.h"
 #include "spark/physics/ray_casting.h"
 #include "spark/physics/sphere.h"
+
+#endif /* SPARK_H */

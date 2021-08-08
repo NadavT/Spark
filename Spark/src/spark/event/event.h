@@ -1,10 +1,10 @@
-#pragma once
+#ifndef SPARK_EVENT_H
+#define SPARK_EVENT_H
 
 #include "spark/core/core.h"
 
 #include <sstream>
 #include <string>
-
 
 namespace Spark
 {
@@ -107,3 +107,5 @@ inline std::ostream &operator<<(std::ostream &stream, const Event &event)
 } // namespace Spark
 
 #define SPARK_BIND_EVENT_FN(fn) std::bind(&fn, this, std::placeholders::_1)
+
+#endif /* SPARK_EVENT_H */

@@ -1,8 +1,8 @@
-#pragma once
+#ifndef SPARK_KEYBOARD_EVENT_H
+#define SPARK_KEYBOARD_EVENT_H
 
 #include "spark/core/key_codes.h"
 #include "spark/event/event.h"
-
 
 namespace Spark
 {
@@ -94,3 +94,5 @@ class KeyTypedEvent : public KeyEvent
     EVENT_CLASS_TYPE(KeyTyped)
 };
 } // namespace Spark
+
+#endif /* SPARK_KEYBOARD_EVENT_H */

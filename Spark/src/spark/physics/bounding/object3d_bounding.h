@@ -1,4 +1,5 @@
-#pragma once
+#ifndef SPARK_PHYSICS_OBJECT3D_BOUNDING_H
+#define SPARK_PHYSICS_OBJECT3D_BOUNDING_H
 
 #include "spark/core/core.h"
 
@@ -29,3 +30,5 @@ class Object3DBounding
     Object3DBoundingType m_type;
 };
 } // namespace Spark::Physics
+
+#endif /* SPARK_PHYSICS_OBJECT3D_BOUNDING_H */

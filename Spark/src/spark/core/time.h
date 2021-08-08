@@ -1,4 +1,5 @@
-#pragma once
+#ifndef SPARK_TIME_H
+#define SPARK_TIME_H
 
 #include "spark/core/core.h"
 
@@ -42,3 +43,5 @@ class SPARK_API Time
 Time getCurrentTime();
 void sleep(const Time &time);
 } // namespace Spark
+
+#endif /* SPARK_TIME_H */

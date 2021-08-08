@@ -45,7 +45,7 @@ SPARK_API Resource *ResourceManager::getResource(const std::string &name)
 
 const Texture &ResourceManager::loadTexture(const std::string &name, const std::string &path)
 {
-    s_resources[name] = std::move(createTexture(name, path));
+    s_resources[name] = createTexture(name, path);
     return *reinterpret_cast<Texture *>(s_resources[name].get());
 }
 
@@ -63,7 +63,7 @@ const Texture *ResourceManager::getTexture(const std::string &name)
 
 SPARK_API const Model &ResourceManager::loadModel(const std::string &name, const std::string &path)
 {
-    s_resources[name] = std::move(std::make_unique<Model>(name, path));
+    s_resources[name] = std::make_unique<Model>(name, path);
     return *reinterpret_cast<Model *>(s_resources[name].get());
 }
 

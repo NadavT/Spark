@@ -1,4 +1,5 @@
-#pragma once
+#ifndef SPARK_RENDER_BOX_H
+#define SPARK_RENDER_BOX_H
 
 #include "spark/core/core.h"
 
@@ -26,3 +27,5 @@ SPARK_API std::unique_ptr<Drawable3D> createBox(glm::vec3 position, const Textur
                                                 const Texture &specularTexture, glm::vec3 scale = glm::vec3(1.0));
 SPARK_API std::unique_ptr<Drawable3D> createBox(glm::vec3 position, glm::vec3 color, glm::vec3 scale = glm::vec3(1.0));
 } // namespace Spark::Render
+
+#endif /* SPARK_RENDER_BOX_H */

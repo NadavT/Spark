@@ -1,4 +1,5 @@
-#pragma once
+#ifndef SPARK_RENDER_DRAWABLE_H
+#define SPARK_RENDER_DRAWABLE_H
 
 #include "spark/core/core.h"
 
@@ -11,7 +12,7 @@ namespace Spark::Render
 class Drawable
 {
   protected:
-    const float defaultHighlightWidth = 0.05f;
+    static inline const float defaultHighlightWidth = 0.05f;
 
   public:
     SPARK_API virtual ~Drawable() = default;
@@ -33,6 +34,10 @@ class Drawable
 
   protected:
     Drawable();
+    Drawable(const Drawable &other) = default;
+    Drawable(Drawable &&other) noexcept = default;
+    Drawable &operator=(const Drawable &other) = default;
+    Drawable &operator=(Drawable &&other) noexcept = default;
     virtual void addChild(Drawable *child);
     virtual void removeChild(Drawable *child);
     virtual void clearChilds();
@@ -45,3 +50,5 @@ class Drawable
     std::vector<Drawable *> m_childs;
 };
 } // namespace Spark::Render
+
+#endif /* SPARK_RENDER_DRAWABLE_H */

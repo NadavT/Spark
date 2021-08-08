@@ -1,4 +1,5 @@
-#pragma once
+#ifndef SPARK_CORE_H
+#define SPARK_CORE_H
 
 #include <memory>
 
@@ -42,3 +43,5 @@
 #endif
 
 #define BIT(n) (1 << n)
+
+#endif /* SPARK_CORE_H */

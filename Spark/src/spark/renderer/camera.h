@@ -1,4 +1,5 @@
-#pragma once
+#ifndef SPARK_RENDER_CAMERA_H
+#define SPARK_RENDER_CAMERA_H
 
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE
 #define GLM_ENABLE_EXPERIMENTAL
@@ -21,10 +22,6 @@ enum class CameraDirection
 
 const float YAW = 180.0f;
 const float PITCH = 0.0f;
-const float SPEED = 25.0f;
-const float SENSITIVITY = 0.1f;
-const float ZOOM = 45.0f;
-
 class Camera
 {
   public:
@@ -59,3 +56,5 @@ class Camera
     float m_zoom;
 };
 } // namespace Spark::Render
+
+#endif /* SPARK_RENDER_CAMERA_H */

@@ -1,4 +1,5 @@
-#pragma once
+#ifndef SPARK_RENDER_RENDERER_H
+#define SPARK_RENDER_RENDERER_H
 
 #include "spark/core/core.h"
 #include "spark/core/window.h"
@@ -29,3 +30,5 @@ class Renderer
     static std::unique_ptr<Renderer> Create(const Window &window);
 };
 } // namespace Spark::Render
+
+#endif /* SPARK_RENDER_RENDERER_H */

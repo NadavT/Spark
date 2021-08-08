@@ -1,4 +1,5 @@
-#pragma once
+#ifndef SPARK_LAYER_STACK_H
+#define SPARK_LAYER_STACK_H
 
 #include "spark/layer/layer.h"
 
@@ -58,3 +59,5 @@ class LayerStack
     unsigned int m_lastLayerIndex = 0;
 };
 } // namespace Spark
+
+#endif /* SPARK_LAYER_STACK_H */

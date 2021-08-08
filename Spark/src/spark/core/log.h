@@ -1,4 +1,5 @@
-#pragma once
+#ifndef SPARK_LOG_H
+#define SPARK_LOG_H
 
 #include "spark/core/core.h"
 
@@ -10,27 +11,27 @@ SPARK_API void loggerInit();
 SPARK_API spdlog::logger *getCoreLogger();
 SPARK_API spdlog::logger *getClientLogger();
 
-template <typename... Args> void logTrace(spdlog::logger *logger, const Args &... args)
+template <typename... Args> void logTrace(spdlog::logger *logger, const Args &...args)
 {
     logger->trace(args...);
 }
 
-template <typename... Args> void logInfo(spdlog::logger *logger, const Args &... args)
+template <typename... Args> void logInfo(spdlog::logger *logger, const Args &...args)
 {
     logger->info(args...);
 }
 
-template <typename... Args> void logWarn(spdlog::logger *logger, const Args &... args)
+template <typename... Args> void logWarn(spdlog::logger *logger, const Args &...args)
 {
     logger->warn(args...);
 }
 
-template <typename... Args> void logError(spdlog::logger *logger, const Args &... args)
+template <typename... Args> void logError(spdlog::logger *logger, const Args &...args)
 {
     logger->error(args...);
 }
 
-template <typename... Args> void logCritical(spdlog::logger *logger, const Args &... args)
+template <typename... Args> void logCritical(spdlog::logger *logger, const Args &...args)
 {
     logger->critical(args...);
 }
@@ -77,3 +78,5 @@ template <typename... Args> void logCritical(spdlog::logger *logger, const Args 
         {                                                                                                              \
         }
 #endif
+
+#endif /* SPARK_LOG_H */

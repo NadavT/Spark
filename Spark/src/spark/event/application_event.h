@@ -1,4 +1,5 @@
-#pragma once
+#ifndef SPARK_APPLICATION_EVENT_H
+#define SPARK_APPLICATION_EVENT_H
 
 #include "spark/event/event.h"
 
@@ -72,3 +73,5 @@ class AppRenderEvent : public Event
     EVENT_CLASS_CATEGORY(EventCategoryApplication)
 };
 } // namespace Spark
+
+#endif /* SPARK_APPLICATION_EVENT_H */

@@ -45,7 +45,8 @@ void Layer3D::addDrawable(std::shared_ptr<Render::Drawable> &drawable)
 
 void Layer3D::addObject(Object3D &object)
 {
-    addDrawable(std::dynamic_pointer_cast<Render::Drawable>(object.getDrawable()));
+    std::shared_ptr<Render::Drawable> drawable = std::dynamic_pointer_cast<Render::Drawable>(object.getDrawable());
+    addDrawable(drawable);
 }
 
 void Layer3D::removeDrawable(Render::Drawable *drawable)
@@ -71,16 +72,17 @@ void Layer3D::setDirLight(glm::vec3 direction, glm::vec3 color)
 #endif
 }
 
-SPARK_API void Layer3D::addPointLight(Render::PointLight &pointLight)
+void Layer3D::addPointLight(Render::PointLight &pointLight)
 {
 #ifdef SPARK_PLATFORM_VULKAN
-    addDrawable(std::dynamic_pointer_cast<Render::Drawable>(pointLight.getDrawable()));
+    std::shared_ptr<Render::Drawable> drawable = std::dynamic_pointer_cast<Render::Drawable>(pointLight.getDrawable());
+    addDrawable(drawable);
     reinterpret_cast<Render::VulkanLayerRenderer3DModel *>(m_layer_renderer.get())
         ->addPointLight(reinterpret_cast<Render::VulkanPointLight &>(pointLight));
 #endif
 }
 
-SPARK_API void Layer3D::removePointLight(Render::PointLight &pointLight)
+void Layer3D::removePointLight(Render::PointLight &pointLight)
 {
 #ifdef SPARK_PLATFORM_VULKAN
     reinterpret_cast<Render::VulkanLayerRenderer3DModel *>(m_layer_renderer.get())
@@ -96,21 +98,21 @@ void Layer3D::setSpotLight(glm::vec3 direction)
 #endif
 }
 
-SPARK_API void Layer3D::setWireframe(Render::WireframeState state, glm::vec3 color)
+void Layer3D::setWireframe(Render::WireframeState state, glm::vec3 color)
 {
 #ifdef SPARK_PLATFORM_VULKAN
     reinterpret_cast<Render::VulkanLayerRenderer3DModel *>(m_layer_renderer.get())->setWireframe(state, color);
 #endif
 }
 
-SPARK_API bool Layer3D::getXrayHighlight() const
+bool Layer3D::getXrayHighlight() const
 {
 #ifdef SPARK_PLATFORM_VULKAN
     return reinterpret_cast<Render::VulkanLayerRenderer3DModel *>(m_layer_renderer.get())->getXrayHighlight();
 #endif
 }
 
-SPARK_API void Layer3D::setXrayHighlight(bool xRayHighlight)
+void Layer3D::setXrayHighlight(bool xRayHighlight)
 {
 #ifdef SPARK_PLATFORM_VULKAN
     reinterpret_cast<Render::VulkanLayerRenderer3DModel *>(m_layer_renderer.get())->setXrayHighlight(xRayHighlight);

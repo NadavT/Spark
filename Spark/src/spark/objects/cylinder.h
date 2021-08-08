@@ -1,4 +1,5 @@
-#pragma once
+#ifndef SPARK_CYLINDER_H
+#define SPARK_CYLINDER_H
 
 #include "object.h"
 
@@ -22,3 +23,5 @@ SPARK_API std::unique_ptr<Object3D> createCylinder(glm::vec3 position, float bas
                                                    const Texture &texture, const Texture &specularTexture,
                                                    int sectors = 36, int stacks = 1);
 } // namespace Spark
+
+#endif /* SPARK_CYLINDER_H */
