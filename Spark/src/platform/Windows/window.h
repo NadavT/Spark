@@ -1,4 +1,5 @@
-#pragma once
+#ifndef SPARK_WINDOWS_WINDOW_H
+#define SPARK_WINDOWS_WINDOW_H
 
 #include "spark/core/core.h"
 #include "spark/core/window.h"
@@ -62,3 +63,5 @@ class WindowsWindow : public Window
     WindowData m_data;
 };
 } // namespace Spark
+
+#endif /* SPARK_WINDOWS_WINDOW_H */

@@ -1,4 +1,5 @@
-#pragma once
+#ifndef SPARK_WINDOWS_INPUT_H
+#define SPARK_WINDOWS_INPUT_H
 
 #include "spark/core/input.h"
 
@@ -25,3 +26,5 @@ class WindowsInput : public Input
     const WindowsWindow &m_window;
 };
 } // namespace Spark
+
+#endif /* SPARK_WINDOWS_INPUT_H */
