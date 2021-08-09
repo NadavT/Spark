@@ -1,4 +1,5 @@
-#pragma once
+#ifndef SPARK_VULKAN_TEXTURED_DRAWABLE_H
+#define SPARK_VULKAN_TEXTURED_DRAWABLE_H
 #include "platform/vulkan/drawables/vulkan_drawable.h"
 #include "platform/vulkan/resource/texture.h"
 #include "platform/vulkan/resource/texture_sampler.h"
@@ -25,3 +26,5 @@ class VulkanTexturedDrawable : public virtual VulkanDrawable
     const VulkanTexture &m_specularTexture;
 };
 } // namespace Spark::Render
+
+#endif /* SPARK_VULKAN_TEXTURED_DRAWABLE_H */

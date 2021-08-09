@@ -1,4 +1,5 @@
-#pragma once
+#ifndef SPARK_VULKAN_TEXTURED_SPHERE_H
+#define SPARK_VULKAN_TEXTURED_SPHERE_H
 #include "platform/vulkan/drawables/sphere.h"
 #include "platform/vulkan/drawables/textured_drawable.h"
 
@@ -12,3 +13,5 @@ class VulkanTexturedSphere : public virtual VulkanSphere, public virtual VulkanT
                          glm::vec3 scale = glm::vec3(1.0));
 };
 } // namespace Spark::Render
+
+#endif /* SPARK_VULKAN_TEXTURED_SPHERE_H */

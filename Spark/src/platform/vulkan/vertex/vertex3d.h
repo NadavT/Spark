@@ -1,4 +1,5 @@
-#pragma once
+#ifndef SPARK_VULKAN_VERTEX3D_H
+#define SPARK_VULKAN_VERTEX3D_H
 #include "platform/vulkan/vulkan_context.h"
 #include "spark/vertex/vertex3d.h"
 #include <array>
@@ -21,3 +22,5 @@ void createVertex3DBuffer(VulkanContext &context, VkBuffer &buffer, VkDeviceMemo
                           VkDeviceSize &verticesOffset, VkDeviceSize &indicesOffset,
                           const std::vector<Vertex3D> &bufferVertices, const std::vector<uint32_t> &bufferIndices);
 } // namespace Spark::Render
+
+#endif /* SPARK_VULKAN_VERTEX3D_H */

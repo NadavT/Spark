@@ -1,5 +1,5 @@
-#ifndef SPARK_RESOURCE_RESOURCE_MANAGER_H
-#define SPARK_RESOURCE_RESOURCE_MANAGER_H
+#ifndef SPARK_RESOURCE_MANAGER_H
+#define SPARK_RESOURCE_MANAGER_H
 
 #include "spark/core/core.h"
 
@@ -37,4 +37,4 @@ class ResourceManager
 };
 } // namespace Spark
 
-#endif /* SPARK_RESOURCE_RESOURCE_MANAGER_H */
+#endif /* SPARK_RESOURCE_MANAGER_H */

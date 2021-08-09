@@ -1,4 +1,5 @@
-#pragma once
+#ifndef SPARK_VULKAN_VULKAN_CONTEXT_H
+#define SPARK_VULKAN_VULKAN_CONTEXT_H
 
 #include "spark/core/window.h"
 
@@ -115,3 +116,5 @@ class VulkanContext
     VkDescriptorPool m_descriptorPool;
 };
 } // namespace Spark::Render
+
+#endif /* SPARK_VULKAN_VULKAN_CONTEXT_H */

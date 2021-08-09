@@ -1,4 +1,5 @@
-#pragma once
+#ifndef SPARK_PIPELINE2D_H
+#define SPARK_PIPELINE2D_H
 
 #include "platform/vulkan/pipeline/pipeline.h"
 #include "platform/vulkan/vertex/vertex2d.h"
@@ -38,6 +39,7 @@ class VulkanPipeline2D : public VulkanPipeline
                                           VkImageView textureImageView, VkSampler textureSampler);
 
   private:
+    using VulkanPipeline::bind;
     void createDescriptorSetLayout();
     void createGraphicsPipeline();
 
@@ -47,3 +49,5 @@ class VulkanPipeline2D : public VulkanPipeline
     VkDescriptorSetLayout m_textureDescriptorSetLayout;
 };
 } // namespace Spark::Render
+
+#endif /* SPARK_PIPELINE2D_H */

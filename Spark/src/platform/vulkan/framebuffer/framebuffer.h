@@ -1,4 +1,5 @@
-#pragma once
+#ifndef SPARK_VULKAN_FRAMEBUFFER_H
+#define SPARK_VULKAN_FRAMEBUFFER_H
 
 #include "platform/vulkan/vulkan_context.h"
 
@@ -40,3 +41,5 @@ class VulkanFramebuffer
     VkImageView m_renderTarget;
 };
 } // namespace Spark::Render
+
+#endif /* SPARK_VULKAN_FRAMEBUFFER_H */

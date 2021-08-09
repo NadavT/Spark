@@ -32,7 +32,7 @@ VulkanMesh::~VulkanMesh()
 
 VulkanMesh::VulkanMesh(const VulkanMesh &other)
     : Mesh(other)
-    , m_renderer(m_renderer)
+    , m_renderer(other.m_renderer)
     , m_vertexBuffer(VK_NULL_HANDLE)
     , m_vertexBufferMemory(VK_NULL_HANDLE)
     , m_verticesOffset(0)
@@ -43,7 +43,7 @@ VulkanMesh::VulkanMesh(const VulkanMesh &other)
 
 VulkanMesh::VulkanMesh(VulkanMesh &&other) noexcept
     : Mesh(other)
-    , m_renderer(m_renderer)
+    , m_renderer(other.m_renderer)
     , m_vertexBuffer(VK_NULL_HANDLE)
     , m_vertexBufferMemory(VK_NULL_HANDLE)
     , m_verticesOffset(0)

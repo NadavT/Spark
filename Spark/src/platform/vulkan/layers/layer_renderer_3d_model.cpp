@@ -50,7 +50,7 @@ VulkanLayerRenderer3DModel::~VulkanLayerRenderer3DModel()
 {
     if (m_isAttached)
     {
-        OnDetach();
+        VulkanLayerRenderer3DModel::OnDetach();
     }
 
     for (int i = 0; i < m_commandBuffers.size(); i++)
@@ -231,7 +231,6 @@ void VulkanLayerRenderer3DModel::createCommandBuffers()
             }
         }
 
-        struct Vulkan3DOutlinePushConsts outlinePushConsts = {};
         VkClearAttachment clearAttachment = {};
         clearAttachment.aspectMask = VK_IMAGE_ASPECT_STENCIL_BIT;
         clearAttachment.clearValue = clearValues[1];
@@ -391,12 +390,14 @@ void VulkanLayerRenderer3DModel::createResourcesForDrawables(std::vector<std::sh
         if (vulkanDrawable->getDrawableType() == VulkanDrawableType::Textured)
         {
             VulkanTexturedDrawable *texturedDrawable = dynamic_cast<VulkanTexturedDrawable *>(vulkanDrawable);
+            SPARK_CORE_ASSERT(texturedDrawable != nullptr, "Couldn't convert drawable to textured drawable");
             createResourcesForTexutredDrawable(*texturedDrawable, textures, samplers, specularTextures,
                                                specularSamplers);
         }
         else if (vulkanDrawable->getDrawableType() == VulkanDrawableType::Model)
         {
             VulkanDrawableModel *drawableModel = dynamic_cast<VulkanDrawableModel *>(vulkanDrawable);
+            SPARK_CORE_ASSERT(drawableModel != nullptr, "Couldn't convert drawable to model drawable");
             createResourcesForModelDrawable(*drawableModel, textures, samplers, specularTextures, specularSamplers);
         }
         else if (vulkanDrawable->getDrawableType() == VulkanDrawableType::Colored)
@@ -634,6 +635,7 @@ void VulkanLayerRenderer3DModel::updateColoredDrawableMaterialData(const VulkanC
 {
     void *data;
     MaterialModel material = {};
+    SPARK_CORE_ASSERT(drawable != nullptr, "Got a null drawble");
     auto pointLight = std::find_if(m_pointLights.begin(), m_pointLights.end(), [&drawable](VulkanPointLight *x) {
         return x->getDrawable().get() == dynamic_cast<const Drawable3D *>(drawable);
     });
@@ -663,6 +665,7 @@ void VulkanLayerRenderer3DModel::updateColoredDrawableMaterialData(const VulkanC
 void VulkanLayerRenderer3DModel::updateTexturedDrawableMaterialData(const VulkanTexturedDrawable *drawable)
 {
     void *data = nullptr;
+    SPARK_CORE_ASSERT(drawable != nullptr, "Got a null drawble");
     MaterialModel material = {};
     material.baseColorDiffuse = {0, 0, 0};
     material.baseColorSpecular = {0, 0, 0};
@@ -682,7 +685,7 @@ void VulkanLayerRenderer3DModel::updateTexturedDrawableMaterialData(const Vulkan
 void VulkanLayerRenderer3DModel::updateModelDrawableMaterialData(const VulkanDrawableModel *drawable)
 {
     void *data = nullptr;
-    MaterialModel material = {};
+    SPARK_CORE_ASSERT(drawable != nullptr, "Got a null drawble");
     for (size_t j = 0; j < drawable->getModel().getMeshes().size(); j++)
     {
         const Mesh *mesh = drawable->getModel().getMeshes()[j].get();

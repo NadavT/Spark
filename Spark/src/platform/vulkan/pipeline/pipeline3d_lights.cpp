@@ -22,7 +22,7 @@ VulkanPipeline3DLights::VulkanPipeline3DLights(VulkanContext &context, VulkanFra
 
 VulkanPipeline3DLights::~VulkanPipeline3DLights()
 {
-    cleanup();
+    VulkanPipeline3DLights::cleanup();
 }
 
 void VulkanPipeline3DLights::cleanup()

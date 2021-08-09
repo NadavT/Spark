@@ -5,6 +5,8 @@
 
 #include <spdlog/spdlog.h>
 
+#include <stdexcept>
+
 namespace Spark
 {
 SPARK_API void loggerInit();
@@ -58,6 +60,7 @@ template <typename... Args> void logCritical(spdlog::logger *logger, const Args 
             {                                                                                                          \
                 SPARK_ERROR("Assertion Failed: {0}", __VA_ARGS__);                                                     \
                 SPARK_DEBUG_BREAK();                                                                                   \
+                throw std::runtime_error("ASSERTION FAILED");                                                          \
             }                                                                                                          \
         }
     #define SPARK_CORE_ASSERT(x, ...)                                                                                  \
@@ -66,16 +69,19 @@ template <typename... Args> void logCritical(spdlog::logger *logger, const Args 
             {                                                                                                          \
                 SPARK_CORE_ERROR("Assertion Failed: {0}", __VA_ARGS__);                                                \
                 SPARK_DEBUG_BREAK();                                                                                   \
+                throw std::runtime_error("ASSERTION FAILED");                                                          \
             }                                                                                                          \
         }
 #else
     #define SPARK_ASSERT(x, ...)                                                                                       \
         if (!(x))                                                                                                      \
         {                                                                                                              \
+            throw std::runtime_error("ASSERTION FAILED");                                                              \
         }
     #define SPARK_CORE_ASSERT(x, ...)                                                                                  \
         if (!(x))                                                                                                      \
         {                                                                                                              \
+            throw std::runtime_error("ASSERTION FAILED");                                                              \
         }
 #endif
 

@@ -1,4 +1,5 @@
-#pragma once
+#ifndef SPARK_VULKAN_PIPELINE_TRIANGLE_H
+#define SPARK_VULKAN_PIPELINE_TRIANGLE_H
 
 #include "platform/vulkan/pipeline/pipeline.h"
 
@@ -17,3 +18,5 @@ class VulkanPipelineTriangle : public VulkanPipeline
     VkPipelineLayout m_pipelineLayout;
 };
 } // namespace Spark::Render
+
+#endif /* SPARK_VULKAN_PIPELINE_TRIANGLE_H */

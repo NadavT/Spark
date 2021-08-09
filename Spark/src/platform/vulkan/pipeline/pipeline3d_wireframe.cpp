@@ -18,7 +18,7 @@ VulkanPipeline3DWireframe::VulkanPipeline3DWireframe(VulkanContext &context, Vul
 
 VulkanPipeline3DWireframe::~VulkanPipeline3DWireframe()
 {
-    cleanup();
+    VulkanPipeline3DWireframe::cleanup();
 }
 
 void VulkanPipeline3DWireframe::cleanup()

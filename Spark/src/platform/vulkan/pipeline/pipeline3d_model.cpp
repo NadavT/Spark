@@ -23,7 +23,7 @@ VulkanPipeline3DModel::VulkanPipeline3DModel(VulkanContext &context, VulkanFrame
 
 VulkanPipeline3DModel::~VulkanPipeline3DModel()
 {
-    cleanup();
+    VulkanPipeline3DModel::cleanup();
 }
 
 void VulkanPipeline3DModel::cleanup()

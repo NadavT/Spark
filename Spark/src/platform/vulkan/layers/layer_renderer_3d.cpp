@@ -31,7 +31,7 @@ VulkanLayerRenderer3D::~VulkanLayerRenderer3D()
 {
     if (m_isAttached)
     {
-        OnDetach();
+        VulkanLayerRenderer3D::OnDetach();
     }
 
     for (int i = 0; i < m_commandBuffers.size(); i++)
@@ -117,8 +117,6 @@ void VulkanLayerRenderer3D::OnRender()
         createCommandBuffers();
         m_isRecreationNeeded = false;
     }
-
-    int i = 0;
 
     for (size_t i = 0; i < m_drawables.size(); i++)
     {

@@ -7,10 +7,10 @@
 namespace Spark::Render
 {
 VulkanColoredCube::VulkanColoredCube(VulkanRenderer &renderer, glm::vec3 position, glm::vec3 color, glm::vec3 scale)
-    : VulkanBox(renderer, position, scale)
-    , VulkanColoredDrawable(color)
+    : Drawable3D(position, scale)
     , Box(position, scale)
-    , Drawable3D(position, scale)
+    , VulkanBox(renderer, position, scale)
+    , VulkanColoredDrawable(color)
 {
 }
 } // namespace Spark::Render

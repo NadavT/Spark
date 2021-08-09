@@ -1,4 +1,5 @@
-#pragma once
+#ifndef SPARK_VULKAN_POINT_LIGHT_H
+#define SPARK_VULKAN_POINT_LIGHT_H
 
 #include "spark/renderer/drawables/point_light.h"
 
@@ -14,3 +15,5 @@ struct VulkanPointLight : PointLight
 };
 
 } // namespace Spark::Render
+
+#endif /* SPARK_VULKAN_POINT_LIGHT_H */

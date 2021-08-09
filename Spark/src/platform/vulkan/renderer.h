@@ -1,4 +1,5 @@
-#pragma once
+#ifndef SPARK_VULKAN_RENDERER_H
+#define SPARK_VULKAN_RENDERER_H
 
 #include "spark/core/window.h"
 #include "spark/event/application_event.h"
@@ -97,3 +98,5 @@ class VulkanRenderer : public Renderer
     std::vector<VkCommandBuffer> m_resolveCommandBuffers;
 };
 } // namespace Spark::Render
+
+#endif /* SPARK_VULKAN_RENDERER_H */

@@ -53,8 +53,8 @@ class WindowsWindow : public Window
     }
 
   private:
-    virtual void Init(const WindowProperties &properties);
-    virtual void Shutdown();
+    void Init(const WindowProperties &properties);
+    void Shutdown();
 
   private:
     GLFWwindow *m_window;

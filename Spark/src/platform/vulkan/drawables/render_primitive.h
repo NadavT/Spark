@@ -1,4 +1,5 @@
-#pragma once
+#ifndef SPARK_VULKAN_RENDER_PRIMITIVE_H
+#define SPARK_VULKAN_RENDER_PRIMITIVE_H
 
 #include "platform/vulkan/renderer.h"
 
@@ -15,3 +16,5 @@ class VulkanRenderPrimitive
     VulkanRenderPrimitive() = default;
 };
 } // namespace Spark::Render
+
+#endif /* SPARK_VULKAN_RENDER_PRIMITIVE_H */

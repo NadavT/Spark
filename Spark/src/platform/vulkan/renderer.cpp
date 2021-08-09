@@ -634,7 +634,7 @@ void VulkanRenderer::fillClearCommandBuffers()
         }
 
         VkClearValue clearColor = {};
-        clearColor.color = {0.1f, 0.1f, 0.1f, 1.0f};
+        clearColor.color = {{0.1f, 0.1f, 0.1f, 1.0f}};
         beginRenderPass(m_clearCommandBuffers[i], m_clearFramebuffer->getRenderPass(),
                         m_clearFramebuffer->getswapChainFramebuffers()[i], 1, &clearColor);
         vkCmdEndRenderPass(m_clearCommandBuffers[i]);

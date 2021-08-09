@@ -1,4 +1,5 @@
-#pragma once
+#ifndef SPARK_VULKAN_TEXTURE_SAMPLER_H
+#define SPARK_VULKAN_TEXTURE_SAMPLER_H
 
 #include "spark/resource/resource.h"
 
@@ -19,3 +20,5 @@ class VulkanTextureSampler : public Resource
     VkSampler m_textureSampler;
 };
 } // namespace Spark::Render
+
+#endif /* SPARK_VULKAN_TEXTURE_SAMPLER_H */

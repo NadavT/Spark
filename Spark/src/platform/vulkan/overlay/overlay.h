@@ -1,4 +1,5 @@
-#pragma once
+#ifndef SPARK_VULKAN_OVERLAY_H
+#define SPARK_VULKAN_OVERLAY_H
 
 #include "platform/Windows/window.h"
 #include "platform/vulkan/framebuffer/framebuffer.h"
@@ -42,3 +43,5 @@ class VulkanOverlay : public Overlay
     std::vector<VkCommandBuffer> m_commandBuffers;
 };
 } // namespace Spark::Render
+
+#endif /* SPARK_VULKAN_OVERLAY_H */

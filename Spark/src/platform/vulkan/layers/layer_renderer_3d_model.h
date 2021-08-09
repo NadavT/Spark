@@ -1,4 +1,5 @@
-#pragma once
+#ifndef SPARK_VULKAN_LAYER_RENDERER_3D_MODEL_H
+#define SPARK_VULKAN_LAYER_RENDERER_3D_MODEL_H
 
 #include "platform/vulkan/drawables/colored_drawable.h"
 #include "platform/vulkan/drawables/model.h"
@@ -129,3 +130,5 @@ class VulkanLayerRenderer3DModel : public LayerRenderer
     bool m_xRayHighlight;
 };
 } // namespace Spark::Render
+
+#endif /* SPARK_VULKAN_LAYER_RENDERER_3D_MODEL_H */

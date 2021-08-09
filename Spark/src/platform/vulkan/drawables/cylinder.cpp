@@ -9,8 +9,8 @@ namespace Spark::Render
 
 VulkanCylinder::VulkanCylinder(VulkanRenderer &renderer, glm::vec3 position, float baseRadius, float topRadius,
                                float height, int sectors, int stacks, glm::vec3 scale)
-    : Cylinder(position, baseRadius, topRadius, height, sectors, stacks, scale)
-    , Drawable3D(position, scale)
+    : Drawable3D(position, scale)
+    , Cylinder(position, baseRadius, topRadius, height, sectors, stacks, scale)
     , m_context(renderer.m_context)
     , m_renderer(renderer)
     , m_vertexBuffer(VK_NULL_HANDLE)
@@ -38,8 +38,8 @@ VulkanCylinder::~VulkanCylinder()
 }
 
 VulkanCylinder::VulkanCylinder(const VulkanCylinder &other)
-    : Cylinder(other)
-    , Drawable3D(other)
+    : Drawable3D(other)
+    , Cylinder(other)
     , m_context(other.m_context)
     , m_renderer(other.m_renderer)
 {
@@ -47,8 +47,8 @@ VulkanCylinder::VulkanCylinder(const VulkanCylinder &other)
 }
 
 VulkanCylinder::VulkanCylinder(VulkanCylinder &&other) noexcept
-    : Cylinder(other)
-    , Drawable3D(other)
+    : Drawable3D(other)
+    , Cylinder(other)
     , m_context(other.m_context)
     , m_renderer(other.m_renderer)
 {

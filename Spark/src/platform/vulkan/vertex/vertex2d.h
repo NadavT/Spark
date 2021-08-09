@@ -1,4 +1,5 @@
-#pragma once
+#ifndef SPARK_VULKAN_VERTEX2D_H
+#define SPARK_VULKAN_VERTEX2D_H
 #include "platform/vulkan/vulkan_context.h"
 #include <array>
 #include <vector>
@@ -58,3 +59,5 @@ void createVertex2DBuffer(VulkanContext &context, VkBuffer &buffer, VkDeviceMemo
                           VkDeviceSize &verticesOffset, VkDeviceSize &indicesOffset,
                           const std::vector<Vertex2D> &bufferVertices, const std::vector<uint32_t> &bufferIndices);
 } // namespace Spark::Render
+
+#endif /* SPARK_VULKAN_VERTEX2D_H */

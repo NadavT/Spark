@@ -45,8 +45,8 @@ const std::vector<uint32_t> cube_indices = {
 };
 
 VulkanBox::VulkanBox(VulkanRenderer &renderer, glm::vec3 position, glm::vec3 scale)
-    : Box(position, scale)
-    , Drawable3D(position, scale)
+    : Drawable3D(position, scale)
+    , Box(position, scale)
     , m_context(renderer.m_context)
     , m_renderer(renderer)
     , m_vertexBuffer(VK_NULL_HANDLE)
@@ -71,8 +71,8 @@ VulkanBox::~VulkanBox()
 }
 
 VulkanBox::VulkanBox(const VulkanBox &other)
-    : Box(other)
-    , Drawable3D(other)
+    : Drawable3D(other)
+    , Box(other)
     , m_context(other.m_context)
     , m_renderer(other.m_renderer)
 {
@@ -80,8 +80,8 @@ VulkanBox::VulkanBox(const VulkanBox &other)
 }
 
 VulkanBox::VulkanBox(VulkanBox &&other) noexcept
-    : Box(other)
-    , Drawable3D(other)
+    : Drawable3D(other)
+    , Box(other)
     , m_context(other.m_context)
     , m_renderer(other.m_renderer)
 {

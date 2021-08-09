@@ -1,4 +1,4 @@
-#include "framebuffer2D.h"
+#include "framebuffer2d.h"
 
 #include <array>
 

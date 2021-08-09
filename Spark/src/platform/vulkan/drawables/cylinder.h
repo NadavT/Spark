@@ -1,5 +1,6 @@
+#ifndef SPARK_VULKAN_CYLINDER_H
+#define SPARK_VULKAN_CYLINDER_H
 
-#pragma once
 #include "platform/vulkan/drawables/vulkan_drawable.h"
 #include "platform/vulkan/renderer.h"
 #include "platform/vulkan/vertex/vertex3d.h"
@@ -40,3 +41,5 @@ class VulkanCylinder : public virtual Cylinder, public virtual VulkanDrawablePri
     std::vector<uint32_t> m_indices;
 };
 } // namespace Spark::Render
+
+#endif /* SPARK_VULKAN_CYLINDER_H */

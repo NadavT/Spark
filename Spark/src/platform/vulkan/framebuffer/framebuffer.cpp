@@ -3,18 +3,18 @@
 namespace Spark::Render
 {
 VulkanFramebuffer::VulkanFramebuffer(VulkanContext &context, VkImageView renderTarget, bool clear, bool resolve)
-    : m_context(context)
+    : m_clear(clear)
+    , m_resolve(resolve)
+    , m_context(context)
     , m_renderPass(VK_NULL_HANDLE)
     , m_swapChainFramebuffers()
     , m_renderTarget(renderTarget)
-    , m_clear(clear)
-    , m_resolve(resolve)
 {
 }
 
 VulkanFramebuffer::~VulkanFramebuffer()
 {
-    cleanup();
+    VulkanFramebuffer::cleanup();
 }
 
 void VulkanFramebuffer::cleanup()

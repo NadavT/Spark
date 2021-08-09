@@ -3,7 +3,6 @@ project(spark)
 set(CMAKE_CXX_CLANG_TIDY "clang-tidy;-warnings-as-errors=*;-extra-arg=/EHsc")
 # Declare spark library
 add_library(spark SHARED)
-set(CMAKE_CXX_CLANG_TIDY "")
 
 # Add sources to spark
 add_subdirectory(spark)

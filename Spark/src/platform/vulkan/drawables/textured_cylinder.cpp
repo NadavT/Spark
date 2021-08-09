@@ -10,10 +10,10 @@ VulkanTexturedCylinder::VulkanTexturedCylinder(VulkanRenderer &renderer, glm::ve
                                                float topRadius, float height, int sectors, int stacks,
                                                const VulkanTexture &texture, const VulkanTexture &specularTexture,
                                                glm::vec3 scale)
-    : VulkanCylinder(renderer, position, baseRadius, topRadius, height, sectors, stacks, scale)
-    , VulkanTexturedDrawable(texture, specularTexture)
+    : Drawable3D(position, scale)
     , Cylinder(position, baseRadius, topRadius, height, sectors, stacks, scale)
-    , Drawable3D(position, scale)
+    , VulkanCylinder(renderer, position, baseRadius, topRadius, height, sectors, stacks, scale)
+    , VulkanTexturedDrawable(texture, specularTexture)
 {
 }
 } // namespace Spark::Render

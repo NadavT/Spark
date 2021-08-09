@@ -58,12 +58,12 @@ VulkanPipeline::VulkanPipeline(VulkanContext &context, VulkanFramebuffer &frameb
     m_colorBlendState.blendConstants[2] = 0.0f;
     m_colorBlendState.blendConstants[3] = 0.0f;
 
-    recreate();
+    VulkanPipeline::recreate();
 }
 
 VulkanPipeline::~VulkanPipeline()
 {
-    cleanup();
+    VulkanPipeline::cleanup();
 }
 
 void VulkanPipeline::cleanup()
@@ -274,8 +274,9 @@ void VulkanPipeline::updateBufferDescriptorSets(unsigned int amount, std::vector
 void VulkanPipeline::updateBufferDescriptorSet(std::vector<VkDescriptorSet> &set, std::vector<VkBuffer> uniform,
                                                VkDeviceSize range)
 {
-    updateBufferDescriptorSets(1, std::vector<std::vector<VkDescriptorSet>>({set}),
-                               std::vector<std::vector<VkBuffer>>({uniform}), range);
+    std::vector<std::vector<VkDescriptorSet>> setOfSets;
+    setOfSets.push_back(set);
+    updateBufferDescriptorSets(1, setOfSets, std::vector<std::vector<VkBuffer>>({uniform}), range);
 }
 
 void VulkanPipeline::updateTextureDescriptorSets(unsigned int amount, std::vector<std::vector<VkDescriptorSet>> &sets,

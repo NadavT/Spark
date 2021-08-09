@@ -1,4 +1,5 @@
-#pragma once
+#ifndef SPARK_VULKAN_LAYER_RENDERER_2D_H
+#define SPARK_VULKAN_LAYER_RENDERER_2D_H
 
 #include "platform/vulkan/pipeline/pipeline2d.h"
 #include "platform/vulkan/renderer.h"
@@ -42,3 +43,5 @@ class VulkanLayerRenderer2D : public LayerRenderer
     bool m_isRecreationNeeded;
 };
 } // namespace Spark::Render
+
+#endif /* SPARK_VULKAN_LAYER_RENDERER_2D_H */

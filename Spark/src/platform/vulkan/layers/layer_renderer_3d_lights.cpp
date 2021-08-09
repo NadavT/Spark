@@ -54,7 +54,7 @@ VulkanLayerRenderer3DLights::~VulkanLayerRenderer3DLights()
 {
     if (m_isAttached)
     {
-        OnDetach();
+        VulkanLayerRenderer3DLights::OnDetach();
     }
 
     for (int i = 0; i < m_commandBuffers.size(); i++)
@@ -95,9 +95,11 @@ void VulkanLayerRenderer3DLights::OnAttach()
     for (auto &drawable : m_drawables)
     {
         VulkanDrawable *vulkanDrawable = dynamic_cast<VulkanDrawable *>(drawable.get());
+        SPARK_CORE_ASSERT(vulkanDrawable != nullptr, "Got a null drawble");
         if (vulkanDrawable->getDrawableType() == VulkanDrawableType::Textured)
         {
             VulkanTexturedDrawable *texturedDrawable = dynamic_cast<VulkanTexturedDrawable *>(vulkanDrawable);
+            SPARK_CORE_ASSERT(texturedDrawable != nullptr, "Got a null drawble");
             if (m_textureDescriptorOffset.find(texturedDrawable->getTexture().getName()) ==
                 m_textureDescriptorOffset.end())
             {
@@ -195,8 +197,6 @@ void VulkanLayerRenderer3DLights::OnRender()
         m_isRecreationNeeded = false;
     }
 
-    int i = 0;
-
     for (size_t i = 0; i < m_drawables.size(); i++)
     {
         VulkanDrawable *drawable = dynamic_cast<VulkanDrawable *>(m_drawables[i].get());
@@ -286,6 +286,7 @@ void VulkanLayerRenderer3DLights::addDrawable(std::shared_ptr<Drawable> &drawabl
     LayerRenderer::addDrawable(drawable);
 
     VulkanDrawable *vulkanDrawable = dynamic_cast<VulkanDrawable *>(drawable.get());
+    SPARK_CORE_ASSERT(vulkanDrawable != nullptr, "Got a null drawble");
     if (m_isAttached)
     {
         if (m_uniformTransformations.size() < m_drawables.size())
@@ -302,6 +303,7 @@ void VulkanLayerRenderer3DLights::addDrawable(std::shared_ptr<Drawable> &drawabl
         if (vulkanDrawable->getDrawableType() == VulkanDrawableType::Textured)
         {
             VulkanTexturedDrawable *texturedDrawable = dynamic_cast<VulkanTexturedDrawable *>(vulkanDrawable);
+            SPARK_CORE_ASSERT(texturedDrawable != nullptr, "Got a null drawble");
             if (m_textureDescriptorOffset.find(texturedDrawable->getTexture().getName()) ==
                 m_textureDescriptorOffset.end())
             {
@@ -403,9 +405,11 @@ void VulkanLayerRenderer3DLights::createCommandBuffers()
             for (size_t j = 0; j < m_drawables.size(); j++)
             {
                 VulkanDrawable *drawable = dynamic_cast<VulkanDrawable *>(m_drawables[j].get());
+                SPARK_CORE_ASSERT(drawable != nullptr, "Got a null drawble");
                 if (drawable->getDrawableType() == VulkanDrawableType::Textured)
                 {
                     VulkanTexturedDrawable *texturedDrawable = dynamic_cast<VulkanTexturedDrawable *>(drawable);
+                    SPARK_CORE_ASSERT(texturedDrawable != nullptr, "Got a null drawble");
                     std::vector<const VulkanRenderPrimitive *> primitives = drawable->getRenderPrimitives();
                     pushConsts.calcLight = true;
                     m_pipeline->bind(
@@ -435,6 +439,7 @@ void VulkanLayerRenderer3DLights::createCommandBuffers()
                 else if (drawable->getDrawableType() == VulkanDrawableType::Colored)
                 {
                     VulkanColoredDrawable *coloredDrawable = dynamic_cast<VulkanColoredDrawable *>(drawable);
+                    SPARK_CORE_ASSERT(coloredDrawable != nullptr, "Got a null drawble");
                     std::vector<const VulkanRenderPrimitive *> primitives = drawable->getRenderPrimitives();
                     auto pointLight =
                         std::find_if(m_pointLights.begin(), m_pointLights.end(), [&drawable](VulkanPointLight *x) {

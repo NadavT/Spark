@@ -20,7 +20,7 @@ VulkanPipeline2D::VulkanPipeline2D(VulkanContext &context, VulkanFramebuffer &fr
 
 VulkanPipeline2D::~VulkanPipeline2D()
 {
-    cleanup();
+    VulkanPipeline2D::cleanup();
 }
 
 void VulkanPipeline2D::cleanup()

@@ -1,4 +1,5 @@
-#pragma once
+#ifndef SPARK_VULKAN_TEXTURE_IMAGE_H
+#define SPARK_VULKAN_TEXTURE_IMAGE_H
 
 #include "spark/resource/resource.h"
 
@@ -22,3 +23,5 @@ class VulkanTextureImage : public Resource
     VkImageView m_textureImageView;
 };
 } // namespace Spark::Render
+
+#endif /* SPARK_VULKAN_TEXTURE_IMAGE_H */

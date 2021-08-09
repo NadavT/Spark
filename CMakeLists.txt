@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.7.2)
+cmake_minimum_required(VERSION 3.17)
 project(spark_app)
 
 set(APP_EXECUTABLE_PATH ${PROJECT_BINARY_DIR}/Sandbox)

@@ -1,4 +1,5 @@
-#pragma once
+#ifndef SPARK_VULKAN_PIPELINE3D_WIREFRAME_H
+#define SPARK_VULKAN_PIPELINE3D_WIREFRAME_H
 
 #include "platform/vulkan/pipeline/pipeline3d.h"
 #include "platform/vulkan/vertex/vertex3d.h"
@@ -32,6 +33,7 @@ class VulkanPipeline3DWireframe : public VulkanPipeline
                                                  std::vector<VkBuffer> transformationUniforms);
 
   private:
+    using VulkanPipeline::bind;
     void createDescriptorSetLayout();
     void createGraphicsPipeline();
 
@@ -40,3 +42,5 @@ class VulkanPipeline3DWireframe : public VulkanPipeline
     VkDescriptorSetLayout m_transformationDescriptorSetLayout;
 };
 } // namespace Spark::Render
+
+#endif /* SPARK_VULKAN_PIPELINE3D_WIREFRAME_H */

@@ -1,4 +1,5 @@
-#pragma once
+#ifndef SPARK_VULKAN_FRAMEBUFFER3D_H
+#define SPARK_VULKAN_FRAMEBUFFER3D_H
 
 #include "platform/vulkan/framebuffer/framebuffer.h"
 
@@ -29,3 +30,5 @@ class VulkanFramebuffer3D : public VulkanFramebuffer
     VkImageView m_depthImageView;
 };
 } // namespace Spark::Render
+
+#endif /* SPARK_VULKAN_FRAMEBUFFER3D_H */

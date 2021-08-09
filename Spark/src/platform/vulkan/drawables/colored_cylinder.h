@@ -1,4 +1,5 @@
-#pragma once
+#ifndef SPARK_VULKAN_COLORED_CYLINDER_H
+#define SPARK_VULKAN_COLORED_CYLINDER_H
 #include "platform/vulkan/drawables/colored_drawable.h"
 #include "platform/vulkan/drawables/cylinder.h"
 
@@ -11,3 +12,5 @@ class VulkanColoredCylinder : public virtual VulkanCylinder, public virtual Vulk
                           int sectors, int stacks, glm::vec3 color, glm::vec3 scale = glm::vec3(1.0));
 };
 } // namespace Spark::Render
+
+#endif /* SPARK_VULKAN_COLORED_CYLINDER_H */
