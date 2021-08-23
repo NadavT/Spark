@@ -56,13 +56,27 @@ VulkanSphere::VulkanSphere(VulkanSphere &&other) noexcept
 
 VulkanSphere &VulkanSphere::operator=(const VulkanSphere &other)
 {
-    copySphere(other);
+    if (this != &other)
+    {
+        if (m_vertexBuffer != VK_NULL_HANDLE)
+        {
+            vkDestroyBuffer(m_context.m_device, m_vertexBuffer, nullptr);
+        }
+        if (m_vertexBufferMemory != VK_NULL_HANDLE)
+        {
+            vkFreeMemory(m_context.m_device, m_vertexBufferMemory, nullptr);
+        }
+        copySphere(other);
+    }
     return *this;
 }
 
 VulkanSphere &VulkanSphere::operator=(VulkanSphere &&other) noexcept
 {
-    moveSphere(other);
+    if (this != &other)
+    {
+        moveSphere(other);
+    }
     return *this;
 }
 

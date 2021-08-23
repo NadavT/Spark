@@ -20,8 +20,6 @@ class VulkanTexturedDrawable : public virtual VulkanDrawable
     VulkanTexturedDrawable(const VulkanTexture &texture, const VulkanTexture &specularTexture);
     VulkanTexturedDrawable(const VulkanTexturedDrawable &other);
     VulkanTexturedDrawable(VulkanTexturedDrawable &&other) noexcept;
-    VulkanTexturedDrawable &operator=(const VulkanTexturedDrawable &other);
-    VulkanTexturedDrawable &operator=(VulkanTexturedDrawable &&other) noexcept;
     const VulkanTexture &m_texture;
     const VulkanTexture &m_specularTexture;
 };

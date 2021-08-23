@@ -54,13 +54,27 @@ VulkanMesh::VulkanMesh(VulkanMesh &&other) noexcept
 
 VulkanMesh &VulkanMesh::operator=(const VulkanMesh &other)
 {
-    copyMesh(other);
+    if (this != &other)
+    {
+        if (m_vertexBuffer != VK_NULL_HANDLE)
+        {
+            vkDestroyBuffer(m_renderer.m_context.m_device, m_vertexBuffer, nullptr);
+        }
+        if (m_vertexBufferMemory != VK_NULL_HANDLE)
+        {
+            vkFreeMemory(m_renderer.m_context.m_device, m_vertexBufferMemory, nullptr);
+        }
+        copyMesh(other);
+    }
     return *this;
 }
 
 VulkanMesh &VulkanMesh::operator=(VulkanMesh &&other) noexcept
 {
-    moveMesh(other);
+    if (this != &other)
+    {
+        moveMesh(other);
+    }
     return *this;
 }
 

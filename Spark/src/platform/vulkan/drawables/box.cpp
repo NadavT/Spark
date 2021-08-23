@@ -90,13 +90,27 @@ VulkanBox::VulkanBox(VulkanBox &&other) noexcept
 
 VulkanBox &VulkanBox::operator=(const VulkanBox &other)
 {
-    copyCube(other);
+    if (this != &other)
+    {
+        if (m_vertexBuffer != VK_NULL_HANDLE)
+        {
+            vkDestroyBuffer(m_context.m_device, m_vertexBuffer, nullptr);
+        }
+        if (m_vertexBufferMemory != VK_NULL_HANDLE)
+        {
+            vkFreeMemory(m_context.m_device, m_vertexBufferMemory, nullptr);
+        }
+        copyCube(other);
+    }
     return *this;
 }
 
 VulkanBox &VulkanBox::operator=(VulkanBox &&other) noexcept
 {
-    moveCube(other);
+    if (this != &other)
+    {
+        moveCube(other);
+    }
     return *this;
 }
 

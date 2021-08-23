@@ -57,13 +57,27 @@ VulkanCylinder::VulkanCylinder(VulkanCylinder &&other) noexcept
 
 VulkanCylinder &VulkanCylinder::operator=(const VulkanCylinder &other)
 {
-    copyCylinder(other);
+    if (this != &other)
+    {
+        if (m_vertexBuffer != VK_NULL_HANDLE)
+        {
+            vkDestroyBuffer(m_context.m_device, m_vertexBuffer, nullptr);
+        }
+        if (m_vertexBufferMemory != VK_NULL_HANDLE)
+        {
+            vkFreeMemory(m_context.m_device, m_vertexBufferMemory, nullptr);
+        }
+        copyCylinder(other);
+    }
     return *this;
 }
 
 VulkanCylinder &VulkanCylinder::operator=(VulkanCylinder &&other) noexcept
 {
-    moveCylinder(other);
+    if (this != &other)
+    {
+        moveCylinder(other);
+    }
     return *this;
 }
 

@@ -62,13 +62,27 @@ VulkanQuad::VulkanQuad(VulkanQuad &&other) noexcept
 
 VulkanQuad &VulkanQuad::operator=(const VulkanQuad &other)
 {
-    copyQuad(other);
+    if (this != &other)
+    {
+        if (m_vertexBuffer != VK_NULL_HANDLE)
+        {
+            vkDestroyBuffer(m_context.m_device, m_vertexBuffer, nullptr);
+        }
+        if (m_vertexBufferMemory != VK_NULL_HANDLE)
+        {
+            vkFreeMemory(m_context.m_device, m_vertexBufferMemory, nullptr);
+        }
+        copyQuad(other);
+    }
     return *this;
 }
 
 VulkanQuad &VulkanQuad::operator=(VulkanQuad &&other) noexcept
 {
-    moveQuad(other);
+    if (this != &other)
+    {
+        moveQuad(other);
+    }
     return *this;
 }
 
