@@ -55,7 +55,7 @@ class VulkanLayerRenderer3DModel : public LayerRenderer
 
     void createResourcesForDrawables(std::vector<std::shared_ptr<Drawable>> &drawables);
     void destroyResourcesForDrawable(Drawable *drawable);
-    void createResourcesForTexutredDrawable(VulkanTexturedDrawable &drawable,
+    void createResourcesForTexturedDrawable(VulkanTexturedDrawable &drawable,
                                             std::vector<std::vector<VkImageView>> &textures,
                                             std::vector<std::vector<VkSampler>> &samplers,
                                             std::vector<std::vector<VkImageView>> &specularTextures,

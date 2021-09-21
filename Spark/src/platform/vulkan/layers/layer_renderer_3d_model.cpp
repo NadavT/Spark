@@ -391,7 +391,7 @@ void VulkanLayerRenderer3DModel::createResourcesForDrawables(std::vector<std::sh
         {
             VulkanTexturedDrawable *texturedDrawable = dynamic_cast<VulkanTexturedDrawable *>(vulkanDrawable);
             SPARK_CORE_ASSERT(texturedDrawable != nullptr, "Couldn't convert drawable to textured drawable");
-            createResourcesForTexutredDrawable(*texturedDrawable, textures, samplers, specularTextures,
+            createResourcesForTexturedDrawable(*texturedDrawable, textures, samplers, specularTextures,
                                                specularSamplers);
         }
         else if (vulkanDrawable->getDrawableType() == VulkanDrawableType::Model)
@@ -429,7 +429,7 @@ void VulkanLayerRenderer3DModel::destroyResourcesForDrawable(Drawable *drawable)
     destroyDrawableResources(drawable);
 }
 
-void VulkanLayerRenderer3DModel::createResourcesForTexutredDrawable(
+void VulkanLayerRenderer3DModel::createResourcesForTexturedDrawable(
     VulkanTexturedDrawable &drawable, std::vector<std::vector<VkImageView>> &textures,
     std::vector<std::vector<VkSampler>> &samplers, std::vector<std::vector<VkImageView>> &specularTextures,
     std::vector<std::vector<VkSampler>> &specularSamplers)
