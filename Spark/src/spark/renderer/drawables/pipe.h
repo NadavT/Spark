@@ -31,6 +31,7 @@ SPARK_API std::unique_ptr<Drawable3D> createPipe(std::vector<glm::vec3> position
                                                  glm::vec3 scale = glm::vec3(1.0));
 SPARK_API std::unique_ptr<Drawable3D> createPipe(std::vector<glm::vec3> positions, float radius, glm::vec3 color,
                                                  int sectors = 36, glm::vec3 scale = glm::vec3(1.0));
+
 } // namespace Spark::Render
 
 #endif /* SPARK_RENDER_PIPE_H */

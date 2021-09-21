@@ -81,6 +81,16 @@ VulkanPipe &VulkanPipe::operator=(VulkanPipe &&other) noexcept
     return *this;
 }
 
+void VulkanPipe::fillCommandBuffer(VkCommandBuffer commandBuffer) const
+{
+    VkBuffer buff[] = {m_vertexBuffer};
+    VkDeviceSize offsets[] = {m_verticesOffset};
+
+    vkCmdBindVertexBuffers(commandBuffer, 0, 1, buff, offsets);
+    vkCmdBindIndexBuffer(commandBuffer, m_vertexBuffer, m_indicesOffset, VK_INDEX_TYPE_UINT32);
+    vkCmdDrawIndexed(commandBuffer, static_cast<uint32_t>(m_indices.size()), 1, 0, 0, 0);
+}
+
 void VulkanPipe::fillVeticesAndIndices()
 {
     // Create base and top center vertices
