@@ -1,9 +1,5 @@
 #include "colored_sphere.h"
 
-#include "platform/vulkan/renderer.h"
-
-#include "spark/core/application.h"
-
 namespace Spark::Render
 {
 VulkanColoredSphere::VulkanColoredSphere(VulkanRenderer &renderer, glm::vec3 position, int sectors, int stacks,

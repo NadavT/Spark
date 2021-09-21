@@ -1,9 +1,5 @@
 #include "textured_cylinder.h"
 
-#include "platform/vulkan/renderer.h"
-
-#include "spark/core/application.h"
-
 namespace Spark::Render
 {
 VulkanTexturedCylinder::VulkanTexturedCylinder(VulkanRenderer &renderer, glm::vec3 position, float baseRadius,

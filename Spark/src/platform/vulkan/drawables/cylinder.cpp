@@ -1,9 +1,5 @@
 #include "cylinder.h"
 
-#include "platform/vulkan/renderer.h"
-
-#include "spark/core/application.h"
-
 namespace Spark::Render
 {
 

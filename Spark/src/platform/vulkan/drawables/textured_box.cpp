@@ -1,9 +1,5 @@
 #include "textured_box.h"
 
-#include "platform/vulkan/renderer.h"
-
-#include "spark/core/application.h"
-
 namespace Spark::Render
 {
 VulkanTexturedBox::VulkanTexturedBox(VulkanRenderer &renderer, glm::vec3 position, const VulkanTexture &texture,
