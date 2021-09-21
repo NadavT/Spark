@@ -28,6 +28,7 @@
 #include "spark/objects/cylinder.h"
 #include "spark/objects/model.h"
 #include "spark/objects/object.h"
+#include "spark/objects/pipe.h"
 #include "spark/objects/sphere.h"
 
 //---------DRAWABLES--------
