@@ -174,7 +174,7 @@ std::vector<Vertex3D> VulkanPipe::getFirstContour()
     SPARK_CORE_ASSERT(m_positions.size() > 1, "Pipe must have at least two points");
     std::vector<glm::vec3> countour = buildCircle();
     std::vector<Vertex3D> contourVertices;
-    glm::mat4 transform = glm::lookAt(m_positions[0], {m_positions[1] - m_positions[0]}, {0, 0, 1});
+    glm::mat4 transform = glm::lookAt(m_positions[0], {m_positions[1] - m_positions[0]}, {0, 1, 0});
     glm::translate(transform, m_positions[0]);
     int index = 0;
     for (glm::vec3 &point : countour)
@@ -199,13 +199,14 @@ std::vector<Vertex3D> VulkanPipe::projectContour(glm::vec3 position, glm::vec3 f
     for (const Vertex3D &point : previousContour)
     {
         glm::vec3 dir = (position - from);
-        float t = -(normal.x * point.pos.x + normal.y * point.pos.y + normal.z * point.pos.z) /
+        float planeD = -(normal.x * position.x + normal.y * position.y + normal.z * position.z);
+        float t = -(normal.x * point.pos.x + normal.y * point.pos.y + normal.z * point.pos.z + planeD) /
                   (normal.x * dir.x + normal.y * dir.y + normal.z * dir.z);
         glm::vec3 pointPosition = point.pos + t * dir;
         float tex_s = (float)index / m_sectors;
         float tex_t = 1.0f;
-        glm::vec3 normal = glm::normalize(pointPosition - position);
-        contourVertices.push_back({pointPosition, {tex_s, tex_t}, normal});
+        glm::vec3 pointNormal = glm::normalize(pointPosition - position);
+        contourVertices.push_back({pointPosition, {tex_s, tex_t}, pointNormal});
         index++;
     }
     return contourVertices;
