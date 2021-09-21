@@ -4,7 +4,7 @@
 
 namespace Spark
 {
-Pipe::Pipe(std::vector<glm::vec3> positions, float radius, glm::vec3 color, int sectors, int stacks)
+Pipe::Pipe(std::vector<glm::vec3> positions, float radius, glm::vec3 color, int sectors)
 {
 }
 } // namespace Spark

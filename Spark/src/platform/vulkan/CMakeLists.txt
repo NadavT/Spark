@@ -48,6 +48,7 @@ target_sources(spark
     PRIVATE "drawables/sphere.cpp"
     PRIVATE "drawables/point_light.cpp"
     PRIVATE "drawables/model.cpp"
+    PRIVATE "drawables/pipe.cpp"
     PRIVATE "drawables/vulkan_drawable.cpp"
     )
    

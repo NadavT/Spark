@@ -21,11 +21,15 @@ class VulkanPipe : public virtual Pipe, public virtual VulkanDrawablePrimitive
     virtual void fillCommandBuffer(VkCommandBuffer commandBuffer) const;
 
   protected:
-    VulkanPipe(VulkanRenderer &renderer, std::vector<glm::vec3> positions, float radius, int sectors, int stacks,
+    VulkanPipe(VulkanRenderer &renderer, std::vector<glm::vec3> positions, float radius, int sectors,
                glm::vec3 scale = glm::vec3(1.0));
 
   private:
     void fillVeticesAndIndices();
+    std::vector<Vertex3D> getFirstContour();
+    std::vector<Vertex3D> projectContour(glm::vec3 position, glm::vec3 from, glm::vec3 to,
+                                         std::vector<Vertex3D> previousContour);
+    std::vector<glm::vec3> buildCircle();
 
     void copyPipe(const VulkanPipe &other);
     void movePipe(VulkanPipe &other) noexcept;

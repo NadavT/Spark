@@ -30,6 +30,7 @@ target_sources(spark
     PRIVATE "renderer/drawables/point_light.cpp"
     PRIVATE "renderer/drawables/sphere.cpp"
     PRIVATE "renderer/drawables/cylinder.cpp"
+    PRIVATE "renderer/drawables/pipe.cpp"
     PRIVATE "overlay/overlay.cpp"
     PRIVATE "objects/object.cpp"
     PRIVATE "objects/sphere.cpp"

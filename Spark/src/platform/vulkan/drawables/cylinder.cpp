@@ -178,12 +178,12 @@ void VulkanCylinder::fillVeticesAndIndices()
     unsigned int k1, k2;
     for (int i = 0; i < m_stacks; ++i)
     {
-        k1 = 2 + i * (m_sectors + 1); // bebinning of current stack
+        k1 = 2 + i * (m_sectors + 1); // beginning of current stack
         k2 = k1 + m_sectors + 1;      // beginning of next stack
 
         for (int j = 0; j < m_sectors; ++j, ++k1, ++k2)
         {
-            // 2 trianles per sector
+            // 2 triangles per sector
             m_indices.push_back(k1);
             m_indices.push_back(k1 + 1);
             m_indices.push_back(k2);
