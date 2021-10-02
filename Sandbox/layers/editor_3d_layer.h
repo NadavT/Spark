@@ -8,6 +8,11 @@ enum class Axis
     Y,
     Z
 };
+enum class Transform
+{
+    Move,
+    Rotate
+};
 class Editor3DLayer : public Spark::Layer3D
 {
   public:
@@ -22,6 +27,7 @@ class Editor3DLayer : public Spark::Layer3D
 
   private:
     std::shared_ptr<Spark::Object3D> createArrow(glm::vec3 color);
+    std::shared_ptr<Spark::Object3D> createRing(glm::vec3 color);
 
     bool handleMouseMoved(Spark::MouseMovedEvent &e);
     bool handleKeyPressed(Spark::KeyPressedEvent &e);
@@ -33,12 +39,13 @@ class Editor3DLayer : public Spark::Layer3D
     Spark::Object3D *m_objectToEdit;
 
     std::shared_ptr<Spark::Object3D> m_xArrow;
-    std::shared_ptr<Spark::Object3D> m_highlightedXArrow;
     std::shared_ptr<Spark::Object3D> m_yArrow;
-    std::shared_ptr<Spark::Object3D> m_highlightedYArrow;
     std::shared_ptr<Spark::Object3D> m_zArrow;
-    std::shared_ptr<Spark::Object3D> m_highlightedZArrow;
-    Spark::Object3D *m_selectedArrow;
+    std::shared_ptr<Spark::Object3D> m_xRing;
+    std::shared_ptr<Spark::Object3D> m_yRing;
+    std::shared_ptr<Spark::Object3D> m_zRing;
+    Spark::Object3D *m_selectedObject;
+    Transform m_selectedTransform;
     Axis m_selectedAxis;
     float m_originalAxisPosition;
 };

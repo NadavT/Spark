@@ -43,7 +43,12 @@
 //---------PHYSICS----------
 #include "spark/physics/box.h"
 #include "spark/physics/object3d.h"
+#include "spark/physics/pipe.h"
 #include "spark/physics/ray_casting.h"
 #include "spark/physics/sphere.h"
+
+//----------UTILS-----------
+#include "spark/utils/file.h"
+#include "spark/utils/math.h"
 
 #endif /* SPARK_H */

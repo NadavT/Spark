@@ -2,7 +2,7 @@
 
 #include <limits>
 
-std::vector<glm::vec3> buildCircle(float radius, int sectors)
+static std::vector<glm::vec3> buildCircle(float radius, int sectors)
 {
     std::vector<glm::vec3> points;
     float sectorStep = 2 * glm::pi<float>() / sectors;
@@ -49,19 +49,25 @@ Sandbox3DLayer::Sandbox3DLayer(Spark::Application &app)
     // m_objects.push_back(Spark::createModelObject(model, {0, 0, 0}, {0.005, 0.005, 0.005}));
     // addObject(*m_objects.back());
 
-    // m_objects.push_back(Spark::createBox(glm::vec3(0, 0, 0), 1, 1, 1, texture, specularTexture));
-    // addObject(*m_objects.back());
-    // m_objects.push_back(Spark::createBox(glm::vec3(0, 1, 0), 1, 1, 1, texture, specularTexture));
-    // addObject(*m_objects.back());
+    m_objects.push_back(Spark::createBox(glm::vec3(0, 0, 0), 1, 1, 1, texture, specularTexture));
+    addObject(*m_objects.back());
+    m_objects.push_back(Spark::createBox(glm::vec3(0, 1, 0), 1, 1, 1, texture, specularTexture));
+    addObject(*m_objects.back());
     // m_objects.push_back(
     //     Spark::createPipe({{0, 0, 0}, {1, 0, 0}, {2, 1, 0}, {3, 1, 0}, {3, 0, 0}, {2, -1, 0}, {1, -1, 0}, {0, 0, 0}},
     //                       0.1f, texture, specularTexture));
     // m_objects.push_back(Spark::createPipe(buildCircle(0.5f, 64), 0.02f, true, {1, 0, 0}));
     // addObject(*m_objects.back());
+    // m_objects.back()->rotate(glm::radians(90.0f), {0, 1, 0});
+    // m_objects.push_back(Spark::createPipe(buildCircle(0.5f, 64), 0.02f, true, {0, 1, 0}));
+    // addObject(*m_objects.back());
+    // m_objects.back()->rotate(glm::radians(90.0f), {1, 0, 0});
+    // m_objects.push_back(Spark::createPipe(buildCircle(0.5f, 64), 0.02f, true, {0, 0, 1}));
+    // addObject(*m_objects.back());
     // m_objects.back()->setScale({2, 2, 2});
     // m_objects.back()->getDrawable()->setCalculateLight(false);
-    m_objects.push_back(Spark::createPipe({{2, 0, 0}, {2, 1, 0}}, 0.1f, false, texture, specularTexture));
-    addObject(*m_objects.back());
+    // m_objects.push_back(Spark::createPipe({{2, 0, 0}, {2, 1, 0}}, 0.1f, false, texture, specularTexture));
+    // addObject(*m_objects.back());
 
     // m_objects.push_back(Spark::createCylinder(glm::vec3(0, 0, 0), 0.5, 0.5, 2, {0, 0, 1}));
     // addObject(*m_objects.back());

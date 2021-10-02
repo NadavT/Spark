@@ -39,6 +39,7 @@ target_sources(spark
     PRIVATE "objects/box.cpp"
     PRIVATE "objects/model.cpp"
     PRIVATE "utils/file.cpp"
+    PRIVATE "utils/math.cpp"
     PRIVATE "resource/mesh.cpp"
     PRIVATE "resource/model.cpp"
     PRIVATE "resource/texture.cpp"

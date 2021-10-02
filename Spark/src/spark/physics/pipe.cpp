@@ -9,7 +9,7 @@
 namespace Spark::Physics
 {
 Pipe::Pipe(std::vector<glm::vec3> positions, float radius, bool closed)
-    : Object3D(mid_range(positions))
+    : Object3D(midRange(positions))
     , m_positions(positions)
     , m_radius(radius)
     , m_originalRadius(radius)
@@ -41,7 +41,7 @@ void Pipe::setScale(glm::vec3 scale)
 {
     SPARK_CORE_ASSERT(scale.x == scale.y && scale.x == scale.z, "Pipes should be scaled symmetrically");
     m_radius = m_originalRadius * scale.x;
-    Object3D::scale(scale);
+    Object3D::setScale(scale);
 }
 
 const Object3DBounding &Pipe::getBoundingObject() const
