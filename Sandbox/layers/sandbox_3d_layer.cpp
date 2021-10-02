@@ -68,7 +68,7 @@ Sandbox3DLayer::Sandbox3DLayer(Spark::Application &app)
     // Spark::Object3D *arrowBody = m_objects.back().get();
     // m_objects.push_back(Spark::createCylinder(glm::vec3(0, 0, 1.5f), 1, 0, 1, {0, 0, 1}));
     // addObject(*m_objects.back());
-    // m_objects.back()->setParent(arrowBody);
+    // arrowBody->addChild(m_objects.back());
 
     // m_objects.push_back(Spark::createCylinder(glm::vec3(0, 0, 0), 0.5, 0.5, 2, {1, 0, 0}));
     // addObject(*m_objects.back());
