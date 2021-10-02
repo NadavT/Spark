@@ -1,5 +1,7 @@
 #include "editor_3d_layer.h"
 
+#include <memory>
+
 Editor3DLayer::Editor3DLayer(Spark::Render::Camera &camera)
     : Spark::Layer3D("Editor 3d layer", camera)
     , m_camera(camera)
@@ -9,18 +11,18 @@ Editor3DLayer::Editor3DLayer(Spark::Render::Camera &camera)
     , m_originalAxisPosition(0)
 {
 
-    m_xArrow = createArrow({1, 0, 0});
+    m_xArrow = createArrow({0.5f, 0, 0});
     m_xArrow->rotate(glm::radians(90.0f), {0, 1, 0});
     m_xArrow->setAsRelativeTransform();
     float relative = std::max(glm::distance(m_camera.getPosition(), m_xArrow->getPhysicsObject().getPosition()), 2.5f);
     m_xArrow->setScale({relative * 0.05, relative * 0.05, relative * 0.05});
 
-    m_yArrow = createArrow({0, 1, 0});
+    m_yArrow = createArrow({0, 0.5f, 0});
     m_yArrow->rotate(glm::radians(270.0f), {1, 0, 0});
     m_yArrow->setAsRelativeTransform();
     m_yArrow->setScale({relative * 0.05, relative * 0.05, relative * 0.05});
 
-    m_zArrow = createArrow({0, 0, 1});
+    m_zArrow = createArrow({0, 0, 0.5f});
     m_zArrow->setAsRelativeTransform();
     m_zArrow->setScale({relative * 0.05, relative * 0.05, relative * 0.05});
 }
@@ -72,6 +74,8 @@ std::shared_ptr<Spark::Object3D> Editor3DLayer::createArrow(glm::vec3 color)
     addObject(*arrowHead);
     arrowBody->addChild(arrowHead);
     arrowHead->getDrawable()->setCalculateLight(false);
+    auto boundBox = std::make_unique<Spark::Physics::Box>(glm::vec3(0, 0, 0), 1.0f, 1.0f, 2.5f);
+    arrowBody->setPhysicsObject(std::move(boundBox));
     arrowBody->move({0, 0, 1});
     arrowBody->setAsRelativeTransform();
     arrowBody->getDrawable()->setCalculateLight(false);
