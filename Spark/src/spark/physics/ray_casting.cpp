@@ -24,7 +24,7 @@ bool isRayIntersects(Ray3D ray, const Object3D &object)
 
 bool approximatelyEquals(float a, float b)
 {
-    return glm::abs(a - b) < 100 * glm::epsilon<float>();
+    return glm::abs(a - b) < 1000 * glm::epsilon<float>();
 }
 
 bool isPointInTriangle(glm::vec3 point, glm::vec3 t0, glm::vec3 t1, glm::vec3 t2)
@@ -83,8 +83,22 @@ bool isPointInTriangle(glm::vec3 point, glm::vec3 t0, glm::vec3 t1, glm::vec3 t2
     }
     else
     {
-        b = (side0.x * point.y - side0.y * point.x) / (side0.x * side1.y - side0.y * side1.x);
-        a = (side0.y == 0) ? (point.z - b * side1.z) / side0.z : (point.y - b * side1.y) / side0.y;
+        if ((side0.x * side1.y - side0.y * side1.x) == 0)
+        {
+            b = (side0.x * point.z - side0.z * point.x) / (side0.x * side1.z - side0.z * side1.x);
+        }
+        else
+        {
+            b = (side0.x * point.y - side0.y * point.x) / (side0.x * side1.y - side0.y * side1.x);
+        }
+        if (side0.y == 0)
+        {
+            a = (point.z - b * side1.z) / side0.z;
+        }
+        else
+        {
+            a = (point.y - b * side1.y) / side0.y;
+        }
     }
     return b >= 0 && b <= 1 && a >= 0 && a <= 1 && a + b <= 1 &&
            approximatelyEquals(point.x, a * side0.x + b * side1.x) &&
