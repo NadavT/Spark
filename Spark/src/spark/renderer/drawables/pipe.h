@@ -18,19 +18,21 @@ class Pipe : public virtual Drawable3D
     SPARK_API Pipe(Pipe &&other) noexcept = default;
 
   protected:
-    SPARK_API Pipe(std::vector<glm::vec3> positions, float radius, int sectors, glm::vec3 scale = glm::vec3(1.0));
+    SPARK_API Pipe(std::vector<glm::vec3> positions, float radius, bool closed, int sectors,
+                   glm::vec3 scale = glm::vec3(1.0));
 
   protected:
     std::vector<glm::vec3> m_positions;
     float m_radius;
+    bool m_closed;
     int m_sectors;
 };
 
-SPARK_API std::unique_ptr<Drawable3D> createPipe(std::vector<glm::vec3> positions, float radius, const Texture &texture,
-                                                 const Texture &specularTexture, int sectors = 36,
-                                                 glm::vec3 scale = glm::vec3(1.0));
-SPARK_API std::unique_ptr<Drawable3D> createPipe(std::vector<glm::vec3> positions, float radius, glm::vec3 color,
+SPARK_API std::unique_ptr<Drawable3D> createPipe(std::vector<glm::vec3> positions, float radius, bool closed,
+                                                 const Texture &texture, const Texture &specularTexture,
                                                  int sectors = 36, glm::vec3 scale = glm::vec3(1.0));
+SPARK_API std::unique_ptr<Drawable3D> createPipe(std::vector<glm::vec3> positions, float radius, bool closed,
+                                                 glm::vec3 color, int sectors = 36, glm::vec3 scale = glm::vec3(1.0));
 
 } // namespace Spark::Render
 

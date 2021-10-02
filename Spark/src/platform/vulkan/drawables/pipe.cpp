@@ -4,9 +4,9 @@
 
 namespace Spark::Render
 {
-VulkanPipe::VulkanPipe(VulkanRenderer &renderer, std::vector<glm::vec3> positions, float radius, int sectors,
-                       glm::vec3 scale)
-    : Pipe(positions, radius, sectors, scale)
+VulkanPipe::VulkanPipe(VulkanRenderer &renderer, std::vector<glm::vec3> positions, float radius, bool closed,
+                       int sectors, glm::vec3 scale)
+    : Pipe(positions, radius, closed, sectors, scale)
     , m_context(renderer.m_context)
     , m_renderer(renderer)
     , m_vertexBuffer(VK_NULL_HANDLE)
@@ -93,19 +93,44 @@ void VulkanPipe::fillCommandBuffer(VkCommandBuffer commandBuffer) const
 
 void VulkanPipe::fillVeticesAndIndices()
 {
-    // Create base and top center vertices
-    m_vertices.push_back({m_positions.front(), {0.5f, 0.5f}, glm::normalize(m_positions.front() - m_positions[1])});
-    m_vertices.push_back(
-        {m_positions.back(), {0.5f, 0.5f}, glm::normalize(m_positions.back() - m_positions[m_positions.size() - 2])});
+    float full_distance = 0;
+    for (int i = 1; i < m_positions.size(); i++)
+    {
+        full_distance += glm::distance(m_positions[i], m_positions[i - 1]);
+    }
+
+    if (!m_closed)
+    {
+        // Create base and top center vertices
+        m_vertices.push_back({m_positions.front(), {0.5f, 0.5f}, glm::normalize(m_positions.front() - m_positions[1])});
+        m_vertices.push_back({m_positions.back(),
+                              {0.5f, 0.5f},
+                              glm::normalize(m_positions.back() - m_positions[m_positions.size() - 2])});
+    }
 
     // Create contours
     std::vector<std::vector<Vertex3D>> contours;
-    contours.push_back(getFirstContour());
+    contours.push_back(getFirstContour(false));
+    float curr_distance = 0;
     for (int i = 1; i < m_positions.size(); i++)
     {
-        contours.push_back(projectContour(m_positions[i], m_positions[i - 1],
-                                          (i == m_positions.size() - 1) ? m_positions[i] : m_positions[i + 1],
-                                          contours.back()));
+        curr_distance += glm::distance(m_positions[i], m_positions[i - 1]);
+        if (m_closed)
+        {
+            contours.push_back(projectContour(m_positions[i], m_positions[i - 1],
+                                              (i == m_positions.size() - 1) ? m_positions[0] : m_positions[i + 1],
+                                              contours.back(), curr_distance / full_distance));
+        }
+        else
+        {
+            contours.push_back(projectContour(m_positions[i], m_positions[i - 1],
+                                              (i == m_positions.size() - 1) ? m_positions[i] : m_positions[i + 1],
+                                              contours.back(), curr_distance / full_distance));
+        }
+    }
+    if (m_closed)
+    {
+        contours.push_back(getFirstContour(true));
     }
 
     for (const auto &contour : contours)
@@ -116,44 +141,47 @@ void VulkanPipe::fillVeticesAndIndices()
         }
     }
 
-    // Indices for first contour
-    for (int i = 0; i < m_sectors; ++i)
+    if (!m_closed)
     {
-        if (i < (m_sectors - 1))
+        // Indices for first contour
+        for (int i = 0; i < m_sectors; ++i)
         {
-            m_indices.push_back(0);
-            m_indices.push_back(i + 3);
-            m_indices.push_back(i + 2);
+            if (i < (m_sectors - 1))
+            {
+                m_indices.push_back(0);
+                m_indices.push_back(i + 3);
+                m_indices.push_back(i + 2);
+            }
+            else
+            {
+                m_indices.push_back(0);
+                m_indices.push_back(2);
+                m_indices.push_back(i + 2);
+            }
         }
-        else
+        // Indices for last contour
+        for (int i = 0; i < m_sectors; ++i)
         {
-            m_indices.push_back(0);
-            m_indices.push_back(2);
-            m_indices.push_back(i + 2);
-        }
-    }
-    // Indices for last contour
-    for (int i = 0; i < m_sectors; ++i)
-    {
-        if (i < (m_sectors - 1))
-        {
-            m_indices.push_back(1);
-            m_indices.push_back(static_cast<uint32_t>(m_vertices.size()) - 2 - i);
-            m_indices.push_back(static_cast<uint32_t>(m_vertices.size()) - 1 - i);
-        }
-        else
-        {
-            m_indices.push_back(1);
-            m_indices.push_back(static_cast<uint32_t>(m_vertices.size()) - 2);
-            m_indices.push_back(static_cast<uint32_t>(m_vertices.size()) - 1 - i);
+            if (i < (m_sectors - 1))
+            {
+                m_indices.push_back(1);
+                m_indices.push_back(static_cast<uint32_t>(m_vertices.size()) - 2 - i);
+                m_indices.push_back(static_cast<uint32_t>(m_vertices.size()) - 1 - i);
+            }
+            else
+            {
+                m_indices.push_back(1);
+                m_indices.push_back(static_cast<uint32_t>(m_vertices.size()) - 2);
+                m_indices.push_back(static_cast<uint32_t>(m_vertices.size()) - 1 - i);
+            }
         }
     }
     // Indices for middle contours
     unsigned int k1, k2;
-    for (int i = 0; i < m_positions.size() - 1; ++i)
+    for (int i = 0; i < contours.size() - 1; ++i)
     {
-        k1 = 2 + i * (m_sectors + 1); // beginning of current contour
-        k2 = k1 + m_sectors + 1;      // beginning of next contour
+        k1 = ((m_closed) ? 0 : 2) + i * (m_sectors + 1); // beginning of current contour
+        k2 = k1 + m_sectors + 1;                         // beginning of next contour
 
         for (int j = 0; j < m_sectors; ++j, ++k1, ++k2)
         {
@@ -169,19 +197,19 @@ void VulkanPipe::fillVeticesAndIndices()
     }
 }
 
-std::vector<Vertex3D> VulkanPipe::getFirstContour()
+std::vector<Vertex3D> VulkanPipe::getFirstContour(bool asLast)
 {
     SPARK_CORE_ASSERT(m_positions.size() > 1, "Pipe must have at least two points");
     std::vector<glm::vec3> countour = buildCircle();
     std::vector<Vertex3D> contourVertices;
-    glm::mat4 transform = glm::lookAt(m_positions[0], {m_positions[1] - m_positions[0]}, {0, 1, 0});
-    glm::translate(transform, m_positions[0]);
+    glm::mat4 transform = glm::lookAt({0, 0, 0}, m_positions[1] - m_positions[0], {0, 0, 1});
+    transform = glm::translate(glm::mat4(1), m_positions[0]) * transform;
     int index = 0;
     for (glm::vec3 &point : countour)
     {
         glm::vec3 position = transform * glm::vec4(point, 1.0f);
         float s = (float)index / m_sectors;
-        float t = 1.0f;
+        float t = (asLast) ? 1.0f : 0.0f;
         glm::vec3 normal = glm::normalize(position - m_positions[0]);
         contourVertices.push_back({position, {s, t}, normal});
         index++;
@@ -190,7 +218,7 @@ std::vector<Vertex3D> VulkanPipe::getFirstContour()
 }
 
 std::vector<Vertex3D> VulkanPipe::projectContour(glm::vec3 position, glm::vec3 from, glm::vec3 to,
-                                                 std::vector<Vertex3D> previousContour)
+                                                 std::vector<Vertex3D> previousContour, float distance)
 {
     glm::vec3 normal = glm::normalize((position - from) + (to - position));
     std::vector<Vertex3D> countour;
@@ -204,7 +232,7 @@ std::vector<Vertex3D> VulkanPipe::projectContour(glm::vec3 position, glm::vec3 f
                   (normal.x * dir.x + normal.y * dir.y + normal.z * dir.z);
         glm::vec3 pointPosition = point.pos + t * dir;
         float tex_s = (float)index / m_sectors;
-        float tex_t = 1.0f;
+        float tex_t = distance;
         glm::vec3 pointNormal = glm::normalize(pointPosition - position);
         contourVertices.push_back({pointPosition, {tex_s, tex_t}, pointNormal});
         index++;

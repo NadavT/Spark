@@ -8,8 +8,8 @@ namespace Spark::Render
 class VulkanTexturedPipe : public virtual VulkanPipe, public virtual VulkanTexturedDrawable
 {
   public:
-    VulkanTexturedPipe(VulkanRenderer &renderer, std::vector<glm::vec3> positions, float radius, int sectors,
-                       const VulkanTexture &texture, const VulkanTexture &specularTexture,
+    VulkanTexturedPipe(VulkanRenderer &renderer, std::vector<glm::vec3> positions, float radius, bool closed,
+                       int sectors, const VulkanTexture &texture, const VulkanTexture &specularTexture,
                        glm::vec3 scale = glm::vec3(1.0));
 };
 } // namespace Spark::Render

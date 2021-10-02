@@ -5,10 +5,10 @@
 namespace Spark::Render
 {
 VulkanColoredPipe::VulkanColoredPipe(VulkanRenderer &renderer, std::vector<glm::vec3> positions, float radius,
-                                     int sectors, glm::vec3 color, glm::vec3 scale)
-    : Drawable3D(mid_range(positions), scale)
-    , Pipe(positions, radius, sectors, scale)
-    , VulkanPipe(renderer, positions, radius, sectors, scale)
+                                     bool closed, int sectors, glm::vec3 color, glm::vec3 scale)
+    : Drawable3D({0, 0, 0}, scale)
+    , Pipe(positions, radius, closed, sectors, scale)
+    , VulkanPipe(renderer, positions, radius, closed, sectors, scale)
     , VulkanColoredDrawable(color)
 {
 }

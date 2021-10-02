@@ -8,8 +8,8 @@ namespace Spark::Render
 class VulkanColoredPipe : public virtual VulkanPipe, public virtual VulkanColoredDrawable
 {
   public:
-    VulkanColoredPipe(VulkanRenderer &renderer, std::vector<glm::vec3> positions, float radius, int sectors,
-                      glm::vec3 color, glm::vec3 scale = glm::vec3(1.0));
+    VulkanColoredPipe(VulkanRenderer &renderer, std::vector<glm::vec3> positions, float radius, bool closed,
+                      int sectors, glm::vec3 color, glm::vec3 scale = glm::vec3(1.0));
 };
 } // namespace Spark::Render
 
