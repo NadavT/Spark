@@ -9,7 +9,7 @@ namespace Spark::Physics
 class Pipe : public Object3D
 {
   public:
-    SPARK_API Pipe(std::vector<glm::vec3> positions, float radius);
+    SPARK_API Pipe(std::vector<glm::vec3> positions, float radius, bool closed);
     SPARK_API virtual ~Pipe() = default;
 
     SPARK_API virtual void scale(glm::vec3 scale);
@@ -20,9 +20,13 @@ class Pipe : public Object3D
     virtual float getRayDistanceFromObject(Ray3D ray) const;
 
   private:
+    float rayDistanceFromEnd(glm::vec3 source, glm::vec3 next, Ray3D ray) const;
+
+  private:
     std::vector<glm::vec3> m_positions;
     float m_radius;
     float m_originalRadius;
+    bool m_closed;
     BoxBounding m_bounding;
 };
 } // namespace Spark::Physics

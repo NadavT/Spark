@@ -56,12 +56,12 @@ Sandbox3DLayer::Sandbox3DLayer(Spark::Application &app)
     // m_objects.push_back(
     //     Spark::createPipe({{0, 0, 0}, {1, 0, 0}, {2, 1, 0}, {3, 1, 0}, {3, 0, 0}, {2, -1, 0}, {1, -1, 0}, {0, 0, 0}},
     //                       0.1f, texture, specularTexture));
-    m_objects.push_back(Spark::createPipe(buildCircle(0.5f, 64), 0.02f, true, {1, 0, 0}));
-    addObject(*m_objects.back());
-    m_objects.back()->setScale({2, 2, 2});
-    // m_objects.back()->getDrawable()->setCalculateLight(false);
-    // m_objects.push_back(Spark::createPipe({{2, 0, 0}, {2, 1, 0}}, 0.1f, texture, specularTexture));
+    // m_objects.push_back(Spark::createPipe(buildCircle(0.5f, 64), 0.02f, true, {1, 0, 0}));
     // addObject(*m_objects.back());
+    // m_objects.back()->setScale({2, 2, 2});
+    // m_objects.back()->getDrawable()->setCalculateLight(false);
+    m_objects.push_back(Spark::createPipe({{2, 0, 0}, {2, 1, 0}}, 0.1f, false, texture, specularTexture));
+    addObject(*m_objects.back());
 
     // m_objects.push_back(Spark::createCylinder(glm::vec3(0, 0, 0), 0.5, 0.5, 2, {0, 0, 1}));
     // addObject(*m_objects.back());
@@ -80,11 +80,11 @@ Sandbox3DLayer::Sandbox3DLayer(Spark::Application &app)
 
     setDirLight({m_dirLightDirection[0], m_dirLightDirection[1], m_dirLightDirection[2]},
                 {m_dirLightColor[0], m_dirLightColor[1], m_dirLightColor[2]});
-    glm::vec3 spherePos = {0, 0, 0.0f};
-    std::unique_ptr<Spark::Object3D> sphere = Spark::createSphere(spherePos, 0.15f, glm::vec3(0.3f, 0.3f, 0.3f));
-    m_pointLights.push_back(Spark::Render::createPointLight(spherePos, {0, 1, 0}, std::move(sphere), false));
-    m_objects.push_back(m_pointLights.back());
-    addPointLight(*(m_pointLights.back()));
+    // glm::vec3 spherePos = {0, 0, 0.0f};
+    // std::unique_ptr<Spark::Object3D> sphere = Spark::createSphere(spherePos, 0.15f, glm::vec3(0.3f, 0.3f, 0.3f));
+    // m_pointLights.push_back(Spark::Render::createPointLight(spherePos, {0, 1, 0}, std::move(sphere), false));
+    // m_objects.push_back(m_pointLights.back());
+    // addPointLight(*(m_pointLights.back()));
     setSpotLight({m_spotLightColor[0], m_spotLightColor[1], m_spotLightColor[2]});
 }
 
