@@ -33,8 +33,11 @@ class Editor3DLayer : public Spark::Layer3D
     Spark::Object3D *m_objectToEdit;
 
     std::shared_ptr<Spark::Object3D> m_xArrow;
+    std::shared_ptr<Spark::Object3D> m_highlightedXArrow;
     std::shared_ptr<Spark::Object3D> m_yArrow;
+    std::shared_ptr<Spark::Object3D> m_highlightedYArrow;
     std::shared_ptr<Spark::Object3D> m_zArrow;
+    std::shared_ptr<Spark::Object3D> m_highlightedZArrow;
     Spark::Object3D *m_selectedArrow;
     Axis m_selectedAxis;
     float m_originalAxisPosition;

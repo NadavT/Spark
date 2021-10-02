@@ -2,6 +2,13 @@
 
 #include <memory>
 
+static const glm::vec3 X_ARROW_COLOR = {0.5f, 0, 0};
+static const glm::vec3 X_ARROW_HIGHLIGHT_COLOR = {1, 0, 0};
+static const glm::vec3 Y_ARROW_COLOR = {0, 0.5f, 0};
+static const glm::vec3 Y_ARROW_HIGHLIGHT_COLOR = {0, 1, 0};
+static const glm::vec3 Z_ARROW_COLOR = {0, 0, 0.5f};
+static const glm::vec3 Z_ARROW_HIGHLIGHT_COLOR = {0, 0, 1};
+
 Editor3DLayer::Editor3DLayer(Spark::Render::Camera &camera)
     : Spark::Layer3D("Editor 3d layer", camera)
     , m_camera(camera)
@@ -11,18 +18,18 @@ Editor3DLayer::Editor3DLayer(Spark::Render::Camera &camera)
     , m_originalAxisPosition(0)
 {
 
-    m_xArrow = createArrow({0.5f, 0, 0});
+    m_xArrow = createArrow(X_ARROW_COLOR);
     m_xArrow->rotate(glm::radians(90.0f), {0, 1, 0});
     m_xArrow->setAsRelativeTransform();
     float relative = std::max(glm::distance(m_camera.getPosition(), m_xArrow->getPhysicsObject().getPosition()), 2.5f);
     m_xArrow->setScale({relative * 0.05, relative * 0.05, relative * 0.05});
 
-    m_yArrow = createArrow({0, 0.5f, 0});
+    m_yArrow = createArrow(Y_ARROW_COLOR);
     m_yArrow->rotate(glm::radians(270.0f), {1, 0, 0});
     m_yArrow->setAsRelativeTransform();
     m_yArrow->setScale({relative * 0.05, relative * 0.05, relative * 0.05});
 
-    m_zArrow = createArrow({0, 0, 0.5f});
+    m_zArrow = createArrow(Z_ARROW_COLOR);
     m_zArrow->setAsRelativeTransform();
     m_zArrow->setScale({relative * 0.05, relative * 0.05, relative * 0.05});
 }
@@ -149,16 +156,19 @@ bool Editor3DLayer::handleMousePressed(Spark::MouseButtonPressedEvent &e)
             switch (m_selectedAxis)
             {
             case Axis::X:
+                m_xArrow->getDrawable()->setColor(X_ARROW_HIGHLIGHT_COLOR, true);
                 m_originalAxisPosition = Spark::Physics::getClosestPointToRayFromRay(
                                              {{1, 0, 0}, m_xArrow->getPhysicsObject().getPosition()}, mouseRay)
                                              .x;
                 break;
             case Axis::Y:
+                m_yArrow->getDrawable()->setColor(Y_ARROW_HIGHLIGHT_COLOR, true);
                 m_originalAxisPosition = Spark::Physics::getClosestPointToRayFromRay(
                                              {{0, 1, 0}, m_yArrow->getPhysicsObject().getPosition()}, mouseRay)
                                              .y;
                 break;
             case Axis::Z:
+                m_zArrow->getDrawable()->setColor(Z_ARROW_HIGHLIGHT_COLOR, true);
                 m_originalAxisPosition = Spark::Physics::getClosestPointToRayFromRay(
                                              {{0, 0, 1}, m_zArrow->getPhysicsObject().getPosition()}, mouseRay)
                                              .z;
@@ -175,6 +185,9 @@ bool Editor3DLayer::handleMousePressed(Spark::MouseButtonPressedEvent &e)
 bool Editor3DLayer::handleMouseReleased(Spark::MouseButtonReleasedEvent &e)
 {
     m_selectedArrow = nullptr;
+    m_xArrow->getDrawable()->setColor(X_ARROW_COLOR, true);
+    m_yArrow->getDrawable()->setColor(Y_ARROW_COLOR, true);
+    m_zArrow->getDrawable()->setColor(Z_ARROW_COLOR, true);
 
     return false;
 }

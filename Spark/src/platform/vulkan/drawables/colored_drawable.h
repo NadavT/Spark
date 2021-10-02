@@ -13,8 +13,8 @@ class VulkanColoredDrawable : public virtual VulkanDrawable
 
     virtual VulkanDrawableType getDrawableType() const;
 
-    virtual const glm::vec3 &getColor() const;
-    virtual void setColor(glm::vec3 color);
+    virtual const glm::vec3 getColor() const;
+    virtual void setColor(glm::vec3 color, bool childs = false);
 
   protected:
     VulkanColoredDrawable(glm::vec3 color);

@@ -25,6 +25,8 @@ class Drawable
     SPARK_API virtual void unhighlight();
     SPARK_API virtual void setHighlightColor(glm::vec3 color);
     SPARK_API virtual void setHighlightWidth(float width);
+    SPARK_API virtual const glm::vec3 getColor() const;
+    SPARK_API virtual void setColor(glm::vec3 color, bool childs = false);
 
     virtual void setParent(Drawable *parent);
     virtual void removeParent();

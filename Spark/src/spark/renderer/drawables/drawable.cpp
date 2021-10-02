@@ -56,6 +56,19 @@ void Drawable::setHighlightWidth(float width)
     m_highlightWidth = width;
 }
 
+const glm::vec3 Drawable::getColor() const
+{
+    return {0, 0, 0};
+}
+
+void Drawable::setColor(glm::vec3 color, bool childs)
+{
+    for (auto &child : m_childs)
+    {
+        child->setColor(color);
+    }
+}
+
 void Drawable::setParent(Drawable *parent)
 {
     if (m_parent)
