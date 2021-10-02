@@ -15,6 +15,7 @@ class Object3D
 
     SPARK_API virtual std::shared_ptr<Render::Drawable3D> &getDrawable();
     SPARK_API virtual Physics::Object3D &getPhysicsObject() const;
+    SPARK_API virtual void setPhysicsObject(std::unique_ptr<Physics::Object3D> physicsObject);
 
     SPARK_API virtual void move(glm::vec3 position);
     SPARK_API virtual void scale(glm::vec3 scale);
@@ -34,7 +35,7 @@ class Object3D
     SPARK_API virtual std::vector<Object3D *> getChilds() const;
 
   protected:
-    SPARK_API Object3D(std::shared_ptr<Render::Drawable3D> drawable, std::unique_ptr<Physics::Object3D> physicObject);
+    SPARK_API Object3D(std::shared_ptr<Render::Drawable3D> drawable, std::unique_ptr<Physics::Object3D> physicsObject);
     SPARK_API Object3D() = default;
     virtual void setParent(Object3D *parent);
 

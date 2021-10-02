@@ -14,9 +14,15 @@ Physics::Object3D &Object3D::getPhysicsObject() const
     return *m_physicsObject;
 }
 
-Object3D::Object3D(std::shared_ptr<Render::Drawable3D> drawable, std::unique_ptr<Physics::Object3D> physicObject)
+void Object3D::setPhysicsObject(std::unique_ptr<Physics::Object3D> physicsObject)
+{
+    SPARK_CORE_ASSERT(physicsObject != nullptr, "Got invalid physical object");
+    m_physicsObject = std::move(physicsObject);
+}
+
+Object3D::Object3D(std::shared_ptr<Render::Drawable3D> drawable, std::unique_ptr<Physics::Object3D> physicsObject)
     : m_drawable(drawable)
-    , m_physicsObject(std::move(physicObject))
+    , m_physicsObject(std::move(physicsObject))
     , m_parent(nullptr)
     , m_childs()
 {
