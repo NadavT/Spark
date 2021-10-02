@@ -40,6 +40,8 @@ class BoxBounding : public Object3DBounding
     };
     SPARK_API virtual glm::mat4 getTransformation() const;
 
+    virtual float getRayDistanceFromObject(Ray3D ray, glm::mat4 transformation) const;
+
   private:
     glm::mat4 m_translationMatrix;
     glm::mat4 m_scaleMatrix;

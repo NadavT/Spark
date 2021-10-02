@@ -2,6 +2,7 @@
 #define SPARK_PHYSICS_OBJECT3D_H
 
 #include "spark/core/core.h"
+#include "spark/vertex/vertex3d.h"
 
 #include "bounding/object3d_bounding.h"
 
@@ -36,6 +37,8 @@ class Object3D
     SPARK_API virtual glm::mat4 getTransformation() const;
 
     SPARK_API virtual const Object3DBounding &getBoundingObject() const = 0;
+
+    virtual float getRayDistanceFromObject(Ray3D ray) const;
 
     virtual ObjectType getObjectType() const = 0;
 

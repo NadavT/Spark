@@ -1,5 +1,7 @@
 #include "complex_object3d.h"
 
+#include "ray_casting.h"
+
 #include <glm/gtc/matrix_transform.hpp>
 
 namespace Spark::Physics
@@ -26,6 +28,25 @@ const std::vector<std::unique_ptr<Mesh>> &ComplexObject3D::getMeshes() const
 const Object3DBounding &ComplexObject3D::getBoundingObject() const
 {
     return m_bounding;
+}
+
+float ComplexObject3D::getRayDistanceFromObject(Ray3D ray) const
+{
+    glm::mat4 transformation = getTransformation();
+    float distance = -1;
+    for (auto &mesh : getMeshes())
+    {
+        for (auto &face : mesh->getFaces())
+        {
+            float curDistance = getRayDistanceFromFace(ray, face, transformation);
+            if (curDistance != -1 && (distance == -1 || curDistance < distance))
+            {
+                distance = curDistance;
+            }
+        }
+    }
+
+    return distance;
 }
 
 ObjectType ComplexObject3D::getObjectType() const

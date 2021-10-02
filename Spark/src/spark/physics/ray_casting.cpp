@@ -22,38 +22,6 @@ bool isRayIntersects(Ray3D ray, const Object3D &object)
     return getRayDistanceFromObject(ray, object) > 0;
 }
 
-float getRayDistanceFromObject(Ray3D ray, const SphereBounding &sphereBound, glm::mat4 transformation)
-{
-    const float a = 1.0f;
-    glm::vec3 position = glm::vec3(transformation * glm::vec4(0, 0, 0, 1));
-    float b = 2 * glm::dot(ray.direction, ray.source - position);
-    float c =
-        static_cast<float>(glm::pow(glm::length(ray.source - position), 2) - glm::pow(sphereBound.getRadius(), 2));
-    float res = static_cast<float>(glm::pow(b, 2) - (4 * a * c));
-    if (res < 0)
-    {
-        return -1;
-    }
-
-    float sol1 = (-b + glm::sqrt(res)) / (2 * a);
-    float sol2 = (-b - glm::sqrt(res)) / (2 * a);
-
-    if (sol1 < 0 && sol2 < 0)
-    {
-        return -1;
-    }
-    else if (sol1 < 0)
-    {
-        return glm::length(sol2 * ray.direction);
-    }
-    else
-    {
-        float distance1 = glm::length(sol1 * ray.direction);
-        float distance2 = glm::length(sol2 * ray.direction);
-        return (distance1 < distance2) ? distance1 : distance2;
-    }
-}
-
 bool approximatelyEquals(float a, float b)
 {
     return glm::abs(a - b) < 100 * glm::epsilon<float>();
@@ -124,51 +92,6 @@ bool isPointInTriangle(glm::vec3 point, glm::vec3 t0, glm::vec3 t1, glm::vec3 t2
            approximatelyEquals(point.z, a * side0.z + b * side1.z);
 }
 
-float getRayDistanceFromObject(Ray3D ray, const BoxBounding &boxBound, glm::mat4 transformation)
-{
-    glm::vec3 v0 = transformation * glm::vec4(-0.5f, -0.5f, -0.5f, 1.0f);
-    glm::vec3 v1 = transformation * glm::vec4(-0.5f, 0.5f, -0.5f, 1.0f);
-    glm::vec3 v2 = transformation * glm::vec4(0.5f, 0.5f, -0.5f, 1.0f);
-    glm::vec3 v3 = transformation * glm::vec4(0.5f, -0.5f, -0.5f, 1.0f);
-    glm::vec3 v4 = transformation * glm::vec4(-0.5f, -0.5f, 0.5f, 1.0f);
-    glm::vec3 v5 = transformation * glm::vec4(-0.5f, 0.5f, 0.5f, 1.0f);
-    glm::vec3 v6 = transformation * glm::vec4(0.5f, 0.5f, 0.5f, 1.0f);
-    glm::vec3 v7 = transformation * glm::vec4(0.5f, -0.5f, 0.5f, 1.0f);
-
-    glm::vec3 faces[6][4] = {
-        {v0, v3, v2, v1}, {v4, v7, v6, v5}, {v0, v4, v5, v1}, {v1, v2, v6, v5}, {v2, v6, v7, v3}, {v3, v0, v4, v7},
-    };
-
-    float distance = -1;
-    for (int i = 0; i < 6; ++i)
-    {
-        glm::vec3 planeNormal = glm::normalize(glm::cross(faces[i][1] - faces[i][0], faces[i][3] - faces[i][0]));
-        float planeDistance = -glm::dot(faces[i][0], planeNormal);
-        if (glm::dot(ray.direction, planeNormal) == 0)
-        {
-            continue;
-        }
-        float intersection =
-            -(glm::dot(ray.source, planeNormal) + planeDistance) / (glm::dot(ray.direction, planeNormal));
-        if (intersection < 0)
-        {
-            continue;
-        }
-        glm::vec3 intersectionPoint = ray.source + intersection * ray.direction;
-
-        float curDistance = glm::distance(intersectionPoint, ray.source);
-        if (isPointInTriangle(intersectionPoint, faces[i][0], faces[i][3], faces[i][1]) ||
-            isPointInTriangle(intersectionPoint, faces[i][2], faces[i][1], faces[i][3]))
-        {
-            if (distance == -1 || curDistance < distance)
-            {
-                distance = curDistance;
-            }
-        }
-    }
-    return distance;
-}
-
 float getRayDistanceFromFace(Ray3D ray, std::array<Vertex3D, 3> face, glm::mat4 transformation)
 {
     glm::vec3 v0 = transformation * glm::vec4(face[0].pos.x, face[0].pos.y, face[0].pos.z, 1.0f);
@@ -197,56 +120,15 @@ float getRayDistanceFromFace(Ray3D ray, std::array<Vertex3D, 3> face, glm::mat4 
     }
 }
 
-float getRayDistanceFromObject(Ray3D ray, const ComplexObject3D &object)
-{
-    glm::mat4 transformation = object.getTransformation();
-    float distance = -1;
-    for (auto &mesh : object.getMeshes())
-    {
-        for (auto &face : mesh->getFaces())
-        {
-            float curDistance = getRayDistanceFromFace(ray, face, transformation);
-            if (curDistance != -1 && (distance == -1 || curDistance < distance))
-            {
-                distance = curDistance;
-            }
-        }
-    }
-
-    return distance;
-}
-
 float getRayDistanceFromObject(Ray3D ray, const Object3DBounding &objectBound, glm::mat4 transformation)
 {
-    switch (objectBound.getBoundingType())
-    {
-    case Object3DBoundingType::Sphere:
-        return getRayDistanceFromObject(ray, static_cast<const SphereBounding &>(objectBound), transformation);
-    case Object3DBoundingType::Box:
-        return getRayDistanceFromObject(ray, static_cast<const BoxBounding &>(objectBound), transformation);
-    default:
-        SPARK_CORE_ASSERT(false, "Not supporting given bound object for ray casting");
-        return -1;
-    }
+    return objectBound.getRayDistanceFromObject(ray, transformation);
 }
 
 float getRayDistanceFromObject(Ray3D ray, const Object3D &object)
 {
     float shortestDistance;
-    switch (object.getObjectType())
-    {
-    case ObjectType::Simple:
-        shortestDistance =
-            getRayDistanceFromObject(ray, object.getBoundingObject(),
-                                     object.getTransformation() * object.getBoundingObject().getTransformation());
-        break;
-    case ObjectType::Complex:
-        shortestDistance = getRayDistanceFromObject(ray, reinterpret_cast<const ComplexObject3D &>(object));
-        break;
-    default:
-        SPARK_CORE_ASSERT(false, "Not supporting given object for ray casting");
-        return -1;
-    }
+    shortestDistance = object.getRayDistanceFromObject(ray);
 
     for (auto &child : object.getChilds())
     {

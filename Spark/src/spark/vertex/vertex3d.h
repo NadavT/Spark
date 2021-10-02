@@ -22,6 +22,15 @@ struct Vertex3D
         return pos == other.pos && texCoord == other.texCoord && normal == other.normal;
     }
 };
+
+namespace Physics
+{
+struct Ray3D
+{
+    glm::vec3 direction;
+    glm::vec3 source;
+};
+} // namespace Physics
 } // namespace Spark
 
 template <> struct std::hash<Spark::Vertex3D>

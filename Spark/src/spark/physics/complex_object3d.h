@@ -21,6 +21,8 @@ class ComplexObject3D : public Object3D
     const std::vector<std::unique_ptr<Mesh>> &getMeshes() const;
     SPARK_API virtual const Object3DBounding &getBoundingObject() const;
 
+    virtual float getRayDistanceFromObject(Ray3D ray) const;
+
     virtual ObjectType getObjectType() const;
 
   private:

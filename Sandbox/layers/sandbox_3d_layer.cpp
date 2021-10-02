@@ -49,16 +49,16 @@ Sandbox3DLayer::Sandbox3DLayer(Spark::Application &app)
     // m_objects.push_back(Spark::createModelObject(model, {0, 0, 0}, {0.005, 0.005, 0.005}));
     // addObject(*m_objects.back());
 
-    // m_objects.push_back(Spark::createBox(glm::vec3(0, 0, 0), 1, 1, 1, texture, specularTexture));
-    // addObject(*m_objects.back());
-    // m_objects.push_back(Spark::createBox(glm::vec3(0, 1, 0), 1, 1, 1, texture, specularTexture));
-    // addObject(*m_objects.back());
+    m_objects.push_back(Spark::createBox(glm::vec3(0, 0, 0), 1, 1, 1, texture, specularTexture));
+    addObject(*m_objects.back());
+    m_objects.push_back(Spark::createBox(glm::vec3(0, 1, 0), 1, 1, 1, texture, specularTexture));
+    addObject(*m_objects.back());
     // m_objects.push_back(
     //     Spark::createPipe({{0, 0, 0}, {1, 0, 0}, {2, 1, 0}, {3, 1, 0}, {3, 0, 0}, {2, -1, 0}, {1, -1, 0}, {0, 0, 0}},
     //                       0.1f, texture, specularTexture));
-    m_objects.push_back(Spark::createPipe(buildCircle(0.5f, 64), 0.02f, true, {1, 0, 0}));
-    addObject(*m_objects.back());
-    m_objects.back()->getDrawable()->setCalculateLight(false);
+    // m_objects.push_back(Spark::createPipe(buildCircle(0.5f, 64), 0.02f, true, {1, 0, 0}));
+    // addObject(*m_objects.back());
+    // m_objects.back()->getDrawable()->setCalculateLight(false);
     // m_objects.push_back(Spark::createPipe({{2, 0, 0}, {2, 1, 0}}, 0.1f, texture, specularTexture));
     // addObject(*m_objects.back());
 

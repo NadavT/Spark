@@ -34,6 +34,8 @@ class SphereBounding : public Object3DBounding
     };
     SPARK_API virtual glm::mat4 getTransformation() const;
 
+    virtual float getRayDistanceFromObject(Ray3D ray, glm::mat4 transformation) const;
+
   private:
     glm::vec3 m_position;
     float m_radius;

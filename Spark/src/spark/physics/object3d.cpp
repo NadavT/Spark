@@ -72,6 +72,11 @@ glm::mat4 Object3D::getTransformation() const
     }
 }
 
+float Object3D::getRayDistanceFromObject(Ray3D ray) const
+{
+    return getBoundingObject().getRayDistanceFromObject(ray, getTransformation());
+}
+
 void Object3D::setParent(Object3D *parent)
 {
     if (m_parent)
