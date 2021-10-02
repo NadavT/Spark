@@ -23,8 +23,6 @@ class ComplexObject3D : public Object3D
 
     virtual float getRayDistanceFromObject(Ray3D ray) const;
 
-    virtual ObjectType getObjectType() const;
-
   private:
     const std::vector<std::unique_ptr<Mesh>> &m_meshes;
     BoxBounding m_bounding;

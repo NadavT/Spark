@@ -14,10 +14,4 @@ const Object3DBounding &Box::getBoundingObject() const
 {
     return m_bounding;
 }
-
-ObjectType Box::getObjectType() const
-{
-    return ObjectType::Simple;
-}
-
 } // namespace Spark::Physics

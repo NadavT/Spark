@@ -17,7 +17,6 @@ target_sources(spark
     PRIVATE "physics/cylinder.cpp"
     PRIVATE "physics/complex_object3d.cpp"
     PRIVATE "physics/bounding/box_bounding.cpp"
-    PRIVATE "physics/bounding/object3d_bounding.cpp"
     PRIVATE "physics/bounding/sphere_bounding.cpp"
     PRIVATE "renderer/renderer.cpp"
     PRIVATE "renderer/layer_renderer.cpp"

@@ -12,12 +12,6 @@
 
 namespace Spark::Physics
 {
-enum class ObjectType
-{
-    Simple,
-    Complex
-};
-
 class Object3D
 {
   public:
@@ -39,8 +33,6 @@ class Object3D
     SPARK_API virtual const Object3DBounding &getBoundingObject() const = 0;
 
     virtual float getRayDistanceFromObject(Ray3D ray) const;
-
-    virtual ObjectType getObjectType() const = 0;
 
     virtual void setParent(Object3D *parent);
     virtual void removeParent();

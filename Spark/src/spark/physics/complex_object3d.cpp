@@ -49,9 +49,4 @@ float ComplexObject3D::getRayDistanceFromObject(Ray3D ray) const
     return distance;
 }
 
-ObjectType ComplexObject3D::getObjectType() const
-{
-    return ObjectType::Complex;
-}
-
 } // namespace Spark::Physics

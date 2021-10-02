@@ -17,8 +17,6 @@ class Sphere : public Object3D
 
     SPARK_API virtual const Object3DBounding &getBoundingObject() const;
 
-    virtual ObjectType getObjectType() const;
-
   private:
     float m_radius;
     SphereBounding m_bounding;

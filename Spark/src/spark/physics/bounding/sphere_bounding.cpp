@@ -5,7 +5,7 @@
 namespace Spark::Physics
 {
 SphereBounding::SphereBounding(glm::vec3 position, float radius)
-    : Object3DBounding(Object3DBoundingType::Sphere)
+    : Object3DBounding()
     , m_position(position)
     , m_radius(radius)
 {

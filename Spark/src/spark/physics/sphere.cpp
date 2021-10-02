@@ -15,23 +15,18 @@ Sphere::Sphere(glm::vec3 position, float radius)
 
 void Sphere::scale(glm::vec3 scale)
 {
-    SPARK_CORE_ASSERT(scale.x == scale.y && scale.x == scale.z, "Sphere should remain symetrical");
+    SPARK_CORE_ASSERT(scale.x == scale.y && scale.x == scale.z, "Sphere should remain symmetrical");
     m_radius *= scale.x;
 }
 
 void Sphere::setScale(glm::vec3 scale)
 {
-    SPARK_CORE_ASSERT(scale.x == scale.y && scale.x == scale.z, "Sphere should remain symetrical");
+    SPARK_CORE_ASSERT(scale.x == scale.y && scale.x == scale.z, "Sphere should remain symmetrical");
     m_radius = scale.x;
 }
 
 const Object3DBounding &Sphere::getBoundingObject() const
 {
     return m_bounding;
-}
-
-ObjectType Sphere::getObjectType() const
-{
-    return ObjectType::Simple;
 }
 } // namespace Spark::Physics

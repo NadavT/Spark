@@ -21,9 +21,4 @@ const Object3DBounding &Cylinder::getBoundingObject() const
 {
     return m_bounding;
 }
-
-ObjectType Cylinder::getObjectType() const
-{
-    return ObjectType::Simple;
-}
 } // namespace Spark::Physics
