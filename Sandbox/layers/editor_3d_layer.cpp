@@ -163,31 +163,39 @@ bool Editor3DLayer::handleMouseMoved(Spark::MouseMovedEvent &e)
             break;
         case Transform::Rotate:
             glm::vec3 direction;
-            glm::vec3 newRay;
             float angle;
             switch (m_selectedAxis)
             {
             case Axis::X:
                 direction = Spark::getIntersectionNormalRay({0, 0, 0}, {1, 0, 0}, mouseRay);
-                newRay = newPosition - m_objectToEdit->getPhysicsObject().getPosition();
                 angle = glm::acos(glm::dot({0, 0, 1}, direction) /
                                   (glm::length(glm::vec3(0, 0, 1)) * glm::length(direction)));
+                if (direction.y < 0)
+                {
+                    angle = 2 * glm::pi<float>() - angle;
+                }
                 m_objectToEdit->rotate(m_originalAxisPosition - angle, {1, 0, 0});
                 m_originalAxisPosition = angle;
                 break;
             case Axis::Y:
                 direction = Spark::getIntersectionNormalRay({0, 0, 0}, {0, 1, 0}, mouseRay);
-                newRay = newPosition - m_objectToEdit->getPhysicsObject().getPosition();
                 angle = glm::acos(glm::dot({0, 0, 1}, direction) /
                                   (glm::length(glm::vec3(0, 0, 1)) * glm::length(direction)));
+                if (direction.x > 0)
+                {
+                    angle = 2 * glm::pi<float>() - angle;
+                }
                 m_objectToEdit->rotate(m_originalAxisPosition - angle, {0, 1, 0});
                 m_originalAxisPosition = angle;
                 break;
             case Axis::Z:
                 direction = Spark::getIntersectionNormalRay({0, 0, 0}, {0, 0, 1}, mouseRay);
-                newRay = newPosition - m_objectToEdit->getPhysicsObject().getPosition();
-                angle = glm::acos(glm::dot({1, 0, 1}, direction) /
+                angle = glm::acos(glm::dot({1, 0, 0}, direction) /
                                   (glm::length(glm::vec3(1, 0, 0)) * glm::length(direction)));
+                if (direction.y > 0)
+                {
+                    angle = 2 * glm::pi<float>() - angle;
+                }
                 m_objectToEdit->rotate(m_originalAxisPosition - angle, {0, 0, 1});
                 m_originalAxisPosition = angle;
                 break;
@@ -278,18 +286,30 @@ bool Editor3DLayer::handleMousePressed(Spark::MouseButtonPressedEvent &e)
                     direction = Spark::getIntersectionNormalRay({0, 0, 0}, {1, 0, 0}, mouseRay);
                     m_originalAxisPosition = glm::acos(glm::dot({0, 0, 1}, direction) /
                                                        (glm::length(glm::vec3(0, 0, 1)) * glm::length(direction)));
+                    if (direction.y < 0)
+                    {
+                        m_originalAxisPosition = 2 * glm::pi<float>() - m_originalAxisPosition;
+                    }
                     break;
                 case Axis::Y:
                     m_yRing->getDrawable()->setColor(Y_HIGHLIGHT_COLOR, true);
                     direction = Spark::getIntersectionNormalRay({0, 0, 0}, {0, 1, 0}, mouseRay);
                     m_originalAxisPosition = glm::acos(glm::dot({0, 0, 1}, direction) /
                                                        (glm::length(glm::vec3(0, 0, 1)) * glm::length(direction)));
+                    if (direction.x > 0)
+                    {
+                        m_originalAxisPosition = 2 * glm::pi<float>() - m_originalAxisPosition;
+                    }
                     break;
                 case Axis::Z:
                     m_zRing->getDrawable()->setColor(Z_HIGHLIGHT_COLOR, true);
                     direction = Spark::getIntersectionNormalRay({0, 0, 0}, {0, 0, 1}, mouseRay);
                     m_originalAxisPosition = glm::acos(glm::dot({1, 0, 0}, direction) /
                                                        (glm::length(glm::vec3(1, 0, 0)) * glm::length(direction)));
+                    if (direction.y > 0)
+                    {
+                        m_originalAxisPosition = 2 * glm::pi<float>() - m_originalAxisPosition;
+                    }
                     break;
                 }
                 SPARK_INFO("Selected ray axis {0}, position: {1}", m_selectedAxis, m_originalAxisPosition);
