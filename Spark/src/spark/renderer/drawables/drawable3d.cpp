@@ -36,8 +36,12 @@ void Drawable3D::scale(glm::vec3 scale)
     setHighlightWidth(getHighlightWidth() / ((scale.x + scale.y + scale.z) / 3));
 }
 
-void Drawable3D::rotate(float angle, glm::vec3 axis)
+void Drawable3D::rotate(float angle, glm::vec3 axis, bool worldRelative)
 {
+    if (worldRelative)
+    {
+        axis = glm::inverse(m_rotationMatrix) * glm::vec4(axis, 0);
+    }
     m_rotationMatrix = glm::rotate(m_rotationMatrix, angle, axis);
 }
 

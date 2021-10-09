@@ -40,10 +40,10 @@ void Object3D::scale(glm::vec3 scale)
     m_physicsObject->scale(scale);
 }
 
-void Object3D::rotate(float angle, glm::vec3 axis)
+void Object3D::rotate(float angle, glm::vec3 axis, bool worldRelative)
 {
-    m_drawable->rotate(angle, axis);
-    m_physicsObject->rotate(angle, axis);
+    m_drawable->rotate(angle, axis, worldRelative);
+    m_physicsObject->rotate(angle, axis, worldRelative);
 }
 
 void Object3D::setPosition(glm::vec3 position)
