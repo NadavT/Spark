@@ -1,4 +1,5 @@
-#pragma once
+#ifndef SANDBOX_EDITOR_3D_LAYER_H
+#define SANDBOX_EDITOR_3D_LAYER_H
 
 #include <spark.h>
 
@@ -34,6 +35,15 @@ class Editor3DLayer : public Spark::Layer3D
     bool handleMousePressed(Spark::MouseButtonPressedEvent &e);
     bool handleMouseReleased(Spark::MouseButtonReleasedEvent &e);
 
+    void updateEditorObjects();
+
+    void findSelectedObject();
+    void initializeMoveTransform();
+    void initializeRotateTransform();
+
+    void handleMoveTransformUpdate();
+    void handleRotationTransformUpdate();
+
   private:
     Spark::Render::Camera &m_camera;
     Spark::Object3D *m_objectToEdit;
@@ -47,5 +57,8 @@ class Editor3DLayer : public Spark::Layer3D
     Spark::Object3D *m_selectedObject;
     Transform m_selectedTransform;
     Axis m_selectedAxis;
-    float m_originalAxisPosition;
+    float m_originalMoveAxisPosition;
+    float m_originalRotatation;
 };
+
+#endif // SANDBOX_EDITOR_3D_LAYER_H

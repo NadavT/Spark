@@ -30,7 +30,8 @@ Editor3DLayer::Editor3DLayer(Spark::Render::Camera &camera)
     , m_selectedObject(nullptr)
     , m_selectedTransform(Transform::Move)
     , m_selectedAxis(Axis::X)
-    , m_originalAxisPosition(0)
+    , m_originalMoveAxisPosition(0)
+    , m_originalRotatation(0)
 {
 
     m_xArrow = createArrow(X_COLOR);
@@ -59,6 +60,7 @@ Editor3DLayer::Editor3DLayer(Spark::Render::Camera &camera)
 void Editor3DLayer::OnAttach()
 {
     Layer3D::OnAttach();
+    updateEditorObjects();
 }
 
 void Editor3DLayer::OnDetach()
@@ -69,21 +71,7 @@ void Editor3DLayer::OnDetach()
 void Editor3DLayer::OnUpdate(Spark::Time &diffTime)
 {
     Layer3D::OnUpdate(diffTime);
-    auto distanceVector = m_camera.getPosition() - m_xArrow->getPhysicsObject().getPosition();
-    auto planeNormal = glm::normalize(m_camera.getFront());
-    float relative = glm::abs(glm::dot(distanceVector, planeNormal));
-    m_xArrow->setScale({relative * 0.05, relative * 0.05, relative * 0.05});
-    m_yArrow->setScale({relative * 0.05, relative * 0.05, relative * 0.05});
-    m_zArrow->setScale({relative * 0.05, relative * 0.05, relative * 0.05});
-    m_xRing->setScale({relative * 0.05, relative * 0.05, relative * 0.05});
-    m_yRing->setScale({relative * 0.05, relative * 0.05, relative * 0.05});
-    m_zRing->setScale({relative * 0.05, relative * 0.05, relative * 0.05});
-    m_xArrow->setPosition(m_objectToEdit->getPhysicsObject().getPosition());
-    m_yArrow->setPosition(m_objectToEdit->getPhysicsObject().getPosition());
-    m_zArrow->setPosition(m_objectToEdit->getPhysicsObject().getPosition());
-    m_xRing->setPosition(m_objectToEdit->getPhysicsObject().getPosition());
-    m_yRing->setPosition(m_objectToEdit->getPhysicsObject().getPosition());
-    m_zRing->setPosition(m_objectToEdit->getPhysicsObject().getPosition());
+    updateEditorObjects();
 }
 
 void Editor3DLayer::OnEvent(Spark::Event &e)
@@ -131,75 +119,13 @@ bool Editor3DLayer::handleMouseMoved(Spark::MouseMovedEvent &e)
 {
     if (m_selectedObject)
     {
-        Spark::Physics::Ray3D mouseRay = Spark::Physics::getMouseRay(m_camera);
-        float newPosition = 0;
         switch (m_selectedTransform)
         {
         case Transform::Move:
-            switch (m_selectedAxis)
-            {
-            case Axis::X:
-                newPosition = Spark::Physics::getClosestPointToRayFromRay(
-                                  {{1, 0, 0}, m_xArrow->getPhysicsObject().getPosition()}, mouseRay)
-                                  .x;
-                m_objectToEdit->move({newPosition - m_originalAxisPosition, 0, 0});
-                m_originalAxisPosition = newPosition;
-                break;
-            case Axis::Y:
-                newPosition = Spark::Physics::getClosestPointToRayFromRay(
-                                  {{0, 1, 0}, m_yArrow->getPhysicsObject().getPosition()}, mouseRay)
-                                  .y;
-                m_objectToEdit->move({0, newPosition - m_originalAxisPosition, 0});
-                m_originalAxisPosition = newPosition;
-                break;
-            case Axis::Z:
-                newPosition = Spark::Physics::getClosestPointToRayFromRay(
-                                  {{0, 0, 1}, m_zArrow->getPhysicsObject().getPosition()}, mouseRay)
-                                  .z;
-                m_objectToEdit->move({0, 0, newPosition - m_originalAxisPosition});
-                m_originalAxisPosition = newPosition;
-                break;
-            }
+            handleMoveTransformUpdate();
             break;
         case Transform::Rotate:
-            glm::vec3 direction;
-            float angle;
-            switch (m_selectedAxis)
-            {
-            case Axis::X:
-                direction = Spark::getIntersectionNormalRay({0, 0, 0}, {1, 0, 0}, mouseRay);
-                angle = glm::acos(glm::dot({0, 0, 1}, direction) /
-                                  (glm::length(glm::vec3(0, 0, 1)) * glm::length(direction)));
-                if (direction.y < 0)
-                {
-                    angle = 2 * glm::pi<float>() - angle;
-                }
-                m_objectToEdit->rotate(m_originalAxisPosition - angle, {1, 0, 0});
-                m_originalAxisPosition = angle;
-                break;
-            case Axis::Y:
-                direction = Spark::getIntersectionNormalRay({0, 0, 0}, {0, 1, 0}, mouseRay);
-                angle = glm::acos(glm::dot({0, 0, 1}, direction) /
-                                  (glm::length(glm::vec3(0, 0, 1)) * glm::length(direction)));
-                if (direction.x > 0)
-                {
-                    angle = 2 * glm::pi<float>() - angle;
-                }
-                m_objectToEdit->rotate(m_originalAxisPosition - angle, {0, 1, 0});
-                m_originalAxisPosition = angle;
-                break;
-            case Axis::Z:
-                direction = Spark::getIntersectionNormalRay({0, 0, 0}, {0, 0, 1}, mouseRay);
-                angle = glm::acos(glm::dot({1, 0, 0}, direction) /
-                                  (glm::length(glm::vec3(1, 0, 0)) * glm::length(direction)));
-                if (direction.y > 0)
-                {
-                    angle = 2 * glm::pi<float>() - angle;
-                }
-                m_objectToEdit->rotate(m_originalAxisPosition - angle, {0, 0, 1});
-                m_originalAxisPosition = angle;
-                break;
-            }
+            handleRotationTransformUpdate();
             break;
         }
     }
@@ -214,105 +140,20 @@ bool Editor3DLayer::handleKeyPressed(Spark::KeyPressedEvent &e)
 
 bool Editor3DLayer::handleMousePressed(Spark::MouseButtonPressedEvent &e)
 {
-    float closest = std::numeric_limits<float>::max();
-    int currentAxis = static_cast<int>(Axis::X);
     switch (e.GetMouseButton())
     {
     case Spark::MouseCode::ButtonLeft:
         m_selectedObject = nullptr;
-        for (auto &object : {m_xArrow, m_yArrow, m_zArrow})
-        {
-            float distance = Spark::Physics::getRayDistanceFromObject(Spark::Physics::getMouseRay(m_camera),
-                                                                      object->getPhysicsObject());
-            if (distance > 0 && distance < closest)
-            {
-                closest = distance;
-                m_selectedObject = object.get();
-                m_selectedTransform = Transform::Move;
-                m_selectedAxis = static_cast<Axis>(currentAxis);
-            }
-            currentAxis++;
-        }
-        currentAxis = static_cast<int>(Axis::X);
-        for (auto &object : {m_xRing, m_yRing, m_zRing})
-        {
-            float distance = Spark::Physics::getRayDistanceFromObject(Spark::Physics::getMouseRay(m_camera),
-                                                                      object->getPhysicsObject());
-            if (distance > 0 && distance < closest)
-            {
-                closest = distance;
-                m_selectedObject = object.get();
-                m_selectedTransform = Transform::Rotate;
-                m_selectedAxis = static_cast<Axis>(currentAxis);
-            }
-            currentAxis++;
-        }
-
+        findSelectedObject();
         if (m_selectedObject)
         {
-            Spark::Physics::Ray3D mouseRay = Spark::Physics::getMouseRay(m_camera);
             switch (m_selectedTransform)
             {
             case Transform::Move:
-                switch (m_selectedAxis)
-                {
-                case Axis::X:
-                    m_xArrow->getDrawable()->setColor(X_HIGHLIGHT_COLOR, true);
-                    m_originalAxisPosition = Spark::Physics::getClosestPointToRayFromRay(
-                                                 {{1, 0, 0}, m_xArrow->getPhysicsObject().getPosition()}, mouseRay)
-                                                 .x;
-                    break;
-                case Axis::Y:
-                    m_yArrow->getDrawable()->setColor(Y_HIGHLIGHT_COLOR, true);
-                    m_originalAxisPosition = Spark::Physics::getClosestPointToRayFromRay(
-                                                 {{0, 1, 0}, m_yArrow->getPhysicsObject().getPosition()}, mouseRay)
-                                                 .y;
-                    break;
-                case Axis::Z:
-                    m_zArrow->getDrawable()->setColor(Z_HIGHLIGHT_COLOR, true);
-                    m_originalAxisPosition = Spark::Physics::getClosestPointToRayFromRay(
-                                                 {{0, 0, 1}, m_zArrow->getPhysicsObject().getPosition()}, mouseRay)
-                                                 .z;
-                    break;
-                }
-                SPARK_INFO("Selected ray axis {0}, position: {1}", m_selectedAxis, m_originalAxisPosition);
+                initializeMoveTransform();
                 return true;
             case Transform::Rotate:
-                glm::vec3 direction;
-                switch (m_selectedAxis)
-                {
-                case Axis::X:
-                    m_xRing->getDrawable()->setColor(X_HIGHLIGHT_COLOR, true);
-                    direction = Spark::getIntersectionNormalRay({0, 0, 0}, {1, 0, 0}, mouseRay);
-                    m_originalAxisPosition = glm::acos(glm::dot({0, 0, 1}, direction) /
-                                                       (glm::length(glm::vec3(0, 0, 1)) * glm::length(direction)));
-                    if (direction.y < 0)
-                    {
-                        m_originalAxisPosition = 2 * glm::pi<float>() - m_originalAxisPosition;
-                    }
-                    break;
-                case Axis::Y:
-                    m_yRing->getDrawable()->setColor(Y_HIGHLIGHT_COLOR, true);
-                    direction = Spark::getIntersectionNormalRay({0, 0, 0}, {0, 1, 0}, mouseRay);
-                    m_originalAxisPosition = glm::acos(glm::dot({0, 0, 1}, direction) /
-                                                       (glm::length(glm::vec3(0, 0, 1)) * glm::length(direction)));
-                    if (direction.x > 0)
-                    {
-                        m_originalAxisPosition = 2 * glm::pi<float>() - m_originalAxisPosition;
-                    }
-                    break;
-                case Axis::Z:
-                    m_zRing->getDrawable()->setColor(Z_HIGHLIGHT_COLOR, true);
-                    direction = Spark::getIntersectionNormalRay({0, 0, 0}, {0, 0, 1}, mouseRay);
-                    m_originalAxisPosition = glm::acos(glm::dot({1, 0, 0}, direction) /
-                                                       (glm::length(glm::vec3(1, 0, 0)) * glm::length(direction)));
-                    if (direction.y > 0)
-                    {
-                        m_originalAxisPosition = 2 * glm::pi<float>() - m_originalAxisPosition;
-                    }
-                    break;
-                }
-                SPARK_INFO("Selected ray axis {0}, position: {1}", m_selectedAxis, m_originalAxisPosition);
+                initializeRotateTransform();
                 return true;
             }
         }
@@ -332,4 +173,211 @@ bool Editor3DLayer::handleMouseReleased(Spark::MouseButtonReleasedEvent &e)
     m_zRing->getDrawable()->setColor(Z_COLOR, true);
 
     return false;
+}
+
+void Editor3DLayer::updateEditorObjects()
+{
+    auto distanceVector = m_camera.getPosition() - m_xArrow->getPhysicsObject().getPosition();
+    auto planeNormal = glm::normalize(m_camera.getFront());
+    float relative = glm::abs(glm::dot(distanceVector, planeNormal));
+    m_xArrow->setScale({relative * 0.05, relative * 0.05, relative * 0.05});
+    m_yArrow->setScale({relative * 0.05, relative * 0.05, relative * 0.05});
+    m_zArrow->setScale({relative * 0.05, relative * 0.05, relative * 0.05});
+    m_xRing->setScale({relative * 0.05, relative * 0.05, relative * 0.05});
+    m_yRing->setScale({relative * 0.05, relative * 0.05, relative * 0.05});
+    m_zRing->setScale({relative * 0.05, relative * 0.05, relative * 0.05});
+    m_xArrow->setPosition(m_objectToEdit->getPhysicsObject().getPosition());
+    m_yArrow->setPosition(m_objectToEdit->getPhysicsObject().getPosition());
+    m_zArrow->setPosition(m_objectToEdit->getPhysicsObject().getPosition());
+    m_xRing->setPosition(m_objectToEdit->getPhysicsObject().getPosition());
+    m_yRing->setPosition(m_objectToEdit->getPhysicsObject().getPosition());
+    m_zRing->setPosition(m_objectToEdit->getPhysicsObject().getPosition());
+}
+
+void Editor3DLayer::findSelectedObject()
+{
+    float closest = std::numeric_limits<float>::max();
+    int currentTransform = static_cast<int>(Transform::Move);
+    int currentAxis = static_cast<int>(Axis::X);
+    for (auto &object : {m_xArrow, m_yArrow, m_zArrow, m_xRing, m_yRing, m_zRing})
+    {
+        float distance =
+            Spark::Physics::getRayDistanceFromObject(Spark::Physics::getMouseRay(m_camera), object->getPhysicsObject());
+        if (distance > 0 && distance < closest)
+        {
+            closest = distance;
+            m_selectedObject = object.get();
+            m_selectedTransform = static_cast<Transform>(currentTransform);
+            m_selectedAxis = static_cast<Axis>(currentAxis);
+        }
+        if (currentAxis == static_cast<int>(Axis::Z))
+        {
+            currentTransform++;
+            currentAxis = static_cast<int>(Axis::X);
+        }
+        else
+        {
+            currentAxis++;
+        }
+    }
+}
+
+void Editor3DLayer::initializeMoveTransform()
+{
+    Spark::Physics::Ray3D mouseRay = Spark::Physics::getMouseRay(m_camera);
+    switch (m_selectedAxis)
+    {
+    case Axis::X:
+        m_xArrow->getDrawable()->setColor(X_HIGHLIGHT_COLOR, true);
+        m_originalMoveAxisPosition = Spark::Physics::getClosestPointToRayFromRay(
+                                         {{1, 0, 0}, m_xArrow->getPhysicsObject().getPosition()}, mouseRay)
+                                         .x;
+        break;
+    case Axis::Y:
+        m_yArrow->getDrawable()->setColor(Y_HIGHLIGHT_COLOR, true);
+        m_originalMoveAxisPosition = Spark::Physics::getClosestPointToRayFromRay(
+                                         {{0, 1, 0}, m_yArrow->getPhysicsObject().getPosition()}, mouseRay)
+                                         .y;
+        break;
+    case Axis::Z:
+        m_zArrow->getDrawable()->setColor(Z_HIGHLIGHT_COLOR, true);
+        m_originalMoveAxisPosition = Spark::Physics::getClosestPointToRayFromRay(
+                                         {{0, 0, 1}, m_zArrow->getPhysicsObject().getPosition()}, mouseRay)
+                                         .z;
+        break;
+    }
+}
+
+void Editor3DLayer::initializeRotateTransform()
+{
+    Spark::Physics::Ray3D mouseRay = Spark::Physics::getMouseRay(m_camera);
+    glm::vec3 direction;
+    switch (m_selectedAxis)
+    {
+    case Axis::X:
+        if (glm::dot(mouseRay.direction, {1, 0, 0}) == 0)
+        {
+            m_selectedObject = nullptr;
+            return;
+        }
+        m_xRing->getDrawable()->setColor(X_HIGHLIGHT_COLOR, true);
+        direction = Spark::getIntersectionNormalRay({0, 0, 0}, {1, 0, 0}, mouseRay);
+        m_originalRotatation =
+            glm::acos(glm::dot({0, 0, 1}, direction) / (glm::length(glm::vec3(0, 0, 1)) * glm::length(direction)));
+        if (direction.y < 0)
+        {
+            m_originalRotatation = 2 * glm::pi<float>() - m_originalRotatation;
+        }
+        break;
+    case Axis::Y:
+        if (glm::dot(mouseRay.direction, {0, 1, 0}) == 0)
+        {
+            m_selectedObject = nullptr;
+            return;
+        }
+        m_yRing->getDrawable()->setColor(Y_HIGHLIGHT_COLOR, true);
+        direction = Spark::getIntersectionNormalRay({0, 0, 0}, {0, 1, 0}, mouseRay);
+        m_originalRotatation =
+            glm::acos(glm::dot({0, 0, 1}, direction) / (glm::length(glm::vec3(0, 0, 1)) * glm::length(direction)));
+        if (direction.x > 0)
+        {
+            m_originalRotatation = 2 * glm::pi<float>() - m_originalRotatation;
+        }
+        break;
+    case Axis::Z:
+        if (glm::dot(mouseRay.direction, {0, 0, 1}) == 0)
+        {
+            m_selectedObject = nullptr;
+            return;
+        }
+        m_zRing->getDrawable()->setColor(Z_HIGHLIGHT_COLOR, true);
+        direction = Spark::getIntersectionNormalRay({0, 0, 0}, {0, 0, 1}, mouseRay);
+        m_originalRotatation =
+            glm::acos(glm::dot({1, 0, 0}, direction) / (glm::length(glm::vec3(1, 0, 0)) * glm::length(direction)));
+        if (direction.y > 0)
+        {
+            m_originalRotatation = 2 * glm::pi<float>() - m_originalRotatation;
+        }
+        break;
+    }
+}
+
+void Editor3DLayer::handleMoveTransformUpdate()
+{
+    Spark::Physics::Ray3D mouseRay = Spark::Physics::getMouseRay(m_camera);
+    float newPosition = 0;
+    switch (m_selectedAxis)
+    {
+    case Axis::X:
+        newPosition = Spark::Physics::getClosestPointToRayFromRay(
+                          {{1, 0, 0}, m_xArrow->getPhysicsObject().getPosition()}, mouseRay)
+                          .x;
+        m_objectToEdit->move({newPosition - m_originalMoveAxisPosition, 0, 0});
+        m_originalMoveAxisPosition = newPosition;
+        break;
+    case Axis::Y:
+        newPosition = Spark::Physics::getClosestPointToRayFromRay(
+                          {{0, 1, 0}, m_yArrow->getPhysicsObject().getPosition()}, mouseRay)
+                          .y;
+        m_objectToEdit->move({0, newPosition - m_originalMoveAxisPosition, 0});
+        m_originalMoveAxisPosition = newPosition;
+        break;
+    case Axis::Z:
+        newPosition = Spark::Physics::getClosestPointToRayFromRay(
+                          {{0, 0, 1}, m_zArrow->getPhysicsObject().getPosition()}, mouseRay)
+                          .z;
+        m_objectToEdit->move({0, 0, newPosition - m_originalMoveAxisPosition});
+        m_originalMoveAxisPosition = newPosition;
+        break;
+    }
+}
+
+void Editor3DLayer::handleRotationTransformUpdate()
+{
+    Spark::Physics::Ray3D mouseRay = Spark::Physics::getMouseRay(m_camera);
+    glm::vec3 direction;
+    float angle;
+    switch (m_selectedAxis)
+    {
+    case Axis::X:
+        if (glm::dot(mouseRay.direction, {1, 0, 0}) == 0)
+        {
+            return;
+        }
+        direction = Spark::getIntersectionNormalRay({0, 0, 0}, {1, 0, 0}, mouseRay);
+        angle = glm::acos(glm::dot({0, 0, 1}, direction) / (glm::length(glm::vec3(0, 0, 1)) * glm::length(direction)));
+        if (direction.y < 0)
+        {
+            angle = 2 * glm::pi<float>() - angle;
+        }
+        m_objectToEdit->rotate(m_originalRotatation - angle, {1, 0, 0});
+        break;
+    case Axis::Y:
+        if (glm::dot(mouseRay.direction, {0, 1, 0}) == 0)
+        {
+            return;
+        }
+        direction = Spark::getIntersectionNormalRay({0, 0, 0}, {0, 1, 0}, mouseRay);
+        angle = glm::acos(glm::dot({0, 0, 1}, direction) / (glm::length(glm::vec3(0, 0, 1)) * glm::length(direction)));
+        if (direction.x > 0)
+        {
+            angle = 2 * glm::pi<float>() - angle;
+        }
+        m_objectToEdit->rotate(m_originalRotatation - angle, {0, 1, 0});
+        break;
+    case Axis::Z:
+        if (glm::dot(mouseRay.direction, {0, 0, 1}) == 0)
+        {
+            return;
+        }
+        direction = Spark::getIntersectionNormalRay({0, 0, 0}, {0, 0, 1}, mouseRay);
+        angle = glm::acos(glm::dot({1, 0, 0}, direction) / (glm::length(glm::vec3(1, 0, 0)) * glm::length(direction)));
+        if (direction.y > 0)
+        {
+            angle = 2 * glm::pi<float>() - angle;
+        }
+        m_objectToEdit->rotate(m_originalRotatation - angle, {0, 0, 1});
+        break;
+    }
+    m_originalRotatation = angle;
 }
