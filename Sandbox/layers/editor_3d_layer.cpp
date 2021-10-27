@@ -124,10 +124,16 @@ bool Editor3DLayer::handleMouseMoved(Spark::MouseMovedEvent &e)
         switch (m_selectedTransform)
         {
         case Transform::Move:
-            handleMoveTransformUpdate();
+            if (m_shownTransforms & ShownTransformMap::Move)
+            {
+                handleMoveTransformUpdate();
+            }
             break;
         case Transform::Rotate:
-            handleRotationTransformUpdate();
+            if (m_shownTransforms & ShownTransformMap::Rotate)
+            {
+                handleRotationTransformUpdate();
+            }
             break;
         }
     }
@@ -295,7 +301,8 @@ void Editor3DLayer::initializeRotateTransform()
             return;
         }
         m_xRing->getDrawable()->setColor(X_HIGHLIGHT_COLOR, true);
-        direction = Spark::getIntersectionNormalRay({0, 0, 0}, {1, 0, 0}, mouseRay);
+        direction = Spark::getIntersectionNormalRay(m_xRing->getPhysicsObject().getPosition(), {1, 0, 0}, mouseRay) -
+                    m_xRing->getPhysicsObject().getPosition();
         m_originalRotatation =
             glm::acos(glm::dot({0, 0, 1}, direction) / (glm::length(glm::vec3(0, 0, 1)) * glm::length(direction)));
         if (direction.y < 0)
@@ -310,7 +317,8 @@ void Editor3DLayer::initializeRotateTransform()
             return;
         }
         m_yRing->getDrawable()->setColor(Y_HIGHLIGHT_COLOR, true);
-        direction = Spark::getIntersectionNormalRay({0, 0, 0}, {0, 1, 0}, mouseRay);
+        direction = Spark::getIntersectionNormalRay(m_xRing->getPhysicsObject().getPosition(), {0, 1, 0}, mouseRay) -
+                    m_yRing->getPhysicsObject().getPosition();
         m_originalRotatation =
             glm::acos(glm::dot({0, 0, 1}, direction) / (glm::length(glm::vec3(0, 0, 1)) * glm::length(direction)));
         if (direction.x > 0)
@@ -325,7 +333,8 @@ void Editor3DLayer::initializeRotateTransform()
             return;
         }
         m_zRing->getDrawable()->setColor(Z_HIGHLIGHT_COLOR, true);
-        direction = Spark::getIntersectionNormalRay({0, 0, 0}, {0, 0, 1}, mouseRay);
+        direction = Spark::getIntersectionNormalRay(m_xRing->getPhysicsObject().getPosition(), {0, 0, 1}, mouseRay) -
+                    m_zRing->getPhysicsObject().getPosition();
         m_originalRotatation =
             glm::acos(glm::dot({1, 0, 0}, direction) / (glm::length(glm::vec3(1, 0, 0)) * glm::length(direction)));
         if (direction.y > 0)
@@ -378,7 +387,8 @@ void Editor3DLayer::handleRotationTransformUpdate()
         {
             return;
         }
-        direction = Spark::getIntersectionNormalRay({0, 0, 0}, {1, 0, 0}, mouseRay);
+        direction = Spark::getIntersectionNormalRay(m_xRing->getPhysicsObject().getPosition(), {1, 0, 0}, mouseRay) -
+                    m_xRing->getPhysicsObject().getPosition();
         angle = glm::acos(glm::dot({0, 0, 1}, direction) / (glm::length(glm::vec3(0, 0, 1)) * glm::length(direction)));
         if (direction.y < 0)
         {
@@ -391,7 +401,8 @@ void Editor3DLayer::handleRotationTransformUpdate()
         {
             return;
         }
-        direction = Spark::getIntersectionNormalRay({0, 0, 0}, {0, 1, 0}, mouseRay);
+        direction = Spark::getIntersectionNormalRay(m_yRing->getPhysicsObject().getPosition(), {0, 1, 0}, mouseRay) -
+                    m_yRing->getPhysicsObject().getPosition();
         angle = glm::acos(glm::dot({0, 0, 1}, direction) / (glm::length(glm::vec3(0, 0, 1)) * glm::length(direction)));
         if (direction.x > 0)
         {
@@ -404,7 +415,8 @@ void Editor3DLayer::handleRotationTransformUpdate()
         {
             return;
         }
-        direction = Spark::getIntersectionNormalRay({0, 0, 0}, {0, 0, 1}, mouseRay);
+        direction = Spark::getIntersectionNormalRay(m_zRing->getPhysicsObject().getPosition(), {0, 0, 1}, mouseRay) -
+                    m_zRing->getPhysicsObject().getPosition();
         angle = glm::acos(glm::dot({1, 0, 0}, direction) / (glm::length(glm::vec3(1, 0, 0)) * glm::length(direction)));
         if (direction.y > 0)
         {
