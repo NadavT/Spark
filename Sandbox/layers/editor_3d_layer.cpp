@@ -161,7 +161,7 @@ bool Editor3DLayer::handleKeyPressed(Spark::KeyPressedEvent &e)
             m_shownTransforms = ShownTransformMap::Rotate;
         }
         return true;
-    case Spark::KeyCode::A:
+    case Spark::KeyCode::T:
         if (!(m_shownTransforms & ShownTransformMap::Move))
         {
             addMoveTransforms();
