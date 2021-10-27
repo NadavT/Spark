@@ -25,8 +25,10 @@ class Layer3D : public Layer
 
     SPARK_API virtual void addDrawable(std::shared_ptr<Render::Drawable> &drawable);
     SPARK_API virtual void addObject(Object3D &object);
+    SPARK_API virtual void addObjectAndChilds(Object3D &object);
     SPARK_API virtual void removeDrawable(Render::Drawable *drawable);
     SPARK_API virtual void removeObject(Object3D &object);
+    SPARK_API virtual void removeObjectAndChilds(Object3D &object);
 
     SPARK_API virtual void setDirLight(glm::vec3 direction, glm::vec3 color);
     SPARK_API virtual void addPointLight(Render::PointLight &pointLight);

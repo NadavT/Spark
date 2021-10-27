@@ -1,6 +1,7 @@
 #include "layer3d.h"
 
 #include "spark/core/application.h"
+#include "spark/core/log.h"
 
 #ifdef SPARK_PLATFORM_VULKAN
     #include "platform/vulkan/layers/layer_renderer_3d_lights.h"
@@ -49,6 +50,15 @@ void Layer3D::addObject(Object3D &object)
     addDrawable(drawable);
 }
 
+void Layer3D::addObjectAndChilds(Object3D &object)
+{
+    addObject(object);
+    for (auto &child : object.getChilds())
+    {
+        addObjectAndChilds(*child);
+    }
+}
+
 void Layer3D::removeDrawable(Render::Drawable *drawable)
 {
     m_layer_renderer->removeDrawable(drawable);
@@ -62,6 +72,15 @@ void Layer3D::removeObject(Object3D &object)
         child->removeParent();
     }
 
+    removeDrawable(object.getDrawable().get());
+}
+
+void Layer3D::removeObjectAndChilds(Object3D &object)
+{
+    for (auto &child : object.getChilds())
+    {
+        removeObjectAndChilds(*child);
+    }
     removeDrawable(object.getDrawable().get());
 }
 

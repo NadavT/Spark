@@ -137,13 +137,22 @@ void VulkanLayerRenderer3DModel::OnRender()
 
 void VulkanLayerRenderer3DModel::addDrawable(std::shared_ptr<Drawable> &drawable)
 {
-    LayerRenderer::addDrawable(drawable);
-
-    if (m_isAttached)
+    auto found_it =
+        std::find_if(m_toBeRemoved.begin(), m_toBeRemoved.end(), [&](Drawable *p) { return p == drawable.get(); });
+    if (found_it != m_toBeRemoved.end())
     {
-        std::vector<std::shared_ptr<Drawable>> drawables({drawable});
-        createResourcesForDrawables(drawables);
-        m_isRecreationNeeded = true;
+        m_toBeRemoved.erase(found_it);
+    }
+    else
+    {
+        LayerRenderer::addDrawable(drawable);
+
+        if (m_isAttached)
+        {
+            std::vector<std::shared_ptr<Drawable>> drawables({drawable});
+            createResourcesForDrawables(drawables);
+            m_isRecreationNeeded = true;
+        }
     }
 }
 
