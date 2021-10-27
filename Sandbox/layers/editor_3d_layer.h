@@ -3,19 +3,26 @@
 
 #include <spark.h>
 
-enum class Axis
-{
-    X = 0,
-    Y,
-    Z
-};
-enum class Transform
-{
-    Move,
-    Rotate
-};
 class Editor3DLayer : public Spark::Layer3D
 {
+    enum class Axis : int
+    {
+        X = 0,
+        Y,
+        Z
+    };
+    enum class Transform : int
+    {
+        Move,
+        Rotate
+    };
+
+    enum ShownTransformMap : uint8_t
+    {
+        Move = 0b001,
+        Rotate = 0b010
+    };
+
   public:
     explicit Editor3DLayer(Spark::Render::Camera &camera);
 
@@ -44,6 +51,10 @@ class Editor3DLayer : public Spark::Layer3D
     void handleMoveTransformUpdate();
     void handleRotationTransformUpdate();
 
+    void removeAllTransforms();
+    void addMoveTransforms();
+    void addRotateTransforms();
+
   private:
     Spark::Render::Camera &m_camera;
     Spark::Object3D *m_objectToEdit;
@@ -59,6 +70,7 @@ class Editor3DLayer : public Spark::Layer3D
     Axis m_selectedAxis;
     float m_originalMoveAxisPosition;
     float m_originalRotatation;
+    uint8_t m_shownTransforms;
 };
 
 #endif // SANDBOX_EDITOR_3D_LAYER_H

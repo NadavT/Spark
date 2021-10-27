@@ -32,6 +32,7 @@ Editor3DLayer::Editor3DLayer(Spark::Render::Camera &camera)
     , m_selectedAxis(Axis::X)
     , m_originalMoveAxisPosition(0)
     , m_originalRotatation(0)
+    , m_shownTransforms(ShownTransformMap::Move)
 {
 
     m_xArrow = createArrow(X_COLOR);
@@ -55,6 +56,10 @@ Editor3DLayer::Editor3DLayer(Spark::Render::Camera &camera)
 
     m_zRing = createRing(Z_COLOR);
     m_zRing->setAsRelativeTransform();
+
+    addObjectAndChilds(*m_xArrow);
+    addObjectAndChilds(*m_yArrow);
+    addObjectAndChilds(*m_zArrow);
 }
 
 void Editor3DLayer::OnAttach()
@@ -92,9 +97,7 @@ void Editor3DLayer::setObjectToEdit(Spark::Object3D &object)
 std::shared_ptr<Spark::Object3D> Editor3DLayer::createArrow(glm::vec3 color)
 {
     std::shared_ptr<Spark::Object3D> arrowBody = Spark::createCylinder(glm::vec3(0, 0, 0), 0.2f, 0.2f, 2, color);
-    addObject(*arrowBody);
     std::shared_ptr<Spark::Object3D> arrowHead = Spark::createCylinder(glm::vec3(0, 0, 1.25f), 0.5f, 0, 0.5f, color);
-    addObject(*arrowHead);
     arrowBody->addChild(arrowHead);
     arrowHead->getDrawable()->setCalculateLight(false);
     auto boxBound = std::make_unique<Spark::Physics::Box>(glm::vec3(0, 0, 0), 1.0f, 1.0f, 2.5f);
@@ -108,7 +111,6 @@ std::shared_ptr<Spark::Object3D> Editor3DLayer::createArrow(glm::vec3 color)
 std::shared_ptr<Spark::Object3D> Editor3DLayer::createRing(glm::vec3 color)
 {
     std::shared_ptr<Spark::Object3D> ring = Spark::createPipe(buildCircle(2.5f, 64), 0.05f, true, color);
-    addObject(*ring);
     auto ringBound = std::make_unique<Spark::Physics::Pipe>(buildCircle(2.5f, 64), 0.1f, true);
     ring->setPhysicsObject(std::move(ringBound));
     ring->getDrawable()->setCalculateLight(false);
@@ -135,7 +137,39 @@ bool Editor3DLayer::handleMouseMoved(Spark::MouseMovedEvent &e)
 
 bool Editor3DLayer::handleKeyPressed(Spark::KeyPressedEvent &e)
 {
-    return false;
+    switch (e.GetKeyCode())
+    {
+    case Spark::KeyCode::M:
+        if (m_shownTransforms != ShownTransformMap::Move)
+        {
+            removeAllTransforms();
+            addMoveTransforms();
+            m_shownTransforms = ShownTransformMap::Move;
+        }
+        return true;
+    case Spark::KeyCode::R:
+        if (m_shownTransforms != ShownTransformMap::Rotate)
+        {
+            removeAllTransforms();
+            addRotateTransforms();
+            m_shownTransforms = ShownTransformMap::Rotate;
+        }
+        return true;
+    case Spark::KeyCode::A:
+        if (!(m_shownTransforms & ShownTransformMap::Move))
+        {
+            addMoveTransforms();
+            m_shownTransforms |= ShownTransformMap::Move;
+        }
+        if (!(m_shownTransforms & ShownTransformMap::Rotate))
+        {
+            addRotateTransforms();
+            m_shownTransforms |= ShownTransformMap::Rotate;
+        }
+        return true;
+    default:
+        return false;
+    }
 }
 
 bool Editor3DLayer::handleMousePressed(Spark::MouseButtonPressedEvent &e)
@@ -380,4 +414,34 @@ void Editor3DLayer::handleRotationTransformUpdate()
         break;
     }
     m_originalRotatation = angle;
+}
+
+void Editor3DLayer::removeAllTransforms()
+{
+    if (m_shownTransforms & ShownTransformMap::Move)
+    {
+        removeObjectAndChilds(*m_xArrow);
+        removeObjectAndChilds(*m_yArrow);
+        removeObjectAndChilds(*m_zArrow);
+    }
+    if (m_shownTransforms & ShownTransformMap::Rotate)
+    {
+        removeObjectAndChilds(*m_xRing);
+        removeObjectAndChilds(*m_yRing);
+        removeObjectAndChilds(*m_zRing);
+    }
+}
+
+void Editor3DLayer::addMoveTransforms()
+{
+    addObjectAndChilds(*m_xArrow);
+    addObjectAndChilds(*m_yArrow);
+    addObjectAndChilds(*m_zArrow);
+}
+
+void Editor3DLayer::addRotateTransforms()
+{
+    addObjectAndChilds(*m_xRing);
+    addObjectAndChilds(*m_yRing);
+    addObjectAndChilds(*m_zRing);
 }
