@@ -52,7 +52,7 @@ void Object3D::setScale(glm::vec3 scale)
 
 void Object3D::setRotation(float angle, glm::vec3 axis)
 {
-    m_rotationMatrix = glm::rotate(m_rotationMatrix, angle, axis);
+    m_rotationMatrix = glm::rotate(glm::mat4(1), angle, axis);
 }
 
 void Object3D::setAsRelativeTransform()
