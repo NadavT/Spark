@@ -10,6 +10,7 @@ class Editor3DRotate
         X = 0,
         Y,
         Z,
+        VIEW
     };
 
   public:
@@ -33,6 +34,7 @@ class Editor3DRotate
     std::shared_ptr<Spark::Object3D> m_xRing;
     std::shared_ptr<Spark::Object3D> m_yRing;
     std::shared_ptr<Spark::Object3D> m_zRing;
+    std::shared_ptr<Spark::Object3D> m_viewRing;
     Spark::Object3D *m_selectedObject;
     Axis m_selectedAxis;
     float m_originalRotation;

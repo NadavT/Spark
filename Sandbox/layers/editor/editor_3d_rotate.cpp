@@ -6,6 +6,8 @@ static const glm::vec3 Y_COLOR = {0, 0.5f, 0};
 static const glm::vec3 Y_HIGHLIGHT_COLOR = {0, 1, 0};
 static const glm::vec3 Z_COLOR = {0, 0, 0.5f};
 static const glm::vec3 Z_HIGHLIGHT_COLOR = {0, 0, 1};
+static const glm::vec3 VIEW_COLOR = {0.5f, 0.5f, 0.5f};
+static const glm::vec3 VIEW_HIGHLIGHT_COLOR = {1, 1, 1};
 
 Editor3DRotate::Editor3DRotate(Spark::Layer3D &layer)
     : m_layer(layer)
@@ -26,13 +28,17 @@ Editor3DRotate::Editor3DRotate(Spark::Layer3D &layer)
 
     m_zRing = createRing(Z_COLOR);
     m_zRing->setAsRelativeTransform();
+
+    m_viewRing = createRing(VIEW_COLOR);
+    m_viewRing->scale({1.25f, 1.25f, 1.25f});
+    m_viewRing->setAsRelativeTransform();
 }
 
 float Editor3DRotate::findSelectedRotate(Spark::Render::Camera &camera)
 {
-    float closest = std::numeric_limits<float>::max();
-    int currentAxis = static_cast<int>(Axis::X);
-    for (auto &object : {m_xRing, m_yRing, m_zRing})
+    float closest = -1;
+    int currentAxis = static_cast<int>(Axis::VIEW);
+    for (auto &object : {m_viewRing})
     {
         float distance =
             Spark::Physics::getRayDistanceFromObject(Spark::Physics::getMouseRay(camera), object->getPhysicsObject());
@@ -101,20 +107,23 @@ void Editor3DRotate::initializeRotateTransform(Spark::Render::Camera &camera)
             m_originalRotation = 2 * glm::pi<float>() - m_originalRotation;
         }
         break;
-        // case Axis::CUSTOM:
-        //     m_viewRing->getDrawable()->setColor(VIEW_HIGHLIGHT_COLOR, true);
-        //     direction = Spark::getIntersectionNormalRay(m_viewRing->getPhysicsObject().getPosition(),
-        //     m_camera.getFront(),
-        //                                                 mouseRay) -
-        //                 m_viewRing->getPhysicsObject().getPosition();
-        //     m_originalRotatation =
-        //         glm::acos(glm::dot({1, 0, 0}, direction) / (glm::length(glm::vec3(1, 0, 0)) *
-        //         glm::length(direction)));
-        //     if (direction.y > 0)
-        //     {
-        //         m_originalRotatation = 2 * glm::pi<float>() - m_originalRotatation;
-        //     }
-        //     break;
+    case Axis::VIEW:
+        if (glm::dot(mouseRay.direction, camera.getFront()) == 0)
+        {
+            m_selectedObject = nullptr;
+            return;
+        }
+        m_viewRing->getDrawable()->setColor(VIEW_HIGHLIGHT_COLOR, true);
+        direction = glm::normalize(
+            Spark::getIntersectionNormalRay(m_viewRing->getPhysicsObject().getPosition(), camera.getFront(), mouseRay) -
+            m_viewRing->getPhysicsObject().getPosition());
+        m_originalRotation =
+            glm::acos(glm::dot(camera.getUp(), direction) / (glm::length(camera.getUp()) * glm::length(direction)));
+        if (glm::length(glm::normalize(glm::cross(camera.getUp(), direction)) - camera.getFront()) < 0.1)
+        {
+            m_originalRotation = 2 * glm::pi<float>() - m_originalRotation;
+        }
+        break;
     }
 }
 
@@ -167,6 +176,22 @@ void Editor3DRotate::handleRotateTransformUpdate(Spark::Render::Camera &camera, 
         }
         objectToEdit->rotate(m_originalRotation - angle, {0, 0, 1});
         break;
+    case Axis::VIEW:
+        if (glm::dot(mouseRay.direction, camera.getFront()) == 0)
+        {
+            return;
+        }
+        direction = glm::normalize(
+            Spark::getIntersectionNormalRay(m_viewRing->getPhysicsObject().getPosition(), camera.getFront(), mouseRay) -
+            m_viewRing->getPhysicsObject().getPosition());
+        angle = glm::acos(glm::dot(camera.getUp(), direction)) /
+                (glm::length(glm::vec3(camera.getUp()) * glm::length(direction)));
+        if (glm::length(glm::normalize(glm::cross(camera.getUp(), direction)) - camera.getFront()) < 0.1)
+        {
+            angle = 2 * glm::pi<float>() - angle;
+        }
+        objectToEdit->rotate(m_originalRotation - angle, camera.getFront());
+        break;
     }
     m_originalRotation = angle;
 }
@@ -179,9 +204,15 @@ void Editor3DRotate::updateObjects(Spark::Render::Camera &camera, Spark::Object3
     m_xRing->setScale({relative * 0.05, relative * 0.05, relative * 0.05});
     m_yRing->setScale({relative * 0.05, relative * 0.05, relative * 0.05});
     m_zRing->setScale({relative * 0.05, relative * 0.05, relative * 0.05});
+    m_viewRing->setScale({relative * 0.05, relative * 0.05, relative * 0.05});
     m_xRing->setPosition(objectToEdit->getPhysicsObject().getPosition());
     m_yRing->setPosition(objectToEdit->getPhysicsObject().getPosition());
     m_zRing->setPosition(objectToEdit->getPhysicsObject().getPosition());
+    m_viewRing->setPosition(objectToEdit->getPhysicsObject().getPosition());
+
+    float angle = glm::acos(glm::dot(camera.getFront(), {0, 0, 1})) / (glm::length(glm::vec3(camera.getFront())));
+    glm::vec3 axis = glm::cross(glm::vec3(0, 0, 1), camera.getFront());
+    m_viewRing->setRotation(angle, axis);
 }
 
 void Editor3DRotate::addTransforms()
@@ -189,6 +220,7 @@ void Editor3DRotate::addTransforms()
     m_layer.addObjectAndChilds(*m_xRing);
     m_layer.addObjectAndChilds(*m_yRing);
     m_layer.addObjectAndChilds(*m_zRing);
+    m_layer.addObjectAndChilds(*m_viewRing);
 }
 
 void Editor3DRotate::removeTransforms()
@@ -196,6 +228,7 @@ void Editor3DRotate::removeTransforms()
     m_layer.removeObjectAndChilds(*m_xRing);
     m_layer.removeObjectAndChilds(*m_yRing);
     m_layer.removeObjectAndChilds(*m_zRing);
+    m_layer.removeObjectAndChilds(*m_viewRing);
 }
 
 void Editor3DRotate::release()
@@ -204,6 +237,7 @@ void Editor3DRotate::release()
     m_xRing->getDrawable()->setColor(X_COLOR, true);
     m_yRing->getDrawable()->setColor(Y_COLOR, true);
     m_zRing->getDrawable()->setColor(Z_COLOR, true);
+    m_viewRing->getDrawable()->setColor(VIEW_COLOR, true);
 }
 
 static std::vector<glm::vec3> buildCircle(float radius, int sectors)
@@ -223,7 +257,7 @@ static std::vector<glm::vec3> buildCircle(float radius, int sectors)
 std::shared_ptr<Spark::Object3D> Editor3DRotate::createRing(glm::vec3 color)
 {
     std::shared_ptr<Spark::Object3D> ring = Spark::createPipe(buildCircle(2.5f, 64), 0.05f, true, color);
-    auto ringBound = std::make_unique<Spark::Physics::Pipe>(buildCircle(2.5f, 64), 0.1f, true);
+    auto ringBound = std::make_unique<Spark::Physics::Pipe>(buildCircle(2.5f, 64), 0.15f, true);
     ring->setPhysicsObject(std::move(ringBound));
     ring->getDrawable()->setCalculateLight(false);
     return ring;
