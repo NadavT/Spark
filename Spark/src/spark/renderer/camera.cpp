@@ -52,6 +52,11 @@ glm::vec3 Camera::getFront() const
     return m_front;
 }
 
+glm::vec3 Camera::getUp() const
+{
+    return m_up;
+}
+
 void Camera::moveDirection(CameraDirection direction, Time deltaTime)
 {
     float velocity = m_movementSpeed * static_cast<float>(deltaTime.GetSeconds());
