@@ -8,6 +8,8 @@ static const glm::vec3 Y_COLOR = {0, 0.5f, 0};
 static const glm::vec3 Y_HIGHLIGHT_COLOR = {0, 1, 0};
 static const glm::vec3 Z_COLOR = {0, 0, 0.5f};
 static const glm::vec3 Z_HIGHLIGHT_COLOR = {0, 0, 1};
+static const glm::vec3 VIEW_COLOR = {0.5f, 0.5f, 0.5f};
+static const glm::vec3 VIEW_HIGHLIGHT_COLOR = {1, 1, 1};
 
 static std::vector<glm::vec3> buildCircle(float radius, int sectors)
 {
@@ -57,6 +59,9 @@ Editor3DLayer::Editor3DLayer(Spark::Render::Camera &camera)
     m_zRing = createRing(Z_COLOR);
     m_zRing->setAsRelativeTransform();
 
+    m_viewRing = createRing(VIEW_COLOR);
+    m_viewRing->setAsRelativeTransform();
+
     addObjectAndChilds(*m_xArrow);
     addObjectAndChilds(*m_yArrow);
     addObjectAndChilds(*m_zArrow);
@@ -100,7 +105,7 @@ std::shared_ptr<Spark::Object3D> Editor3DLayer::createArrow(glm::vec3 color)
     std::shared_ptr<Spark::Object3D> arrowHead = Spark::createCylinder(glm::vec3(0, 0, 1.25f), 0.5f, 0, 0.5f, color);
     arrowBody->addChild(arrowHead);
     arrowHead->getDrawable()->setCalculateLight(false);
-    auto boxBound = std::make_unique<Spark::Physics::Box>(glm::vec3(0, 0, 0), 1.0f, 1.0f, 2.5f);
+    auto boxBound = std::make_unique<Spark::Physics::Box>(glm::vec3(0, 0, 0.25), 1.0f, 1.0f, 2.5f);
     arrowBody->setPhysicsObject(std::move(boxBound));
     arrowBody->move({0, 0, 1});
     arrowBody->setAsRelativeTransform();
@@ -145,7 +150,7 @@ bool Editor3DLayer::handleKeyPressed(Spark::KeyPressedEvent &e)
 {
     switch (e.GetKeyCode())
     {
-    case Spark::KeyCode::M:
+    case Spark::KeyCode::G:
         if (m_shownTransforms != ShownTransformMap::Move)
         {
             removeAllTransforms();
@@ -226,40 +231,65 @@ void Editor3DLayer::updateEditorObjects()
     m_xRing->setScale({relative * 0.05, relative * 0.05, relative * 0.05});
     m_yRing->setScale({relative * 0.05, relative * 0.05, relative * 0.05});
     m_zRing->setScale({relative * 0.05, relative * 0.05, relative * 0.05});
+    m_viewRing->setScale({relative * 0.05, relative * 0.05, relative * 0.05});
     m_xArrow->setPosition(m_objectToEdit->getPhysicsObject().getPosition());
     m_yArrow->setPosition(m_objectToEdit->getPhysicsObject().getPosition());
     m_zArrow->setPosition(m_objectToEdit->getPhysicsObject().getPosition());
     m_xRing->setPosition(m_objectToEdit->getPhysicsObject().getPosition());
     m_yRing->setPosition(m_objectToEdit->getPhysicsObject().getPosition());
     m_zRing->setPosition(m_objectToEdit->getPhysicsObject().getPosition());
+    m_viewRing->setPosition(m_objectToEdit->getPhysicsObject().getPosition());
 }
 
 void Editor3DLayer::findSelectedObject()
 {
     float closest = std::numeric_limits<float>::max();
-    int currentTransform = static_cast<int>(Transform::Move);
+    if (m_shownTransforms & ShownTransformMap::Move)
+    {
+        closest = findSelectedMove(closest);
+    }
+    if (m_shownTransforms & ShownTransformMap::Rotate)
+    {
+        findSelectedRotate(closest);
+    }
+}
+
+float Editor3DLayer::findSelectedMove(float currentClosest)
+{
     int currentAxis = static_cast<int>(Axis::X);
-    for (auto &object : {m_xArrow, m_yArrow, m_zArrow, m_xRing, m_yRing, m_zRing})
+    for (auto &object : {m_xArrow, m_yArrow, m_zArrow})
     {
         float distance =
             Spark::Physics::getRayDistanceFromObject(Spark::Physics::getMouseRay(m_camera), object->getPhysicsObject());
-        if (distance > 0 && distance < closest)
+        if (distance > 0 && distance < currentClosest)
         {
-            closest = distance;
+            currentClosest = distance;
             m_selectedObject = object.get();
-            m_selectedTransform = static_cast<Transform>(currentTransform);
+            m_selectedTransform = Transform::Move;
             m_selectedAxis = static_cast<Axis>(currentAxis);
         }
-        if (currentAxis == static_cast<int>(Axis::Z))
-        {
-            currentTransform++;
-            currentAxis = static_cast<int>(Axis::X);
-        }
-        else
-        {
-            currentAxis++;
-        }
+        currentAxis++;
     }
+    return currentClosest;
+}
+
+float Editor3DLayer::findSelectedRotate(float currentClosest)
+{
+    int currentAxis = static_cast<int>(Axis::X);
+    for (auto &object : {m_xRing, m_yRing, m_zRing})
+    {
+        float distance =
+            Spark::Physics::getRayDistanceFromObject(Spark::Physics::getMouseRay(m_camera), object->getPhysicsObject());
+        if (distance > 0 && distance < currentClosest)
+        {
+            currentClosest = distance;
+            m_selectedObject = object.get();
+            m_selectedTransform = Transform::Rotate;
+            m_selectedAxis = static_cast<Axis>(currentAxis);
+        }
+        currentAxis++;
+    }
+    return currentClosest;
 }
 
 void Editor3DLayer::initializeMoveTransform()
@@ -285,6 +315,8 @@ void Editor3DLayer::initializeMoveTransform()
                                          {{0, 0, 1}, m_zArrow->getPhysicsObject().getPosition()}, mouseRay)
                                          .z;
         break;
+    default:
+        SPARK_CORE_ERROR("Bad axis for move.");
     }
 }
 
@@ -342,6 +374,20 @@ void Editor3DLayer::initializeRotateTransform()
             m_originalRotatation = 2 * glm::pi<float>() - m_originalRotatation;
         }
         break;
+        // case Axis::CUSTOM:
+        //     m_viewRing->getDrawable()->setColor(VIEW_HIGHLIGHT_COLOR, true);
+        //     direction = Spark::getIntersectionNormalRay(m_viewRing->getPhysicsObject().getPosition(),
+        //     m_camera.getFront(),
+        //                                                 mouseRay) -
+        //                 m_viewRing->getPhysicsObject().getPosition();
+        //     m_originalRotatation =
+        //         glm::acos(glm::dot({1, 0, 0}, direction) / (glm::length(glm::vec3(1, 0, 0)) *
+        //         glm::length(direction)));
+        //     if (direction.y > 0)
+        //     {
+        //         m_originalRotatation = 2 * glm::pi<float>() - m_originalRotatation;
+        //     }
+        //     break;
     }
 }
 

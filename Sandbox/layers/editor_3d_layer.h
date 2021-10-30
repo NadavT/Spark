@@ -9,7 +9,8 @@ class Editor3DLayer : public Spark::Layer3D
     {
         X = 0,
         Y,
-        Z
+        Z,
+        CUSTOM
     };
     enum class Transform : int
     {
@@ -45,6 +46,8 @@ class Editor3DLayer : public Spark::Layer3D
     void updateEditorObjects();
 
     void findSelectedObject();
+    float findSelectedMove(float currentClosest);
+    float findSelectedRotate(float currentClosest);
     void initializeMoveTransform();
     void initializeRotateTransform();
 
@@ -65,6 +68,7 @@ class Editor3DLayer : public Spark::Layer3D
     std::shared_ptr<Spark::Object3D> m_xRing;
     std::shared_ptr<Spark::Object3D> m_yRing;
     std::shared_ptr<Spark::Object3D> m_zRing;
+    std::shared_ptr<Spark::Object3D> m_viewRing;
     Spark::Object3D *m_selectedObject;
     Transform m_selectedTransform;
     Axis m_selectedAxis;

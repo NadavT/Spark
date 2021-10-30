@@ -1,4 +1,5 @@
-#pragma once
+#ifndef SANDBOX_3D_LAYER_H
+#define SANDBOX_3D_LAYER_H
 
 #include <spark.h>
 
@@ -35,6 +36,7 @@ class Sandbox3DLayer : public Spark::Layer3D
 
     void addEditor(Spark::Object3D &object);
     void removeEditor();
+    bool deselectObject();
 
   private:
     Spark::Application &m_app;
@@ -63,3 +65,4 @@ class Sandbox3DLayer : public Spark::Layer3D
     std::array<float, 3> m_wireframeColor;
     std::array<float, 3> m_beforeWireframeColor;
 };
+#endif // SANDBOX_3D_LAYER_H

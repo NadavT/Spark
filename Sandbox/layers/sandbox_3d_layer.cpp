@@ -214,6 +214,8 @@ void Sandbox3DLayer::run()
     ImGui::GetIO().ConfigFlags |= ImGuiConfigFlags_NoMouse;
     ImGui::SetWindowFocus(NULL);
     m_inEditor = false;
+    deselectObject();
+    removeEditor();
 }
 
 void Sandbox3DLayer::pause()
@@ -246,17 +248,7 @@ bool Sandbox3DLayer::handleKeyPressed(Spark::KeyPressedEvent &e)
         }
         else
         {
-            if (m_pointLightToSet)
-            {
-                m_pointLightToSet->getDrawable()->unhighlight();
-                m_pointLightToSet = nullptr;
-            }
-            else if (m_objectToSet)
-            {
-                m_objectToSet->getDrawable()->unhighlight();
-                m_objectToSet = nullptr;
-            }
-            else
+            if (!deselectObject())
             {
                 return false;
             }
@@ -339,13 +331,13 @@ bool Sandbox3DLayer::handleMousePressed(Spark::MouseButtonPressedEvent &e)
                 {
                     m_objectToSet->getDrawable()->unhighlight();
                     m_objectToSet = nullptr;
-                    m_app.PopLayer(&m_editorLayer);
+                    removeEditor();
                 }
                 if (m_pointLightToSet)
                 {
                     m_pointLightToSet->getDrawable()->unhighlight();
                     m_pointLightToSet = nullptr;
-                    m_app.PopLayer(&m_editorLayer);
+                    removeEditor();
                 }
                 closestObject->getDrawable()->highlight();
                 auto isLight = std::find_if(m_pointLights.begin(), m_pointLights.end(),
@@ -386,6 +378,8 @@ void Sandbox3DLayer::generateBoxAdder()
             m_objectToSet->getDrawable()->unhighlight();
         }
         m_objectToSet = m_objects.back().get();
+        m_objectToSet->getDrawable()->highlight();
+        addEditor(*m_objectToSet);
     }
 }
 
@@ -401,7 +395,7 @@ void Sandbox3DLayer::generateObjectSetter()
         ImGui::SetNextWindowCollapsed(false, ImGuiCond_Once);
         ImGui::Begin("Object setter", NULL,
                      ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoNavInputs);
-        if (ImGui::InputFloat3("loaction", nextObjectCords.data()))
+        if (ImGui::InputFloat3("location", nextObjectCords.data()))
         {
             m_objectToSet->setPosition({nextObjectCords[0], nextObjectCords[1], nextObjectCords[2]});
         }
@@ -536,12 +530,14 @@ void Sandbox3DLayer::generatePointLightAdder()
         m_pointLights.push_back(
             Spark::Render::createPointLight(glm::vec3(0, 0, 0), glm::vec3(1, 1, 1), std::move(sphere)));
         addPointLight(*(m_pointLights.back()));
+        m_objects.push_back(m_pointLights.back());
         if (m_pointLightToSet)
         {
             m_pointLightToSet->getDrawable()->unhighlight();
         }
         m_pointLightToSet = m_pointLights.back().get();
         m_pointLightToSet->getDrawable()->highlight();
+        addEditor(*m_pointLightToSet);
     }
 }
 
@@ -649,6 +645,25 @@ void Sandbox3DLayer::removeEditor()
     {
         m_app.PopLayer(&m_editorLayer);
     }
+}
+
+bool Sandbox3DLayer::deselectObject()
+{
+    if (m_pointLightToSet)
+    {
+        m_pointLightToSet->getDrawable()->unhighlight();
+        m_pointLightToSet = nullptr;
+    }
+    else if (m_objectToSet)
+    {
+        m_objectToSet->getDrawable()->unhighlight();
+        m_objectToSet = nullptr;
+    }
+    else
+    {
+        return false;
+    }
+    return true;
 }
 void Sandbox3DLayer::generateWireframeSetter()
 {
