@@ -3,7 +3,7 @@
 
 #include <spark.h>
 
-#include "editor_3d_layer.h"
+#include "editor/editor_3d_layer.h"
 
 class Sandbox3DLayer : public Spark::Layer3D
 {

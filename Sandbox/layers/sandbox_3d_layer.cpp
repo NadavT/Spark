@@ -40,9 +40,9 @@ Sandbox3DLayer::Sandbox3DLayer(Spark::Application &app)
     , m_wireframeColor{0, 0, 0}
     , m_beforeWireframeColor{0, 0, 0}
 {
-    const Spark::Texture &texture = Spark::ResourceManager::loadTexture("cubeTexutre", "textures/container2.png");
+    const Spark::Texture &texture = Spark::ResourceManager::loadTexture("cubeTexture", "textures/container2.png");
     const Spark::Texture &specularTexture =
-        Spark::ResourceManager::loadTexture("cubeTexutreSpecular", "textures/container2_specular.png");
+        Spark::ResourceManager::loadTexture("cubeTextureSpecular", "textures/container2_specular.png");
     // m_objects.push_back(Spark::createBox({0, 0, 0}, 1, 1, 1, texture, specularTexture));
     // addObjectA(*m_objects.back());
     // const Spark::Model &model = Spark::ResourceManager::loadModel("modelTest", "model/backpack/scene.gltf");
@@ -369,8 +369,8 @@ void Sandbox3DLayer::generateBoxAdder()
     if (ImGui::Button("add box"))
     {
         SPARK_INFO("Adding box");
-        const Spark::Texture *texture = Spark::ResourceManager::getTexture("cubeTexutre");
-        const Spark::Texture *specularTexture = Spark::ResourceManager::getTexture("cubeTexutreSpecular");
+        const Spark::Texture *texture = Spark::ResourceManager::getTexture("cubeTexture");
+        const Spark::Texture *specularTexture = Spark::ResourceManager::getTexture("cubeTextureSpecular");
         m_objects.push_back(Spark::createBox(glm::vec3(0, 0, 0), 1, 1, 1, *texture, *specularTexture));
         addObject(*m_objects.back());
         if (m_objectToSet)
