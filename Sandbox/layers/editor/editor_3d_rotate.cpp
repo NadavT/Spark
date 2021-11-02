@@ -37,8 +37,8 @@ Editor3DRotate::Editor3DRotate(Spark::Layer3D &layer)
 float Editor3DRotate::findSelectedRotate(Spark::Render::Camera &camera)
 {
     float closest = -1;
-    int currentAxis = static_cast<int>(Axis::VIEW);
-    for (auto &object : {m_viewRing})
+    int currentAxis = static_cast<int>(Axis::X);
+    for (auto &object : {m_xRing, m_yRing, m_zRing, m_viewRing})
     {
         float distance =
             Spark::Physics::getRayDistanceFromObject(Spark::Physics::getMouseRay(camera), object->getPhysicsObject());

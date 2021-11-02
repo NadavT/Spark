@@ -59,21 +59,22 @@ float Pipe::getRayDistanceFromObject(Ray3D ray) const
         glm::vec3 p1 = getTransformation() * glm::vec4(m_positions[(i == m_positions.size() - 1) ? 0 : i + 1], 1.0f);
 
         glm::vec3 n = glm::normalize(glm::cross(glm::cross((p1 - p0), ray.direction), (p1 - p0)));
-        glm::vec3 d = glm::normalize(glm::cross(n, (p1 - p0)));
-        glm::vec3 v0 = p0 + d * m_radius;
-        glm::vec3 v1 = p0 - d * m_radius;
-        glm::vec3 v2 = p1 + d * m_radius;
-        glm::vec3 v3 = p1 - d * m_radius;
-        float intersection = glm::dot((p0 - ray.source), n) / glm::dot(ray.direction, n);
-        if (intersection >= 0)
+        float intersectionRayPlane = glm::dot((p0 - ray.source), n) / glm::dot(ray.direction, n);
+        if (intersectionRayPlane >= 0)
         {
-            glm::vec3 intersectionPoint = ray.source + intersection * ray.direction;
-            if (isPointInTriangle(intersectionPoint, v0, v1, v2) || isPointInTriangle(intersectionPoint, v1, v2, v3))
+            glm::vec3 intersectionRayPlanePoint = ray.source + intersectionRayPlane * ray.direction;
+            float closestToRay = -static_cast<float>(glm::dot(p0 - intersectionRayPlanePoint, p1 - p0) /
+                                                     glm::pow(glm::length(p1 - p0), 2));
+            if (closestToRay >= 0 && closestToRay <= 1)
             {
-                float curDistance = glm::distance(intersectionPoint, ray.source);
-                if (distance == -1 || (curDistance != -1 && curDistance < distance))
+                glm::vec3 closestToRayPoint = p0 + closestToRay * (p1 - p0);
+                if (glm::distance(intersectionRayPlanePoint, closestToRayPoint) <= m_radius)
                 {
-                    distance = curDistance;
+                    float curDistance = glm::distance(intersectionRayPlanePoint, ray.source);
+                    if (distance == -1 || (curDistance != -1 && curDistance < distance))
+                    {
+                        distance = curDistance;
+                    }
                 }
             }
         }
