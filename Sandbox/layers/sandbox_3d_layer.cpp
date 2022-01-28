@@ -329,14 +329,12 @@ bool Sandbox3DLayer::handleMousePressed(Spark::MouseButtonPressedEvent &e)
                 }
                 if (m_objectToSet)
                 {
-                    m_objectToSet->getDrawable()->unhighlight();
-                    m_objectToSet = nullptr;
+                    deselectObject();
                     removeEditor();
                 }
                 if (m_pointLightToSet)
                 {
-                    m_pointLightToSet->getDrawable()->unhighlight();
-                    m_pointLightToSet = nullptr;
+                    deselectObject();
                     removeEditor();
                 }
                 closestObject->getDrawable()->highlight();
@@ -373,10 +371,7 @@ void Sandbox3DLayer::generateBoxAdder()
         const Spark::Texture *specularTexture = Spark::ResourceManager::getTexture("cubeTextureSpecular");
         m_objects.push_back(Spark::createBox(glm::vec3(0, 0, 0), 1, 1, 1, *texture, *specularTexture));
         addObject(*m_objects.back());
-        if (m_objectToSet)
-        {
-            m_objectToSet->getDrawable()->unhighlight();
-        }
+        deselectObject();
         m_objectToSet = m_objects.back().get();
         m_objectToSet->getDrawable()->highlight();
         addEditor(*m_objectToSet);
@@ -416,8 +411,7 @@ void Sandbox3DLayer::generateObjectSetter()
         ImGui::Separator();
         if (ImGui::Button("set"))
         {
-            m_objectToSet->getDrawable()->unhighlight();
-            m_objectToSet = nullptr;
+            deselectObject();
         }
 
         ImGui::End();
@@ -531,10 +525,7 @@ void Sandbox3DLayer::generatePointLightAdder()
             Spark::Render::createPointLight(glm::vec3(0, 0, 0), glm::vec3(1, 1, 1), std::move(sphere)));
         addPointLight(*(m_pointLights.back()));
         m_objects.push_back(m_pointLights.back());
-        if (m_pointLightToSet)
-        {
-            m_pointLightToSet->getDrawable()->unhighlight();
-        }
+        deselectObject();
         m_pointLightToSet = m_pointLights.back().get();
         m_pointLightToSet->getDrawable()->highlight();
         addEditor(*m_pointLightToSet);
@@ -604,8 +595,7 @@ void Sandbox3DLayer::generatePointLightSetter()
 
         if (ImGui::Button("set"))
         {
-            m_pointLightToSet->getDrawable()->unhighlight();
-            m_pointLightToSet = nullptr;
+            deselectObject();
         }
 
         ImGui::End();
@@ -619,12 +609,10 @@ void Sandbox3DLayer::generatePointLightsSelector()
     {
         if (ImGui::Button(("set Point light " + std::to_string(index)).c_str()))
         {
-            if (m_pointLightToSet)
-            {
-                m_pointLightToSet->getDrawable()->unhighlight();
-            }
+            deselectObject();
             m_pointLightToSet = pointLight.get();
             m_pointLightToSet->getDrawable()->highlight();
+            addEditor(*m_pointLightToSet);
         }
         index++;
     }
