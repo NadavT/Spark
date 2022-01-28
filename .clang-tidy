@@ -1,3 +1,3 @@
 ---
-Checks:				'-clang-diagnostic-pragma-pack'
+Checks:				'-clang-diagnostic-pragma-pack, -clang-diagnostic-unused-command-line-argument'
 ...
