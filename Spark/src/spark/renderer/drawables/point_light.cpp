@@ -51,10 +51,30 @@ void PointLight::move(glm::vec3 position)
     m_object->move(position);
 }
 
+void PointLight::scale(glm::vec3 scale)
+{
+    m_object->scale(scale);
+}
+
+void PointLight::rotate(float angle, glm::vec3 axis, bool worldRelative)
+{
+    m_object->rotate(angle, axis, worldRelative);
+}
+
 void PointLight::setPosition(glm::vec3 position)
 {
     m_position = position;
     m_object->setPosition(position);
+}
+
+void PointLight::setScale(glm::vec3 scale)
+{
+    m_object->setScale(scale);
+}
+
+void PointLight::setRotation(float angle, glm::vec3 axis)
+{
+    m_object->setRotation(angle, axis);
 }
 
 glm::vec3 PointLight::getPosition()
@@ -62,17 +82,17 @@ glm::vec3 PointLight::getPosition()
     return m_position;
 }
 
-SPARK_API Object3D &PointLight::getObject()
+Object3D &PointLight::getObject()
 {
     return *m_object;
 }
 
-SPARK_API Physics::Object3D &PointLight::getPhysicsObject() const
+Physics::Object3D &PointLight::getPhysicsObject() const
 {
     return m_object->getPhysicsObject();
 }
 
-SPARK_API std::shared_ptr<Drawable3D> &PointLight::getDrawable()
+std::shared_ptr<Drawable3D> &PointLight::getDrawable()
 {
     return m_object->getDrawable();
 }
