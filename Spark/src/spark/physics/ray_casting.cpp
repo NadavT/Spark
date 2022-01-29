@@ -34,23 +34,27 @@ bool isPointInTriangle(glm::vec3 point, glm::vec3 t0, glm::vec3 t1, glm::vec3 t2
     point = point - t0;
     float a = 0;
     float b = 0;
-    if (side0.x == 0 && side0.y == 0 && side0.z == 0)
+    if (approximatelyEquals(side0.x, 0) && approximatelyEquals(side0.y, 0) && approximatelyEquals(side0.z, 0))
     {
-        b = (side1.x != 0) ? point.x / side1.x
-                           : ((side1.y != 0) ? point.y / side1.y : ((side1.z != 0) ? point.z / side1.z : 0));
+        b = (!approximatelyEquals(side1.x, 0))
+                ? point.x / side1.x
+                : ((!approximatelyEquals(side1.y, 0)) ? point.y / side1.y
+                                                      : ((!approximatelyEquals(side1.z, 0)) ? point.z / side1.z : 0));
     }
-    else if (side1.x == 0 && side1.y == 0 && side1.z == 0)
+    else if (approximatelyEquals(side1.x, 0) && approximatelyEquals(side1.y, 0) && approximatelyEquals(side1.z, 0))
     {
-        b = (side0.x != 0) ? point.x / side0.x
-                           : ((side0.y != 0) ? point.y / side0.y : ((side0.z != 0) ? point.z / side0.z : 0));
+        b = (!approximatelyEquals(side0.x, 0))
+                ? point.x / side0.x
+                : ((!approximatelyEquals(side0.y, 0)) ? point.y / side0.y
+                                                      : ((!approximatelyEquals(side0.z, 0)) ? point.z / side0.z : 0));
     }
-    else if (side0.x == 0 && side0.y == 0)
+    else if (approximatelyEquals(side0.x, 0) && approximatelyEquals(side0.y, 0))
     {
-        if (side1.y == 0)
+        if (approximatelyEquals(side1.y, 0))
         {
-            if (point.y == 0)
+            if (approximatelyEquals(point.y, 0))
             {
-                b = (side1.x != 0) ? (point.x / side1.x) : 0;
+                b = (!approximatelyEquals(side1.x, 0)) ? (point.x / side1.x) : 0;
                 a = (point.z - b * side1.z) / side0.z;
             }
         }
@@ -60,13 +64,13 @@ bool isPointInTriangle(glm::vec3 point, glm::vec3 t0, glm::vec3 t1, glm::vec3 t2
             a = (point.z - b * side1.z) / side0.z;
         }
     }
-    else if (side1.x == 0 && side1.y == 0)
+    else if (approximatelyEquals(side1.x, 0) && approximatelyEquals(side1.y, 0))
     {
-        if (side0.y == 0)
+        if (approximatelyEquals(side0.y, 0))
         {
-            if (point.y == 0)
+            if (approximatelyEquals(point.y, 0))
             {
-                a = (side0.x != 0) ? (point.x / side0.x) : 0;
+                a = (!approximatelyEquals(side0.x, 0)) ? (point.x / side0.x) : 0;
                 b = (point.z - a * side0.z) / side1.z;
             }
         }
@@ -76,14 +80,14 @@ bool isPointInTriangle(glm::vec3 point, glm::vec3 t0, glm::vec3 t1, glm::vec3 t2
             b = (point.z - a * side0.z) / side1.z;
         }
     }
-    else if (side0.x == 0 && side1.x == 0)
+    else if (approximatelyEquals(side0.x, 0) && approximatelyEquals(side1.x, 0))
     {
         b = (side0.y * point.z - side0.z * point.y) / (side0.y * side1.z - side0.z * side1.y);
-        a = (side0.z == 0) ? (point.z - b * side1.y) / side0.y : (point.z - b * side1.z) / side0.z;
+        a = (approximatelyEquals(side0.z, 0)) ? (point.z - b * side1.y) / side0.y : (point.z - b * side1.z) / side0.z;
     }
     else
     {
-        if ((side0.x * side1.y - side0.y * side1.x) == 0)
+        if (approximatelyEquals((side0.x * side1.y - side0.y * side1.x), 0))
         {
             b = (side0.x * point.z - side0.z * point.x) / (side0.x * side1.z - side0.z * side1.x);
         }
@@ -91,7 +95,7 @@ bool isPointInTriangle(glm::vec3 point, glm::vec3 t0, glm::vec3 t1, glm::vec3 t2
         {
             b = (side0.x * point.y - side0.y * point.x) / (side0.x * side1.y - side0.y * side1.x);
         }
-        if (side0.y == 0)
+        if (approximatelyEquals(side0.y, 0))
         {
             a = (point.z - b * side1.z) / side0.z;
         }
