@@ -34,6 +34,7 @@ class Editor3DMove
     Axis m_selectedAxis;
     float m_originalMoveAxisPosition;
     bool m_minimal;
+    bool m_addObjects;
 };
 
 #endif /* SANDBOX_EDITOR_3D_MOVE_H */

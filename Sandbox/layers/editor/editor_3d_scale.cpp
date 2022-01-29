@@ -21,6 +21,7 @@ Editor3DScale::Editor3DScale(Spark::Layer3D &layer)
     , m_selectedAxis(Axis::X)
     , m_originalScaleAxisPosition(0)
     , m_minimal(false)
+    , m_addObjects(false)
 {
     m_xArrow = createArrow(X_COLOR, ArrowHead::Cube);
     m_xArrow->rotate(glm::radians(90.0f), {0, 1, 0});
@@ -161,6 +162,15 @@ void Editor3DScale::updateObjects(Spark::Render::Camera &camera, Spark::Object3D
     float angle = glm::acos(glm::dot(camera.getFront(), {0, 0, 1})) / (glm::length(glm::vec3(camera.getFront())));
     glm::vec3 axis = glm::cross(glm::vec3(0, 0, 1), camera.getFront());
     m_viewRing->setRotation(angle, axis);
+
+    if (m_addObjects)
+    {
+        m_layer.addObjectAndChilds(*m_xArrow);
+        m_layer.addObjectAndChilds(*m_yArrow);
+        m_layer.addObjectAndChilds(*m_zArrow);
+        m_layer.addObjectAndChilds(*m_viewRing);
+        m_addObjects = false;
+    }
 }
 
 void Editor3DScale::addTransforms(bool minimal)
@@ -187,19 +197,18 @@ void Editor3DScale::addTransforms(bool minimal)
         m_viewRing->setAsRelativeTransform();
         m_minimal = minimal;
     }
-
-    m_layer.addObjectAndChilds(*m_xArrow);
-    m_layer.addObjectAndChilds(*m_yArrow);
-    m_layer.addObjectAndChilds(*m_zArrow);
-    m_layer.addObjectAndChilds(*m_viewRing);
+    m_addObjects = true;
 }
 
 void Editor3DScale::removeTransforms()
 {
-    m_layer.removeObjectAndChilds(*m_xArrow);
-    m_layer.removeObjectAndChilds(*m_yArrow);
-    m_layer.removeObjectAndChilds(*m_zArrow);
-    m_layer.removeObjectAndChilds(*m_viewRing);
+    if (!m_addObjects)
+    {
+        m_layer.removeObjectAndChilds(*m_xArrow);
+        m_layer.removeObjectAndChilds(*m_yArrow);
+        m_layer.removeObjectAndChilds(*m_zArrow);
+        m_layer.removeObjectAndChilds(*m_viewRing);
+    }
 }
 
 void Editor3DScale::release()

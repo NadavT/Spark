@@ -35,6 +35,7 @@ class Editor3DRotate
     Spark::Object3D *m_selectedObject;
     Axis m_selectedAxis;
     float m_originalRotation;
+    bool m_addObjects;
 };
 
 #endif /* SANDBOX_EDITOR_3D_ROTATE_H */

@@ -36,6 +36,7 @@ class Editor3DScale
     Axis m_selectedAxis;
     float m_originalScaleAxisPosition;
     bool m_minimal;
+    bool m_addObjects;
 };
 
 #endif /* SANDBOX_EDITOR_3D_SCALE_H */

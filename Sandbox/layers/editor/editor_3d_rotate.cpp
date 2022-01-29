@@ -20,6 +20,7 @@ Editor3DRotate::Editor3DRotate(Spark::Layer3D &layer)
     , m_selectedObject(nullptr)
     , m_selectedAxis(Axis::X)
     , m_originalRotation(0)
+    , m_addObjects(false)
 {
     m_xRing = createRing(X_COLOR);
     m_xRing->rotate(glm::radians(90.0f), {0, 1, 0});
@@ -216,22 +217,31 @@ void Editor3DRotate::updateObjects(Spark::Render::Camera &camera, Spark::Object3
     float angle = glm::acos(glm::dot(camera.getFront(), {0, 0, 1})) / (glm::length(glm::vec3(camera.getFront())));
     glm::vec3 axis = glm::cross(glm::vec3(0, 0, 1), camera.getFront());
     m_viewRing->setRotation(angle, axis);
+
+    if (m_addObjects)
+    {
+        m_layer.addObjectAndChilds(*m_xRing);
+        m_layer.addObjectAndChilds(*m_yRing);
+        m_layer.addObjectAndChilds(*m_zRing);
+        m_layer.addObjectAndChilds(*m_viewRing);
+        m_addObjects = false;
+    }
 }
 
 void Editor3DRotate::addTransforms()
 {
-    m_layer.addObjectAndChilds(*m_xRing);
-    m_layer.addObjectAndChilds(*m_yRing);
-    m_layer.addObjectAndChilds(*m_zRing);
-    m_layer.addObjectAndChilds(*m_viewRing);
+    m_addObjects = true;
 }
 
 void Editor3DRotate::removeTransforms()
 {
-    m_layer.removeObjectAndChilds(*m_xRing);
-    m_layer.removeObjectAndChilds(*m_yRing);
-    m_layer.removeObjectAndChilds(*m_zRing);
-    m_layer.removeObjectAndChilds(*m_viewRing);
+    if (!m_addObjects)
+    {
+        m_layer.removeObjectAndChilds(*m_xRing);
+        m_layer.removeObjectAndChilds(*m_yRing);
+        m_layer.removeObjectAndChilds(*m_zRing);
+        m_layer.removeObjectAndChilds(*m_viewRing);
+    }
 }
 
 void Editor3DRotate::release()

@@ -18,6 +18,7 @@ Editor3DMove::Editor3DMove(Spark::Layer3D &layer)
     , m_selectedAxis(Axis::X)
     , m_originalMoveAxisPosition(0)
     , m_minimal(false)
+    , m_addObjects(false)
 {
     m_xArrow = createArrow(X_COLOR, ArrowHead::Cone);
     m_xArrow->rotate(glm::radians(90.0f), {0, 1, 0});
@@ -117,6 +118,14 @@ void Editor3DMove::updateObjects(Spark::Render::Camera &camera, Spark::Object3D 
     m_xArrow->setPosition(objectToEdit->getPhysicsObject().getPosition());
     m_yArrow->setPosition(objectToEdit->getPhysicsObject().getPosition());
     m_zArrow->setPosition(objectToEdit->getPhysicsObject().getPosition());
+
+    if (m_addObjects)
+    {
+        m_layer.addObjectAndChilds(*m_xArrow);
+        m_layer.addObjectAndChilds(*m_yArrow);
+        m_layer.addObjectAndChilds(*m_zArrow);
+        m_addObjects = false;
+    }
 }
 
 void Editor3DMove::addTransforms(bool minimal)
@@ -137,16 +146,17 @@ void Editor3DMove::addTransforms(bool minimal)
         m_minimal = minimal;
     }
 
-    m_layer.addObjectAndChilds(*m_xArrow);
-    m_layer.addObjectAndChilds(*m_yArrow);
-    m_layer.addObjectAndChilds(*m_zArrow);
+    m_addObjects = true;
 }
 
 void Editor3DMove::removeTransforms()
 {
-    m_layer.removeObjectAndChilds(*m_xArrow);
-    m_layer.removeObjectAndChilds(*m_yArrow);
-    m_layer.removeObjectAndChilds(*m_zArrow);
+    if (!m_addObjects)
+    {
+        m_layer.removeObjectAndChilds(*m_xArrow);
+        m_layer.removeObjectAndChilds(*m_yArrow);
+        m_layer.removeObjectAndChilds(*m_zArrow);
+    }
 }
 
 void Editor3DMove::release()
