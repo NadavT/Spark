@@ -27,9 +27,6 @@ class Editor3DRotate
     void release();
 
   private:
-    std::shared_ptr<Spark::Object3D> createRing(glm::vec3 color);
-
-  private:
     Spark::Layer3D &m_layer;
     std::shared_ptr<Spark::Object3D> m_xRing;
     std::shared_ptr<Spark::Object3D> m_yRing;

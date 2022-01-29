@@ -8,6 +8,7 @@ set(SANDBOX_SOURCE
     "layers/editor/editor_3d_move.cpp"
     "layers/editor/editor_3d_rotate.cpp"
     "layers/editor/editor_3d_scale.cpp"
+    "layers/editor/editor_utils.cpp"
     )
 
 add_executable(sandbox ${SANDBOX_SOURCE})

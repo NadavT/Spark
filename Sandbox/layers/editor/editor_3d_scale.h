@@ -10,6 +10,7 @@ class Editor3DScale
         X = 0,
         Y,
         Z,
+        View
     };
 
   public:
@@ -33,6 +34,7 @@ class Editor3DScale
     std::shared_ptr<Spark::Object3D> m_xArrow;
     std::shared_ptr<Spark::Object3D> m_yArrow;
     std::shared_ptr<Spark::Object3D> m_zArrow;
+    std::shared_ptr<Spark::Object3D> m_viewRing;
     Spark::Object3D *m_selectedObject;
     Axis m_selectedAxis;
     float m_originalScaleAxisPosition;
