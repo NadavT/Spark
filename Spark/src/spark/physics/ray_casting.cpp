@@ -211,9 +211,37 @@ glm::vec3 getClosestPointToRayFromRay(Ray3D fromRay, Ray3D toRay)
     {
         bool xyLegal = isLegalCalc(fromRay.direction.x, fromRay.direction.y, toRay.direction.x, toRay.direction.y);
         bool xzLegal = isLegalCalc(fromRay.direction.x, fromRay.direction.z, toRay.direction.x, toRay.direction.z);
+        bool yzLegal = isLegalCalc(fromRay.direction.y, fromRay.direction.z, toRay.direction.y, toRay.direction.z);
         if (xyLegal && (yMag > zMag || !xzLegal))
         {
             t1 = calcDirectionMag(fromRay.direction.x, fromRay.direction.y, toRay.direction.x, toRay.direction.y, X, Y);
+        }
+        else if (xzLegal)
+        {
+            t1 = calcDirectionMag(fromRay.direction.x, fromRay.direction.z, toRay.direction.x, toRay.direction.z, X, Z);
+        }
+        else if (yzLegal)
+        {
+            t1 = calcDirectionMag(fromRay.direction.y, fromRay.direction.z, toRay.direction.y, toRay.direction.z, Y, Z);
+        }
+        else
+        {
+            SPARK_CORE_ERROR("Can't calculate getClosestPointToRayFromRay");
+            SPARK_DEBUG_BREAK();
+        }
+    }
+    else if (yMag > xMag && yMag > zMag)
+    {
+        bool xyLegal = isLegalCalc(fromRay.direction.x, fromRay.direction.y, toRay.direction.x, toRay.direction.y);
+        bool xzLegal = isLegalCalc(fromRay.direction.x, fromRay.direction.z, toRay.direction.x, toRay.direction.z);
+        bool yzLegal = isLegalCalc(fromRay.direction.y, fromRay.direction.z, toRay.direction.y, toRay.direction.z);
+        if (xyLegal && (xMag > zMag || !yzLegal))
+        {
+            t1 = calcDirectionMag(fromRay.direction.x, fromRay.direction.y, toRay.direction.x, toRay.direction.y, X, Y);
+        }
+        else if (yzLegal)
+        {
+            t1 = calcDirectionMag(fromRay.direction.y, fromRay.direction.z, toRay.direction.y, toRay.direction.z, Y, Z);
         }
         else if (xzLegal)
         {
@@ -225,26 +253,9 @@ glm::vec3 getClosestPointToRayFromRay(Ray3D fromRay, Ray3D toRay)
             SPARK_DEBUG_BREAK();
         }
     }
-    else if (yMag > xMag && yMag > zMag)
-    {
-        bool xyLegal = isLegalCalc(fromRay.direction.x, fromRay.direction.y, toRay.direction.x, toRay.direction.y);
-        bool yzLegal = isLegalCalc(fromRay.direction.y, fromRay.direction.z, toRay.direction.y, toRay.direction.z);
-        if (xyLegal && (xMag > zMag || !yzLegal))
-        {
-            t1 = calcDirectionMag(fromRay.direction.x, fromRay.direction.y, toRay.direction.x, toRay.direction.y, X, Y);
-        }
-        else if (yzLegal)
-        {
-            t1 = calcDirectionMag(fromRay.direction.y, fromRay.direction.z, toRay.direction.y, toRay.direction.z, Y, Z);
-        }
-        else
-        {
-            SPARK_CORE_ERROR("Can't calculate getClosestPointToRayFromRay");
-            SPARK_DEBUG_BREAK();
-        }
-    }
     else
     {
+        bool xyLegal = isLegalCalc(fromRay.direction.x, fromRay.direction.y, toRay.direction.x, toRay.direction.y);
         bool xzLegal = isLegalCalc(fromRay.direction.x, fromRay.direction.z, toRay.direction.x, toRay.direction.z);
         bool yzLegal = isLegalCalc(fromRay.direction.y, fromRay.direction.z, toRay.direction.y, toRay.direction.z);
         if (xzLegal && (xMag > yMag || !yzLegal))
@@ -254,6 +265,10 @@ glm::vec3 getClosestPointToRayFromRay(Ray3D fromRay, Ray3D toRay)
         else if (yzLegal)
         {
             t1 = calcDirectionMag(fromRay.direction.y, fromRay.direction.z, toRay.direction.y, toRay.direction.z, Y, Z);
+        }
+        else if (xyLegal)
+        {
+            t1 = calcDirectionMag(fromRay.direction.x, fromRay.direction.y, toRay.direction.x, toRay.direction.y, X, Y);
         }
         else
         {
