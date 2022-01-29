@@ -114,6 +114,9 @@ void Editor3DScale::updateObjects(Spark::Render::Camera &camera, Spark::Object3D
     m_xArrow->setPosition(objectToEdit->getPhysicsObject().getPosition());
     m_yArrow->setPosition(objectToEdit->getPhysicsObject().getPosition());
     m_zArrow->setPosition(objectToEdit->getPhysicsObject().getPosition());
+    m_xArrow->setRotation(objectToEdit->getPhysicsObject().getRotation());
+    m_yArrow->setRotation(objectToEdit->getPhysicsObject().getRotation());
+    m_zArrow->setRotation(objectToEdit->getPhysicsObject().getRotation());
 }
 
 void Editor3DScale::addTransforms()
