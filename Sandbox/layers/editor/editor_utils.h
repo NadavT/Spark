@@ -6,6 +6,14 @@
 
 #include <spark.h>
 
+enum class ArrowHead
+{
+    Cone,
+    Cube
+};
+
+std::shared_ptr<Spark::Object3D> createArrowHead(glm::vec3 color, ArrowHead type, float length = 2.0f);
+std::shared_ptr<Spark::Object3D> createArrow(glm::vec3 color, ArrowHead type, float length = 2.0f);
 std::shared_ptr<Spark::Object3D> createRing(glm::vec3 color);
 
 #endif /* SPARK_EDITOR_UTILS_H */

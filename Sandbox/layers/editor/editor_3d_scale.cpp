@@ -21,15 +21,15 @@ Editor3DScale::Editor3DScale(Spark::Layer3D &layer)
     , m_selectedAxis(Axis::X)
     , m_originalScaleAxisPosition(0)
 {
-    m_xArrow = createArrow(X_COLOR);
+    m_xArrow = createArrow(X_COLOR, ArrowHead::Cube);
     m_xArrow->rotate(glm::radians(90.0f), {0, 1, 0});
     m_xArrow->setAsRelativeTransform();
 
-    m_yArrow = createArrow(Y_COLOR);
+    m_yArrow = createArrow(Y_COLOR, ArrowHead::Cube);
     m_yArrow->rotate(glm::radians(270.0f), {1, 0, 0});
     m_yArrow->setAsRelativeTransform();
 
-    m_zArrow = createArrow(Z_COLOR);
+    m_zArrow = createArrow(Z_COLOR, ArrowHead::Cube);
     m_zArrow->setAsRelativeTransform();
 
     m_viewRing = createRing(VIEW_COLOR);
@@ -185,18 +185,4 @@ void Editor3DScale::release()
     m_yArrow->getDrawable()->setColor(Y_COLOR, true);
     m_zArrow->getDrawable()->setColor(Z_COLOR, true);
     m_viewRing->getDrawable()->setColor(VIEW_COLOR, true);
-}
-
-std::shared_ptr<Spark::Object3D> Editor3DScale::createArrow(glm::vec3 color)
-{
-    std::shared_ptr<Spark::Object3D> arrowBody = Spark::createCylinder(glm::vec3(0, 0, 0), 0.2f, 0.2f, 2, color);
-    std::shared_ptr<Spark::Object3D> arrowHead = Spark::createBox(glm::vec3(0, 0, 1.25f), 0.5f, 0.5f, 0.5f, color);
-    arrowBody->addChild(arrowHead);
-    arrowHead->getDrawable()->setCalculateLight(false);
-    auto boxBound = std::make_unique<Spark::Physics::Box>(glm::vec3(0, 0, 0.25), 1.0f, 1.0f, 2.5f);
-    arrowBody->setPhysicsObject(std::move(boxBound));
-    arrowBody->move({0, 0, 1});
-    arrowBody->setAsRelativeTransform();
-    arrowBody->getDrawable()->setCalculateLight(false);
-    return arrowBody;
 }

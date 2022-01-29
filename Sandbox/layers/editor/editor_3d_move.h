@@ -26,9 +26,6 @@ class Editor3DMove
     void release();
 
   private:
-    std::shared_ptr<Spark::Object3D> createArrow(glm::vec3 color);
-
-  private:
     Spark::Layer3D &m_layer;
     std::shared_ptr<Spark::Object3D> m_xArrow;
     std::shared_ptr<Spark::Object3D> m_yArrow;
