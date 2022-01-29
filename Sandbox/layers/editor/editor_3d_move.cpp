@@ -157,6 +157,7 @@ void Editor3DMove::removeTransforms()
         m_layer.removeObjectAndChilds(*m_yArrow);
         m_layer.removeObjectAndChilds(*m_zArrow);
     }
+    m_addObjects = false;
 }
 
 void Editor3DMove::release()

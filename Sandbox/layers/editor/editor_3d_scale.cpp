@@ -209,6 +209,7 @@ void Editor3DScale::removeTransforms()
         m_layer.removeObjectAndChilds(*m_zArrow);
         m_layer.removeObjectAndChilds(*m_viewRing);
     }
+    m_addObjects = false;
 }
 
 void Editor3DScale::release()

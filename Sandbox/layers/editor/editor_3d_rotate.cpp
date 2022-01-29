@@ -242,6 +242,7 @@ void Editor3DRotate::removeTransforms()
         m_layer.removeObjectAndChilds(*m_zRing);
         m_layer.removeObjectAndChilds(*m_viewRing);
     }
+    m_addObjects = false;
 }
 
 void Editor3DRotate::release()
