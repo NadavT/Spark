@@ -196,25 +196,70 @@ glm::vec3 getClosestPointToRayFromRay(Ray3D fromRay, Ray3D toRay)
     float Z = toRay.source.z - fromRay.source.z - distance * normal.z;
     float t1 = 0;
 
-    if (!approximatelyEquals(fromRay.direction.x * toRay.direction.y - fromRay.direction.y * toRay.direction.x, 0))
+    float xMag = glm::abs(fromRay.direction.x + toRay.direction.x);
+    float yMag = glm::abs(fromRay.direction.y + toRay.direction.y);
+    float zMag = glm::abs(fromRay.direction.z + toRay.direction.z);
+
+    auto isLegalCalc = [](float fromDir1, float fromDir2, float toDir1, float toDir2) {
+        return !approximatelyEquals(fromDir1 * toDir2 - fromDir2 * toDir1, 0);
+    };
+    auto calcDirectionMag = [](float fromDir1, float fromDir2, float toDir1, float toDir2, float mag1, float mag2) {
+        return (toDir2 * mag1 - toDir1 * mag2) / (fromDir1 * toDir2 - fromDir2 * toDir1);
+    };
+
+    if (xMag > yMag && xMag > zMag)
     {
-        t1 = (toRay.direction.y * X - toRay.direction.x * Y) /
-             (fromRay.direction.x * toRay.direction.y - fromRay.direction.y * toRay.direction.x);
+        bool xyLegal = isLegalCalc(fromRay.direction.x, fromRay.direction.y, toRay.direction.x, toRay.direction.y);
+        bool xzLegal = isLegalCalc(fromRay.direction.x, fromRay.direction.z, toRay.direction.x, toRay.direction.z);
+        if (xyLegal && (yMag > zMag || !xzLegal))
+        {
+            t1 = calcDirectionMag(fromRay.direction.x, fromRay.direction.y, toRay.direction.x, toRay.direction.y, X, Y);
+        }
+        else if (xzLegal)
+        {
+            t1 = calcDirectionMag(fromRay.direction.x, fromRay.direction.z, toRay.direction.x, toRay.direction.z, X, Z);
+        }
+        else
+        {
+            SPARK_CORE_ERROR("Can't calculate getClosestPointToRayFromRay");
+            SPARK_DEBUG_BREAK();
+        }
     }
-    else if (!approximatelyEquals(fromRay.direction.x * toRay.direction.z - fromRay.direction.z * toRay.direction.x, 0))
+    else if (yMag > xMag && yMag > zMag)
     {
-        t1 = (toRay.direction.z * X - toRay.direction.x * Z) /
-             (fromRay.direction.x * toRay.direction.z - fromRay.direction.z * toRay.direction.x);
-    }
-    else if (!approximatelyEquals(fromRay.direction.y * toRay.direction.z - fromRay.direction.z * toRay.direction.y, 0))
-    {
-        t1 = (toRay.direction.z * Y - toRay.direction.y * Z) /
-             (fromRay.direction.y * toRay.direction.z - fromRay.direction.z * toRay.direction.y);
+        bool xyLegal = isLegalCalc(fromRay.direction.x, fromRay.direction.y, toRay.direction.x, toRay.direction.y);
+        bool yzLegal = isLegalCalc(fromRay.direction.y, fromRay.direction.z, toRay.direction.y, toRay.direction.z);
+        if (xyLegal && (xMag > zMag || !yzLegal))
+        {
+            t1 = calcDirectionMag(fromRay.direction.x, fromRay.direction.y, toRay.direction.x, toRay.direction.y, X, Y);
+        }
+        else if (yzLegal)
+        {
+            t1 = calcDirectionMag(fromRay.direction.y, fromRay.direction.z, toRay.direction.y, toRay.direction.z, Y, Z);
+        }
+        else
+        {
+            SPARK_CORE_ERROR("Can't calculate getClosestPointToRayFromRay");
+            SPARK_DEBUG_BREAK();
+        }
     }
     else
     {
-        SPARK_CORE_ERROR("Can't calculate getClosestPointToRayFromRay");
-        SPARK_DEBUG_BREAK();
+        bool xzLegal = isLegalCalc(fromRay.direction.x, fromRay.direction.z, toRay.direction.x, toRay.direction.z);
+        bool yzLegal = isLegalCalc(fromRay.direction.y, fromRay.direction.z, toRay.direction.y, toRay.direction.z);
+        if (xzLegal && (xMag > yMag || !yzLegal))
+        {
+            t1 = calcDirectionMag(fromRay.direction.x, fromRay.direction.z, toRay.direction.x, toRay.direction.z, X, Z);
+        }
+        else if (yzLegal)
+        {
+            t1 = calcDirectionMag(fromRay.direction.y, fromRay.direction.z, toRay.direction.y, toRay.direction.z, Y, Z);
+        }
+        else
+        {
+            SPARK_CORE_ERROR("Can't calculate getClosestPointToRayFromRay");
+            SPARK_DEBUG_BREAK();
+        }
     }
 
     return fromRay.source + fromRay.direction * t1;
