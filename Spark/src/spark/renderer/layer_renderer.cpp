@@ -11,6 +11,11 @@ LayerRenderer::LayerRenderer()
 
 void LayerRenderer::addDrawable(std::shared_ptr<Drawable> &drawable)
 {
+    auto found_it = std::find_if(m_drawables.begin(), m_drawables.end(),
+                                 [&](std::shared_ptr<Drawable> const &p) { return p.get() == drawable.get(); });
+
+    SPARK_CORE_ASSERT(found_it == m_drawables.end(), "Tried to dd a drawable which is already in the layer");
+
     m_drawables.push_back(drawable);
 }
 
