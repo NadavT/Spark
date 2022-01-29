@@ -20,7 +20,7 @@ class Editor3DMove
 
     void updateObjects(Spark::Render::Camera &camera, Spark::Object3D *objectToEdit);
 
-    void addTransforms();
+    void addTransforms(bool minimal = false);
     void removeTransforms();
 
     void release();
@@ -33,6 +33,7 @@ class Editor3DMove
     Spark::Object3D *m_selectedObject;
     Axis m_selectedAxis;
     float m_originalMoveAxisPosition;
+    bool m_minimal;
 };
 
 #endif /* SANDBOX_EDITOR_3D_MOVE_H */

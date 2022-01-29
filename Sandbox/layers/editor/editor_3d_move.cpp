@@ -17,6 +17,7 @@ Editor3DMove::Editor3DMove(Spark::Layer3D &layer)
     , m_selectedObject(nullptr)
     , m_selectedAxis(Axis::X)
     , m_originalMoveAxisPosition(0)
+    , m_minimal(false)
 {
     m_xArrow = createArrow(X_COLOR, ArrowHead::Cone);
     m_xArrow->rotate(glm::radians(90.0f), {0, 1, 0});
@@ -118,8 +119,24 @@ void Editor3DMove::updateObjects(Spark::Render::Camera &camera, Spark::Object3D 
     m_zArrow->setPosition(objectToEdit->getPhysicsObject().getPosition());
 }
 
-void Editor3DMove::addTransforms()
+void Editor3DMove::addTransforms(bool minimal)
 {
+    if (minimal != m_minimal)
+    {
+        m_xArrow = (minimal) ? createArrowHead(X_COLOR, ArrowHead::Cone, 3) : createArrow(X_COLOR, ArrowHead::Cone);
+        m_xArrow->rotate(glm::radians(90.0f), {0, 1, 0});
+        m_xArrow->setAsRelativeTransform();
+
+        m_yArrow = (minimal) ? createArrowHead(Y_COLOR, ArrowHead::Cone, 3) : createArrow(Y_COLOR, ArrowHead::Cone);
+        m_yArrow->rotate(glm::radians(270.0f), {1, 0, 0});
+        m_yArrow->setAsRelativeTransform();
+
+        m_zArrow = (minimal) ? createArrowHead(Z_COLOR, ArrowHead::Cone, 3) : createArrow(Z_COLOR, ArrowHead::Cone);
+        m_zArrow->setAsRelativeTransform();
+
+        m_minimal = minimal;
+    }
+
     m_layer.addObjectAndChilds(*m_xArrow);
     m_layer.addObjectAndChilds(*m_yArrow);
     m_layer.addObjectAndChilds(*m_zArrow);

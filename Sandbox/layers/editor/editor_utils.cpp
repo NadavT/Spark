@@ -14,26 +14,34 @@ static std::vector<glm::vec3> buildCircle(float radius, int sectors)
     return points;
 }
 
-std::shared_ptr<Spark::Object3D> createArrowHead(glm::vec3 color, ArrowHead type, float length)
+std::shared_ptr<Spark::Object3D> createArrowHead(glm::vec3 color, ArrowHead type, float length, float headSize)
 {
     std::shared_ptr<Spark::Object3D> arrowHead =
-        (type == ArrowHead::Cone) ? Spark::createCylinder(glm::vec3(0, 0, length / 2 + 0.25f), 0.5f, 0, 0.5f, color)
-                                  : Spark::createBox(glm::vec3(0, 0, length / 2 + 0.25f), 0.5f, 0.5f, 0.5f, color);
+        (type == ArrowHead::Cone)
+            ? Spark::createCylinder(glm::vec3(0, 0, length / 2 + headSize / 2), headSize, 0, headSize, color)
+            : Spark::createBox(glm::vec3(0, 0, length / 2 + headSize / 2), headSize, headSize, headSize, color);
+    auto boxBound =
+        std::make_unique<Spark::Physics::Box>(glm::vec3(0, 0, length / 2 + headSize / 2), headSize, headSize, headSize);
+    arrowHead->setPhysicsObject(std::move(boxBound));
     arrowHead->move({0, 0, length / 2});
     arrowHead->setAsRelativeTransform();
     arrowHead->getDrawable()->setCalculateLight(false);
     return arrowHead;
 }
 
-std::shared_ptr<Spark::Object3D> createArrow(glm::vec3 color, ArrowHead type, float length)
+std::shared_ptr<Spark::Object3D> createArrow(glm::vec3 color, ArrowHead type, float length, float headSize,
+                                             float bodyWidth)
 {
-    std::shared_ptr<Spark::Object3D> arrowBody = Spark::createCylinder(glm::vec3(0, 0, 0), 0.2f, 0.2f, length, color);
+    std::shared_ptr<Spark::Object3D> arrowBody =
+        Spark::createCylinder(glm::vec3(0, 0, 0), bodyWidth, bodyWidth, length, color);
     std::shared_ptr<Spark::Object3D> arrowHead =
-        (type == ArrowHead::Cone) ? Spark::createCylinder(glm::vec3(0, 0, length / 2 + 0.25f), 0.5f, 0, 0.5f, color)
-                                  : Spark::createBox(glm::vec3(0, 0, length / 2 + 0.25f), 0.5f, 0.5f, 0.5f, color);
+        (type == ArrowHead::Cone)
+            ? Spark::createCylinder(glm::vec3(0, 0, length / 2 + headSize / 2), headSize, 0, headSize, color)
+            : Spark::createBox(glm::vec3(0, 0, length / 2 + headSize / 2), headSize, headSize, headSize, color);
     arrowBody->addChild(arrowHead);
     arrowHead->getDrawable()->setCalculateLight(false);
-    auto boxBound = std::make_unique<Spark::Physics::Box>(glm::vec3(0, 0, 0.25), 1.0f, 1.0f, 2.5f);
+    auto boxBound = std::make_unique<Spark::Physics::Box>(glm::vec3(0, 0, headSize / 2), headSize * 2, headSize * 2,
+                                                          length + headSize);
     arrowBody->setPhysicsObject(std::move(boxBound));
     arrowBody->move({0, 0, length / 2});
     arrowBody->setAsRelativeTransform();

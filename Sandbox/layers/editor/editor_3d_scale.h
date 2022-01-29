@@ -21,7 +21,7 @@ class Editor3DScale
 
     void updateObjects(Spark::Render::Camera &camera, Spark::Object3D *objectToEdit);
 
-    void addTransforms();
+    void addTransforms(bool minimal = false);
     void removeTransforms();
 
     void release();
@@ -35,6 +35,7 @@ class Editor3DScale
     Spark::Object3D *m_selectedObject;
     Axis m_selectedAxis;
     float m_originalScaleAxisPosition;
+    bool m_minimal;
 };
 
 #endif /* SANDBOX_EDITOR_3D_SCALE_H */

@@ -98,21 +98,23 @@ bool Editor3DLayer::handleKeyPressed(Spark::KeyPressedEvent &e)
         }
         return true;
     case Spark::KeyCode::T:
-        if (!(m_shownTransforms & ShownTransformMap::Move))
+        if (m_shownTransforms & ShownTransformMap::Move)
         {
-            m_moveTransform.addTransforms();
-            m_shownTransforms |= ShownTransformMap::Move;
+            m_moveTransform.removeTransforms();
         }
+        m_moveTransform.addTransforms(true);
+        m_shownTransforms |= ShownTransformMap::Move;
         if (!(m_shownTransforms & ShownTransformMap::Rotate))
         {
             m_rotateTransform.addTransforms();
             m_shownTransforms |= ShownTransformMap::Rotate;
         }
-        if (!(m_shownTransforms & ShownTransformMap::Scale))
+        if (m_shownTransforms & ShownTransformMap::Scale)
         {
-            m_scaleTransform.addTransforms();
-            m_shownTransforms |= ShownTransformMap::Scale;
+            m_scaleTransform.removeTransforms();
         }
+        m_scaleTransform.addTransforms(true);
+        m_shownTransforms |= ShownTransformMap::Scale;
         return true;
     default:
         return false;

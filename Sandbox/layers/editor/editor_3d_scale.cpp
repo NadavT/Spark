@@ -20,6 +20,7 @@ Editor3DScale::Editor3DScale(Spark::Layer3D &layer)
     , m_selectedObject(nullptr)
     , m_selectedAxis(Axis::X)
     , m_originalScaleAxisPosition(0)
+    , m_minimal(false)
 {
     m_xArrow = createArrow(X_COLOR, ArrowHead::Cube);
     m_xArrow->rotate(glm::radians(90.0f), {0, 1, 0});
@@ -162,8 +163,31 @@ void Editor3DScale::updateObjects(Spark::Render::Camera &camera, Spark::Object3D
     m_viewRing->setRotation(angle, axis);
 }
 
-void Editor3DScale::addTransforms()
+void Editor3DScale::addTransforms(bool minimal)
 {
+    if (minimal != m_minimal)
+    {
+        m_xArrow =
+            createArrow(X_COLOR, ArrowHead::Cube, (minimal) ? 1 : 2, (minimal) ? 0.25f : 0.5f, (minimal) ? 0.1f : 0.2f);
+        m_xArrow->rotate(glm::radians(90.0f), {0, 1, 0});
+        m_xArrow->setAsRelativeTransform();
+
+        m_yArrow =
+            createArrow(Y_COLOR, ArrowHead::Cube, (minimal) ? 1 : 2, (minimal) ? 0.25f : 0.5f, (minimal) ? 0.1f : 0.2f);
+        m_yArrow->rotate(glm::radians(270.0f), {1, 0, 0});
+        m_yArrow->setAsRelativeTransform();
+
+        m_zArrow =
+            createArrow(Z_COLOR, ArrowHead::Cube, (minimal) ? 1 : 2, (minimal) ? 0.25f : 0.5f, (minimal) ? 0.1f : 0.2f);
+        m_zArrow->setAsRelativeTransform();
+
+        m_viewRing = createRing(VIEW_COLOR);
+        float scaleAmount = (minimal) ? 0.75f : 1.25f;
+        m_viewRing->scale({scaleAmount, scaleAmount, scaleAmount});
+        m_viewRing->setAsRelativeTransform();
+        m_minimal = minimal;
+    }
+
     m_layer.addObjectAndChilds(*m_xArrow);
     m_layer.addObjectAndChilds(*m_yArrow);
     m_layer.addObjectAndChilds(*m_zArrow);
