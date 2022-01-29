@@ -5,19 +5,22 @@
 
 #include "editor_3d_move.h"
 #include "editor_3d_rotate.h"
+#include "editor_3d_scale.h"
 
 class Editor3DLayer : public Spark::Layer3D
 {
     enum class Transform : int
     {
         Move,
-        Rotate
+        Rotate,
+        Scale,
     };
 
     enum ShownTransformMap : uint8_t
     {
         Move = 0b001,
-        Rotate = 0b010
+        Rotate = 0b010,
+        Scale = 0b100,
     };
 
   public:
@@ -47,6 +50,7 @@ class Editor3DLayer : public Spark::Layer3D
     Spark::Object3D *m_objectToEdit;
     Editor3DMove m_moveTransform;
     Editor3DRotate m_rotateTransform;
+    Editor3DScale m_scaleTransform;
 
     bool m_selected;
     Transform m_selectedTransform;

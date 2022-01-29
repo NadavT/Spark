@@ -8,6 +8,7 @@ Editor3DLayer::Editor3DLayer(Spark::Render::Camera &camera)
     , m_objectToEdit(nullptr)
     , m_moveTransform(*this)
     , m_rotateTransform(*this)
+    , m_scaleTransform(*this)
     , m_selected(false)
     , m_selectedTransform(Transform::Move)
     , m_shownTransforms(ShownTransformMap::Move)
@@ -59,6 +60,9 @@ bool Editor3DLayer::handleMouseMoved(Spark::MouseMovedEvent &e)
         case Transform::Rotate:
             m_rotateTransform.handleRotateTransformUpdate(m_camera, m_objectToEdit);
             break;
+        case Transform::Scale:
+            m_scaleTransform.handleScaleTransformUpdate(m_camera, m_objectToEdit);
+            break;
         }
     }
 
@@ -85,6 +89,14 @@ bool Editor3DLayer::handleKeyPressed(Spark::KeyPressedEvent &e)
             m_shownTransforms = ShownTransformMap::Rotate;
         }
         return true;
+    case Spark::KeyCode::S:
+        if (m_shownTransforms != ShownTransformMap::Scale)
+        {
+            removeAllTransforms();
+            m_scaleTransform.addTransforms();
+            m_shownTransforms = ShownTransformMap::Scale;
+        }
+        return true;
     case Spark::KeyCode::T:
         if (!(m_shownTransforms & ShownTransformMap::Move))
         {
@@ -95,6 +107,11 @@ bool Editor3DLayer::handleKeyPressed(Spark::KeyPressedEvent &e)
         {
             m_rotateTransform.addTransforms();
             m_shownTransforms |= ShownTransformMap::Rotate;
+        }
+        if (!(m_shownTransforms & ShownTransformMap::Scale))
+        {
+            m_scaleTransform.addTransforms();
+            m_shownTransforms |= ShownTransformMap::Scale;
         }
         return true;
     default:
@@ -118,6 +135,9 @@ bool Editor3DLayer::handleMousePressed(Spark::MouseButtonPressedEvent &e)
             case Transform::Rotate:
                 m_rotateTransform.initializeRotateTransform(m_camera);
                 return true;
+            case Transform::Scale:
+                m_scaleTransform.initializeScaleTransform(m_camera);
+                return true;
             }
         }
     default:
@@ -130,6 +150,7 @@ bool Editor3DLayer::handleMouseReleased(Spark::MouseButtonReleasedEvent &e)
     m_selected = false;
     m_moveTransform.release();
     m_rotateTransform.release();
+    m_scaleTransform.release();
 
     return false;
 }
@@ -138,6 +159,7 @@ void Editor3DLayer::updateEditorObjects()
 {
     m_moveTransform.updateObjects(m_camera, m_objectToEdit);
     m_rotateTransform.updateObjects(m_camera, m_objectToEdit);
+    m_scaleTransform.updateObjects(m_camera, m_objectToEdit);
 }
 
 void Editor3DLayer::findSelectedObject()
@@ -161,6 +183,15 @@ void Editor3DLayer::findSelectedObject()
             m_selectedTransform = Transform::Rotate;
         }
     }
+    if (m_shownTransforms & ShownTransformMap::Scale)
+    {
+        float closestRotate = m_scaleTransform.findSelectedScale(m_camera);
+        if (closestRotate != -1 && (closest == -1 || closestRotate < closest))
+        {
+            closest = closestRotate;
+            m_selectedTransform = Transform::Scale;
+        }
+    }
 
     m_selected = closest != -1;
 }
@@ -174,5 +205,9 @@ void Editor3DLayer::removeAllTransforms()
     if (m_shownTransforms & ShownTransformMap::Rotate)
     {
         m_rotateTransform.removeTransforms();
+    }
+    if (m_shownTransforms & ShownTransformMap::Scale)
+    {
+        m_scaleTransform.removeTransforms();
     }
 }
