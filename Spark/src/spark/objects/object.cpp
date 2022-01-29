@@ -64,6 +64,12 @@ void Object3D::setRotation(float angle, glm::vec3 axis)
     m_physicsObject->setRotation(angle, axis);
 }
 
+void Object3D::setRotation(glm::mat4 rotationMatrix)
+{
+    m_drawable->setRotation(rotationMatrix);
+    m_physicsObject->setRotation(rotationMatrix);
+}
+
 void Object3D::setAsRelativeTransform()
 {
     m_drawable->setAsRelativeTransform();

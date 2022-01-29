@@ -21,6 +21,16 @@ glm::vec3 Object3D::getPosition() const
     return m_position;
 }
 
+glm::mat4 Object3D::getScale() const
+{
+    return m_scaleMatrix;
+}
+
+glm::mat4 Object3D::getRotation() const
+{
+    return m_rotationMatrix;
+}
+
 void Object3D::move(glm::vec3 position)
 {
     m_position += position;
@@ -53,6 +63,11 @@ void Object3D::setScale(glm::vec3 scale)
 void Object3D::setRotation(float angle, glm::vec3 axis)
 {
     m_rotationMatrix = glm::rotate(glm::mat4(1), angle, axis);
+}
+
+void Object3D::setRotation(glm::mat4 rotationMatrix)
+{
+    m_rotationMatrix = rotationMatrix;
 }
 
 void Object3D::setAsRelativeTransform()

@@ -61,6 +61,11 @@ void Drawable3D::setRotation(float angle, glm::vec3 axis)
     m_rotationMatrix = glm::rotate(glm::mat4(1), angle, axis);
 }
 
+void Drawable3D::setRotation(glm::mat4 rotationMatrix)
+{
+    m_rotationMatrix = rotationMatrix;
+}
+
 void Drawable3D::setAsRelativeTransform()
 {
     m_relTransform = m_translationMatrix * m_rotationMatrix * m_scaleMatrix * m_relTransform;
