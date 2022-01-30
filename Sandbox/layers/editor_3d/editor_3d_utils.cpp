@@ -1,4 +1,4 @@
-#include "editor_utils.h"
+#include "editor_3d_utils.h"
 
 static std::vector<glm::vec3> buildCircle(float radius, int sectors)
 {

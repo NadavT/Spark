@@ -1,6 +1,6 @@
 #include "editor_3d_scale.h"
 
-#include "editor_utils.h"
+#include "editor_3d_utils.h"
 
 static const glm::vec3 X_COLOR = {0.5f, 0, 0};
 static const glm::vec3 X_HIGHLIGHT_COLOR = {1, 0, 0};
