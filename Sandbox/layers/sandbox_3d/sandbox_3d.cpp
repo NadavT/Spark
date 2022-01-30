@@ -211,63 +211,13 @@ bool Sandbox3D::handleKeyPressed(Spark::KeyPressedEvent &e)
     switch (e.GetKeyCode())
     {
     case Spark::KeyCode::Escape:
-        if (!m_inEditor)
-        {
-            pause();
-            return true;
-        }
-        else
-        {
-            if (!deselectObject())
-            {
-                return false;
-            }
-
-            return true;
-        case Spark::KeyCode::Space:
-            if (m_inEditor)
-            {
-                run();
-                return true;
-            }
-            else
-            {
-                pause();
-                return true;
-            }
-        case Spark::KeyCode::Delete:
-            if (m_inEditor)
-            {
-                if (m_pointLightToSet)
-                {
-                    m_layer.removePointLight(*m_pointLightToSet);
-                    m_pointLights.erase(std::find_if(
-                        m_pointLights.begin(), m_pointLights.end(),
-                        [&](std::shared_ptr<Spark::Render::PointLight> &p) { return p.get() == m_pointLightToSet; }));
-                    m_objects.erase(
-                        std::find_if(m_objects.begin(), m_objects.end(), [&](std::shared_ptr<Spark::Object3D> &p) {
-                            return p.get() == m_pointLightToSet;
-                        }));
-                    m_pointLightToSet = nullptr;
-                    removeEditor();
-                    return true;
-                }
-                else if (m_objectToSet)
-                {
-                    m_layer.removeObject(*m_objectToSet);
-                    m_objects.erase(
-                        std::find_if(m_objects.begin(), m_objects.end(),
-                                     [&](std::shared_ptr<Spark::Object3D> &p) { return p.get() == m_objectToSet; }));
-                    m_objectToSet = nullptr;
-                    removeEditor();
-                    return true;
-                }
-            }
-            return false;
-
-        default:
-            return false;
-        }
+        return escape();
+    case Spark::KeyCode::Space:
+        return toggleRun();
+    case Spark::KeyCode::Delete:
+        return removeSelectedObject();
+    default:
+        return false;
     }
 }
 
@@ -276,52 +226,7 @@ bool Sandbox3D::handleMousePressed(Spark::MouseButtonPressedEvent &e)
     switch (e.GetMouseButton())
     {
     case Spark::MouseCode::ButtonLeft:
-        if (m_inEditor)
-        {
-            Spark::Object3D *closestObject = nullptr;
-            float closest = std::numeric_limits<float>::max();
-            for (auto &object : m_objects)
-            {
-                float distance = Spark::Physics::getRayDistanceFromObject(Spark::Physics::getMouseRay(m_camera),
-                                                                          object->getPhysicsObject());
-                if (distance > 0 && distance < closest)
-                {
-                    closest = distance;
-                    closestObject = object.get();
-                }
-            }
-            if (closestObject)
-            {
-                while (closestObject->getParent())
-                {
-                    closestObject = closestObject->getParent();
-                }
-                if (m_objectToSet)
-                {
-                    deselectObject();
-                }
-                if (m_pointLightToSet)
-                {
-                    deselectObject();
-                }
-                closestObject->getDrawable()->highlight();
-                auto isLight = std::find_if(m_pointLights.begin(), m_pointLights.end(),
-                                            [&](std::shared_ptr<Spark::Render::PointLight> &p) {
-                                                return p.get() == closestObject;
-                                            }) != m_pointLights.end();
-                if (isLight)
-                {
-                    selectPointLight(static_cast<Spark::Render::PointLight *>(closestObject));
-                }
-                else
-                {
-                    selectObject(closestObject);
-                }
-
-                addEditor(*closestObject);
-            }
-            return true;
-        }
+        return pickObject();
     default:
         return false;
     }
@@ -377,6 +282,119 @@ bool Sandbox3D::deselectObject()
     else
     {
         return false;
+    }
+    return true;
+}
+
+bool Sandbox3D::escape()
+{
+    if (!m_inEditor)
+    {
+        pause();
+        return true;
+    }
+    else
+    {
+        if (!deselectObject())
+        {
+            return false;
+        }
+
+        return true;
+    }
+}
+
+bool Sandbox3D::toggleRun()
+{
+    if (m_inEditor)
+    {
+        run();
+    }
+    else
+    {
+        pause();
+    }
+    return true;
+}
+
+bool Sandbox3D::removeSelectedObject()
+{
+    if (m_inEditor)
+    {
+        if (m_pointLightToSet)
+        {
+            m_layer.removePointLight(*m_pointLightToSet);
+            m_pointLights.erase(std::find_if(
+                m_pointLights.begin(), m_pointLights.end(),
+                [&](std::shared_ptr<Spark::Render::PointLight> &p) { return p.get() == m_pointLightToSet; }));
+            m_objects.erase(std::find_if(m_objects.begin(), m_objects.end(), [&](std::shared_ptr<Spark::Object3D> &p) {
+                return p.get() == m_pointLightToSet;
+            }));
+            m_pointLightToSet = nullptr;
+            removeEditor();
+            return true;
+        }
+        else if (m_objectToSet)
+        {
+            m_layer.removeObject(*m_objectToSet);
+            m_objects.erase(std::find_if(m_objects.begin(), m_objects.end(), [&](std::shared_ptr<Spark::Object3D> &p) {
+                return p.get() == m_objectToSet;
+            }));
+            m_objectToSet = nullptr;
+            removeEditor();
+            return true;
+        }
+    }
+    return false;
+}
+
+bool Sandbox3D::pickObject()
+{
+    if (!m_inEditor)
+    {
+        return false;
+    }
+    Spark::Object3D *closestObject = nullptr;
+    float closest = std::numeric_limits<float>::max();
+    for (auto &object : m_objects)
+    {
+        float distance =
+            Spark::Physics::getRayDistanceFromObject(Spark::Physics::getMouseRay(m_camera), object->getPhysicsObject());
+        if (distance > 0 && distance < closest)
+        {
+            closest = distance;
+            closestObject = object.get();
+        }
+    }
+    if (closestObject)
+    {
+        while (closestObject->getParent())
+        {
+            closestObject = closestObject->getParent();
+        }
+        if (m_objectToSet)
+        {
+            deselectObject();
+        }
+        if (m_pointLightToSet)
+        {
+            deselectObject();
+        }
+        closestObject->getDrawable()->highlight();
+        auto isLight = std::find_if(m_pointLights.begin(), m_pointLights.end(),
+                                    [&](std::shared_ptr<Spark::Render::PointLight> &p) {
+                                        return p.get() == closestObject;
+                                    }) != m_pointLights.end();
+        if (isLight)
+        {
+            selectPointLight(static_cast<Spark::Render::PointLight *>(closestObject));
+        }
+        else
+        {
+            selectObject(closestObject);
+        }
+
+        addEditor(*closestObject);
     }
     return true;
 }

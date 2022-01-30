@@ -43,6 +43,13 @@ class Sandbox3D
     bool deselectObject();
 
   private:
+    bool escape();
+    bool toggleRun();
+    bool removeSelectedObject();
+
+    bool pickObject();
+
+  private:
     Spark::Application &m_app;
     Spark::Layer3D &m_layer;
     Editor3DLayer m_editorLayer;
