@@ -323,43 +323,43 @@ void VulkanPipeline3DModel::updateLightsDescriptorSets(std::vector<std::vector<V
 
     for (size_t i = 0; i < m_context.m_swapChainImages.size(); i++)
     {
-        VkWriteDescriptorSet writeDescripotrSet = {};
+        VkWriteDescriptorSet writeDescriptorSet = {};
 
         bufferInfos[i * 3].buffer = dirLightUniform[i];
         bufferInfos[i * 3].offset = 0;
         bufferInfos[i * 3].range = sizeof(VulkanShaderDirectionalLightModel);
-        writeDescripotrSet.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-        writeDescripotrSet.dstSet = lightSets[0][i];
-        writeDescripotrSet.dstBinding = 0;
-        writeDescripotrSet.dstArrayElement = 0;
-        writeDescripotrSet.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-        writeDescripotrSet.descriptorCount = 1;
-        writeDescripotrSet.pBufferInfo = &bufferInfos[i * 3];
-        descriptorWrites.push_back(writeDescripotrSet);
+        writeDescriptorSet.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+        writeDescriptorSet.dstSet = lightSets[0][i];
+        writeDescriptorSet.dstBinding = 0;
+        writeDescriptorSet.dstArrayElement = 0;
+        writeDescriptorSet.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+        writeDescriptorSet.descriptorCount = 1;
+        writeDescriptorSet.pBufferInfo = &bufferInfos[i * 3];
+        descriptorWrites.push_back(writeDescriptorSet);
 
         bufferInfos[i * 3 + 1].buffer = pointLightsUniform[i];
         bufferInfos[i * 3 + 1].offset = 0;
         bufferInfos[i * 3 + 1].range = sizeof(VulkanShaderPointLightModel) * MAX_POINT_LIGHTS;
-        writeDescripotrSet.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-        writeDescripotrSet.dstSet = lightSets[0][i];
-        writeDescripotrSet.dstBinding = 1;
-        writeDescripotrSet.dstArrayElement = 0;
-        writeDescripotrSet.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-        writeDescripotrSet.descriptorCount = 1;
-        writeDescripotrSet.pBufferInfo = &bufferInfos[i * 3 + 1];
-        descriptorWrites.push_back(writeDescripotrSet);
+        writeDescriptorSet.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+        writeDescriptorSet.dstSet = lightSets[0][i];
+        writeDescriptorSet.dstBinding = 1;
+        writeDescriptorSet.dstArrayElement = 0;
+        writeDescriptorSet.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+        writeDescriptorSet.descriptorCount = 1;
+        writeDescriptorSet.pBufferInfo = &bufferInfos[i * 3 + 1];
+        descriptorWrites.push_back(writeDescriptorSet);
 
         bufferInfos[i * 3 + 2].buffer = spotLightUniform[i];
         bufferInfos[i * 3 + 2].offset = 0;
         bufferInfos[i * 3 + 2].range = sizeof(VulkanShaderSpotLightModel);
-        writeDescripotrSet.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-        writeDescripotrSet.dstSet = lightSets[0][i];
-        writeDescripotrSet.dstBinding = 2;
-        writeDescripotrSet.dstArrayElement = 0;
-        writeDescripotrSet.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-        writeDescripotrSet.descriptorCount = 1;
-        writeDescripotrSet.pBufferInfo = &bufferInfos[i * 3 + 2];
-        descriptorWrites.push_back(writeDescripotrSet);
+        writeDescriptorSet.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+        writeDescriptorSet.dstSet = lightSets[0][i];
+        writeDescriptorSet.dstBinding = 2;
+        writeDescriptorSet.dstArrayElement = 0;
+        writeDescriptorSet.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+        writeDescriptorSet.descriptorCount = 1;
+        writeDescriptorSet.pBufferInfo = &bufferInfos[i * 3 + 2];
+        descriptorWrites.push_back(writeDescriptorSet);
     }
 
     vkUpdateDescriptorSets(m_context.m_device, static_cast<uint32_t>(descriptorWrites.size()), descriptorWrites.data(),
@@ -382,7 +382,7 @@ void VulkanPipeline3DModel::updateTextureDescriptorSets(std::vector<std::vector<
         for (size_t j = 0; j < m_context.m_swapChainImages.size(); j++)
         {
             std::vector<VkDescriptorImageInfo> info(MAX_TEXTURES);
-            VkWriteDescriptorSet writeDescripotrSet = {};
+            VkWriteDescriptorSet writeDescriptorSet = {};
             if (textureImageViews[i].size() > 0)
             {
                 for (size_t k = 0; k < textureImageViews[i].size(); k++)
@@ -398,14 +398,14 @@ void VulkanPipeline3DModel::updateTextureDescriptorSets(std::vector<std::vector<
                     info[textureImageViews[i].size() + k].sampler = textureSamplers[i][0];
                 }
                 imageInfos.push_back(info);
-                writeDescripotrSet.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-                writeDescripotrSet.dstSet = sets[offset + i][j];
-                writeDescripotrSet.dstBinding = 0;
-                writeDescripotrSet.dstArrayElement = 0;
-                writeDescripotrSet.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-                writeDescripotrSet.descriptorCount = MAX_TEXTURES;
-                writeDescripotrSet.pImageInfo = imageInfos.back().data();
-                descriptorWrites.push_back(writeDescripotrSet);
+                writeDescriptorSet.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+                writeDescriptorSet.dstSet = sets[offset + i][j];
+                writeDescriptorSet.dstBinding = 0;
+                writeDescriptorSet.dstArrayElement = 0;
+                writeDescriptorSet.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+                writeDescriptorSet.descriptorCount = MAX_TEXTURES;
+                writeDescriptorSet.pImageInfo = imageInfos.back().data();
+                descriptorWrites.push_back(writeDescriptorSet);
             }
 
             if (specularImageViews[i].size() > 0)
@@ -423,9 +423,9 @@ void VulkanPipeline3DModel::updateTextureDescriptorSets(std::vector<std::vector<
                     info[specularImageViews[i].size() + k].sampler = specularSamplers[i][0];
                 }
                 imageInfos.push_back(info);
-                writeDescripotrSet.dstBinding = 1;
-                writeDescripotrSet.pImageInfo = imageInfos.back().data();
-                descriptorWrites.push_back(writeDescripotrSet);
+                writeDescriptorSet.dstBinding = 1;
+                writeDescriptorSet.pImageInfo = imageInfos.back().data();
+                descriptorWrites.push_back(writeDescriptorSet);
             }
         }
     }
