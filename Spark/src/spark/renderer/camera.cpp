@@ -80,18 +80,23 @@ glm::vec3 Camera::getUp() const
 void Camera::moveDirection(CameraDirection direction, Time deltaTime)
 {
     float velocity = m_movementSpeed * static_cast<float>(deltaTime.GetSeconds());
+    moveDirection(direction, velocity);
+}
+
+void Camera::moveDirection(CameraDirection direction, float amount)
+{
     if (direction == CameraDirection::FORWARD)
-        m_position += m_front * velocity;
+        m_position += m_front * amount;
     if (direction == CameraDirection::BACKWARD)
-        m_position -= m_front * velocity;
+        m_position -= m_front * amount;
     if (direction == CameraDirection::LEFT)
-        m_position -= m_right * velocity;
+        m_position -= m_right * amount;
     if (direction == CameraDirection::RIGHT)
-        m_position += m_right * velocity;
+        m_position += m_right * amount;
     if (direction == CameraDirection::UP)
-        m_position += m_up * velocity;
+        m_position += m_up * amount;
     if (direction == CameraDirection::DOWN)
-        m_position -= m_up * velocity;
+        m_position -= m_up * amount;
 }
 
 void Camera::moveAngle(float yaw, float pitch, bool constrainPitch)

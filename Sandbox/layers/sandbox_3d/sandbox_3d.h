@@ -35,6 +35,7 @@ class Sandbox3D
     bool handleMouseMoved(Spark::MouseMovedEvent &e);
     bool handleKeyPressed(Spark::KeyPressedEvent &e);
     bool handleMousePressed(Spark::MouseButtonPressedEvent &e);
+    bool handleMouseReleased(Spark::MouseButtonReleasedEvent &e);
     bool handleMouseScroll(Spark::MouseScrolledEvent &e);
 
     void addEditor(Spark::Object3D &object);
@@ -60,6 +61,8 @@ class Sandbox3D
     bool m_inEditor;
     Spark::Object3D *m_objectToSet;
     Spark::Render::PointLight *m_pointLightToSet;
+
+    bool m_panning;
 };
 
 #endif /* SPARK_SANDBOX_3D_H */

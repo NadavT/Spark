@@ -40,6 +40,7 @@ class Camera
     SPARK_API glm::vec3 getUp() const;
 
     SPARK_API void moveDirection(CameraDirection direction, Time deltaTime);
+    SPARK_API void moveDirection(CameraDirection direction, float amount);
     SPARK_API void moveAngle(float yaw, float pitch, bool constrainPitch = true);
     SPARK_API void zoom(float amount);
 

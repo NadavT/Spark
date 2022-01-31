@@ -26,6 +26,7 @@ Sandbox3D::Sandbox3D(Spark::Application &app, Spark::Layer3D &layer, Spark::Rend
     , m_inEditor(true)
     , m_objectToSet(nullptr)
     , m_pointLightToSet(nullptr)
+    , m_panning(false)
 {
     const Spark::Texture &texture = Spark::ResourceManager::loadTexture("cubeTexture", "textures/container2.png");
     const Spark::Texture &specularTexture =
@@ -115,6 +116,7 @@ void Sandbox3D::OnEvent(Spark::Event &e)
     dispatcher.Dispatch<Spark::MouseMovedEvent>(SPARK_BIND_EVENT_FN(Sandbox3D::handleMouseMoved));
     dispatcher.Dispatch<Spark::KeyPressedEvent>(SPARK_BIND_EVENT_FN(Sandbox3D::handleKeyPressed));
     dispatcher.Dispatch<Spark::MouseButtonPressedEvent>(SPARK_BIND_EVENT_FN(Sandbox3D::handleMousePressed));
+    dispatcher.Dispatch<Spark::MouseButtonReleasedEvent>(SPARK_BIND_EVENT_FN(Sandbox3D::handleMouseReleased));
     dispatcher.Dispatch<Spark::MouseScrolledEvent>(SPARK_BIND_EVENT_FN(Sandbox3D::handleMouseScroll));
 }
 
@@ -200,6 +202,12 @@ bool Sandbox3D::handleMouseMoved(Spark::MouseMovedEvent &e)
 {
     if (m_inEditor)
     {
+        if (m_panning)
+        {
+            m_camera.moveDirection(Spark::Render::CameraDirection::DOWN, e.GetDiffY() * 0.01f);
+            m_camera.moveDirection(Spark::Render::CameraDirection::LEFT, e.GetDiffX() * 0.01f);
+            return true;
+        }
         return false;
     }
 
@@ -228,6 +236,21 @@ bool Sandbox3D::handleMousePressed(Spark::MouseButtonPressedEvent &e)
     {
     case Spark::MouseCode::ButtonLeft:
         return pickObject();
+    case Spark::MouseCode::ButtonMiddle:
+        m_panning = true;
+        return true;
+    default:
+        return false;
+    }
+}
+
+bool Sandbox3D::handleMouseReleased(Spark::MouseButtonReleasedEvent &e)
+{
+    switch (e.GetMouseButton())
+    {
+    case Spark::MouseCode::ButtonMiddle:
+        m_panning = false;
+        return true;
     default:
         return false;
     }
