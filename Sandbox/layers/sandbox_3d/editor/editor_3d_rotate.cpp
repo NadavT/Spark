@@ -202,6 +202,15 @@ void Editor3DRotate::handleRotateTransformUpdate(Spark::Render::Camera &camera, 
 
 void Editor3DRotate::updateObjects(Spark::Render::Camera &camera, Spark::Object3D *objectToEdit)
 {
+    if (m_addObjects)
+    {
+        m_layer.addObjectAndChilds(*m_xRing);
+        m_layer.addObjectAndChilds(*m_yRing);
+        m_layer.addObjectAndChilds(*m_zRing);
+        m_layer.addObjectAndChilds(*m_viewRing);
+        m_addObjects = false;
+    }
+
     auto distanceVector = camera.getPosition() - m_xRing->getPhysicsObject().getPosition();
     auto planeNormal = glm::normalize(camera.getFront());
     float relative = glm::abs(glm::dot(distanceVector, planeNormal));
@@ -217,15 +226,6 @@ void Editor3DRotate::updateObjects(Spark::Render::Camera &camera, Spark::Object3
     float angle = glm::acos(glm::dot(camera.getFront(), {0, 0, 1})) / (glm::length(glm::vec3(camera.getFront())));
     glm::vec3 axis = glm::cross(glm::vec3(0, 0, 1), camera.getFront());
     m_viewRing->setRotation(angle, axis);
-
-    if (m_addObjects)
-    {
-        m_layer.addObjectAndChilds(*m_xRing);
-        m_layer.addObjectAndChilds(*m_yRing);
-        m_layer.addObjectAndChilds(*m_zRing);
-        m_layer.addObjectAndChilds(*m_viewRing);
-        m_addObjects = false;
-    }
 }
 
 void Editor3DRotate::addTransforms()

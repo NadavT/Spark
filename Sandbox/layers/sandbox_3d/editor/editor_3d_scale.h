@@ -28,10 +28,19 @@ class Editor3DScale
 
   private:
     Spark::Layer3D &m_layer;
-    std::shared_ptr<Spark::Object3D> m_xArrow;
-    std::shared_ptr<Spark::Object3D> m_yArrow;
-    std::shared_ptr<Spark::Object3D> m_zArrow;
-    std::shared_ptr<Spark::Object3D> m_viewRing;
+    std::shared_ptr<Spark::Object3D> m_xArrowObject;
+    std::shared_ptr<Spark::Object3D> m_yArrowObject;
+    std::shared_ptr<Spark::Object3D> m_zArrowObject;
+    std::shared_ptr<Spark::Object3D> m_viewRingObject;
+    std::shared_ptr<Spark::Object3D> m_minimalXArrowObject;
+    std::shared_ptr<Spark::Object3D> m_minimalYArrowObject;
+    std::shared_ptr<Spark::Object3D> m_minimalZArrowObject;
+    std::shared_ptr<Spark::Object3D> m_minimalViewRingObject;
+
+    Spark::Object3D *m_xArrow;
+    Spark::Object3D *m_yArrow;
+    Spark::Object3D *m_zArrow;
+    Spark::Object3D *m_viewRing;
     Spark::Object3D *m_selectedObject;
     Axis m_selectedAxis;
     float m_originalScaleAxisPosition;
