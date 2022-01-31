@@ -3,7 +3,7 @@
 #include <limits>
 
 Sandbox3DLayer::Sandbox3DLayer(Spark::Application &app)
-    : m_camera({10.0f, 0.0f, 0.0f})
+    : m_camera({10.0f, 0.0f, 0.0f}, 90.0f)
     , Spark::Layer3D("Sandbox 3d layer", m_camera)
     , m_app(app)
     , m_sandbox(app, *this, m_camera)

@@ -115,6 +115,7 @@ void Sandbox3D::OnEvent(Spark::Event &e)
     dispatcher.Dispatch<Spark::MouseMovedEvent>(SPARK_BIND_EVENT_FN(Sandbox3D::handleMouseMoved));
     dispatcher.Dispatch<Spark::KeyPressedEvent>(SPARK_BIND_EVENT_FN(Sandbox3D::handleKeyPressed));
     dispatcher.Dispatch<Spark::MouseButtonPressedEvent>(SPARK_BIND_EVENT_FN(Sandbox3D::handleMousePressed));
+    dispatcher.Dispatch<Spark::MouseScrolledEvent>(SPARK_BIND_EVENT_FN(Sandbox3D::handleMouseScroll));
 }
 
 bool Sandbox3D::isInEditor() const
@@ -230,6 +231,17 @@ bool Sandbox3D::handleMousePressed(Spark::MouseButtonPressedEvent &e)
     default:
         return false;
     }
+}
+
+bool Sandbox3D::handleMouseScroll(Spark::MouseScrolledEvent &e)
+{
+    if (!m_inEditor)
+    {
+        return false;
+    }
+
+    m_camera.zoom(e.GetYOffset());
+    return true;
 }
 
 void Sandbox3D::addEditor(Spark::Object3D &object)

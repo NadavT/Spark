@@ -173,7 +173,7 @@ Ray3D getMouseRay(const Render::Camera &camera)
     glm::vec2 mousePosition = Input::GetMousePosition();
     float x = (2.0f * mousePosition.x) / windowWidth - 1.0f;
     float y = 1.0f - (2.0f * mousePosition.y) / windowHeight;
-    glm::mat4 projection = glm::perspective(camera.getZoom(), windowWidth / windowHeight, 0.1f, 100.0f);
+    glm::mat4 projection = glm::perspective(camera.getZoomRadians(), windowWidth / windowHeight, 0.1f, 100.0f);
     glm::vec4 eyeRay = glm::inverse(projection) * glm::vec4(x, y, -1.0f, 1.0f);
     eyeRay = glm::vec4(eyeRay.x, eyeRay.y, -1.0f, 0.0f);
     glm::vec3 worldRay = glm::inverse(camera.getViewMatrix()) * eyeRay;

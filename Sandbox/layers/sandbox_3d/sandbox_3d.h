@@ -35,6 +35,7 @@ class Sandbox3D
     bool handleMouseMoved(Spark::MouseMovedEvent &e);
     bool handleKeyPressed(Spark::KeyPressedEvent &e);
     bool handleMousePressed(Spark::MouseButtonPressedEvent &e);
+    bool handleMouseScroll(Spark::MouseScrolledEvent &e);
 
     void addEditor(Spark::Object3D &object);
     void removeEditor();

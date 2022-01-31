@@ -1,15 +1,33 @@
 #include "camera.h"
 
+#include "spark/core/log.h"
+
 static const float SPEED = 25.0f;
 static const float SENSITIVITY = 0.1f;
 static const float ZOOM = 45.0f;
 
 namespace Spark::Render
 {
-Camera::Camera(glm::vec3 position, glm::vec3 up, float yaw, float pitch)
+Camera::Camera(glm::vec3 position, float maxFov, glm::vec3 up, float yaw, float pitch)
     : m_position(position)
     , m_front(glm::vec3(0.0f, 0.0f, -1.0f))
     , m_worldUp(up)
+    , m_maxFov(maxFov)
+    , m_yaw(yaw)
+    , m_pitch(pitch)
+    , m_movementSpeed(SPEED)
+    , m_sensitivity(SENSITIVITY)
+    , m_zoom(ZOOM)
+{
+    SPARK_CORE_ASSERT(maxFov >= ZOOM, "Zoom should be at least {}", ZOOM);
+    updateCameraVectors();
+}
+
+Camera::Camera(float posX, float posY, float posZ, float upX, float upY, float upZ, float yaw, float pitch)
+    : m_position(glm::vec3(posX, posY, posZ))
+    , m_front(glm::vec3(0.0f, 0.0f, -1.0f))
+    , m_worldUp(glm::vec3(upX, upY, upZ))
+    , m_maxFov(ZOOM * 2)
     , m_yaw(yaw)
     , m_pitch(pitch)
     , m_movementSpeed(SPEED)
@@ -19,17 +37,14 @@ Camera::Camera(glm::vec3 position, glm::vec3 up, float yaw, float pitch)
     updateCameraVectors();
 }
 
-Camera::Camera(float posX, float posY, float posZ, float upX, float upY, float upZ, float yaw, float pitch)
-    : m_position(glm::vec3(posX, posY, posZ))
-    , m_front(glm::vec3(0.0f, 0.0f, -1.0f))
-    , m_worldUp(glm::vec3(upX, upY, upZ))
-    , m_yaw(yaw)
-    , m_pitch(pitch)
-    , m_movementSpeed(SPEED)
-    , m_sensitivity(SENSITIVITY)
-    , m_zoom(ZOOM)
+float Camera::getMaxFov() const
 {
-    updateCameraVectors();
+    return m_maxFov;
+}
+
+void Camera::setMaxFov(float maxFov)
+{
+    m_maxFov = maxFov;
 }
 
 glm::mat4 Camera::getViewMatrix() const
@@ -40,6 +55,11 @@ glm::mat4 Camera::getViewMatrix() const
 float Camera::getZoom() const
 {
     return m_zoom;
+}
+
+float Camera::getZoomRadians() const
+{
+    return glm::radians(m_zoom);
 }
 
 glm::vec3 Camera::getPosition() const
@@ -97,12 +117,12 @@ void Camera::moveAngle(float yaw, float pitch, bool constrainPitch)
 
 void Camera::zoom(float amount)
 {
-    if (m_zoom >= 1.0f && m_zoom <= 45.0f)
+    if (m_zoom >= 1.0f && m_zoom <= m_maxFov)
         m_zoom -= amount;
     if (m_zoom <= 1.0f)
         m_zoom = 1.0f;
-    if (m_zoom >= 45.0f)
-        m_zoom = 45.0f;
+    if (m_zoom >= m_maxFov)
+        m_zoom = m_maxFov;
 }
 
 void Camera::updateCameraVectors()

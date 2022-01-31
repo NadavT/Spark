@@ -25,12 +25,16 @@ const float PITCH = 0.0f;
 class Camera
 {
   public:
-    SPARK_API Camera(glm::vec3 position = glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3 up = glm::vec3(0.0f, 0.0f, 1.0f),
-                     float yaw = YAW, float pitch = PITCH);
+    SPARK_API Camera(glm::vec3 position = glm::vec3(0.0f, 0.0f, 0.0f), float maxFov = 45.0f,
+                     glm::vec3 up = glm::vec3(0.0f, 0.0f, 1.0f), float yaw = YAW, float pitch = PITCH);
     SPARK_API Camera(float posX, float posY, float posZ, float upX, float upY, float upZ, float yaw, float pitch);
+
+    SPARK_API float getMaxFov() const;
+    SPARK_API void setMaxFov(float maxFov);
 
     glm::mat4 getViewMatrix() const;
     SPARK_API float getZoom() const;
+    SPARK_API float getZoomRadians() const;
     SPARK_API glm::vec3 getPosition() const;
     SPARK_API glm::vec3 getFront() const;
     SPARK_API glm::vec3 getUp() const;
@@ -48,6 +52,7 @@ class Camera
     glm::vec3 m_up;
     glm::vec3 m_right;
     glm::vec3 m_worldUp;
+    float m_maxFov;
 
     float m_yaw;
     float m_pitch;

@@ -614,7 +614,7 @@ void VulkanLayerRenderer3DModel::updateDrawableData(const Drawable *drawable)
     struct Transformation3D transformation = {};
     transformation.model = drawable->getTransformation();
     transformation.view = m_camera.getViewMatrix();
-    transformation.projection = glm::perspective(m_camera.getZoom(),
+    transformation.projection = glm::perspective(m_camera.getZoomRadians(),
                                                  m_renderer.m_context.m_swapChainExtent.width /
                                                      (float)m_renderer.m_context.m_swapChainExtent.height,
                                                  0.1f, 100.0f);
