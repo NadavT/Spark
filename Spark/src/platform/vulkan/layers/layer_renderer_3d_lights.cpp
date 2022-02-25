@@ -29,7 +29,7 @@ VulkanLayerRenderer3DLights::VulkanLayerRenderer3DLights(VulkanRenderer &rendere
     , m_toBeRemoved()
     , m_isAttached(false)
     , m_isRecreationNeeded(false)
-    , m_camera(camera)
+    , m_camera(&camera)
     , m_dirLightDirection({0.0f, 0.0f, 0.0f})
     , m_dirLightColor({1.0f, 1.0f, 1.0f})
     , m_spotLightColor({1.0f, 1.0f, 1.0f})
@@ -203,8 +203,8 @@ void VulkanLayerRenderer3DLights::OnRender()
         void *data;
         struct Transformation3D transformation = {};
         transformation.model = drawable->getTransformation();
-        transformation.view = m_camera.getViewMatrix();
-        transformation.projection = glm::perspective(m_camera.getZoomRadians(),
+        transformation.view = m_camera->getViewMatrix();
+        transformation.projection = glm::perspective(m_camera->getZoomRadians(),
                                                      m_renderer.m_context.m_swapChainExtent.width /
                                                          (float)m_renderer.m_context.m_swapChainExtent.height,
                                                      0.1f, 100.0f);
@@ -220,7 +220,7 @@ void VulkanLayerRenderer3DLights::OnRender()
                                               1 + drawable->getHighlightWidth()});
 
         VulkanShaderDirectionalLight dirLight = {};
-        dirLight.direction = m_camera.getViewMatrix() * glm::vec4(m_dirLightDirection, 0.0f);
+        dirLight.direction = m_camera->getViewMatrix() * glm::vec4(m_dirLightDirection, 0.0f);
         dirLight.ambient = m_dirLightColor * 0.3f;
         dirLight.diffuse = m_dirLightColor * 0.4f;
         dirLight.specular = m_dirLightColor * 0.3f;
@@ -237,7 +237,7 @@ void VulkanLayerRenderer3DLights::OnRender()
             if (light->isLit())
             {
                 VulkanShaderPointLight pointLight = {};
-                pointLight.position = m_camera.getViewMatrix() * glm::vec4(light->getPosition(), 1.0f);
+                pointLight.position = m_camera->getViewMatrix() * glm::vec4(light->getPosition(), 1.0f);
                 pointLight.ambient = light->getColor() * 0.0f;
                 pointLight.diffuse = light->getColor() * 0.5f;
                 pointLight.specular = light->getColor();

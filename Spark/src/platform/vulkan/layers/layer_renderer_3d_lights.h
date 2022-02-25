@@ -67,7 +67,7 @@ class VulkanLayerRenderer3DLights : public LayerRenderer
     bool m_isAttached;
     bool m_isRecreationNeeded;
 
-    Camera &m_camera;
+    Camera *m_camera;
     glm::vec3 m_dirLightDirection;
     glm::vec3 m_dirLightColor;
     glm::vec3 m_spotLightColor;

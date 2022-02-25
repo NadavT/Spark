@@ -42,7 +42,7 @@ class Layer3D : public Layer
 
   private:
     std::unique_ptr<Render::LayerRenderer> m_layer_renderer;
-    Render::Camera &m_camera;
+    Render::Camera *m_camera;
 };
 } // namespace Spark
 

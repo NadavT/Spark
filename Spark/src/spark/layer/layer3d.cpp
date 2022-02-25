@@ -13,11 +13,11 @@ namespace Spark
 {
 Layer3D::Layer3D(const std::string &name, Render::Camera &camera)
     : Layer(name)
-    , m_camera(camera)
+    , m_camera(&camera)
 {
 #ifdef SPARK_PLATFORM_VULKAN
     Render::VulkanRenderer &renderer = reinterpret_cast<Render::VulkanRenderer &>(Application::GetApp().GetRenderer());
-    m_layer_renderer = std::make_unique<Render::VulkanLayerRenderer3DModel>(renderer, m_camera);
+    m_layer_renderer = std::make_unique<Render::VulkanLayerRenderer3DModel>(renderer, camera);
 #endif // SPARK_PLATFORM_VULKAN
 }
 

@@ -15,7 +15,7 @@ VulkanLayerRenderer3D::VulkanLayerRenderer3D(VulkanRenderer &renderer, Camera &c
     , m_toBeRemoved()
     , m_isAttached(false)
     , m_isRecreationNeeded(false)
-    , m_camera(camera)
+    , m_camera(&camera)
 {
     m_framebuffer = renderer.createFramebuffer(VulkanFramebufferType::Type3D);
     m_pipeline =
@@ -124,8 +124,8 @@ void VulkanLayerRenderer3D::OnRender()
         void *data;
         struct Transformation3D transformation = {};
         transformation.model = cube->getTransformation();
-        transformation.view = m_camera.getViewMatrix();
-        transformation.projection = glm::perspective(m_camera.getZoomRadians(),
+        transformation.view = m_camera->getViewMatrix();
+        transformation.projection = glm::perspective(m_camera->getZoomRadians(),
                                                      m_renderer.m_context.m_swapChainExtent.width /
                                                          (float)m_renderer.m_context.m_swapChainExtent.height,
                                                      0.1f, 100.0f);
