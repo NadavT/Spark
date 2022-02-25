@@ -38,6 +38,10 @@ class Camera
     SPARK_API glm::vec3 getPosition() const;
     SPARK_API glm::vec3 getFront() const;
     SPARK_API glm::vec3 getUp() const;
+    SPARK_API glm::vec3 getRight() const;
+
+    SPARK_API void setPosition(const glm::vec3 &newPosition);
+    SPARK_API void setFront(const glm::vec3 &newFront);
 
     SPARK_API void moveDirection(CameraDirection direction, Time deltaTime);
     SPARK_API void moveDirection(CameraDirection direction, float amount);

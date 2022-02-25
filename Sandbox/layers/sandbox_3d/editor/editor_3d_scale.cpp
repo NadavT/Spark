@@ -84,7 +84,6 @@ float Editor3DScale::findSelectedScale(Spark::Render::Camera &camera)
 void Editor3DScale::initializeScaleTransform(Spark::Render::Camera &camera)
 {
     Spark::Physics::Ray3D mouseRay = Spark::Physics::getMouseRay(camera);
-    float distance;
     switch (m_selectedAxis)
     {
     case Axis::X:

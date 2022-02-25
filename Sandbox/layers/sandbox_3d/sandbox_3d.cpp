@@ -27,6 +27,7 @@ Sandbox3D::Sandbox3D(Spark::Application &app, Spark::Layer3D &layer, Spark::Rend
     , m_objectToSet(nullptr)
     , m_pointLightToSet(nullptr)
     , m_panning(false)
+    , m_rotating(false)
 {
     const Spark::Texture &texture = Spark::ResourceManager::loadTexture("cubeTexture", "textures/container2.png");
     const Spark::Texture &specularTexture =
@@ -115,6 +116,7 @@ void Sandbox3D::OnEvent(Spark::Event &e)
     Spark::EventDispatcher dispatcher(e);
     dispatcher.Dispatch<Spark::MouseMovedEvent>(SPARK_BIND_EVENT_FN(Sandbox3D::handleMouseMoved));
     dispatcher.Dispatch<Spark::KeyPressedEvent>(SPARK_BIND_EVENT_FN(Sandbox3D::handleKeyPressed));
+    dispatcher.Dispatch<Spark::KeyReleasedEvent>(SPARK_BIND_EVENT_FN(Sandbox3D::handleKeyReleased));
     dispatcher.Dispatch<Spark::MouseButtonPressedEvent>(SPARK_BIND_EVENT_FN(Sandbox3D::handleMousePressed));
     dispatcher.Dispatch<Spark::MouseButtonReleasedEvent>(SPARK_BIND_EVENT_FN(Sandbox3D::handleMouseReleased));
     dispatcher.Dispatch<Spark::MouseScrolledEvent>(SPARK_BIND_EVENT_FN(Sandbox3D::handleMouseScroll));
@@ -208,6 +210,20 @@ bool Sandbox3D::handleMouseMoved(Spark::MouseMovedEvent &e)
             m_camera.moveDirection(Spark::Render::CameraDirection::LEFT, e.GetDiffX() * 0.01f);
             return true;
         }
+        else if (m_rotating)
+        {
+            glm::vec3 front = glm::rotate(glm::mat4(1), glm::radians(e.GetDiffX() * 1.0f), glm::vec3(0, 0, 1)) *
+                              glm::vec4(m_camera.getFront(), 1);
+            front =
+                glm::rotate(glm::mat4(1), glm::radians(e.GetDiffY() * 1.0f), m_camera.getRight()) * glm::vec4(front, 1);
+            glm::vec3 position = glm::rotate(glm::mat4(1), glm::radians(e.GetDiffX() * 1.0f), glm::vec3(0, 0, 1)) *
+                                 glm::vec4(m_camera.getPosition(), 0);
+            position = glm::rotate(glm::mat4(1), glm::radians(e.GetDiffY() * 1.0f), m_camera.getRight()) *
+                       glm::vec4(position, 0);
+            // auto focalPoint = position + front;
+            m_camera.setFront(front);
+            m_camera.setPosition(position);
+        }
         return false;
     }
 
@@ -225,6 +241,27 @@ bool Sandbox3D::handleKeyPressed(Spark::KeyPressedEvent &e)
         return toggleRun();
     case Spark::KeyCode::Delete:
         return removeSelectedObject();
+    case Spark::KeyCode::LeftShift:
+        if (Spark::Input::IsMouseButtonPressed(Spark::MouseCode::ButtonMiddle))
+        {
+            m_rotating = false;
+            m_panning = true;
+        }
+    default:
+        return false;
+    }
+}
+
+bool Sandbox3D::handleKeyReleased(Spark::KeyReleasedEvent &e)
+{
+    switch (e.GetKeyCode())
+    {
+    case Spark::KeyCode::LeftShift:
+        if (Spark::Input::IsMouseButtonPressed(Spark::MouseCode::ButtonMiddle))
+        {
+            m_panning = false;
+            m_rotating = true;
+        }
     default:
         return false;
     }
@@ -237,7 +274,14 @@ bool Sandbox3D::handleMousePressed(Spark::MouseButtonPressedEvent &e)
     case Spark::MouseCode::ButtonLeft:
         return pickObject();
     case Spark::MouseCode::ButtonMiddle:
-        m_panning = true;
+        if (Spark::Input::IsKeyPressed(Spark::KeyCode::LeftShift))
+        {
+            m_panning = true;
+        }
+        else
+        {
+            m_rotating = true;
+        }
         return true;
     default:
         return false;
@@ -250,6 +294,7 @@ bool Sandbox3D::handleMouseReleased(Spark::MouseButtonReleasedEvent &e)
     {
     case Spark::MouseCode::ButtonMiddle:
         m_panning = false;
+        m_rotating = false;
         return true;
     default:
         return false;

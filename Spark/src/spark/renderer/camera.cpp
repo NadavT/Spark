@@ -77,6 +77,29 @@ glm::vec3 Camera::getUp() const
     return m_up;
 }
 
+glm::vec3 Camera::getRight() const
+{
+    return m_right;
+}
+
+void Camera::setPosition(const glm::vec3 &newPosition)
+{
+    m_position = newPosition;
+}
+
+void Camera::setFront(const glm::vec3 &newFront)
+{
+    m_front = glm::normalize(newFront);
+    m_pitch = glm::degrees(asin(m_front.z));
+    m_yaw = glm::degrees(acos(m_front.x / cos(glm::radians(m_pitch))));
+    if (sin(glm::radians(m_yaw)) * cos(glm::radians(m_pitch)) - m_front.y >= 100 * glm::epsilon<float>())
+    {
+        m_yaw = -m_yaw;
+    }
+    // updateCameraVectors();
+    SPARK_CORE_TRACE("yaw: {}, pitch: {}", m_yaw, m_pitch);
+}
+
 void Camera::moveDirection(CameraDirection direction, Time deltaTime)
 {
     float velocity = m_movementSpeed * static_cast<float>(deltaTime.GetSeconds());
