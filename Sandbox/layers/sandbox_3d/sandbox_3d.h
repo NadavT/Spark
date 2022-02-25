@@ -15,7 +15,8 @@ class Sandbox3D
     };
 
   public:
-    Sandbox3D(Spark::Application &app, Spark::Layer3D &layer, Spark::Render::Camera &camera);
+    Sandbox3D(Spark::Application &app, Spark::Layer3D &layer, Spark::Render::LockedCamera &playCamera,
+              Spark::Render::FreeCamera &editorCamera);
     virtual ~Sandbox3D() = default;
 
     virtual void OnUpdate(Spark::Time &diffTime);
@@ -58,7 +59,8 @@ class Sandbox3D
     Editor3DLayer m_editorLayer;
     std::vector<std::shared_ptr<Spark::Object3D>> m_objects;
     std::vector<std::shared_ptr<Spark::Render::PointLight>> m_pointLights;
-    Spark::Render::Camera &m_camera;
+    Spark::Render::LockedCamera &m_playCamera;
+    Spark::Render::FreeCamera &m_editorCamera;
     bool m_inEditor;
     Spark::Object3D *m_objectToSet;
     Spark::Render::PointLight *m_pointLightToSet;

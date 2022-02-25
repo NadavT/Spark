@@ -31,6 +31,10 @@
 #include "spark/objects/pipe.h"
 #include "spark/objects/sphere.h"
 
+//----------CAMERAS---------
+#include "spark/renderer/free_camera.h"
+#include "spark/renderer/locked_camera.h"
+
 //---------DRAWABLES--------
 #include "spark/renderer/drawables/box.h"
 #include "spark/renderer/drawables/cylinder.h"

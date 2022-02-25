@@ -16,13 +16,15 @@ static std::vector<glm::vec3> buildCircle(float radius, int sectors)
     return points;
 }
 
-Sandbox3D::Sandbox3D(Spark::Application &app, Spark::Layer3D &layer, Spark::Render::Camera &camera)
+Sandbox3D::Sandbox3D(Spark::Application &app, Spark::Layer3D &layer, Spark::Render::LockedCamera &playCamera,
+                     Spark::Render::FreeCamera &editorCamera)
     : m_app(app)
     , m_layer(layer)
-    , m_camera(camera)
-    , m_editorLayer(camera)
+    , m_editorLayer(editorCamera)
     , m_objects()
     , m_pointLights()
+    , m_playCamera(playCamera)
+    , m_editorCamera(editorCamera)
     , m_inEditor(true)
     , m_objectToSet(nullptr)
     , m_pointLightToSet(nullptr)
@@ -86,27 +88,27 @@ void Sandbox3D::OnUpdate(Spark::Time &diffTime)
     {
         if (Spark::Input::IsKeyPressed(Spark::KeyCode::A))
         {
-            m_camera.moveDirection(Spark::Render::CameraDirection::LEFT, diffTime);
+            m_playCamera.moveDirection(Spark::Render::CameraDirection::LEFT, diffTime);
         }
         if (Spark::Input::IsKeyPressed(Spark::KeyCode::D))
         {
-            m_camera.moveDirection(Spark::Render::CameraDirection::RIGHT, diffTime);
+            m_playCamera.moveDirection(Spark::Render::CameraDirection::RIGHT, diffTime);
         }
         if (Spark::Input::IsKeyPressed(Spark::KeyCode::W))
         {
-            m_camera.moveDirection(Spark::Render::CameraDirection::FORWARD, diffTime);
+            m_playCamera.moveDirection(Spark::Render::CameraDirection::FORWARD, diffTime);
         }
         if (Spark::Input::IsKeyPressed(Spark::KeyCode::S))
         {
-            m_camera.moveDirection(Spark::Render::CameraDirection::BACKWARD, diffTime);
+            m_playCamera.moveDirection(Spark::Render::CameraDirection::BACKWARD, diffTime);
         }
         if (Spark::Input::IsKeyPressed(Spark::KeyCode::LeftShift))
         {
-            m_camera.moveDirection(Spark::Render::CameraDirection::UP, diffTime);
+            m_playCamera.moveDirection(Spark::Render::CameraDirection::UP, diffTime);
         }
         if (Spark::Input::IsKeyPressed(Spark::KeyCode::LeftControl))
         {
-            m_camera.moveDirection(Spark::Render::CameraDirection::DOWN, diffTime);
+            m_playCamera.moveDirection(Spark::Render::CameraDirection::DOWN, diffTime);
         }
     }
 }
@@ -190,6 +192,7 @@ void Sandbox3D::run()
     ImGui::GetIO().ConfigFlags |= ImGuiConfigFlags_NoMouse;
     ImGui::SetWindowFocus(NULL);
     m_inEditor = false;
+    m_layer.setCamera(m_playCamera);
     deselectObject();
 }
 
@@ -198,6 +201,7 @@ void Sandbox3D::pause()
     Spark::Input::UnHideMouse();
     ImGui::GetIO().ConfigFlags &= ~ImGuiConfigFlags_NoMouse;
     m_inEditor = true;
+    m_layer.setCamera(m_editorCamera);
 }
 
 bool Sandbox3D::handleMouseMoved(Spark::MouseMovedEvent &e)
@@ -206,28 +210,28 @@ bool Sandbox3D::handleMouseMoved(Spark::MouseMovedEvent &e)
     {
         if (m_panning)
         {
-            m_camera.moveDirection(Spark::Render::CameraDirection::DOWN, e.GetDiffY() * 0.01f);
-            m_camera.moveDirection(Spark::Render::CameraDirection::LEFT, e.GetDiffX() * 0.01f);
+            m_editorCamera.moveDirection(Spark::Render::CameraDirection::DOWN, e.GetDiffY() * 0.01f);
+            m_editorCamera.moveDirection(Spark::Render::CameraDirection::LEFT, e.GetDiffX() * 0.01f);
             return true;
         }
         else if (m_rotating)
         {
-            glm::vec3 front = glm::rotate(glm::mat4(1), glm::radians(e.GetDiffX() * 1.0f), glm::vec3(0, 0, 1)) *
-                              glm::vec4(m_camera.getFront(), 1);
-            front =
-                glm::rotate(glm::mat4(1), glm::radians(e.GetDiffY() * 1.0f), m_camera.getRight()) * glm::vec4(front, 1);
-            glm::vec3 position = glm::rotate(glm::mat4(1), glm::radians(e.GetDiffX() * 1.0f), glm::vec3(0, 0, 1)) *
-                                 glm::vec4(m_camera.getPosition(), 0);
-            position = glm::rotate(glm::mat4(1), glm::radians(e.GetDiffY() * 1.0f), m_camera.getRight()) *
+            glm::vec3 front = glm::rotate(glm::mat4(1), glm::radians(e.GetDiffX() * 1.0f), m_editorCamera.getUp()) *
+                              glm::vec4(m_editorCamera.getFront(), 1);
+            glm::vec3 position = glm::rotate(glm::mat4(1), glm::radians(e.GetDiffX() * 1.0f), m_editorCamera.getUp()) *
+                                 glm::vec4(m_editorCamera.getPosition(), 0);
+            m_editorCamera.setFrontUp(front, m_editorCamera.getUp());
+            front = glm::rotate(glm::mat4(1), glm::radians(e.GetDiffY() * 1.0f), m_editorCamera.getRight()) *
+                    glm::vec4(front, 1);
+            position = glm::rotate(glm::mat4(1), glm::radians(e.GetDiffY() * 1.0f), m_editorCamera.getRight()) *
                        glm::vec4(position, 0);
-            // auto focalPoint = position + front;
-            m_camera.setFront(front);
-            m_camera.setPosition(position);
+            m_editorCamera.setFrontRight(front, m_editorCamera.getRight());
+            m_editorCamera.setPosition(position);
         }
         return false;
     }
 
-    m_camera.moveAngle(e.GetDiffX(), e.GetDiffY());
+    m_playCamera.moveAngle(e.GetDiffX(), e.GetDiffY());
     return true;
 }
 
@@ -308,7 +312,7 @@ bool Sandbox3D::handleMouseScroll(Spark::MouseScrolledEvent &e)
         return false;
     }
 
-    m_camera.zoom(e.GetYOffset());
+    m_editorCamera.zoom(e.GetYOffset());
     return true;
 }
 
@@ -438,8 +442,8 @@ bool Sandbox3D::pickObject()
     float closest = std::numeric_limits<float>::max();
     for (auto &object : m_objects)
     {
-        float distance =
-            Spark::Physics::getRayDistanceFromObject(Spark::Physics::getMouseRay(m_camera), object->getPhysicsObject());
+        float distance = Spark::Physics::getRayDistanceFromObject(Spark::Physics::getMouseRay(m_editorCamera),
+                                                                  object->getPhysicsObject());
         if (distance > 0 && distance < closest)
         {
             closest = distance;

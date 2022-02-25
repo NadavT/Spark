@@ -40,6 +40,8 @@ class VulkanLayerRenderer3DModel : public LayerRenderer
     bool getXrayHighlight() const;
     void setXrayHighlight(bool xRay);
 
+    virtual void setCamera(Render::Camera &camera);
+
   private:
     void createCommandBuffers();
 

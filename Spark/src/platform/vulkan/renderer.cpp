@@ -274,7 +274,7 @@ void VulkanRenderer::destroyFramebuffer(VulkanFramebuffer *framebuffer)
     }
     else
     {
-        SPARK_CORE_WARN("Tring to destroy a non existing framebuffer!");
+        SPARK_CORE_WARN("Trying to destroy a non existing framebuffer!");
     }
 }
 
@@ -322,7 +322,7 @@ void VulkanRenderer::destroyPipeline(VulkanPipeline *pipeline)
     }
     else
     {
-        SPARK_CORE_WARN("Tring to destroy a non existing framebuffer!");
+        SPARK_CORE_WARN("Trying to destroy a non existing framebuffer!");
     }
 }
 
@@ -432,7 +432,7 @@ void VulkanRenderer::queueSubmits(uint32_t amount, VkSubmitInfo *info, VkFence f
     SPARK_CORE_ASSERT(result == VK_SUCCESS, "vkQueueSubmit failed!");
 }
 
-bool VulkanRenderer::accuireNextImage(VkSemaphore semaphore, VkFence fence, uint32_t *imageIndex)
+bool VulkanRenderer::acquireNextImage(VkSemaphore semaphore, VkFence fence, uint32_t *imageIndex)
 {
     VkResult result =
         vkAcquireNextImageKHR(m_context.m_device, m_context.m_swapChain, UINT64_MAX, semaphore, fence, imageIndex);

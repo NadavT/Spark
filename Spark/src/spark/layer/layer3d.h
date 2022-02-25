@@ -40,6 +40,8 @@ class Layer3D : public Layer
     SPARK_API virtual bool getXrayHighlight() const;
     SPARK_API virtual void setXrayHighlight(bool xRayHighlight);
 
+    SPARK_API virtual void setCamera(Render::Camera &camera);
+
   private:
     std::unique_ptr<Render::LayerRenderer> m_layer_renderer;
     Render::Camera *m_camera;

@@ -137,4 +137,12 @@ void Layer3D::setXrayHighlight(bool xRayHighlight)
     reinterpret_cast<Render::VulkanLayerRenderer3DModel *>(m_layer_renderer.get())->setXrayHighlight(xRayHighlight);
 #endif
 }
+
+void Layer3D::setCamera(Render::Camera &camera)
+{
+    m_camera = &camera;
+#ifdef SPARK_PLATFORM_VULKAN
+    reinterpret_cast<Render::VulkanLayerRenderer3DModel *>(m_layer_renderer.get())->setCamera(camera);
+#endif
+}
 } // namespace Spark

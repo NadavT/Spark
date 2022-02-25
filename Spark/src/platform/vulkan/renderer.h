@@ -48,7 +48,7 @@ class VulkanRenderer : public Renderer
     void beginCommandBuffer(VkCommandBuffer commandBuffer, VkCommandBufferBeginInfo *info);
     void endCommandBuffer(VkCommandBuffer commandBuffer);
     void queueSubmits(uint32_t amount, VkSubmitInfo *info, VkFence fence);
-    bool accuireNextImage(VkSemaphore semaphore, VkFence fence, uint32_t *imageIndex);
+    bool acquireNextImage(VkSemaphore semaphore, VkFence fence, uint32_t *imageIndex);
     void waitForFence(const VkFence *fence);
     void resetFence(const VkFence *fence);
     void resetCommandBuffer(VkCommandBuffer commandBuffer);

@@ -210,6 +210,11 @@ void VulkanLayerRenderer3DModel::setXrayHighlight(bool xRay)
     m_renderer.recreateSwapchain();
 }
 
+void VulkanLayerRenderer3DModel::setCamera(Render::Camera &camera)
+{
+    m_camera = &camera;
+}
+
 void VulkanLayerRenderer3DModel::createCommandBuffers()
 {
     int i = 0;

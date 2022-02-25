@@ -24,7 +24,8 @@ class Sandbox3DLayer : public Spark::Layer3D
 
   private:
     Spark::Application &m_app;
-    Spark::Render::Camera m_camera;
+    Spark::Render::LockedCamera m_lockedCamera;
+    Spark::Render::FreeCamera m_freeCamera;
     Sandbox3D m_sandbox;
     Overlay3D m_overlay;
 };

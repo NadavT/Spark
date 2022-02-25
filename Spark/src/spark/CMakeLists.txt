@@ -22,6 +22,8 @@ target_sources(spark
     PRIVATE "renderer/renderer.cpp"
     PRIVATE "renderer/layer_renderer.cpp"
     PRIVATE "renderer/camera.cpp"
+    PRIVATE "renderer/free_camera.cpp"
+    PRIVATE "renderer/locked_camera.cpp"
     PRIVATE "renderer/drawables/drawable.cpp"
     PRIVATE "renderer/drawables/drawable2d.cpp"
     PRIVATE "renderer/drawables/drawable3d.cpp"
