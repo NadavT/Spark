@@ -1,5 +1,6 @@
 project(spark)
 
+set(CMAKE_CXX_CLANG_TIDY "")
 # Add GLFW to project
 set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
 set(GLFW_BUILD_TESTS OFF CACHE BOOL "" FORCE)
