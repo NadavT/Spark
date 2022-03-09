@@ -143,13 +143,13 @@ void Sandbox3D::addBox()
 
 void Sandbox3D::addObject()
 {
-    const Spark::Model &model = Spark::ResourceManager::loadModel("modelTest", "model/backpack/scene.gltf");
-    m_objects.push_back(Spark::createModelObject(model, {0, 0, 0}, {0.005, 0.005, 0.005}));
+    const Spark::Model *model = Spark::ResourceManager::getModel("modelTest");
+    m_objects.push_back(Spark::createModelObject(*model, {0, 0, 0}, {0.005, 0.005, 0.005}));
     m_layer.addObject(*m_objects.back());
-    // deselectObject();
-    // m_objectToSet = m_objects.back().get();
-    // m_objectToSet->getDrawable()->highlight();
-    // addEditor(*m_objectToSet);
+    deselectObject();
+    m_objectToSet = m_objects.back().get();
+    m_objectToSet->getDrawable()->highlight();
+    addEditor(*m_objectToSet);
 }
 
 void Sandbox3D::addPointLight(PointLightType type, const glm::vec3 &position, const glm::vec3 &color)

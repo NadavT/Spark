@@ -29,7 +29,7 @@ void Overlay3D::generateOverlay()
     if (ImGui::TreeNode("Objects editor:"))
     {
         generateBoxAdder();
-        // generateObjectAdder();
+        generateObjectAdder();
         ImGui::TreePop();
     }
     generateObjectSetter();
