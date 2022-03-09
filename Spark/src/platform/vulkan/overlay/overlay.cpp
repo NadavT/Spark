@@ -89,8 +89,6 @@ void VulkanOverlay::OnAttach()
     init_info.CheckVkResultFn = check_vk_result;
     ImGui_ImplVulkan_Init(&init_info, m_framebuffer->getRenderPass());
 
-    VkResult err = VK_SUCCESS;
-
     // Upload Fonts
     {
         VkCommandBuffer command_buffer = m_commandBuffers[0];

@@ -1,4 +1,5 @@
-#pragma once
+#ifndef SPARK_PHYSICS_SPHERE_BOUNDING_H
+#define SPARK_PHYSICS_SPHERE_BOUNDING_H
 
 #include "object3d_bounding.h"
 
@@ -31,6 +32,9 @@ class SphereBounding : public Object3DBounding
     {
         m_radius = radius;
     };
+    SPARK_API virtual glm::mat4 getTransformation() const;
+
+    virtual float getRayDistanceFromObject(Ray3D ray, glm::mat4 transformation) const;
 
   private:
     glm::vec3 m_position;
@@ -38,3 +42,5 @@ class SphereBounding : public Object3DBounding
 };
 
 } // namespace Spark::Physics
+
+#endif /* SPARK_SPHERE_BOUNDING_H */

@@ -12,9 +12,9 @@
 
 namespace Spark::Physics
 {
-bool isRayIntersects(Ray3D ray, const Object3DBounding &objectBound)
+bool isRayIntersects(Ray3D ray, const Object3DBounding &objectBound, glm::mat4 transformation)
 {
-    return getRayDistanceFromObject(ray, objectBound) > 0;
+    return getRayDistanceFromObject(ray, objectBound, transformation) > 0;
 }
 
 bool isRayIntersects(Ray3D ray, const Object3D &object)
@@ -22,40 +22,9 @@ bool isRayIntersects(Ray3D ray, const Object3D &object)
     return getRayDistanceFromObject(ray, object) > 0;
 }
 
-float getRayDistanceFromObject(Ray3D ray, const SphereBounding &sphereBound)
-{
-    const float a = 1.0f;
-    float b = 2 * glm::dot(ray.direction, ray.source - sphereBound.getPosition());
-    float c = static_cast<float>(glm::pow(glm::length(ray.source - sphereBound.getPosition()), 2) -
-                                 glm::pow(sphereBound.getRadius(), 2));
-    float res = static_cast<float>(glm::pow(b, 2) - (4 * a * c));
-    if (res < 0)
-    {
-        return -1;
-    }
-
-    float sol1 = (-b + glm::sqrt(res)) / (2 * a);
-    float sol2 = (-b - glm::sqrt(res)) / (2 * a);
-
-    if (sol1 < 0 && sol2 < 0)
-    {
-        return -1;
-    }
-    else if (sol1 < 0)
-    {
-        return glm::length(sol2 * ray.direction);
-    }
-    else
-    {
-        float distance1 = glm::length(sol1 * ray.direction);
-        float distance2 = glm::length(sol2 * ray.direction);
-        return (distance1 < distance2) ? distance1 : distance2;
-    }
-}
-
 bool approximatelyEquals(float a, float b)
 {
-    return glm::abs(a - b) < 100 * glm::epsilon<float>();
+    return glm::abs(a - b) < 1000 * glm::epsilon<float>();
 }
 
 bool isPointInTriangle(glm::vec3 point, glm::vec3 t0, glm::vec3 t1, glm::vec3 t2)
@@ -65,23 +34,27 @@ bool isPointInTriangle(glm::vec3 point, glm::vec3 t0, glm::vec3 t1, glm::vec3 t2
     point = point - t0;
     float a = 0;
     float b = 0;
-    if (side0.x == 0 && side0.y == 0 && side0.z == 0)
+    if (approximatelyEquals(side0.x, 0) && approximatelyEquals(side0.y, 0) && approximatelyEquals(side0.z, 0))
     {
-        b = (side1.x != 0) ? point.x / side1.x
-                           : ((side1.y != 0) ? point.y / side1.y : ((side1.z != 0) ? point.z / side1.z : 0));
+        b = (!approximatelyEquals(side1.x, 0))
+                ? point.x / side1.x
+                : ((!approximatelyEquals(side1.y, 0)) ? point.y / side1.y
+                                                      : ((!approximatelyEquals(side1.z, 0)) ? point.z / side1.z : 0));
     }
-    else if (side1.x == 0 && side1.y == 0 && side1.z == 0)
+    else if (approximatelyEquals(side1.x, 0) && approximatelyEquals(side1.y, 0) && approximatelyEquals(side1.z, 0))
     {
-        b = (side0.x != 0) ? point.x / side0.x
-                           : ((side0.y != 0) ? point.y / side0.y : ((side0.z != 0) ? point.z / side0.z : 0));
+        b = (!approximatelyEquals(side0.x, 0))
+                ? point.x / side0.x
+                : ((!approximatelyEquals(side0.y, 0)) ? point.y / side0.y
+                                                      : ((!approximatelyEquals(side0.z, 0)) ? point.z / side0.z : 0));
     }
-    else if (side0.x == 0 && side0.y == 0)
+    else if (approximatelyEquals(side0.x, 0) && approximatelyEquals(side0.y, 0))
     {
-        if (side1.y == 0)
+        if (approximatelyEquals(side1.y, 0))
         {
-            if (point.y == 0)
+            if (approximatelyEquals(point.y, 0))
             {
-                b = (side1.x != 0) ? (point.x / side1.x) : 0;
+                b = (!approximatelyEquals(side1.x, 0)) ? (point.x / side1.x) : 0;
                 a = (point.z - b * side1.z) / side0.z;
             }
         }
@@ -91,13 +64,13 @@ bool isPointInTriangle(glm::vec3 point, glm::vec3 t0, glm::vec3 t1, glm::vec3 t2
             a = (point.z - b * side1.z) / side0.z;
         }
     }
-    else if (side1.x == 0 && side1.y == 0)
+    else if (approximatelyEquals(side1.x, 0) && approximatelyEquals(side1.y, 0))
     {
-        if (side0.y == 0)
+        if (approximatelyEquals(side0.y, 0))
         {
-            if (point.y == 0)
+            if (approximatelyEquals(point.y, 0))
             {
-                a = (side0.x != 0) ? (point.x / side0.x) : 0;
+                a = (!approximatelyEquals(side0.x, 0)) ? (point.x / side0.x) : 0;
                 b = (point.z - a * side0.z) / side1.z;
             }
         }
@@ -107,66 +80,34 @@ bool isPointInTriangle(glm::vec3 point, glm::vec3 t0, glm::vec3 t1, glm::vec3 t2
             b = (point.z - a * side0.z) / side1.z;
         }
     }
-    else if (side0.x == 0 && side1.x == 0)
+    else if (approximatelyEquals(side0.x, 0) && approximatelyEquals(side1.x, 0))
     {
         b = (side0.y * point.z - side0.z * point.y) / (side0.y * side1.z - side0.z * side1.y);
-        a = (point.z - b * side1.z) / side0.z;
+        a = (approximatelyEquals(side0.z, 0)) ? (point.z - b * side1.y) / side0.y : (point.z - b * side1.z) / side0.z;
     }
     else
     {
-        b = (side0.x * point.y - side0.y * point.x) / (side0.x * side1.y - side0.y * side1.x);
-        a = (point.y - b * side1.y) / side0.y;
+        if (approximatelyEquals((side0.x * side1.y - side0.y * side1.x), 0))
+        {
+            b = (side0.x * point.z - side0.z * point.x) / (side0.x * side1.z - side0.z * side1.x);
+        }
+        else
+        {
+            b = (side0.x * point.y - side0.y * point.x) / (side0.x * side1.y - side0.y * side1.x);
+        }
+        if (approximatelyEquals(side0.y, 0))
+        {
+            a = (point.z - b * side1.z) / side0.z;
+        }
+        else
+        {
+            a = (point.y - b * side1.y) / side0.y;
+        }
     }
     return b >= 0 && b <= 1 && a >= 0 && a <= 1 && a + b <= 1 &&
            approximatelyEquals(point.x, a * side0.x + b * side1.x) &&
            approximatelyEquals(point.y, a * side0.y + b * side1.y) &&
            approximatelyEquals(point.z, a * side0.z + b * side1.z);
-}
-
-float getRayDistanceFromObject(Ray3D ray, const BoxBounding &boxBound)
-{
-    glm::mat4 transformation = boxBound.getTranslation() * boxBound.getRotation() * boxBound.getScale();
-    glm::vec3 v0 = transformation * glm::vec4(-0.5f, -0.5f, -0.5f, 1.0f);
-    glm::vec3 v1 = transformation * glm::vec4(-0.5f, 0.5f, -0.5f, 1.0f);
-    glm::vec3 v2 = transformation * glm::vec4(0.5f, 0.5f, -0.5f, 1.0f);
-    glm::vec3 v3 = transformation * glm::vec4(0.5f, -0.5f, -0.5f, 1.0f);
-    glm::vec3 v4 = transformation * glm::vec4(-0.5f, -0.5f, 0.5f, 1.0f);
-    glm::vec3 v5 = transformation * glm::vec4(-0.5f, 0.5f, 0.5f, 1.0f);
-    glm::vec3 v6 = transformation * glm::vec4(0.5f, 0.5f, 0.5f, 1.0f);
-    glm::vec3 v7 = transformation * glm::vec4(0.5f, -0.5f, 0.5f, 1.0f);
-
-    glm::vec3 faces[6][4] = {
-        {v0, v3, v2, v1}, {v4, v7, v6, v5}, {v0, v4, v5, v1}, {v1, v2, v6, v5}, {v2, v6, v7, v3}, {v3, v0, v4, v7},
-    };
-
-    float distance = -1;
-    for (int i = 0; i < 6; ++i)
-    {
-        glm::vec3 planeNormal = glm::normalize(glm::cross(faces[i][1] - faces[i][0], faces[i][3] - faces[i][0]));
-        float planeDistance = -glm::dot(faces[i][0], planeNormal);
-        if (glm::dot(ray.direction, planeNormal) == 0)
-        {
-            continue;
-        }
-        float intersection =
-            -(glm::dot(ray.source, planeNormal) + planeDistance) / (glm::dot(ray.direction, planeNormal));
-        if (intersection < 0)
-        {
-            continue;
-        }
-        glm::vec3 intersectionPoint = ray.source + intersection * ray.direction;
-
-        float curDistance = glm::distance(intersectionPoint, ray.source);
-        if (isPointInTriangle(intersectionPoint, faces[i][0], faces[i][3], faces[i][1]) ||
-            isPointInTriangle(intersectionPoint, faces[i][2], faces[i][1], faces[i][3]))
-        {
-            if (distance == -1 || curDistance < distance)
-            {
-                distance = curDistance;
-            }
-        }
-    }
-    return distance;
 }
 
 float getRayDistanceFromFace(Ray3D ray, std::array<Vertex3D, 3> face, glm::mat4 transformation)
@@ -197,51 +138,31 @@ float getRayDistanceFromFace(Ray3D ray, std::array<Vertex3D, 3> face, glm::mat4 
     }
 }
 
-float getRayDistanceFromObject(Ray3D ray, const ComplexObject3D &object)
+float getRayDistanceFromObject(Ray3D ray, const Object3DBounding &objectBound, glm::mat4 transformation)
 {
-    glm::mat4 transformation = object.getTranslation() * object.getRotation() * object.getScale();
-    float distance = -1;
-    for (auto &mesh : object.getMeshes())
-    {
-        for (auto &face : mesh->getFaces())
-        {
-            float curDistance = getRayDistanceFromFace(ray, face, transformation);
-            if (curDistance != -1 && (distance == -1 || curDistance < distance))
-            {
-                distance = curDistance;
-            }
-        }
-    }
-
-    return distance;
-}
-
-float getRayDistanceFromObject(Ray3D ray, const Object3DBounding &objectBound)
-{
-    switch (objectBound.getBoundingType())
-    {
-    case Object3DBoundingType::Sphere:
-        return getRayDistanceFromObject(ray, static_cast<const SphereBounding &>(objectBound));
-    case Object3DBoundingType::Box:
-        return getRayDistanceFromObject(ray, static_cast<const BoxBounding &>(objectBound));
-    default:
-        SPARK_CORE_ASSERT(false, "Not supporting given bound object for ray casting");
-        return -1;
-    }
+    return objectBound.getRayDistanceFromObject(ray, transformation);
 }
 
 float getRayDistanceFromObject(Ray3D ray, const Object3D &object)
 {
-    switch (object.getObjectType())
+    float shortestDistance;
+    shortestDistance = object.getRayDistanceFromObject(ray);
+
+    for (auto &child : object.getChilds())
     {
-    case ObjectType::Simple:
-        return getRayDistanceFromObject(ray, object.getBoundingObject());
-    case ObjectType::Complex:
-        return getRayDistanceFromObject(ray, reinterpret_cast<const ComplexObject3D &>(object));
-    default:
-        SPARK_CORE_ASSERT(false, "Not supporting given object for ray casting");
-        return -1;
+        SPARK_CORE_ASSERT(child != nullptr, "Broken object {0}:Got a null child from object",
+                          static_cast<const void *>(&object));
+        float childDistance = getRayDistanceFromObject(ray, *child);
+        if (childDistance != -1)
+        {
+            if (shortestDistance == -1 || childDistance < shortestDistance)
+            {
+                shortestDistance = childDistance;
+            }
+        }
     }
+
+    return shortestDistance;
 }
 
 Ray3D getMouseRay(const Render::Camera &camera)
@@ -252,11 +173,110 @@ Ray3D getMouseRay(const Render::Camera &camera)
     glm::vec2 mousePosition = Input::GetMousePosition();
     float x = (2.0f * mousePosition.x) / windowWidth - 1.0f;
     float y = 1.0f - (2.0f * mousePosition.y) / windowHeight;
-    glm::mat4 projection = glm::perspective(camera.getZoom(), windowWidth / windowHeight, 0.1f, 100.0f);
+    glm::mat4 projection = glm::perspective(camera.getZoomRadians(), windowWidth / windowHeight, 0.1f, 100.0f);
     glm::vec4 eyeRay = glm::inverse(projection) * glm::vec4(x, y, -1.0f, 1.0f);
     eyeRay = glm::vec4(eyeRay.x, eyeRay.y, -1.0f, 0.0f);
     glm::vec3 worldRay = glm::inverse(camera.getViewMatrix()) * eyeRay;
     worldRay = glm::normalize(worldRay);
     return {worldRay, camera.getPosition()};
+}
+
+glm::vec3 getClosestPointToRayFromRay(Ray3D fromRay, Ray3D toRay)
+{
+    glm::vec3 normal = glm::normalize(glm::cross(fromRay.direction, toRay.direction));
+    if (approximatelyEquals(normal.x, 0) && approximatelyEquals(normal.y, 0) && approximatelyEquals(normal.z, 0))
+    {
+        return fromRay.source;
+    }
+
+    float distance = glm::abs(glm::dot((fromRay.source - toRay.source), normal));
+
+    float X = toRay.source.x - fromRay.source.x - distance * normal.x;
+    float Y = toRay.source.y - fromRay.source.y - distance * normal.y;
+    float Z = toRay.source.z - fromRay.source.z - distance * normal.z;
+    float t1 = 0;
+
+    float xMag = glm::abs(fromRay.direction.x + toRay.direction.x);
+    float yMag = glm::abs(fromRay.direction.y + toRay.direction.y);
+    float zMag = glm::abs(fromRay.direction.z + toRay.direction.z);
+
+    auto isLegalCalc = [](float fromDir1, float fromDir2, float toDir1, float toDir2) {
+        return !approximatelyEquals(fromDir1 * toDir2 - fromDir2 * toDir1, 0);
+    };
+    auto calcDirectionMag = [](float fromDir1, float fromDir2, float toDir1, float toDir2, float mag1, float mag2) {
+        return (toDir2 * mag1 - toDir1 * mag2) / (fromDir1 * toDir2 - fromDir2 * toDir1);
+    };
+
+    if (xMag > yMag && xMag > zMag)
+    {
+        bool xyLegal = isLegalCalc(fromRay.direction.x, fromRay.direction.y, toRay.direction.x, toRay.direction.y);
+        bool xzLegal = isLegalCalc(fromRay.direction.x, fromRay.direction.z, toRay.direction.x, toRay.direction.z);
+        bool yzLegal = isLegalCalc(fromRay.direction.y, fromRay.direction.z, toRay.direction.y, toRay.direction.z);
+        if (xyLegal && (yMag > zMag || !xzLegal))
+        {
+            t1 = calcDirectionMag(fromRay.direction.x, fromRay.direction.y, toRay.direction.x, toRay.direction.y, X, Y);
+        }
+        else if (xzLegal)
+        {
+            t1 = calcDirectionMag(fromRay.direction.x, fromRay.direction.z, toRay.direction.x, toRay.direction.z, X, Z);
+        }
+        else if (yzLegal)
+        {
+            t1 = calcDirectionMag(fromRay.direction.y, fromRay.direction.z, toRay.direction.y, toRay.direction.z, Y, Z);
+        }
+        else
+        {
+            SPARK_CORE_ERROR("Can't calculate getClosestPointToRayFromRay");
+            SPARK_DEBUG_BREAK();
+        }
+    }
+    else if (yMag > xMag && yMag > zMag)
+    {
+        bool xyLegal = isLegalCalc(fromRay.direction.x, fromRay.direction.y, toRay.direction.x, toRay.direction.y);
+        bool xzLegal = isLegalCalc(fromRay.direction.x, fromRay.direction.z, toRay.direction.x, toRay.direction.z);
+        bool yzLegal = isLegalCalc(fromRay.direction.y, fromRay.direction.z, toRay.direction.y, toRay.direction.z);
+        if (xyLegal && (xMag > zMag || !yzLegal))
+        {
+            t1 = calcDirectionMag(fromRay.direction.x, fromRay.direction.y, toRay.direction.x, toRay.direction.y, X, Y);
+        }
+        else if (yzLegal)
+        {
+            t1 = calcDirectionMag(fromRay.direction.y, fromRay.direction.z, toRay.direction.y, toRay.direction.z, Y, Z);
+        }
+        else if (xzLegal)
+        {
+            t1 = calcDirectionMag(fromRay.direction.x, fromRay.direction.z, toRay.direction.x, toRay.direction.z, X, Z);
+        }
+        else
+        {
+            SPARK_CORE_ERROR("Can't calculate getClosestPointToRayFromRay");
+            SPARK_DEBUG_BREAK();
+        }
+    }
+    else
+    {
+        bool xyLegal = isLegalCalc(fromRay.direction.x, fromRay.direction.y, toRay.direction.x, toRay.direction.y);
+        bool xzLegal = isLegalCalc(fromRay.direction.x, fromRay.direction.z, toRay.direction.x, toRay.direction.z);
+        bool yzLegal = isLegalCalc(fromRay.direction.y, fromRay.direction.z, toRay.direction.y, toRay.direction.z);
+        if (xzLegal && (xMag > yMag || !yzLegal))
+        {
+            t1 = calcDirectionMag(fromRay.direction.x, fromRay.direction.z, toRay.direction.x, toRay.direction.z, X, Z);
+        }
+        else if (yzLegal)
+        {
+            t1 = calcDirectionMag(fromRay.direction.y, fromRay.direction.z, toRay.direction.y, toRay.direction.z, Y, Z);
+        }
+        else if (xyLegal)
+        {
+            t1 = calcDirectionMag(fromRay.direction.x, fromRay.direction.y, toRay.direction.x, toRay.direction.y, X, Y);
+        }
+        else
+        {
+            SPARK_CORE_ERROR("Can't calculate getClosestPointToRayFromRay");
+            SPARK_DEBUG_BREAK();
+        }
+    }
+
+    return fromRay.source + fromRay.direction * t1;
 }
 } // namespace Spark::Physics

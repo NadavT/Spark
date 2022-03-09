@@ -1,4 +1,5 @@
-#pragma once
+#ifndef SPARK_VULKAN_TRIANGLE_LAYER_H
+#define SPARK_VULKAN_TRIANGLE_LAYER_H
 
 #include "platform/vulkan/pipeline/pipeline.h"
 #include "platform/vulkan/renderer.h"
@@ -27,3 +28,5 @@ class VulkanTriangleLayer : public Layer
     std::vector<VkCommandBuffer> m_commandBuffers;
 };
 } // namespace Spark::Render
+
+#endif /* SPARK_VULKAN_TRIANGLE_LAYER_H */

@@ -1,4 +1,5 @@
-#pragma once
+#ifndef SPARK_VULKAN_COLORED_SPHERE_H
+#define SPARK_VULKAN_COLORED_SPHERE_H
 #include "platform/vulkan/drawables/colored_drawable.h"
 #include "platform/vulkan/drawables/sphere.h"
 
@@ -11,3 +12,5 @@ class VulkanColoredSphere : public virtual VulkanSphere, public virtual VulkanCo
                         glm::vec3 scale = glm::vec3(1.0));
 };
 } // namespace Spark::Render
+
+#endif /* SPARK_VULKAN_COLORED_SPHERE_H */

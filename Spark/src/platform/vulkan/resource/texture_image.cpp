@@ -13,11 +13,12 @@ VulkanTextureImage::VulkanTextureImage(VulkanContext &context, const std::string
     , m_textureImageMemory(VK_NULL_HANDLE)
     , m_textureImageView(VK_NULL_HANDLE)
 {
-    int texWidth, texHeight, texChannels;
+    int texWidth = 0;
+    int texHeight = 0;
+    int texChannels = 0;
     stbi_uc *pixels = stbi_load(path.c_str(), &texWidth, &texHeight, &texChannels, STBI_rgb_alpha);
-    VkDeviceSize imageSize = texWidth * texHeight * 4;
-
     SPARK_CORE_ASSERT(pixels, "failed to load texture image!");
+    VkDeviceSize imageSize = texWidth * texHeight * 4;
 
     VkBuffer stagingBuffer;
     VkDeviceMemory stagingBufferMemory;

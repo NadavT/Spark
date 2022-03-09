@@ -1,4 +1,5 @@
-#pragma once
+#ifndef SPARK_MODEL_H
+#define SPARK_MODEL_H
 
 #include "object.h"
 
@@ -15,3 +16,5 @@ class ModelObject : public Object3D
 
 SPARK_API std::unique_ptr<Object3D> createModelObject(const Spark::Model &model, glm::vec3 position, glm::vec3 scale);
 } // namespace Spark
+
+#endif /* SPARK_MODEL_H */

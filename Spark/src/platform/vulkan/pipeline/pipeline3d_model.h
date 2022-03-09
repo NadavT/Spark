@@ -1,4 +1,5 @@
-#pragma once
+#ifndef SPARK_VULKAN_PIPELINE3D_MODEL_H
+#define SPARK_VULKAN_PIPELINE3D_MODEL_H
 
 #include "platform/vulkan/pipeline/pipeline3d.h"
 #include "platform/vulkan/vertex/vertex3d.h"
@@ -106,6 +107,7 @@ class VulkanPipeline3DModel : public VulkanPipeline
     void setXrayHighlight(bool xRay);
 
   private:
+    using VulkanPipeline::bind;
     void createDescriptorSetLayout();
     void createGraphicsPipeline();
     void updateLightsDescriptorSets(std::vector<std::vector<VkDescriptorSet>> &lightSets,
@@ -126,3 +128,5 @@ class VulkanPipeline3DModel : public VulkanPipeline
     bool m_xRayHighlight;
 };
 } // namespace Spark::Render
+
+#endif /* SPARK_VULKAN_PIPELINE3D_MODEL_H */

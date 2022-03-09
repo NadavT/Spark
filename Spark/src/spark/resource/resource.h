@@ -1,4 +1,5 @@
-#pragma once
+#ifndef SPARK_RESOURCE_RESOURCE_H
+#define SPARK_RESOURCE_RESOURCE_H
 
 #include <string>
 
@@ -35,3 +36,5 @@ class Resource
     ResourceType m_type;
 };
 } // namespace Spark
+
+#endif /* SPARK_RESOURCE_RESOURCE_H */

@@ -7,6 +7,7 @@
 #include "platform/vulkan/resource/texture.h"
 
 #include "spark/core/log.h"
+#include "spark/resource/resource_manager.h"
 
 #include <algorithm>
 
@@ -21,7 +22,7 @@ VulkanLayerRenderer3DModel::VulkanLayerRenderer3DModel(VulkanRenderer &renderer,
     , m_wireframePipeline(nullptr)
     , m_isAttached(false)
     , m_isRecreationNeeded(false)
-    , m_camera(camera)
+    , m_camera(&camera)
     , m_dirLightDirection({0.0f, 0.0f, 0.0f})
     , m_dirLightColor({1.0f, 1.0f, 1.0f})
     , m_spotLightColor({1.0f, 1.0f, 1.0f})
@@ -49,7 +50,7 @@ VulkanLayerRenderer3DModel::~VulkanLayerRenderer3DModel()
 {
     if (m_isAttached)
     {
-        OnDetach();
+        VulkanLayerRenderer3DModel::OnDetach();
     }
 
     for (int i = 0; i < m_commandBuffers.size(); i++)
@@ -136,13 +137,22 @@ void VulkanLayerRenderer3DModel::OnRender()
 
 void VulkanLayerRenderer3DModel::addDrawable(std::shared_ptr<Drawable> &drawable)
 {
-    LayerRenderer::addDrawable(drawable);
-
-    if (m_isAttached)
+    auto found_it =
+        std::find_if(m_toBeRemoved.begin(), m_toBeRemoved.end(), [&](Drawable *p) { return p == drawable.get(); });
+    if (found_it != m_toBeRemoved.end())
     {
-        std::vector<std::shared_ptr<Drawable>> drawables({drawable});
-        createResourcesForDrawables(drawables);
-        m_isRecreationNeeded = true;
+        m_toBeRemoved.erase(found_it);
+    }
+    else
+    {
+        LayerRenderer::addDrawable(drawable);
+
+        if (m_isAttached)
+        {
+            std::vector<std::shared_ptr<Drawable>> drawables({drawable});
+            createResourcesForDrawables(drawables);
+            m_isRecreationNeeded = true;
+        }
     }
 }
 
@@ -200,6 +210,11 @@ void VulkanLayerRenderer3DModel::setXrayHighlight(bool xRay)
     m_renderer.recreateSwapchain();
 }
 
+void VulkanLayerRenderer3DModel::setCamera(Render::Camera &camera)
+{
+    m_camera = &camera;
+}
+
 void VulkanLayerRenderer3DModel::createCommandBuffers()
 {
     int i = 0;
@@ -230,7 +245,6 @@ void VulkanLayerRenderer3DModel::createCommandBuffers()
             }
         }
 
-        struct Vulkan3DOutlinePushConsts outlinePushConsts = {};
         VkClearAttachment clearAttachment = {};
         clearAttachment.aspectMask = VK_IMAGE_ASPECT_STENCIL_BIT;
         clearAttachment.clearValue = clearValues[1];
@@ -245,12 +259,9 @@ void VulkanLayerRenderer3DModel::createCommandBuffers()
             for (size_t j = 0; j < m_drawables.size(); j++)
             {
                 VulkanDrawable *drawable = dynamic_cast<VulkanDrawable *>(m_drawables[j].get());
+                Drawable3D *drawable3D = dynamic_cast<Drawable3D *>(m_drawables[j].get());
                 std::vector<const VulkanRenderPrimitive *> primitives = drawable->getRenderPrimitives();
-                auto pointLight =
-                    std::find_if(m_pointLights.begin(), m_pointLights.end(), [&drawable](VulkanPointLight *x) {
-                        return x->getDrawable().get() == dynamic_cast<Drawable3D *>(drawable);
-                    });
-                pushConsts.calcLight = (pointLight != m_pointLights.end() && (*pointLight)->isLit()) ? false : true;
+                pushConsts.calcLight = drawable3D->isCalculateLight();
                 for (auto &primitive : drawable->getRenderPrimitives())
                 {
                     drawPrimitive(drawable, primitive, commandBuffer, i, pushConsts);
@@ -373,6 +384,18 @@ void VulkanLayerRenderer3DModel::createResourcesForDrawables(std::vector<std::sh
     std::vector<std::vector<VkImageView>> specularTextures;
     std::vector<std::vector<VkSampler>> specularSamplers;
 
+    if (m_textureDescriptorOffset.find(BLANK_TEXTURE_NAME) == m_textureDescriptorOffset.end())
+    {
+        const VulkanTexture *blankTexture =
+            dynamic_cast<const VulkanTexture *>(ResourceManager::getTexture(BLANK_TEXTURE_NAME));
+        SPARK_CORE_ASSERT(blankTexture != nullptr, "No blank texture, can't create reesources for drawables");
+        m_textureDescriptorOffset[BLANK_TEXTURE_NAME] = (unsigned int)textures.size();
+        textures.push_back({blankTexture->getImage().getImageView()});
+        samplers.push_back({blankTexture->getSampler().getSampler()});
+        specularTextures.push_back({blankTexture->getImage().getImageView()});
+        specularSamplers.push_back({blankTexture->getSampler().getSampler()});
+    }
+
     for (auto &drawable : drawables)
     {
         VulkanDrawable *vulkanDrawable = dynamic_cast<VulkanDrawable *>(drawable.get());
@@ -381,18 +404,20 @@ void VulkanLayerRenderer3DModel::createResourcesForDrawables(std::vector<std::sh
         if (vulkanDrawable->getDrawableType() == VulkanDrawableType::Textured)
         {
             VulkanTexturedDrawable *texturedDrawable = dynamic_cast<VulkanTexturedDrawable *>(vulkanDrawable);
-            createResourcesForTexutredDrawable(*texturedDrawable, textures, samplers, specularTextures,
+            SPARK_CORE_ASSERT(texturedDrawable != nullptr, "Couldn't convert drawable to textured drawable");
+            createResourcesForTexturedDrawable(*texturedDrawable, textures, samplers, specularTextures,
                                                specularSamplers);
         }
         else if (vulkanDrawable->getDrawableType() == VulkanDrawableType::Model)
         {
             VulkanDrawableModel *drawableModel = dynamic_cast<VulkanDrawableModel *>(vulkanDrawable);
+            SPARK_CORE_ASSERT(drawableModel != nullptr, "Couldn't convert drawable to model drawable");
             createResourcesForModelDrawable(*drawableModel, textures, samplers, specularTextures, specularSamplers);
         }
         else if (vulkanDrawable->getDrawableType() == VulkanDrawableType::Colored)
         {
             const VulkanRenderPrimitive *primitive = vulkanDrawable->getRenderPrimitives()[0];
-            m_primitiveTextureOffset[primitive] = 0;
+            m_primitiveTextureOffset[primitive] = m_textureDescriptorOffset[BLANK_TEXTURE_NAME];
             createPrimitiveResources(primitive);
         }
         else
@@ -401,6 +426,7 @@ void VulkanLayerRenderer3DModel::createResourcesForDrawables(std::vector<std::sh
             SPARK_DEBUG_BREAK();
         }
     }
+
     m_pipeline->addTextureDescriptorSets(m_textureDescriptorSets, textures, samplers, specularTextures,
                                          specularSamplers, static_cast<unsigned int>(textures.size()));
 }
@@ -417,7 +443,7 @@ void VulkanLayerRenderer3DModel::destroyResourcesForDrawable(Drawable *drawable)
     destroyDrawableResources(drawable);
 }
 
-void VulkanLayerRenderer3DModel::createResourcesForTexutredDrawable(
+void VulkanLayerRenderer3DModel::createResourcesForTexturedDrawable(
     VulkanTexturedDrawable &drawable, std::vector<std::vector<VkImageView>> &textures,
     std::vector<std::vector<VkSampler>> &samplers, std::vector<std::vector<VkImageView>> &specularTextures,
     std::vector<std::vector<VkSampler>> &specularSamplers)
@@ -528,7 +554,7 @@ void VulkanLayerRenderer3DModel::updateDirLightData()
 {
     void *data = nullptr;
     VulkanShaderDirectionalLightModel dirLight = {};
-    dirLight.direction = m_camera.getViewMatrix() * glm::vec4(m_dirLightDirection, 0.0f);
+    dirLight.direction = m_camera->getViewMatrix() * glm::vec4(m_dirLightDirection, 0.0f);
     dirLight.ambient = m_dirLightColor * 0.3f;
     dirLight.diffuse = m_dirLightColor * 0.4f;
     dirLight.specular = m_dirLightColor * 0.3f;
@@ -549,7 +575,7 @@ void VulkanLayerRenderer3DModel::updatePointLightsData()
         if (light->isLit())
         {
             VulkanShaderPointLightModel pointLight = {};
-            pointLight.position = m_camera.getViewMatrix() * glm::vec4(light->getPosition(), 1.0f);
+            pointLight.position = m_camera->getViewMatrix() * glm::vec4(light->getPosition(), 1.0f);
             pointLight.ambient = light->getColor() * 0.0f;
             pointLight.diffuse = light->getColor() * 0.5f;
             pointLight.specular = light->getColor();
@@ -592,8 +618,8 @@ void VulkanLayerRenderer3DModel::updateDrawableData(const Drawable *drawable)
 
     struct Transformation3D transformation = {};
     transformation.model = drawable->getTransformation();
-    transformation.view = m_camera.getViewMatrix();
-    transformation.projection = glm::perspective(m_camera.getZoom(),
+    transformation.view = m_camera->getViewMatrix();
+    transformation.projection = glm::perspective(m_camera->getZoomRadians(),
                                                  m_renderer.m_context.m_swapChainExtent.width /
                                                      (float)m_renderer.m_context.m_swapChainExtent.height,
                                                  0.1f, 100.0f);
@@ -623,6 +649,7 @@ void VulkanLayerRenderer3DModel::updateColoredDrawableMaterialData(const VulkanC
 {
     void *data;
     MaterialModel material = {};
+    SPARK_CORE_ASSERT(drawable != nullptr, "Got a null drawble");
     auto pointLight = std::find_if(m_pointLights.begin(), m_pointLights.end(), [&drawable](VulkanPointLight *x) {
         return x->getDrawable().get() == dynamic_cast<const Drawable3D *>(drawable);
     });
@@ -632,6 +659,7 @@ void VulkanLayerRenderer3DModel::updateColoredDrawableMaterialData(const VulkanC
     }
     else
     {
+        material.pureColor = drawable->getColor();
         material.baseColorDiffuse = drawable->getColor();
         material.baseColorSpecular = drawable->getColor();
         material.baseColorAmbient = drawable->getColor();
@@ -651,6 +679,7 @@ void VulkanLayerRenderer3DModel::updateColoredDrawableMaterialData(const VulkanC
 void VulkanLayerRenderer3DModel::updateTexturedDrawableMaterialData(const VulkanTexturedDrawable *drawable)
 {
     void *data = nullptr;
+    SPARK_CORE_ASSERT(drawable != nullptr, "Got a null drawble");
     MaterialModel material = {};
     material.baseColorDiffuse = {0, 0, 0};
     material.baseColorSpecular = {0, 0, 0};
@@ -670,7 +699,7 @@ void VulkanLayerRenderer3DModel::updateTexturedDrawableMaterialData(const Vulkan
 void VulkanLayerRenderer3DModel::updateModelDrawableMaterialData(const VulkanDrawableModel *drawable)
 {
     void *data = nullptr;
-    MaterialModel material = {};
+    SPARK_CORE_ASSERT(drawable != nullptr, "Got a null drawble");
     for (size_t j = 0; j < drawable->getModel().getMeshes().size(); j++)
     {
         const Mesh *mesh = drawable->getModel().getMeshes()[j].get();

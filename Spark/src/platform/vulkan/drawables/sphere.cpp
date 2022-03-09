@@ -1,15 +1,11 @@
 #include "sphere.h"
 
-#include "platform/vulkan/renderer.h"
-
-#include "spark/core/application.h"
-
 namespace Spark::Render
 {
 
 VulkanSphere::VulkanSphere(VulkanRenderer &renderer, glm::vec3 position, int sectors, int stacks, glm::vec3 scale)
-    : Sphere(position, sectors, stacks, scale)
-    , Drawable3D(position, scale)
+    : Drawable3D(position, scale)
+    , Sphere(position, sectors, stacks, scale)
     , m_context(renderer.m_context)
     , m_renderer(renderer)
     , m_vertexBuffer(VK_NULL_HANDLE)
@@ -37,8 +33,8 @@ VulkanSphere::~VulkanSphere()
 }
 
 VulkanSphere::VulkanSphere(const VulkanSphere &other)
-    : Sphere(other)
-    , Drawable3D(other)
+    : Drawable3D(other)
+    , Sphere(other)
     , m_context(other.m_context)
     , m_renderer(other.m_renderer)
 {
@@ -46,8 +42,8 @@ VulkanSphere::VulkanSphere(const VulkanSphere &other)
 }
 
 VulkanSphere::VulkanSphere(VulkanSphere &&other) noexcept
-    : Sphere(other)
-    , Drawable3D(other)
+    : Drawable3D(other)
+    , Sphere(other)
     , m_context(other.m_context)
     , m_renderer(other.m_renderer)
 {
@@ -56,13 +52,27 @@ VulkanSphere::VulkanSphere(VulkanSphere &&other) noexcept
 
 VulkanSphere &VulkanSphere::operator=(const VulkanSphere &other)
 {
-    copySphere(other);
+    if (this != &other)
+    {
+        if (m_vertexBuffer != VK_NULL_HANDLE)
+        {
+            vkDestroyBuffer(m_context.m_device, m_vertexBuffer, nullptr);
+        }
+        if (m_vertexBufferMemory != VK_NULL_HANDLE)
+        {
+            vkFreeMemory(m_context.m_device, m_vertexBufferMemory, nullptr);
+        }
+        copySphere(other);
+    }
     return *this;
 }
 
 VulkanSphere &VulkanSphere::operator=(VulkanSphere &&other) noexcept
 {
-    moveSphere(other);
+    if (this != &other)
+    {
+        moveSphere(other);
+    }
     return *this;
 }
 

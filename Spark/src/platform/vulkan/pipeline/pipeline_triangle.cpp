@@ -12,12 +12,12 @@ VulkanPipelineTriangle::VulkanPipelineTriangle(VulkanContext &context, VulkanFra
     : VulkanPipeline(context, framebuffer)
     , m_pipelineLayout(VK_NULL_HANDLE)
 {
-    recreate();
+    VulkanPipelineTriangle::recreate();
 }
 
 VulkanPipelineTriangle::~VulkanPipelineTriangle()
 {
-    cleanup();
+    VulkanPipelineTriangle::cleanup();
 }
 
 void VulkanPipelineTriangle::cleanup()

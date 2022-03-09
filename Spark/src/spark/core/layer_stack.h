@@ -1,4 +1,5 @@
-#pragma once
+#ifndef SPARK_LAYER_STACK_H
+#define SPARK_LAYER_STACK_H
 
 #include "spark/layer/layer.h"
 
@@ -18,6 +19,7 @@ class LayerStack
     void PushOverlayLayer(Layer *layer);
     void PopLayer(Layer *layer);
     void PopOverlayLayer(Layer *layer);
+    void updatePendings();
 
     inline std::vector<Layer *>::iterator begin()
     {
@@ -55,6 +57,9 @@ class LayerStack
 
   private:
     std::vector<Layer *> m_layers;
+    std::vector<Layer *> m_pendingLayers;
     unsigned int m_lastLayerIndex = 0;
 };
 } // namespace Spark
+
+#endif /* SPARK_LAYER_STACK_H */

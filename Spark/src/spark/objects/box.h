@@ -1,4 +1,5 @@
-#pragma once
+#ifndef SPARK_BOX_H
+#define SPARK_BOX_H
 
 #include "object.h"
 
@@ -20,3 +21,5 @@ SPARK_API std::unique_ptr<Object3D> createBox(glm::vec3 position, float width, f
 SPARK_API std::unique_ptr<Object3D> createBox(glm::vec3 position, float width, float length, float height,
                                               const Texture &texture, const Texture &specularTexture);
 } // namespace Spark
+
+#endif /* SPARK_BOX_H */

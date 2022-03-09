@@ -1,4 +1,5 @@
-#pragma once
+#ifndef SPARK_LAYER_3D_H
+#define SPARK_LAYER_3D_H
 
 #include "layer.h"
 
@@ -24,8 +25,10 @@ class Layer3D : public Layer
 
     SPARK_API virtual void addDrawable(std::shared_ptr<Render::Drawable> &drawable);
     SPARK_API virtual void addObject(Object3D &object);
+    SPARK_API virtual void addObjectAndChilds(Object3D &object);
     SPARK_API virtual void removeDrawable(Render::Drawable *drawable);
     SPARK_API virtual void removeObject(Object3D &object);
+    SPARK_API virtual void removeObjectAndChilds(Object3D &object);
 
     SPARK_API virtual void setDirLight(glm::vec3 direction, glm::vec3 color);
     SPARK_API virtual void addPointLight(Render::PointLight &pointLight);
@@ -37,8 +40,12 @@ class Layer3D : public Layer
     SPARK_API virtual bool getXrayHighlight() const;
     SPARK_API virtual void setXrayHighlight(bool xRayHighlight);
 
+    SPARK_API virtual void setCamera(Render::Camera &camera);
+
   private:
     std::unique_ptr<Render::LayerRenderer> m_layer_renderer;
-    Render::Camera &m_camera;
+    Render::Camera *m_camera;
 };
 } // namespace Spark
+
+#endif /* SPARK_LAYER_3D_H */

@@ -21,7 +21,7 @@ VulkanPipeline3DOutline::VulkanPipeline3DOutline(VulkanContext &context, VulkanF
 
 VulkanPipeline3DOutline::~VulkanPipeline3DOutline()
 {
-    cleanup();
+    VulkanPipeline3DOutline::cleanup();
 }
 
 void VulkanPipeline3DOutline::cleanup()

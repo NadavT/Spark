@@ -1,15 +1,18 @@
-#pragma once
+#ifndef SPARK_RENDER_DRAWABLE_H
+#define SPARK_RENDER_DRAWABLE_H
 
 #include "spark/core/core.h"
 
 #include <glm/glm.hpp>
+
+#include <vector>
 
 namespace Spark::Render
 {
 class Drawable
 {
   protected:
-    const float defaultHighlightWidth = 0.05f;
+    static inline const float defaultHighlightWidth = 0.05f;
 
   public:
     SPARK_API virtual ~Drawable() = default;
@@ -22,11 +25,32 @@ class Drawable
     SPARK_API virtual void unhighlight();
     SPARK_API virtual void setHighlightColor(glm::vec3 color);
     SPARK_API virtual void setHighlightWidth(float width);
+    SPARK_API virtual const glm::vec3 getColor() const;
+    SPARK_API virtual void setColor(glm::vec3 color, bool childs = false);
+
+    virtual void setParent(Drawable *parent);
+    virtual void removeParent();
+
+    virtual Drawable *getParent() const;
+    virtual const std::vector<Drawable *> &getChilds() const;
 
   protected:
     Drawable();
+    Drawable(const Drawable &other) = default;
+    Drawable(Drawable &&other) noexcept = default;
+    Drawable &operator=(const Drawable &other) = default;
+    Drawable &operator=(Drawable &&other) noexcept = default;
+    virtual void addChild(Drawable *child);
+    virtual void removeChild(Drawable *child);
+    virtual void clearChilds();
+
+  protected:
     bool m_highlight;
     glm::vec3 m_highlightColor;
     float m_highlightWidth;
+    Drawable *m_parent;
+    std::vector<Drawable *> m_childs;
 };
 } // namespace Spark::Render
+
+#endif /* SPARK_RENDER_DRAWABLE_H */

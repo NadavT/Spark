@@ -1,7 +1,10 @@
 #include "object.h"
+
+#include "spark/core/log.h"
+
 namespace Spark
 {
-std::shared_ptr<Render::Drawable3D> Object3D::getDrawable()
+std::shared_ptr<Render::Drawable3D> &Object3D::getDrawable()
 {
     return m_drawable;
 }
@@ -11,9 +14,17 @@ Physics::Object3D &Object3D::getPhysicsObject() const
     return *m_physicsObject;
 }
 
-Object3D::Object3D(std::shared_ptr<Render::Drawable3D> drawable, std::unique_ptr<Physics::Object3D> physicObject)
+void Object3D::setPhysicsObject(std::unique_ptr<Physics::Object3D> physicsObject)
+{
+    SPARK_CORE_ASSERT(physicsObject != nullptr, "Got invalid physical object");
+    m_physicsObject = std::move(physicsObject);
+}
+
+Object3D::Object3D(std::shared_ptr<Render::Drawable3D> drawable, std::unique_ptr<Physics::Object3D> physicsObject)
     : m_drawable(drawable)
-    , m_physicsObject(std::move(physicObject))
+    , m_physicsObject(std::move(physicsObject))
+    , m_parent(nullptr)
+    , m_childs()
 {
 }
 
@@ -29,10 +40,10 @@ void Object3D::scale(glm::vec3 scale)
     m_physicsObject->scale(scale);
 }
 
-void Object3D::rotate(float angle, glm::vec3 axis)
+void Object3D::rotate(float angle, glm::vec3 axis, bool worldRelative)
 {
-    m_drawable->rotate(angle, axis);
-    m_physicsObject->rotate(angle, axis);
+    m_drawable->rotate(angle, axis, worldRelative);
+    m_physicsObject->rotate(angle, axis, worldRelative);
 }
 
 void Object3D::setPosition(glm::vec3 position)
@@ -51,5 +62,87 @@ void Object3D::setRotation(float angle, glm::vec3 axis)
 {
     m_drawable->setRotation(angle, axis);
     m_physicsObject->setRotation(angle, axis);
+}
+
+void Object3D::setRotation(glm::mat4 rotationMatrix)
+{
+    m_drawable->setRotation(rotationMatrix);
+    m_physicsObject->setRotation(rotationMatrix);
+}
+
+void Object3D::setAsRelativeTransform()
+{
+    m_drawable->setAsRelativeTransform();
+    m_physicsObject->setAsRelativeTransform();
+}
+
+void Object3D::setParent(Object3D *parent)
+{
+    if (m_parent)
+    {
+        removeParent();
+    }
+
+    m_parent = parent;
+    if (parent)
+    {
+        m_drawable->setParent(parent->getDrawable().get());
+        m_physicsObject->setParent(&parent->getPhysicsObject());
+    }
+    else
+    {
+        m_drawable->setParent(nullptr);
+        m_physicsObject->setParent(nullptr);
+    }
+}
+
+void Object3D::removeParent()
+{
+    if (m_parent)
+    {
+        m_drawable->removeParent();
+        m_physicsObject->removeParent();
+        m_parent->removeChild(this);
+        m_parent = nullptr;
+    }
+}
+
+Object3D *Object3D::getParent() const
+{
+    return m_parent;
+}
+
+std::vector<Object3D *> Object3D::getChilds() const
+{
+    std::vector<Object3D *> childs;
+    for (auto &child : m_childs)
+    {
+        childs.push_back(child.get());
+    }
+
+    return childs;
+}
+
+void Object3D::addChild(std::shared_ptr<Object3D> &child)
+{
+    m_childs.push_back(child);
+    child->setParent(this);
+}
+
+void Object3D::removeChild(Object3D *child)
+{
+    auto found_it = std::find_if(m_childs.begin(), m_childs.end(),
+                                 [&](std::shared_ptr<Object3D> const &p) { return p.get() == child; });
+
+    SPARK_CORE_ASSERT(found_it != m_childs.end(), "Tried to remove a child which isn't a child of this parent");
+    if (found_it != m_childs.end())
+    {
+        m_childs.erase(found_it);
+    }
+}
+
+void Object3D::clearChilds()
+{
+    m_childs.clear();
 }
 } // namespace Spark

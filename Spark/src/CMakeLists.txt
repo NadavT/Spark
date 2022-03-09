@@ -1,5 +1,6 @@
 project(spark)
 
+set(CMAKE_CXX_CLANG_TIDY "clang-tidy;-warnings-as-errors=*;-extra-arg=/EHsc")
 # Declare spark library
 add_library(spark SHARED)
 
@@ -17,10 +18,9 @@ set_property(TARGET spark PROPERTY CXX_STANDARD 17)
 target_compile_definitions(spark PUBLIC SPARK_DYNAMIC_LINK)
 target_compile_definitions(spark PRIVATE SPARK_BUILD_DLL)
 if(CMAKE_BUILD_TYPE STREQUAL "Debug")
-    target_compile_definitions(spark PRIVATE SPARK_DEBUG)
+    target_compile_definitions(spark PUBLIC SPARK_DEBUG)
 endif()
 if(MSVC)
-    target_compile_definitions(spark PRIVATE IMGUI_API=__declspec\(dllexport\))
     target_compile_options(spark PRIVATE /w44250)
     target_compile_options(spark PRIVATE /W3 /WX)
 else()

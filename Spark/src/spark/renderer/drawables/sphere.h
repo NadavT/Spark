@@ -1,4 +1,5 @@
-#pragma once
+#ifndef SPARK_RENDER_SPHERE_H
+#define SPARK_RENDER_SPHERE_H
 
 #include "spark/core/core.h"
 
@@ -15,8 +16,6 @@ class Sphere : public virtual Drawable3D
     SPARK_API virtual ~Sphere() = default;
     SPARK_API Sphere(const Sphere &other) = default;
     SPARK_API Sphere(Sphere &&other) noexcept = default;
-    SPARK_API Sphere &operator=(const Sphere &other) = default;
-    SPARK_API Sphere &operator=(Sphere &&other) noexcept = default;
 
   protected:
     SPARK_API Sphere(glm::vec3 position, int sectors, int stacks, glm::vec3 scale = glm::vec3(1.0));
@@ -32,3 +31,5 @@ SPARK_API std::unique_ptr<Drawable3D> createSphere(glm::vec3 position, const Tex
 SPARK_API std::unique_ptr<Drawable3D> createSphere(glm::vec3 position, glm::vec3 color, int sectors = 36,
                                                    int stacks = 18, glm::vec3 scale = glm::vec3(1.0));
 } // namespace Spark::Render
+
+#endif /* SPARK_RENDER_SPHERE_H */

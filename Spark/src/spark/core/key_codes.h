@@ -1,4 +1,7 @@
-#pragma once
+#ifndef SPARK_KEY_CODES_H
+#define SPARK_KEY_CODES_H
+
+#include <iostream>
 
 namespace Spark
 {
@@ -143,3 +146,5 @@ inline std::ostream &operator<<(std::ostream &stream, KeyCode keyCode)
     return stream;
 }
 } // namespace Spark
+
+#endif /* SPARK_KEY_CODES_H */

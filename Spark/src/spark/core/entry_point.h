@@ -1,4 +1,5 @@
-#pragma once
+#ifndef SPARK_ENTRY_POINT_H
+#define SPARK_ENTRY_POINT_H
 
 #include "spark/core/application.h"
 #include "spark/core/core.h"
@@ -15,3 +16,5 @@ int main(int argc, char **argv)
     delete app;
 }
 #endif
+
+#endif /* SPARK_ENTRY_POINT_H */

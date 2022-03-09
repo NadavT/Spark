@@ -1,4 +1,5 @@
-#pragma once
+#ifndef SPARK_VULKAN_MODEL_H
+#define SPARK_VULKAN_MODEL_H
 
 #include "platform/vulkan/drawables/vulkan_drawable.h"
 #include "platform/vulkan/renderer.h"
@@ -22,3 +23,5 @@ class VulkanDrawableModel : public virtual Drawable3D, public virtual VulkanDraw
     const Model &m_model;
 };
 } // namespace Spark::Render
+
+#endif /* SPARK_VULKAN_MODEL_H */

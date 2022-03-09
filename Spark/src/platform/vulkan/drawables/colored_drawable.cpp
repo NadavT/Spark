@@ -28,13 +28,14 @@ VulkanColoredDrawable &VulkanColoredDrawable::operator=(VulkanColoredDrawable &&
     return *this;
 }
 
-const glm::vec3 &VulkanColoredDrawable::getColor() const
+const glm::vec3 VulkanColoredDrawable::getColor() const
 {
     return m_color;
 }
 
-void VulkanColoredDrawable::setColor(glm::vec3 color)
+void VulkanColoredDrawable::setColor(glm::vec3 color, bool childs)
 {
+    VulkanDrawable::setColor(color, childs);
     m_color = color;
 }
 VulkanDrawableType VulkanColoredDrawable::getDrawableType() const

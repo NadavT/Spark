@@ -1,4 +1,5 @@
-#pragma once
+#ifndef SPARK_VULKAN_LAYER_RENDERER_3D_MODEL_H
+#define SPARK_VULKAN_LAYER_RENDERER_3D_MODEL_H
 
 #include "platform/vulkan/drawables/colored_drawable.h"
 #include "platform/vulkan/drawables/model.h"
@@ -39,6 +40,8 @@ class VulkanLayerRenderer3DModel : public LayerRenderer
     bool getXrayHighlight() const;
     void setXrayHighlight(bool xRay);
 
+    virtual void setCamera(Render::Camera &camera);
+
   private:
     void createCommandBuffers();
 
@@ -54,7 +57,7 @@ class VulkanLayerRenderer3DModel : public LayerRenderer
 
     void createResourcesForDrawables(std::vector<std::shared_ptr<Drawable>> &drawables);
     void destroyResourcesForDrawable(Drawable *drawable);
-    void createResourcesForTexutredDrawable(VulkanTexturedDrawable &drawable,
+    void createResourcesForTexturedDrawable(VulkanTexturedDrawable &drawable,
                                             std::vector<std::vector<VkImageView>> &textures,
                                             std::vector<std::vector<VkSampler>> &samplers,
                                             std::vector<std::vector<VkImageView>> &specularTextures,
@@ -117,7 +120,7 @@ class VulkanLayerRenderer3DModel : public LayerRenderer
     bool m_isAttached;
     bool m_isRecreationNeeded;
 
-    Camera &m_camera;
+    Camera *m_camera;
     glm::vec3 m_dirLightDirection;
     glm::vec3 m_dirLightColor;
     glm::vec3 m_spotLightColor;
@@ -129,3 +132,5 @@ class VulkanLayerRenderer3DModel : public LayerRenderer
     bool m_xRayHighlight;
 };
 } // namespace Spark::Render
+
+#endif /* SPARK_VULKAN_LAYER_RENDERER_3D_MODEL_H */

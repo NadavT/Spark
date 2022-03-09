@@ -1,4 +1,5 @@
-#pragma once
+#ifndef SPARK_MOUSE_EVENT_H
+#define SPARK_MOUSE_EVENT_H
 
 #include "spark/event/event.h"
 
@@ -134,3 +135,5 @@ class MouseButtonReleasedEvent : public MouseButtonEvent
 };
 
 } // namespace Spark
+
+#endif /* SPARK_MOUSE_EVENT_H */

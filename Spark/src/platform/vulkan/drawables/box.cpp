@@ -1,9 +1,5 @@
 #include "box.h"
 
-#include "platform/vulkan/renderer.h"
-
-#include "spark/core/application.h"
-
 namespace Spark::Render
 {
 
@@ -45,8 +41,8 @@ const std::vector<uint32_t> cube_indices = {
 };
 
 VulkanBox::VulkanBox(VulkanRenderer &renderer, glm::vec3 position, glm::vec3 scale)
-    : Box(position, scale)
-    , Drawable3D(position, scale)
+    : Drawable3D(position, scale)
+    , Box(position, scale)
     , m_context(renderer.m_context)
     , m_renderer(renderer)
     , m_vertexBuffer(VK_NULL_HANDLE)
@@ -71,8 +67,8 @@ VulkanBox::~VulkanBox()
 }
 
 VulkanBox::VulkanBox(const VulkanBox &other)
-    : Box(other)
-    , Drawable3D(other)
+    : Drawable3D(other)
+    , Box(other)
     , m_context(other.m_context)
     , m_renderer(other.m_renderer)
 {
@@ -80,8 +76,8 @@ VulkanBox::VulkanBox(const VulkanBox &other)
 }
 
 VulkanBox::VulkanBox(VulkanBox &&other) noexcept
-    : Box(other)
-    , Drawable3D(other)
+    : Drawable3D(other)
+    , Box(other)
     , m_context(other.m_context)
     , m_renderer(other.m_renderer)
 {
@@ -90,13 +86,27 @@ VulkanBox::VulkanBox(VulkanBox &&other) noexcept
 
 VulkanBox &VulkanBox::operator=(const VulkanBox &other)
 {
-    copyCube(other);
+    if (this != &other)
+    {
+        if (m_vertexBuffer != VK_NULL_HANDLE)
+        {
+            vkDestroyBuffer(m_context.m_device, m_vertexBuffer, nullptr);
+        }
+        if (m_vertexBufferMemory != VK_NULL_HANDLE)
+        {
+            vkFreeMemory(m_context.m_device, m_vertexBufferMemory, nullptr);
+        }
+        copyCube(other);
+    }
     return *this;
 }
 
 VulkanBox &VulkanBox::operator=(VulkanBox &&other) noexcept
 {
-    moveCube(other);
+    if (this != &other)
+    {
+        moveCube(other);
+    }
     return *this;
 }
 

@@ -45,7 +45,7 @@ VkImageView VulkanFramebuffer3D::getDepthImageView() const
 
 VkRect2D VulkanFramebuffer3D::getDepthImageDimentions() const
 {
-    return {0, 0, m_context.m_swapChainExtent.width, m_context.m_swapChainExtent.height};
+    return {{0, 0}, {m_context.m_swapChainExtent.width, m_context.m_swapChainExtent.height}};
 }
 
 void VulkanFramebuffer3D::createDepthImage()

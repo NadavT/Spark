@@ -1,4 +1,5 @@
-#pragma once
+#ifndef SPARK_VULKAN_MESH_H
+#define SPARK_VULKAN_MESH_H
 
 #include "platform/vulkan/drawables/render_primitive.h"
 #include "platform/vulkan/renderer.h"
@@ -33,3 +34,5 @@ class VulkanMesh : public Mesh, public VulkanRenderPrimitive
     VkDeviceSize m_indicesOffset;
 };
 } // namespace Spark::Render
+
+#endif /* SPARK_VULKAN_MESH_H */

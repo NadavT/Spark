@@ -1,4 +1,5 @@
-#pragma once
+#ifndef SPARK_RESOURCE_MODEL_H
+#define SPARK_RESOURCE_MODEL_H
 
 #include "spark/core/core.h"
 #include "spark/physics/bounding/box_bounding.h"
@@ -37,3 +38,5 @@ class Model : public Resource
     std::string m_directory;
 };
 } // namespace Spark
+
+#endif /* SPARK_RESOURCE_MODEL_H */

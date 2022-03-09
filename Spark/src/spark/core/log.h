@@ -1,8 +1,11 @@
-#pragma once
+#ifndef SPARK_LOG_H
+#define SPARK_LOG_H
 
 #include "spark/core/core.h"
 
 #include <spdlog/spdlog.h>
+
+#include <stdexcept>
 
 namespace Spark
 {
@@ -10,27 +13,27 @@ SPARK_API void loggerInit();
 SPARK_API spdlog::logger *getCoreLogger();
 SPARK_API spdlog::logger *getClientLogger();
 
-template <typename... Args> void logTrace(spdlog::logger *logger, const Args &... args)
+template <typename... Args> void logTrace(spdlog::logger *logger, const Args &...args)
 {
     logger->trace(args...);
 }
 
-template <typename... Args> void logInfo(spdlog::logger *logger, const Args &... args)
+template <typename... Args> void logInfo(spdlog::logger *logger, const Args &...args)
 {
     logger->info(args...);
 }
 
-template <typename... Args> void logWarn(spdlog::logger *logger, const Args &... args)
+template <typename... Args> void logWarn(spdlog::logger *logger, const Args &...args)
 {
     logger->warn(args...);
 }
 
-template <typename... Args> void logError(spdlog::logger *logger, const Args &... args)
+template <typename... Args> void logError(spdlog::logger *logger, const Args &...args)
 {
     logger->error(args...);
 }
 
-template <typename... Args> void logCritical(spdlog::logger *logger, const Args &... args)
+template <typename... Args> void logCritical(spdlog::logger *logger, const Args &...args)
 {
     logger->critical(args...);
 }
@@ -57,6 +60,7 @@ template <typename... Args> void logCritical(spdlog::logger *logger, const Args 
             {                                                                                                          \
                 SPARK_ERROR("Assertion Failed: {0}", __VA_ARGS__);                                                     \
                 SPARK_DEBUG_BREAK();                                                                                   \
+                throw std::runtime_error("ASSERTION FAILED");                                                          \
             }                                                                                                          \
         }
     #define SPARK_CORE_ASSERT(x, ...)                                                                                  \
@@ -65,15 +69,20 @@ template <typename... Args> void logCritical(spdlog::logger *logger, const Args 
             {                                                                                                          \
                 SPARK_CORE_ERROR("Assertion Failed: {0}", __VA_ARGS__);                                                \
                 SPARK_DEBUG_BREAK();                                                                                   \
+                throw std::runtime_error("ASSERTION FAILED");                                                          \
             }                                                                                                          \
         }
 #else
     #define SPARK_ASSERT(x, ...)                                                                                       \
         if (!(x))                                                                                                      \
         {                                                                                                              \
+            throw std::runtime_error("ASSERTION FAILED");                                                              \
         }
     #define SPARK_CORE_ASSERT(x, ...)                                                                                  \
         if (!(x))                                                                                                      \
         {                                                                                                              \
+            throw std::runtime_error("ASSERTION FAILED");                                                              \
         }
 #endif
+
+#endif /* SPARK_LOG_H */

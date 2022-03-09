@@ -15,7 +15,7 @@ VulkanLayerRenderer3D::VulkanLayerRenderer3D(VulkanRenderer &renderer, Camera &c
     , m_toBeRemoved()
     , m_isAttached(false)
     , m_isRecreationNeeded(false)
-    , m_camera(camera)
+    , m_camera(&camera)
 {
     m_framebuffer = renderer.createFramebuffer(VulkanFramebufferType::Type3D);
     m_pipeline =
@@ -31,7 +31,7 @@ VulkanLayerRenderer3D::~VulkanLayerRenderer3D()
 {
     if (m_isAttached)
     {
-        OnDetach();
+        VulkanLayerRenderer3D::OnDetach();
     }
 
     for (int i = 0; i < m_commandBuffers.size(); i++)
@@ -118,16 +118,14 @@ void VulkanLayerRenderer3D::OnRender()
         m_isRecreationNeeded = false;
     }
 
-    int i = 0;
-
     for (size_t i = 0; i < m_drawables.size(); i++)
     {
         VulkanTexturedBox *cube = dynamic_cast<VulkanTexturedBox *>(m_drawables[i].get());
         void *data;
         struct Transformation3D transformation = {};
         transformation.model = cube->getTransformation();
-        transformation.view = m_camera.getViewMatrix();
-        transformation.projection = glm::perspective(m_camera.getZoom(),
+        transformation.view = m_camera->getViewMatrix();
+        transformation.projection = glm::perspective(m_camera->getZoomRadians(),
                                                      m_renderer.m_context.m_swapChainExtent.width /
                                                          (float)m_renderer.m_context.m_swapChainExtent.height,
                                                      0.1f, 100.0f);

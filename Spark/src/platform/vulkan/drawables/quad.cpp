@@ -14,8 +14,8 @@ const std::vector<uint32_t> quad_indices = {
 };
 
 VulkanQuad::VulkanQuad(VulkanRenderer &renderer, glm::vec2 position, const VulkanTexture &texture, glm::vec2 scale)
-    : Quad(position, scale)
-    , Drawable2D(position, scale)
+    : Drawable2D(position, scale)
+    , Quad(position, scale)
     , m_context(renderer.m_context)
     , m_renderer(renderer)
     , m_vertexBuffer(VK_NULL_HANDLE)
@@ -41,8 +41,8 @@ VulkanQuad::~VulkanQuad()
 }
 
 VulkanQuad::VulkanQuad(const VulkanQuad &other)
-    : Quad(other)
-    , Drawable2D(other)
+    : Drawable2D(other)
+    , Quad(other)
     , m_context(other.m_context)
     , m_renderer(other.m_renderer)
     , m_texture(other.m_texture)
@@ -51,8 +51,8 @@ VulkanQuad::VulkanQuad(const VulkanQuad &other)
 }
 
 VulkanQuad::VulkanQuad(VulkanQuad &&other) noexcept
-    : Quad(other)
-    , Drawable2D(other)
+    : Drawable2D(other)
+    , Quad(other)
     , m_context(other.m_context)
     , m_renderer(other.m_renderer)
     , m_texture(other.m_texture)
@@ -62,13 +62,27 @@ VulkanQuad::VulkanQuad(VulkanQuad &&other) noexcept
 
 VulkanQuad &VulkanQuad::operator=(const VulkanQuad &other)
 {
-    copyQuad(other);
+    if (this != &other)
+    {
+        if (m_vertexBuffer != VK_NULL_HANDLE)
+        {
+            vkDestroyBuffer(m_context.m_device, m_vertexBuffer, nullptr);
+        }
+        if (m_vertexBufferMemory != VK_NULL_HANDLE)
+        {
+            vkFreeMemory(m_context.m_device, m_vertexBufferMemory, nullptr);
+        }
+        copyQuad(other);
+    }
     return *this;
 }
 
 VulkanQuad &VulkanQuad::operator=(VulkanQuad &&other) noexcept
 {
-    moveQuad(other);
+    if (this != &other)
+    {
+        moveQuad(other);
+    }
     return *this;
 }
 

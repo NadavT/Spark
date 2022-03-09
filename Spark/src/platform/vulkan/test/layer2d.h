@@ -1,4 +1,5 @@
-#pragma once
+#ifndef SPARK_VULKAN_LAYER2D_H
+#define SPARK_VULKAN_LAYER2D_H
 
 #include "platform/vulkan/drawables/quad.h"
 #include "platform/vulkan/layers/layer_renderer_2d.h"
@@ -35,3 +36,5 @@ class VulkanLayer2D : public Layer
     std::unique_ptr<VulkanQuad> m_quad2;
 };
 } // namespace Spark::Render
+
+#endif /* SPARK_VULKAN_LAYER2D_H */

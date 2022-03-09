@@ -1,4 +1,5 @@
-#pragma once
+#ifndef SPARK_VULKAN_PIPELINE_H
+#define SPARK_VULKAN_PIPELINE_H
 
 #include "platform/vulkan/framebuffer/framebuffer.h"
 #include "platform/vulkan/vulkan_context.h"
@@ -74,3 +75,5 @@ class VulkanPipeline
     VkPipelineColorBlendStateCreateInfo m_colorBlendState;
 };
 } // namespace Spark::Render
+
+#endif /* SPARK_VULKAN_PIPELINE_H */

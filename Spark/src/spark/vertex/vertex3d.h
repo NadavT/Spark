@@ -1,4 +1,5 @@
-#pragma once
+#ifndef SPARK_VERTEX3D_H
+#define SPARK_VERTEX3D_H
 #include <array>
 #include <vector>
 
@@ -21,6 +22,15 @@ struct Vertex3D
         return pos == other.pos && texCoord == other.texCoord && normal == other.normal;
     }
 };
+
+namespace Physics
+{
+struct Ray3D
+{
+    glm::vec3 direction;
+    glm::vec3 source;
+};
+} // namespace Physics
 } // namespace Spark
 
 template <> struct std::hash<Spark::Vertex3D>
@@ -30,3 +40,5 @@ template <> struct std::hash<Spark::Vertex3D>
         return (std::hash<glm::vec3>()(vertex.pos)) ^ (std::hash<glm::vec2>()(vertex.texCoord) << 1);
     }
 };
+
+#endif /* SPARK_VERTEX3D_H */

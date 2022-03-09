@@ -1,4 +1,5 @@
-#pragma once
+#ifndef SPARK_VULKAN_LAYER_RENDERER_3D_LIGHTS_H
+#define SPARK_VULKAN_LAYER_RENDERER_3D_LIGHTS_H
 
 #include "platform/vulkan/drawables/point_light.h"
 #include "platform/vulkan/framebuffer/framebuffer3d.h"
@@ -66,7 +67,7 @@ class VulkanLayerRenderer3DLights : public LayerRenderer
     bool m_isAttached;
     bool m_isRecreationNeeded;
 
-    Camera &m_camera;
+    Camera *m_camera;
     glm::vec3 m_dirLightDirection;
     glm::vec3 m_dirLightColor;
     glm::vec3 m_spotLightColor;
@@ -76,3 +77,5 @@ class VulkanLayerRenderer3DLights : public LayerRenderer
     glm::vec3 m_wireframeColor;
 };
 } // namespace Spark::Render
+
+#endif /* SPARK_VULKAN_LAYER_RENDERER_3D_LIGHTS_H */

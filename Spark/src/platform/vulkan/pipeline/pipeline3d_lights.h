@@ -1,4 +1,5 @@
-#pragma once
+#ifndef SPARK_VULKAN_PIPELINE3D_LIGHTS_H
+#define SPARK_VULKAN_PIPELINE3D_LIGHTS_H
 
 #include "platform/vulkan/pipeline/pipeline3d.h"
 #include "platform/vulkan/vertex/vertex3d.h"
@@ -109,6 +110,7 @@ class VulkanPipeline3DLights : public VulkanPipeline
                                      std::vector<VkSampler> &specularSamplers, unsigned int offset = 0);
 
   private:
+    using VulkanPipeline::bind;
     VkPipelineLayout m_pipelineColorLayout;
     VkPipelineLayout m_pipelineTextureLayout;
     VkDescriptorSetLayout m_transformationDescriptorSetLayout;
@@ -119,3 +121,5 @@ class VulkanPipeline3DLights : public VulkanPipeline
     VkPipeline m_pipelineTexture;
 };
 } // namespace Spark::Render
+
+#endif /* SPARK_VULKAN_PIPELINE3D_LIGHTS_H */

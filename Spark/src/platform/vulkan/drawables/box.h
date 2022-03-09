@@ -1,5 +1,6 @@
+#ifndef SPARK_VULKAN_BOX_H
+#define SPARK_VULKAN_BOX_H
 
-#pragma once
 #include "platform/vulkan/drawables/vulkan_drawable.h"
 #include "platform/vulkan/renderer.h"
 #include "platform/vulkan/vertex/vertex3d.h"
@@ -35,3 +36,5 @@ class VulkanBox : public virtual Box, public virtual VulkanDrawablePrimitive
     VkDeviceSize m_indicesOffset;
 };
 } // namespace Spark::Render
+
+#endif /* SPARK_VULKAN_BOX_H */

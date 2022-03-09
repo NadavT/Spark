@@ -1,4 +1,5 @@
-#pragma once
+#ifndef SPARK_PHYSICS_BOX_BOUNDING_H
+#define SPARK_PHYSICS_BOX_BOUNDING_H
 
 #include "object3d_bounding.h"
 
@@ -37,6 +38,9 @@ class BoxBounding : public Object3DBounding
     {
         m_rotationMatrix = rotation;
     };
+    SPARK_API virtual glm::mat4 getTransformation() const;
+
+    virtual float getRayDistanceFromObject(Ray3D ray, glm::mat4 transformation) const;
 
   private:
     glm::mat4 m_translationMatrix;
@@ -45,3 +49,5 @@ class BoxBounding : public Object3DBounding
 };
 
 } // namespace Spark::Physics
+
+#endif /* SPARK_PHYSICS_BOX_BOUNDING_H */

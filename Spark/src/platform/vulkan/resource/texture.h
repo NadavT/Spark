@@ -1,4 +1,5 @@
-#pragma once
+#ifndef SPARK_VULKAN_TEXTURE_H
+#define SPARK_VULKAN_TEXTURE_H
 
 #include "spark/resource/texture.h"
 
@@ -22,3 +23,5 @@ class VulkanTexture : public Texture
     const VulkanTextureSampler &m_sampler;
 };
 } // namespace Spark::Render
+
+#endif /* SPARK_VULKAN_TEXTURE_H */

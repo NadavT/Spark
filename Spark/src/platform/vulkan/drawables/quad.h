@@ -1,4 +1,5 @@
-#pragma once
+#ifndef SPARK_VULKAN_QUAD_H
+#define SPARK_VULKAN_QUAD_H
 #include "platform/vulkan/drawables/render_primitive.h"
 #include "platform/vulkan/drawables/vulkan_drawable.h"
 #include "platform/vulkan/renderer.h"
@@ -40,3 +41,5 @@ class VulkanQuad : public virtual Quad, public virtual VulkanDrawablePrimitive
     const VulkanTexture &m_texture;
 };
 } // namespace Spark::Render
+
+#endif /* SPARK_VULKAN_QUAD_H */

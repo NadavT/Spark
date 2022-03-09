@@ -15,7 +15,7 @@ class Sandbox : public Spark::Application
 #endif
         , m_msaa(0)
     {
-        m_layer3d = std::make_unique<Sandbox3DLayer>();
+        m_layer3d = std::make_unique<Sandbox3DLayer>(*this);
 #ifdef LAYER_2D
         m_layer2d = std::make_unique<Sandbox2DLayer>();
 #endif

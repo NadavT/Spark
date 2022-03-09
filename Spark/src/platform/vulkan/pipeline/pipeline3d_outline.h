@@ -1,4 +1,5 @@
-#pragma once
+#ifndef SPARK_VULKAN_PIPELINE3D_OUTLINE_H
+#define SPARK_VULKAN_PIPELINE3D_OUTLINE_H
 
 #include "platform/vulkan/pipeline/pipeline3d.h"
 #include "platform/vulkan/vertex/vertex3d.h"
@@ -41,9 +42,12 @@ class VulkanPipeline3DOutline : public VulkanPipeline
     void createGraphicsPipeline();
 
   private:
+    using VulkanPipeline::bind;
     VkPipelineLayout m_pipelineLayout;
     VkDescriptorSetLayout m_transformationDescriptorSetLayout;
     bool m_clean;
     bool m_xRay;
 };
 } // namespace Spark::Render
+
+#endif /* SPARK_VULKAN_PIPELINE3D_OUTLINE_H */

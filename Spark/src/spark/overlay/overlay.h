@@ -1,4 +1,5 @@
-#pragma once
+#ifndef SPARK_OVERLAY_H
+#define SPARK_OVERLAY_H
 
 #include "spark/layer/layer.h"
 #include "spark/renderer/renderer.h"
@@ -24,3 +25,5 @@ class Overlay : public Layer
     static std::unique_ptr<Overlay> Create(Render::Renderer &renderer);
 };
 } // namespace Spark
+
+#endif /* SPARK_OVERLAY_H */

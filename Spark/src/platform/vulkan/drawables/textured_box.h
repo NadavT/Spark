@@ -1,4 +1,5 @@
-#pragma once
+#ifndef SPARK_VULKAN_TEXTURED_BOX_H
+#define SPARK_VULKAN_TEXTURED_BOX_H
 #include "platform/vulkan/drawables/box.h"
 #include "platform/vulkan/drawables/textured_drawable.h"
 #include "platform/vulkan/renderer.h"
@@ -13,3 +14,5 @@ class VulkanTexturedBox : public virtual VulkanBox, public virtual VulkanTexture
                       const VulkanTexture &specularTexture, glm::vec3 scale = glm::vec3(1.0));
 };
 } // namespace Spark::Render
+
+#endif /* SPARK_VULKAN_TEXTURED_BOX_H */

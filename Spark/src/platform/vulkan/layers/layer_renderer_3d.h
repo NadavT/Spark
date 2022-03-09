@@ -1,4 +1,5 @@
-#pragma once
+#ifndef SPARK_VULKAN_LAYER_RENDERER_3D_H
+#define SPARK_VULKAN_LAYER_RENDERER_3D_H
 
 #include "platform/vulkan/pipeline/pipeline3d.h"
 #include "platform/vulkan/renderer.h"
@@ -42,6 +43,8 @@ class VulkanLayerRenderer3D : public LayerRenderer
     bool m_isAttached;
     bool m_isRecreationNeeded;
 
-    Camera &m_camera;
+    Camera *m_camera;
 };
 } // namespace Spark::Render
+
+#endif /* SPARK_VULKAN_LAYER_RENDERER_3D_H */

@@ -69,6 +69,7 @@ void Application::OnEvent(Event &e)
                 break;
         }
     }
+    m_layerStack.updatePendings();
 }
 
 SPARK_API void Application::handleEvent(Event &e)
@@ -151,8 +152,7 @@ void Application::Run()
             layer->generateOverlay();
 
         Render();
-
-        Time frameTime = getCurrentTime() - m_lastFrameTime;
+        m_layerStack.updatePendings();
     }
 
     m_renderer->waitForIdle();

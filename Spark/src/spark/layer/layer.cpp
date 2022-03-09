@@ -4,6 +4,7 @@ namespace Spark
 {
 Layer::Layer(const std::string &name)
     : m_name(name)
+    , m_isAttached(false)
 {
 }
 

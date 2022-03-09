@@ -1,4 +1,5 @@
-#pragma once
+#ifndef SPARK_RENDER_LAYER_RENDERER_H
+#define SPARK_RENDER_LAYER_RENDERER_H
 
 #include "drawables/drawable.h"
 #include "spark/core/core.h"
@@ -39,3 +40,5 @@ class LayerRenderer
     std::vector<std::shared_ptr<Drawable>> m_drawables;
 };
 } // namespace Spark::Render
+
+#endif /* SPARK_RENDER_LAYER_RENDERER_H */

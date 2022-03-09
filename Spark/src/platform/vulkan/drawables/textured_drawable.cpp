@@ -19,16 +19,6 @@ VulkanTexturedDrawable::VulkanTexturedDrawable(VulkanTexturedDrawable &&other) n
 {
 }
 
-VulkanTexturedDrawable &VulkanTexturedDrawable::operator=(const VulkanTexturedDrawable &other)
-{
-    return *this;
-}
-
-VulkanTexturedDrawable &VulkanTexturedDrawable::operator=(VulkanTexturedDrawable &&other) noexcept
-{
-    return *this;
-}
-
 const VulkanTexture &VulkanTexturedDrawable::getTexture() const
 {
     return m_texture;

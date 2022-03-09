@@ -1,4 +1,5 @@
-#pragma once
+#ifndef SPARK_VULKAN_VULKAN_DRAWABLE_H
+#define SPARK_VULKAN_VULKAN_DRAWABLE_H
 
 #include "platform/vulkan/drawables/render_primitive.h"
 #include "platform/vulkan/renderer.h"
@@ -52,3 +53,5 @@ class VulkanDrawablePrimitive : public virtual VulkanDrawable, public VulkanRend
 };
 
 } // namespace Spark::Render
+
+#endif /* SPARK_VULKAN_VULKAN_DRAWABLE_H */

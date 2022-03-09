@@ -1,4 +1,5 @@
-#pragma once
+#ifndef SPARK_LAYER_H
+#define SPARK_LAYER_H
 
 #include "spark/core/core.h"
 #include "spark/core/time.h"
@@ -14,9 +15,15 @@ class Layer
 
     SPARK_API virtual void OnAttach()
     {
+        m_isAttached = true;
     }
     SPARK_API virtual void OnDetach()
     {
+        m_isAttached = false;
+    }
+    SPARK_API bool isAttached()
+    {
+        return m_isAttached;
     }
     SPARK_API virtual void OnUpdate(Time &diffTime)
     {
@@ -35,5 +42,10 @@ class Layer
 
   protected:
     std::string m_name;
+
+  private:
+    bool m_isAttached;
 };
 } // namespace Spark
+
+#endif /* SPARK_LAYER_H */
