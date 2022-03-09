@@ -418,6 +418,7 @@ void VulkanLayerRenderer3DModel::createResourcesForDrawables(std::vector<std::sh
         {
             const VulkanRenderPrimitive *primitive = vulkanDrawable->getRenderPrimitives()[0];
             m_primitiveTextureOffset[primitive] = m_textureDescriptorOffset[BLANK_TEXTURE_NAME];
+            m_primitiveAmount[primitive] = 1;
             createPrimitiveResources(primitive);
         }
         else
@@ -437,7 +438,15 @@ void VulkanLayerRenderer3DModel::destroyResourcesForDrawable(Drawable *drawable)
     SPARK_CORE_ASSERT(vulkanDrawable != nullptr, "Got a null drawble");
     for (auto &primitive : vulkanDrawable->getRenderPrimitives())
     {
-        destroyPrimitiveResources(primitive);
+        if (m_primitiveAmount[primitive] > 1)
+        {
+            m_primitiveAmount[primitive]--;
+        }
+        else
+        {
+            destroyPrimitiveResources(primitive);
+            m_primitiveAmount.erase(primitive);
+        }
     }
 
     destroyDrawableResources(drawable);
@@ -457,8 +466,16 @@ void VulkanLayerRenderer3DModel::createResourcesForTexturedDrawable(
         specularTextures.push_back({drawable.getSpecularTexture().getImage().getImageView()});
         specularSamplers.push_back({drawable.getSpecularTexture().getSampler().getSampler()});
     }
-    m_primitiveTextureOffset[primitive] = m_textureDescriptorOffset[drawable.getTexture().getName()];
-    createPrimitiveResources(primitive);
+    if (m_primitiveAmount.count(primitive) == 0)
+    {
+        m_primitiveAmount[primitive] = 1;
+        m_primitiveTextureOffset[primitive] = m_textureDescriptorOffset[drawable.getTexture().getName()];
+        createPrimitiveResources(primitive);
+    }
+    else
+    {
+        m_primitiveAmount[primitive]++;
+    }
 }
 
 void VulkanLayerRenderer3DModel::createResourcesForModelDrawable(
@@ -495,9 +512,17 @@ void VulkanLayerRenderer3DModel::createResourcesForModelDrawable(
             specularTextures.push_back(meshTextures);
             specularSamplers.push_back(meshSamplers);
         }
-        m_primitiveTextureOffset[primitive] =
-            m_textureDescriptorOffset[mesh->getTexturesID() + mesh->getSpecularTexturesID()];
-        createPrimitiveResources(primitive);
+        if (m_primitiveAmount.count(primitive) == 0)
+        {
+            m_primitiveAmount[primitive] = 1;
+            m_primitiveTextureOffset[primitive] =
+                m_textureDescriptorOffset[mesh->getTexturesID() + mesh->getSpecularTexturesID()];
+            createPrimitiveResources(primitive);
+        }
+        else
+        {
+            m_primitiveAmount[primitive]++;
+        }
     }
 }
 
@@ -536,6 +561,7 @@ void VulkanLayerRenderer3DModel::createPrimitiveResources(const VulkanRenderPrim
 void VulkanLayerRenderer3DModel::destroyPrimitiveResources(const VulkanRenderPrimitive *primitive)
 {
     m_pipeline->destroyDescriptorSet(m_materialDescriptorSets[primitive]);
+    m_primitiveTextureOffset.erase(primitive);
     m_materialDescriptorSets.erase(primitive);
 
     m_renderer.destroyUniformBuffers(m_uniformMaterialBuffers[primitive], m_uniformMaterialBuffersMemory[primitive]);

@@ -103,6 +103,7 @@ class VulkanLayerRenderer3DModel : public LayerRenderer
     std::vector<VkDeviceMemory> m_uniformSpotLightBuffersMemory;
     std::vector<std::vector<VkDescriptorSet>> m_lightsDescriptorSets;
 
+    std::unordered_map<const VulkanRenderPrimitive *, unsigned int> m_primitiveAmount;
     std::unordered_map<const VulkanRenderPrimitive *, std::vector<VkBuffer>> m_uniformMaterialBuffers;
     std::unordered_map<const VulkanRenderPrimitive *, std::vector<VkDeviceMemory>> m_uniformMaterialBuffersMemory;
     std::unordered_map<const VulkanRenderPrimitive *, std::vector<VkDescriptorSet>> m_materialDescriptorSets;
