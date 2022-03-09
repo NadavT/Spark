@@ -20,7 +20,7 @@ cd Spark
 
 ## build
 
-Open a supported build shell (`x64 Native Tools Command Prompt`) for example.)
+Open a supported build shell (`x64 Native Tools Command Prompt` for example.)
 
 ### using nmake - provided by MSVC by default:
 
