@@ -216,17 +216,20 @@ bool Sandbox3D::handleMouseMoved(Spark::MouseMovedEvent &e)
         }
         else if (m_rotating)
         {
-            glm::vec3 front = glm::rotate(glm::mat4(1), glm::radians(e.GetDiffX() * 1.0f), m_editorCamera.getUp()) *
+            glm::vec3 front = glm::rotate(glm::mat4(1), glm::radians(-e.GetDiffX() * 1.0f), m_editorCamera.getUp()) *
                               glm::vec4(m_editorCamera.getFront(), 1);
-            glm::vec3 position = glm::rotate(glm::mat4(1), glm::radians(e.GetDiffX() * 1.0f), m_editorCamera.getUp()) *
-                                 glm::vec4(m_editorCamera.getPosition(), 0);
-            m_editorCamera.setFrontUp(front, m_editorCamera.getUp());
+            glm::vec3 position = glm::rotate(glm::mat4(1), glm::radians(-e.GetDiffX() * 1.0f), m_editorCamera.getUp()) *
+                                 glm::vec4(m_editorCamera.getPosition(), 1);
             front = glm::rotate(glm::mat4(1), glm::radians(e.GetDiffY() * 1.0f), m_editorCamera.getRight()) *
                     glm::vec4(front, 1);
             position = glm::rotate(glm::mat4(1), glm::radians(e.GetDiffY() * 1.0f), m_editorCamera.getRight()) *
-                       glm::vec4(position, 0);
-            m_editorCamera.setFrontRight(front, m_editorCamera.getRight());
-            m_editorCamera.setPosition(position);
+                       glm::vec4(position, 1);
+            if (glm::acos(glm::dot(front, m_editorCamera.getUp())) > 0.1 &&
+                glm::acos(glm::dot(front, m_editorCamera.getUp())) < glm::pi<float>() - 0.1)
+            {
+                m_editorCamera.setFrontUp(front, m_editorCamera.getUp());
+                m_editorCamera.setPosition(position);
+            }
         }
         return false;
     }
