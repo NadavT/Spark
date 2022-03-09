@@ -1,6 +1,8 @@
 project(spark)
 
-set(CMAKE_CXX_CLANG_TIDY "clang-tidy;-warnings-as-errors=*;-extra-arg=/EHsc")
+if (NOT CMAKE_GENERATOR STREQUAL "NMake Makefiles" AND NOT DEFINED CACHE{CMAKE_CXX_CLANG_TIDY})
+    set(CMAKE_CXX_CLANG_TIDY "clang-tidy;-warnings-as-errors=*;-extra-arg=/EHsc" CACHE)
+endif
 # Declare spark library
 add_library(spark SHARED)
 
