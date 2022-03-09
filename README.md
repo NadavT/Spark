@@ -28,17 +28,17 @@ Open a supported build shell (`x64 Native Tools Command Prompt` for example.)
 ```bat
 mkdir install
 mkdir build && cd build
-cmake -DCMAKE_INSTALL_PREFIX=../install -DCMAKE_BUILD_TYPE=Release -G "NMake Makefiles" ..
+cmake -DCMAKE_INSTALL_PREFIX=../install -DCMAKE_CXX_CLANG_TIDY="" -DCMAKE_BUILD_TYPE=Release -G "NMake Makefiles" ..
 cmake --build . -j 6
 cmake --install . --component sandbox
 ```
 
-### using ninja:
+### using ninja - preferred if installed (support parallel compilation):
 
 ```bat
 mkdir install
 mkdir build && cd build
-cmake -DCMAKE_INSTALL_PREFIX=../install -DCMAKE_BUILD_TYPE=Release -G "Ninja" ..
+cmake -DCMAKE_INSTALL_PREFIX=../install -DCMAKE_CXX_CLANG_TIDY="" -DCMAKE_BUILD_TYPE=Release -G "Ninja" ..
 cmake --build . -j 6
 cmake --install . --component sandbox
 ```
@@ -66,4 +66,5 @@ For free cam:
 - Use `space` or `Run` button to enter.
 - Use `space` to stop.
 - Use `W,A,S,D` to move around.
+- Use `Left ctrl, Left shift` to go up and down.
 - Use mouse to look around.
