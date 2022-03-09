@@ -27,3 +27,18 @@ add_custom_command(TARGET sandbox POST_BUILD
 add_custom_command(TARGET sandbox POST_BUILD
                    COMMAND ${CMAKE_COMMAND} -E copy_directory "${PROJECT_SOURCE_DIR}/resources/textures" ${APP_EXECUTABLE_PATH}/textures
                   )
+
+install(TARGETS sandbox COMPONENT sandbox RUNTIME DESTINATION bin)
+install(FILES "${PROJECT_BINARY_DIR}/spark.dll"
+        COMPONENT sandbox
+        DESTINATION bin
+       )
+install(FILES "${PROJECT_BINARY_DIR}/sparkd.dll"
+        COMPONENT sandbox
+        DESTINATION bin
+        OPTIONAL
+       )
+install(DIRECTORY "${PROJECT_SOURCE_DIR}/resources/model" "${PROJECT_SOURCE_DIR}/resources/textures" "${PROJECT_BINARY_DIR}/shaders"
+        COMPONENT sandbox
+        DESTINATION bin
+       )

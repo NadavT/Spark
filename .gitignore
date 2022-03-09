@@ -1,6 +1,7 @@
 # Build Dir
 build
 build_vscode
+install
 
 # Visual Studio
 .vs
