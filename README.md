@@ -8,13 +8,14 @@ Spark is an a graphics engine with performance in mind.
 - cmake (version >= 3.17)
 - MSVC compiler which support cpp17 (currently the only supported compiler - tested on msvc142 as provided by vs2019)
 - Vulkan sdk (version >= 1.2) and a gpu+driver which supports it
+- git lfs
 
 # Compiling and running
 
 ## clone the repo:
 
 ```bat
-git clone https://github.com/NadavT/Spark Spark
+git clone --recurse-submodules https://github.com/NadavT/Spark Spark
 cd Spark
 ```
 
