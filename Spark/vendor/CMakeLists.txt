@@ -4,7 +4,7 @@ project(spark)
 set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
 set(GLFW_BUILD_TESTS OFF CACHE BOOL "" FORCE)
 set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
-add_subdirectory(glfw)
+add_subdirectory(glfw EXCLUDE_FROM_ALL)
 target_include_directories(spark SYSTEM PRIVATE
                            ${PROJECT_SOURCE_DIR}/glfw/include
                           )
@@ -14,7 +14,7 @@ set(ASSIMP_BUILD_DOCS OFF CACHE BOOL "" FORCE)
 set(ASSIMP_BUILD_TESTS OFF CACHE BOOL "" FORCE)
 set(ASSIMP_BUILD_SAMPLES OFF CACHE BOOL "" FORCE)
 set(ASSIMP_INSTALL OFF CACHE BOOL "" FORCE)
-add_subdirectory(assimp)
+add_subdirectory(assimp EXCLUDE_FROM_ALL)
 target_compile_options(assimp PRIVATE /w44267 /w44244)
 target_include_directories(spark SYSTEM PRIVATE
                            ${PROJECT_SOURCE_DIR}/assimp/include
