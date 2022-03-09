@@ -60,6 +60,7 @@ While object is selected:
 - `R` - for rotating the object
 - `S` - for scaling the object
 - `T` - for all the above
+- `Del` - To remove
 
 For free cam:
 
