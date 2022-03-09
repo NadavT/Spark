@@ -15,7 +15,7 @@ Spark is an a graphics engine with performance in mind.
 ## clone the repo:
 
 ```bat
-git clone --recurse-submodules https://github.com/NadavT/Spark Spark
+git clone --depth 1 --recurse-submodules --shallow-submodules https://github.com/NadavT/Spark Spark
 cd Spark
 ```
 
