@@ -24,6 +24,7 @@ class Sandbox3D
 
     bool isInEditor() const;
     void addBox();
+    void addObject();
     void addPointLight(PointLightType type, const glm::vec3 &position = {0, 0, 0}, const glm::vec3 &color = {1, 1, 1});
     void removePointLight(Spark::Render::PointLight *pointLight);
     Spark::Object3D *getObjectToSet();

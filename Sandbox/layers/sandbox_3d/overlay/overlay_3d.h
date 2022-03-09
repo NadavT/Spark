@@ -15,6 +15,7 @@ class Overlay3D
 
   private:
     void generateBoxAdder();
+    void generateObjectAdder();
     void generateObjectSetter();
     void generateDirLightSetter();
     void generateSpotLightSetter();

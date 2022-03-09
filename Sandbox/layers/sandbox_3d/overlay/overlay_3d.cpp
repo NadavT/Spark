@@ -29,6 +29,7 @@ void Overlay3D::generateOverlay()
     if (ImGui::TreeNode("Objects editor:"))
     {
         generateBoxAdder();
+        // generateObjectAdder();
         ImGui::TreePop();
     }
     generateObjectSetter();
@@ -77,6 +78,15 @@ void Overlay3D::generateBoxAdder()
     {
         SPARK_INFO("Adding box");
         m_sandbox.addBox();
+    }
+}
+
+void Overlay3D::generateObjectAdder()
+{
+    if (ImGui::Button("add object"))
+    {
+        SPARK_INFO("Adding object");
+        m_sandbox.addObject();
     }
 }
 

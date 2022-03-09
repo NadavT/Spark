@@ -36,9 +36,9 @@ Sandbox3D::Sandbox3D(Spark::Application &app, Spark::Layer3D &layer, Spark::Rend
         Spark::ResourceManager::loadTexture("cubeTextureSpecular", "textures/container2_specular.png");
     // m_objects.push_back(Spark::createBox({0, 0, 0}, 1, 1, 1, texture, specularTexture));
     // addObjectA(*m_objects.back());
-    // const Spark::Model &model = Spark::ResourceManager::loadModel("modelTest", "model/backpack/scene.gltf");
-    // m_objects.push_back(Spark::createModelObject(model, {0, 0, 0}, {0.005, 0.005, 0.005}));
-    // m_layer.addObject(*m_objects.back());
+    const Spark::Model &model = Spark::ResourceManager::loadModel("modelTest", "model/backpack/scene.gltf");
+    m_objects.push_back(Spark::createModelObject(model, {0, 0, 2}, {0.005, 0.005, 0.005}));
+    m_layer.addObject(*m_objects.back());
 
     m_objects.push_back(Spark::createBox(glm::vec3(0, 0, 0), 1, 1, 1, texture, specularTexture));
     m_layer.addObject(*m_objects.back());
@@ -139,6 +139,17 @@ void Sandbox3D::addBox()
     m_objectToSet = m_objects.back().get();
     m_objectToSet->getDrawable()->highlight();
     addEditor(*m_objectToSet);
+}
+
+void Sandbox3D::addObject()
+{
+    const Spark::Model &model = Spark::ResourceManager::loadModel("modelTest", "model/backpack/scene.gltf");
+    m_objects.push_back(Spark::createModelObject(model, {0, 0, 0}, {0.005, 0.005, 0.005}));
+    m_layer.addObject(*m_objects.back());
+    // deselectObject();
+    // m_objectToSet = m_objects.back().get();
+    // m_objectToSet->getDrawable()->highlight();
+    // addEditor(*m_objectToSet);
 }
 
 void Sandbox3D::addPointLight(PointLightType type, const glm::vec3 &position, const glm::vec3 &color)
