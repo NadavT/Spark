@@ -36,7 +36,7 @@ Sandbox3D::Sandbox3D(Spark::Application &app, Spark::Layer3D &layer, Spark::Rend
         Spark::ResourceManager::loadTexture("cubeTextureSpecular", "textures/container2_specular.png");
     // m_objects.push_back(Spark::createBox({0, 0, 0}, 1, 1, 1, texture, specularTexture));
     // addObjectA(*m_objects.back());
-    const Spark::Model &model = Spark::ResourceManager::loadModel("modelTest", "model/backpack/scene.gltf");
+    const Spark::Model &model = Spark::ResourceManager::loadModel("modelTest", "model/backpack/scene.gltf", true);
     m_objects.push_back(Spark::createModelObject(model, {0, 0, 2}, {0.005, 0.005, 0.005}));
     m_layer.addObject(*m_objects.back());
 

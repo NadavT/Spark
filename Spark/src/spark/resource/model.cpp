@@ -13,6 +13,7 @@ Model::Model(const std::string &name, const std::string &path)
     : Resource(name, ResourceType::model)
     , m_meshes()
     , m_directory()
+    , m_overrideShininess(false)
 {
     loadModel(path);
 }
@@ -46,6 +47,16 @@ Physics::BoxBounding Model::getBounds() const
     return Physics::BoxBounding(glm::translate(glm::mat4(1), glm::vec3(0, 0, 0)),
                                 glm::scale(glm::mat4(1), glm::vec3(maxX - minX, maxY - minY, maxZ - minZ)),
                                 glm::rotate(glm::mat4(1), 0.0f, glm::vec3(1, 0, 0)));
+}
+
+bool Model::overrideShininess() const
+{
+    return m_overrideShininess;
+}
+
+void Model::overrideShininess(bool overrideShininess)
+{
+    m_overrideShininess = overrideShininess;
 }
 
 void Model::loadModel(std::string path)

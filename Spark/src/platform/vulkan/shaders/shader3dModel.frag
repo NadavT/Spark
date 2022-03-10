@@ -96,7 +96,7 @@ vec3 CalcDirLight(DirectionalLight light, vec3 normal, vec3 viewDir, vec3 color,
     vec3 ambient = light.ambient * (material.baseColorAmbient + color);
     vec3 diffuse = light.diffuse * diff * (material.baseColorDiffuse + color);
     vec3 specular = light.specular * spec * (material.baseColorSpecular + specularColor);
-    return (ambient + diffuse);
+    return (ambient + diffuse + specular);
 }
 
 vec3 CalcPointLight(PointLight light, vec3 normal, vec3 fragPos, vec3 viewDir, vec3 color, vec3 specularColor)
@@ -117,7 +117,7 @@ vec3 CalcPointLight(PointLight light, vec3 normal, vec3 fragPos, vec3 viewDir, v
     ambient *= attenuation;
     diffuse *= attenuation;
     specular *= attenuation;
-    return (ambient + diffuse);
+    return (ambient + diffuse + specular);
 }
 
 vec3 CalcSpotLight(SpotLight light, vec3 normal, vec3 fragPos, vec3 viewDir, vec3 color, vec3 specularColor)
@@ -139,7 +139,7 @@ vec3 CalcSpotLight(SpotLight light, vec3 normal, vec3 fragPos, vec3 viewDir, vec
     vec3 specular = light.specular * spec * (material.baseColorSpecular + specularColor);
     diffuse *= intensity;
     specular *= intensity;
-    return (ambient + diffuse);
+    return (ambient + diffuse + specular);
 }
 
 void main()
@@ -153,7 +153,7 @@ void main()
     {
         originalTexture += vec3(texture(texSamplers[i], fragTexCoord));
     }
-    for (int i = 0; i < material.texturesAmount; i++)
+    for (int i = 0; i < material.specularAmount; i++)
     {
         originalSpecular += vec3(texture(specularSamplers[i], fragTexCoord));
     }

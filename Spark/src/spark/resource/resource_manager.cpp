@@ -61,9 +61,11 @@ const Texture *ResourceManager::getTexture(const std::string &name)
     return reinterpret_cast<Texture *>(resource);
 }
 
-SPARK_API const Model &ResourceManager::loadModel(const std::string &name, const std::string &path)
+SPARK_API const Model &ResourceManager::loadModel(const std::string &name, const std::string &path,
+                                                  bool overrideShininess)
 {
     s_resources[name] = std::make_unique<Model>(name, path);
+    reinterpret_cast<Model *>(s_resources[name].get())->overrideShininess(true);
     return *reinterpret_cast<Model *>(s_resources[name].get());
 }
 

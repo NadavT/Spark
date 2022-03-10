@@ -25,6 +25,9 @@ class Model : public Resource
 
     SPARK_API virtual Physics::BoxBounding getBounds() const;
 
+    SPARK_API virtual bool overrideShininess() const;
+    SPARK_API virtual void overrideShininess(bool overrideShininess);
+
   private:
 #ifdef SPARK_BUILD_DLL
     void loadModel(std::string path);
@@ -36,6 +39,7 @@ class Model : public Resource
   private:
     std::vector<std::unique_ptr<Mesh>> m_meshes;
     std::string m_directory;
+    bool m_overrideShininess;
 };
 } // namespace Spark
 

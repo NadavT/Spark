@@ -737,7 +737,7 @@ void VulkanLayerRenderer3DModel::updateModelDrawableMaterialData(const VulkanDra
         material.baseColorAmbient = baseColor.ambient;
         material.texturesAmount = static_cast<unsigned int>(mesh->getTextures().size());
         material.specularAmount = static_cast<unsigned int>(mesh->getSpecularTextures().size());
-        material.shininess = mesh->getShininess();
+        material.shininess = (drawable->getModel().overrideShininess()) ? 32.0f : mesh->getShininess();
         vkMapMemory(m_renderer.m_context.m_device,
                     m_uniformMaterialBuffersMemory[primitive][m_renderer.getCurrentImageIndex()], 0, sizeof(material),
                     0, &data);
