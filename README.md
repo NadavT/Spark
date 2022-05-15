@@ -19,6 +19,11 @@ git clone --depth 1 --recurse-submodules --shallow-submodules https://github.com
 cd Spark
 ```
 
+## Copy resourses (if git lfs fails)
+
+1. Download the resourses from [here](https://drive.google.com/file/d/1BxlfdyzSxcm2EW9nTrDtZfeq3MRDaMm9/view?usp=sharing)
+2. Unzip resourses to the Sandbox directory
+
 ## build
 
 Open a supported build shell (`x64 Native Tools Command Prompt` for example.)
